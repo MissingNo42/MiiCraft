@@ -25,6 +25,8 @@ private:
     std::vector<HorizontalChunk> chunks;
 public:
     BlockType testType;
+
+    VerticalChunk();
     VerticalChunk(BlockType t);
 
 

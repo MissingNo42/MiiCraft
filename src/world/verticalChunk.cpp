@@ -15,5 +15,6 @@ bool const ChunkPos::operator<(const ChunkPos &p) const {
     if (p.x == x){return y < p.y;}
     else {return x < p.x;}
 }
+VerticalChunk::VerticalChunk() : testType(BlockType::Air) {}
 
 VerticalChunk::VerticalChunk(BlockType t) : testType(t) {}

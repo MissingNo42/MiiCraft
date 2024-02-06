@@ -16,11 +16,19 @@ public:
     //Constantes 
     static const int CHUNK_WIDTH;
 
-public:
-    BlockType getBlock;
-
 private:
     std::vector<Block> blocks;
+
+public:
+
+
+    HorizontalChunk();
+    HorizontalChunk(int height);
+    HorizontalChunk(int height, BlockType t);
+
+    Block getBlock(int i);
+
+
 };
 
 #endif //MIICRAFT_HORIZONTALCHUNCK_H
