@@ -28,7 +28,7 @@ Block HorizontalChunk::getBlock(int i) {
 }
 
 
-const int HorizontalChunk::CHUNK_WIDTH = 16;
+const int HorizontalChunk::CHUNK_WIDTH = 4;
 
 
 
