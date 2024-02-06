@@ -11,6 +11,8 @@ add_executable(Miicraft main.cpp
         src/engine/render/renderer.cpp
         src/engine/render/light.cpp
         src/matrix/matrix.cpp
+        src/l10.cpp
+        src/l10.cpp
 )
 
 
