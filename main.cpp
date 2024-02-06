@@ -12,6 +12,9 @@
 
 #include "render.h"
 #include "wiimote.h"
+#include "engine/render/renderer.h"
+#include "engine/render/camera.h"
+#include "engine/render/light.h"
 
 
 int exiting = 0;
@@ -163,8 +166,14 @@ int main(int argc, char ** argv) {
 	PAD_Init();
 	WPAD_Init();
 	
-	setupVideo();
-	setupDebugConsole();
+	Renderer::setupVideo();
+	Renderer::setupVtxDesc();
+	
+	Light light;
+	GX_InvalidateTexAll();
+	
+	Camera camera;
+	
 	
 	setupWiimote();
 	
@@ -175,17 +184,22 @@ int main(int argc, char ** argv) {
 	while (!exiting) {
 		//VIDEO_ClearFrameBuffer(rmode,xfb[fbi],COLOR_BLACK);
 		
+		light.update(camera.viewMatrix);
+		
 		testRender();
+		//setupDebugConsole();
 		WPAD_ReadPending(WPAD_CHAN_ALL, countevs);
 		int wiimote_connection_status = WPAD_Probe(0, &type);
-		print_wiimote_connection_status(wiimote_connection_status);
+		
+		//print_wiimote_connection_status(wiimote_connection_status);
 		
 		if (wiimote_connection_status == WPAD_ERR_NONE) {
-			print_and_draw_wiimote_data();
+			//print_and_draw_wiimote_data();
 		}
 		
+		//drawdot(rmode->fbWidth, rmode->xfbHeight, 0, 0, COLOR_YELLOW);
 		
-		flushFramebuffer();
+		Renderer::endFrame();
 	}
 	
 	if (exiting == 2) SYS_ResetSystem(SYS_SHUTDOWN, 0, 0);
