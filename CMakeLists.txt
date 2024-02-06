@@ -8,7 +8,10 @@ include_directories(include)
 add_executable(Miicraft main.cpp
         src/render.cpp
         src/wiimote.cpp
-        include/wiimote.h)
+        src/engine/render/renderer.cpp
+        src/engine/render/light.cpp
+        src/matrix/matrix.cpp
+)
 
 
 
