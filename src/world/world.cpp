@@ -3,11 +3,49 @@
 //
 
 #include "world.h"
+#include <stdexcept>
 
-BlockType World::getBlockAt(t_coord coord) {
-    return Air;
+
+World::World() {}
+
+World::~World() {}
+
+void World::generate(int chunk_rad) 
+{
+    for (int i = -chunk_rad + 1; i < chunk_rad; ++i) {
+        for (int j = -chunk_rad + 1; j < chunk_rad; ++j) {
+            VerticalChunk* vc = new VerticalChunk{};
+            t_pos2D key(i, j);
+            loadedChunk[key] = vc;
+        }
+    }
+}
+
+t_pos2D World::to_chunk_pos(t_coord& c)
+{
+    if (c.x < 0) {c.x-= HorizontalChunk::CHUNK_WIDTH;}
+    if (c.z < 0) {c.z-= HorizontalChunk::CHUNK_WIDTH;}
+    return t_pos2D(c.x / HorizontalChunk::CHUNK_WIDTH,
+                   c.z / HorizontalChunk::CHUNK_WIDTH);
+}
+
+Block World::getBlockAt(t_coord coord) {
+
+    Block b;
+
+
+    try{
+        loadedChunk.at(to_chunk_pos(coord));
+        b.type = BlockType::Dirt;
+    }
+    catch (std::out_of_range)
+    {
+        b.type = BlockType::Air;
+    }
+    return b;
 }
 
 void World::setBlockAt(t_coord coord, BlockType block) {
-
+    t_pos2D pos(coord.x/16, coord.z/16);
+    loadedChunk[pos]->VC_SetBlock(coord, block);
 }

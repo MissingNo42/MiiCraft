@@ -8,21 +8,26 @@
 #include "coord.h"
 #include "horizontalChunck.h"
 
-struct chunkPos{
+struct t_pos2D{
     short x;
     short y;
-    chunkPos();
-    chunkPos(short x, short y);
+    t_pos2D();
+    t_pos2D(short x, short y);
+    bool const operator==(const t_pos2D& p) const;
+    bool const operator<(const t_pos2D& p) const;
 };
 
 
 class VerticalChunk {
 
 private:
-    int index;
-    t_coord coords;
-    std::vector<HorizontalChunk> chunks;
+//    t_coord coords;
+    std::vector<HorizontalChunk*> chunks;
 public:
+
+    VerticalChunk();
+
+    void VC_SetBlock(t_coord coord, BlockType block);
 
 
 };

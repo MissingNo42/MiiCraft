@@ -6,12 +6,19 @@
 #define MIICRAFT_WORLD_H
 
 #include "verticalChunk.h"
+ #include <map>
 
 class World{
-
+private:
+    std::map<t_pos2D, VerticalChunk*> loadedChunk;
+    
 public:
-    BlockType getBlockAt(t_coord coord);
+    World();
+    ~World();
+    void generate(int chunk_rad);
+    Block getBlockAt(t_coord coord);
     void setBlockAt(t_coord coord, BlockType block);
+    t_pos2D to_chunk_pos(t_coord& c);
 };
 
 
