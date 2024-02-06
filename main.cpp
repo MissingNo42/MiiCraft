@@ -183,22 +183,22 @@ int main(int argc, char ** argv) {
 	
 	while (!exiting) {
 		//VIDEO_ClearFrameBuffer(rmode,xfb[fbi],COLOR_BLACK);
-		
+
 		light.update(camera.viewMatrix);
-		
+
 		testRender();
 		//setupDebugConsole();
 		WPAD_ReadPending(WPAD_CHAN_ALL, countevs);
 		int wiimote_connection_status = WPAD_Probe(0, &type);
-		
+
 		//print_wiimote_connection_status(wiimote_connection_status);
-		
+
 		if (wiimote_connection_status == WPAD_ERR_NONE) {
 			//print_and_draw_wiimote_data();
 		}
-		
+
 		//drawdot(rmode->fbWidth, rmode->xfbHeight, 0, 0, COLOR_YELLOW);
-		
+
 		Renderer::endFrame();
 	}
 	

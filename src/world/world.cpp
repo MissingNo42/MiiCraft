@@ -3,9 +3,36 @@
 //
 
 #include "world.h"
+#include <stdexcept>
 
-BlockType World::getBlockAt(t_coord coord) {
-    return Air;
+
+World::World() {}
+
+World::~World() {}
+
+void World::generate(int block_rad) 
+{
+    for (int i = -block_rad + 1; i < block_rad; ++i) {
+       for (int j = -block_rad + 1; j < block_rad; ++j) {
+            VerticalChunk* vc = new VerticalChunk{j==2 ? BlockType::Grass : BlockType::Dirt};
+            ChunkPos key(i, j);
+            loadedChunk[key] = vc;
+       }
+   }
+}
+
+Block World::getBlockAt(t_coord coord) {
+    ChunkPos pos(coord.x, coord.y);
+    Block b;
+
+    try{
+        b.type = loadedChunk.at(pos)->testType;
+    }
+    catch (std::out_of_range)
+    {
+        b.type = BlockType::Air;
+    }
+    return b;
 }
 
 void World::setBlockAt(t_coord coord, BlockType block) {

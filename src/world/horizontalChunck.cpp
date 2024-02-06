@@ -3,3 +3,6 @@
 //
 
 #include "horizontalChunck.h"
+
+const int HorizontalChunk::CHUNK_WIDTH = 16;
+

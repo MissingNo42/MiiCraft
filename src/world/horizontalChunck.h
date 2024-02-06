@@ -12,6 +12,13 @@
 
 
 class HorizontalChunk {
+public:
+    //Constantes 
+    static const int CHUNK_WIDTH;
+
+public:
+    BlockType getBlock;
+
 private:
     std::vector<Block> blocks;
 };

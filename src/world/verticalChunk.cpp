@@ -4,5 +4,16 @@
 
 #include "verticalChunk.h"
 
-chunkPos::chunkPos() : chunkPos(0, 0) {}
-chunkPos::chunkPos(short x, short y) : x(x), y(y) {}
+ChunkPos::ChunkPos() : ChunkPos(0, 0) {}
+ChunkPos::ChunkPos(short x, short y) : x(x), y(y) {}
+
+bool const ChunkPos::operator==(const ChunkPos &p) const {
+    return x == p.x && y == p.y;
+}
+
+bool const ChunkPos::operator<(const ChunkPos &p) const {
+    if (p.x == x){return y < p.y;}
+    else {return x < p.x;}
+}
+
+VerticalChunk::VerticalChunk(BlockType t) : testType(t) {}

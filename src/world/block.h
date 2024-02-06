@@ -4,17 +4,20 @@
 
 #ifndef MIICRAFT_BLOCK_H
 #define MIICRAFT_BLOCK_H
+#include <iostream>
 
-enum BlockType {
+enum BlockType : char {
     Air =0,
-    Dirt,
-    Grass,
-    Stone
+    Dirt =1,
+    Grass =2,
+    Stone =3
 };
 
 class Block {
 public:
     BlockType type;
+    Block(BlockType bt);
+    Block();
 };
 
 #endif //MIICRAFT_BLOCK_H

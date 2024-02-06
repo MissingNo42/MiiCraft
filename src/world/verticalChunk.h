@@ -8,21 +8,24 @@
 #include "coord.h"
 #include "horizontalChunck.h"
 
-struct chunkPos{
+struct ChunkPos{
     short x;
     short y;
-    chunkPos();
-    chunkPos(short x, short y);
+    ChunkPos();
+    ChunkPos(short x, short y);
+    bool const operator==(const ChunkPos& p) const;
+    bool const operator<(const ChunkPos& p) const;
 };
 
 
 class VerticalChunk {
 
 private:
-    int index;
-    t_coord coords;
+//    t_coord coords;
     std::vector<HorizontalChunk> chunks;
 public:
+    BlockType testType;
+    VerticalChunk(BlockType t);
 
 
 };
