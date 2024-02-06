@@ -18,6 +18,7 @@ public:
     void generate(int chunk_rad);
     Block getBlockAt(t_coord coord);
     void setBlockAt(t_coord coord, BlockType block);
+    t_pos2D to_chunk_pos(t_coord& c);
 };
 
 

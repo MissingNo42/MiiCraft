@@ -18,8 +18,8 @@ private:
 
 public:
 
-    const int CHUNK_HEIGHT = 16;
-    const int CHUNK_WIDTH = 16;
+    static const int CHUNK_HEIGHT = 16;
+    static const int CHUNK_WIDTH = 16;
 
 
     HorizontalChunk();

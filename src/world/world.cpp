@@ -21,23 +21,21 @@ void World::generate(int chunk_rad)
     }
 }
 
+t_pos2D World::to_chunk_pos(t_coord& c)
+{
+    if (c.x < 0) {c.x-= HorizontalChunk::CHUNK_WIDTH;}
+    if (c.z < 0) {c.z-= HorizontalChunk::CHUNK_WIDTH;}
+    return t_pos2D(c.x / HorizontalChunk::CHUNK_WIDTH,
+                   c.z / HorizontalChunk::CHUNK_WIDTH);
+}
+
 Block World::getBlockAt(t_coord coord) {
-    // if (coord.x < 0) {coord.x-= HorizontalChunk::CHUNK_WIDTH;}
-    // if (coord.y < 0) {coord.y-= HorizontalChunk::CHUNK_WIDTH;}
-    t_pos2D pos((coord.x) / HorizontalChunk::CHUNK_WIDTH,
-                coord.z / HorizontalChunk::CHUNK_WIDTH);
+
     Block b;
-    // if (pos.x == 0 && pos.y == 0)
-    // {
-    //     printf("[]");
-    // }
-    // else
-    // {
-    //     printf("__");
-    // }
+
 
     try{
-        loadedChunk.at(pos);
+        loadedChunk.at(to_chunk_pos(coord));
         b.type = BlockType::Dirt;
     }
     catch (std::out_of_range)
@@ -48,6 +46,6 @@ Block World::getBlockAt(t_coord coord) {
 }
 
 void World::setBlockAt(t_coord coord, BlockType block) {
-    ChunkPos pos(coord.x/16, coord.z/16);
+    t_pos2D pos(coord.x/16, coord.z/16);
     loadedChunk[pos]->VC_SetBlock(coord, block);
 }

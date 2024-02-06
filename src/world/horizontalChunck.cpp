@@ -31,6 +31,3 @@ void HorizontalChunk::HC_SetBlock(t_coord coord, BlockType block) {
 }
 
 
-
-
-

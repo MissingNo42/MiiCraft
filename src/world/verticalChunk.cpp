@@ -17,7 +17,6 @@ bool const t_pos2D::operator<(const t_pos2D &p) const {
 }
 VerticalChunk::VerticalChunk() {}
 
-VerticalChunk::VerticalChunk(BlockType t) : testType(t) {}
 
 void VerticalChunk::VC_SetBlock(t_coord coord, BlockType block) {
     t_coord c = {coord.x % 16, coord.y % 16, coord.z % 16};
