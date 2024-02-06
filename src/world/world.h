@@ -10,12 +10,12 @@
 
 class World{
 private:
-    std::map<ChunkPos, VerticalChunk*> loadedChunk;
+    std::map<t_pos2D, VerticalChunk*> loadedChunk;
     
 public:
     World();
     ~World();
-    void generate(int block_rad);
+    void generate(int chunk_rad);
     Block getBlockAt(t_coord coord);
     void setBlockAt(t_coord coord, BlockType block);
 };

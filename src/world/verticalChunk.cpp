@@ -4,18 +4,18 @@
 
 #include "verticalChunk.h"
 
-ChunkPos::ChunkPos() : ChunkPos(0, 0) {}
-ChunkPos::ChunkPos(short x, short y) : x(x), y(y) {}
+t_pos2D::t_pos2D() : t_pos2D(0, 0) {}
+t_pos2D::t_pos2D(short x, short y) : x(x), y(y) {}
 
-bool const ChunkPos::operator==(const ChunkPos &p) const {
+bool const t_pos2D::operator==(const t_pos2D &p) const {
     return x == p.x && y == p.y;
 }
 
-bool const ChunkPos::operator<(const ChunkPos &p) const {
+bool const t_pos2D::operator<(const t_pos2D &p) const {
     if (p.x == x){return y < p.y;}
     else {return x < p.x;}
 }
-VerticalChunk::VerticalChunk() : testType(BlockType::Air) {}
+VerticalChunk::VerticalChunk() {}
 
 VerticalChunk::VerticalChunk(BlockType t) : testType(t) {}
 
