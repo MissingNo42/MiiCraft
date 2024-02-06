@@ -22,12 +22,14 @@ class VerticalChunk {
 
 private:
 //    t_coord coords;
-    std::vector<HorizontalChunk> chunks;
+    std::vector<HorizontalChunk*> chunks;
 public:
     BlockType testType;
 
     VerticalChunk();
     VerticalChunk(BlockType t);
+
+    void VC_SetBlock(t_coord coord, BlockType block);
 
 
 };

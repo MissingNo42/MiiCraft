@@ -18,3 +18,8 @@ bool const ChunkPos::operator<(const ChunkPos &p) const {
 VerticalChunk::VerticalChunk() : testType(BlockType::Air) {}
 
 VerticalChunk::VerticalChunk(BlockType t) : testType(t) {}
+
+void VerticalChunk::VC_SetBlock(t_coord coord, BlockType block) {
+    t_coord c = {coord.x % 16, coord.y % 16, coord.z % 16};
+    chunks[c.y]->HC_SetBlock(c, block);
+}

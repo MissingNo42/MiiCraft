@@ -4,31 +4,33 @@
 
 #include "horizontalChunck.h"
 
+#include <utility>
 
-HorizontalChunk::HorizontalChunk(int height, BlockType t) {
+HorizontalChunk::HorizontalChunk(std::vector<Block> blocks) : blocks(std::move(blocks)) {}
+
+HorizontalChunk::HorizontalChunk(int height, Block t) {
+    for (int i = 0; i < (16-height) * CHUNK_HEIGHT * CHUNK_WIDTH; i++) {
+        blocks.emplace_back(Air);
+    }
     for (int i = 0; i < height; i++) {
         blocks.emplace_back(t);
     }
 }
 
-HorizontalChunk::HorizontalChunk(int height) {
-    for (int i = 0; i < height; i++) {
-        blocks.emplace_back(BlockType::Dirt);
-    }
-}
+HorizontalChunk::HorizontalChunk(int height) : HorizontalChunk(height, Dirt) {}
 
-HorizontalChunk::HorizontalChunk() {
-    for (int i = 0; i < CHUNK_WIDTH; i++) {
-        blocks.emplace_back(BlockType::Air);
-    }
-}
+HorizontalChunk::HorizontalChunk() : HorizontalChunk(0, Air) {}
+
 
 Block HorizontalChunk::getBlock(int i) {
     return blocks[i];
 }
 
+void HorizontalChunk::HC_SetBlock(t_coord coord, BlockType block) {
+    blocks[coord.x + coord.y * CHUNK_WIDTH + coord.z * CHUNK_WIDTH * CHUNK_HEIGHT] = block;
+}
 
-const int HorizontalChunk::CHUNK_WIDTH = 16;
+
 
 
 

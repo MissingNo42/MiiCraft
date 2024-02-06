@@ -12,21 +12,23 @@
 
 
 class HorizontalChunk {
-public:
-    //Constantes 
-    static const int CHUNK_WIDTH;
 
 private:
     std::vector<Block> blocks;
 
 public:
 
+    const int CHUNK_HEIGHT = 16;
+    const int CHUNK_WIDTH = 16;
+
 
     HorizontalChunk();
-    HorizontalChunk(int height);
-    HorizontalChunk(int height, BlockType t);
+    explicit HorizontalChunk(int height);
+    HorizontalChunk(int height, Block t);
+    explicit HorizontalChunk( std::vector<Block> blocks);
 
     Block getBlock(int i);
+    void HC_SetBlock(t_coord coord, BlockType block);
 
 
 };

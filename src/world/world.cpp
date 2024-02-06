@@ -36,5 +36,6 @@ Block World::getBlockAt(t_coord coord) {
 }
 
 void World::setBlockAt(t_coord coord, BlockType block) {
-
+    ChunkPos pos(coord.x/16, coord.z/16);
+    loadedChunk[pos]->VC_SetBlock(coord, block);
 }
