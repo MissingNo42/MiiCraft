@@ -19,12 +19,15 @@ public:
 	
 	static void setupVideo();
 	static void setupVtxDesc();
+	static void setupMisc();
 	
 	static void setupDebugConsole();
 	
 	static void testRender();
 	
 	static void endFrame();
+	
+	static void renderBloc(const guVector &coord, const GXColor& color = {0xff, 0xff, 0xff, 0xff});
 };
 
 #endif //MIICRAFT_RENDERER_H

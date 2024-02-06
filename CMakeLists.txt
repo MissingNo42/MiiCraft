@@ -6,7 +6,6 @@ project(Miicraft)
 include_directories(include)
 
 add_executable(Miicraft main.cpp
-        src/render.cpp
         src/wiimote.cpp
         include/wiimote.h
         src/world/block.cpp
