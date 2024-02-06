@@ -63,7 +63,43 @@ void print_wiimote_buttons(WPADData * wd) {
 	if (wd->btns_h & WPAD_BUTTON_DOWN) printf("DOWN ");
 	printf("\n");
 }
-/*
+
+//Draw a square on the screen (May draw rectangles as well, I am uncertain).
+//*xfb - framebuffer
+//*rmode - the current video mode (# lines,progressive or interlaced, NTSC or PAL etc.) see libogc/gc/ogc/gx_struct.h
+// for the definition
+//w - Width of screen (Used as scale factor in converting fx to pixel coordinates)
+//h - Height of screen (Used as scale factor in converting fy to pixel coordinates)
+//fx - X coordinate to draw on the screen (0-w)
+//fy - Y coordinate to draw on the screen (!unsure!-h)
+//color - the color of the rectangle (Examples: COLOR_YELLOW, COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_BLACK, COLOR_WHITE)
+void drawdot(float w, float h, float fx, float fy, u32 color) {
+
+    //*fb - !unsure!
+    //px - !unsure!
+    //py - !unsure!
+    //x - !unsure!
+    //y - !unsure!
+
+    u32 * fb = (u32 *) Renderer::frameBuffer;
+    int px, py;
+    int x, y;
+
+    y = fy * Renderer::rmode->xfbHeight / h;
+    x = fx * Renderer::rmode->fbWidth / w / 2;
+
+    for (py = y - 4; py <= (y + 4); py++) {
+        if (py < 0 || py >= Renderer::rmode->xfbHeight)
+            continue;
+        for (px = x - 2; px <= (x + 2); px++) {
+            if (px < 0 || px >= Renderer::rmode->fbWidth / 2)
+                continue;
+            fb[Renderer::rmode->fbWidth / VI_DISPLAY_PIX_SZ * py + px] = color;
+        }
+    }
+
+}
+
 void print_and_draw_wiimote_data() {
 	//Makes the var wd point to the data on the wiimote
 	WPADData * wd = WPAD_Data(0);
@@ -88,8 +124,8 @@ void print_and_draw_wiimote_data() {
 		printf(" Cursor: %.02f,%.02f\n", wd->ir.x, wd->ir.y);
 		printf(" @ %.02f deg\n", wd->ir.angle);
 		
-		drawdot(rmode->fbWidth, rmode->xfbHeight, wd->ir.x, wd->ir.y, COLOR_RED);
-		drawdot(rmode->fbWidth, rmode->xfbHeight, wd->ir.x + 10 * sinf(theta),
+		drawdot(Renderer::rmode->fbWidth, Renderer::rmode->xfbHeight, wd->ir.x, wd->ir.y, COLOR_RED);
+		drawdot(Renderer::rmode->fbWidth, Renderer::rmode->xfbHeight, wd->ir.x + 10 * sinf(theta),
 		        wd->ir.y - 10 * cosf(theta), COLOR_BLUE);
 	} else {
 		printf(" No Cursor\n\n");
@@ -122,7 +158,7 @@ void print_and_draw_wiimote_data() {
 	}
 	
 	//if (wd->btns_h & WPAD_BUTTON_HOME) doreload = 1;
-}*/
+}
 
 GXTexObj texture;
 
@@ -130,6 +166,16 @@ void loadTexture(const u8 *data, u32 width, u32 height) {
     GX_InitTexObj(&texture, (void *) data, width, height, GX_TF_RGB565, GX_CLAMP, GX_CLAMP, GX_FALSE);
     GX_LoadTexObj(&texture, GX_TEXMAP0);
 }
+
+guVector InverseVector(const guVector& v){
+    guVector vtemp;
+    vtemp.x = - v.x;
+    vtemp.y = - v.y;
+    vtemp.z = - v.z;
+
+    return vtemp;
+}
+
 
 int main(int argc, char ** argv) {
 	u32 type;
@@ -156,15 +202,55 @@ int main(int argc, char ** argv) {
 	
 	while (!exiting) {
 		//VIDEO_ClearFrameBuffer(rmode,xfb[fbi],COLOR_BLACK);
-		if (txx) {
-			camera.pos.y += 0.05;
-			if (camera.pos.y > 5) txx = false;
-		} else {
-			camera.pos.y -= 0.05;
-			if (camera.pos.y < -5) txx = true;
-		}
-		//camera.rotateH(1);
-		camera.update();
+
+        WPAD_ScanPads();
+        if(WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME) exit(0);
+
+        struct expansion_t data;
+
+        WPAD_Expansion(WPAD_CHAN_0, &data); // Get expansion info from the first wiimote
+
+
+        s8 tpad;
+        u16 directions = WPAD_ButtonsHeld(0);
+
+        guVector move = {0,0,0};
+        guVector lookN;
+        lookN.x = camera.look.x;
+        lookN.y = camera.look.y;
+        lookN.z = camera.look.z;
+        printf("x : %lf, y: %lf, z: %lf\n", lookN.x, lookN.y, lookN.z);
+        guVecNormalize(&lookN);
+        if ( directions & WPAD_BUTTON_LEFT ) {
+            guVecCross(&lookN, &camera.up, &move);
+            move = InverseVector(move);
+        }
+        if ( directions & WPAD_BUTTON_RIGHT ) {
+            guVecCross(&lookN, &camera.up, &move);
+        }
+        if ( directions & WPAD_BUTTON_UP ) move = lookN;
+        if ( directions & WPAD_BUTTON_DOWN ) move = InverseVector(lookN);
+
+        camera.pos.x += move.x/10;
+        camera.pos.z += move.z/10;
+
+        if ( directions & WPAD_BUTTON_A) camera.pos.y += 0.1;
+        if ( directions & WPAD_BUTTON_B) camera.pos.y -= 0.1;
+
+/*
+        if ( yrot > 360.f ) yrot -= 360.f;
+        if ( yrot < 0 ) yrot += 360.f;*/
+
+        if (data.type == WPAD_EXP_NUNCHUK) { // Ensure there's a nunchuk
+
+            tpad = data.nunchuk.js.pos.x - data.nunchuk.js.center.x;
+            if ((tpad < -8) || (tpad > 8)) camera.pos.x += (f32) tpad / 10;
+
+            tpad = data.nunchuk.js.pos.y - data.nunchuk.js.center.y;
+            if ((tpad < -8) || (tpad > 8)) camera.pos.z += (f32) tpad / 10;
+
+        }
+
 		Renderer::renderBloc({-1, 0, 0});
 		Renderer::renderBloc({0, 0, -1});
 		Renderer::renderBloc({0, -1, 0});
@@ -174,18 +260,29 @@ int main(int argc, char ** argv) {
 		//light.update(camera.viewMatrix);
 		
 		//testRender();
-		//setupDebugConsole();
+
+		//Renderer::setupDebugConsole();
 		WPAD_ReadPending(WPAD_CHAN_ALL, countevs);
 		int wiimote_connection_status = WPAD_Probe(0, &type);
 		
 		//print_wiimote_connection_status(wiimote_connection_status);
 		
 		if (wiimote_connection_status == WPAD_ERR_NONE) {
-			//print_and_draw_wiimote_data();
-		}
+            WPADData * wd = WPAD_Data(0);
+             if (wd->ir.valid) {
+                 if(wd->ir.x <  Renderer::rmode->fbWidth/2 - Renderer::rmode->fbWidth/4)
+                     camera.rotateH( M_PI / 8);
+                 if(wd->ir.x >  Renderer::rmode->fbWidth/2 + Renderer::rmode->fbWidth/4)
+                     camera.rotateH(- M_PI / 8);
+                 if(wd->ir.y <  Renderer::rmode->xfbHeight/2 - Renderer::rmode->xfbHeight/4)
+                     camera.rotateV(- M_PI / 8);
+                 if(wd->ir.y >  Renderer::rmode->xfbHeight/2 + Renderer::rmode->xfbHeight/4)
+                     camera.rotateV(M_PI / 8);
+             }
+        }
 		
-		//drawdot(rmode->fbWidth, rmode->xfbHeight, 0, 0, COLOR_YELLOW);
-		
+		//drawdot(Renderer::rmode->fbWidth, Renderer::rmode->xfbHeight, 0, 0, COLOR_YELLOW);
+        camera.update();
 		Renderer::endFrame();
 	}
 	
