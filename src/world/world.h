@@ -5,11 +5,13 @@
 #ifndef MIICRAFT_WORLD_H
 #define MIICRAFT_WORLD_H
 
-class world{
+#include "verticalChunk.h"
+
+class World{
 
 public:
-    block getBlockAt(int x, int y, int z);
-    void setBlockAt()
+    BlockType getBlockAt(t_coord coord);
+    void setBlockAt(t_coord coord, BlockType block);
 };
 
 
