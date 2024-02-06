@@ -10,11 +10,11 @@
 #include <math.h>
 #include <wiiuse/wpad.h>
 
-#include "render.h"
 #include "wiimote.h"
 #include "engine/render/renderer.h"
 #include "engine/render/camera.h"
 #include "engine/render/light.h"
+#include "pl.h"
 
 
 int exiting = 0;
@@ -27,42 +27,6 @@ void reload(u32, void *) {
 //Calling the function will end the while loop and then properly shutdown the system
 void shutdown() {
 	exiting = 2;
-}
-
-//Draw a square on the screen (May draw rectangles as well, I am uncertain).
-//*xfb - framebuffer
-//*rmode - the current video mode (# lines,progressive or interlaced, NTSC or PAL etc.) see libogc/gc/ogc/gx_struct.h
-// for the definition
-//w - Width of screen (Used as scale factor in converting fx to pixel coordinates)
-//h - Height of screen (Used as scale factor in converting fy to pixel coordinates)
-//fx - X coordinate to draw on the screen (0-w)
-//fy - Y coordinate to draw on the screen (!unsure!-h)
-//color - the color of the rectangle (Examples: COLOR_YELLOW, COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_BLACK, COLOR_WHITE)
-void drawdot(float w, float h, float fx, float fy, u32 color) {
-	
-	//*fb - !unsure!
-	//px - !unsure!
-	//py - !unsure!
-	//x - !unsure!
-	//y - !unsure!
-	
-	u32 * fb = (u32 *) xfb;
-	int px, py;
-	int x, y;
-	
-	y = fy * rmode->xfbHeight / h;
-	x = fx * rmode->fbWidth / w / 2;
-	
-	for (py = y - 4; py <= (y + 4); py++) {
-		if (py < 0 || py >= rmode->xfbHeight)
-			continue;
-		for (px = x - 2; px <= (x + 2); px++) {
-			if (px < 0 || px >= rmode->fbWidth / 2)
-				continue;
-			fb[rmode->fbWidth / VI_DISPLAY_PIX_SZ * py + px] = color;
-		}
-	}
-	
 }
 
 int evctr = 0;
@@ -99,7 +63,7 @@ void print_wiimote_buttons(WPADData * wd) {
 	if (wd->btns_h & WPAD_BUTTON_DOWN) printf("DOWN ");
 	printf("\n");
 }
-
+/*
 void print_and_draw_wiimote_data() {
 	//Makes the var wd point to the data on the wiimote
 	WPADData * wd = WPAD_Data(0);
@@ -158,6 +122,13 @@ void print_and_draw_wiimote_data() {
 	}
 	
 	//if (wd->btns_h & WPAD_BUTTON_HOME) doreload = 1;
+}*/
+
+GXTexObj texture;
+
+void loadTexture(const u8 *data, u32 width, u32 height) {
+    GX_InitTexObj(&texture, (void *) data, width, height, GX_TF_RGB565, GX_CLAMP, GX_CLAMP, GX_FALSE);
+    GX_LoadTexObj(&texture, GX_TEXMAP0);
 }
 
 int main(int argc, char ** argv) {
@@ -169,24 +140,40 @@ int main(int argc, char ** argv) {
 	Renderer::setupVideo();
 	Renderer::setupVtxDesc();
 	
-	Light light;
-	GX_InvalidateTexAll();
+	//Light light;
+	//GX_InvalidateTexAll();
 	
 	Camera camera;
 	
+	loadTexture(pl.pixel_data, 64, 64);
 	
 	setupWiimote();
 	
 	SYS_SetResetCallback(reload);
 	SYS_SetPowerCallback(shutdown);
-	
+	camera.pos.z = 8;
+	bool txx = true;
 	
 	while (!exiting) {
 		//VIDEO_ClearFrameBuffer(rmode,xfb[fbi],COLOR_BLACK);
+		if (txx) {
+			camera.pos.y += 0.05;
+			if (camera.pos.y > 5) txx = false;
+		} else {
+			camera.pos.y -= 0.05;
+			if (camera.pos.y < -5) txx = true;
+		}
+		//camera.rotateH(1);
+		camera.update();
+		Renderer::renderBloc({-1, 0, 0});
+		Renderer::renderBloc({0, 0, -1});
+		Renderer::renderBloc({0, -1, 0});
+		Renderer::renderBloc({1, 0, 0});
+		Renderer::renderBloc({0, 0, 1});
+		Renderer::renderBloc({0, 1, 0});
+		//light.update(camera.viewMatrix);
 		
-		light.update(camera.viewMatrix);
-		
-		testRender();
+		//testRender();
 		//setupDebugConsole();
 		WPAD_ReadPending(WPAD_CHAN_ALL, countevs);
 		int wiimote_connection_status = WPAD_Probe(0, &type);
