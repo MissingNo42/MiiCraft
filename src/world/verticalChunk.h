@@ -1,0 +1,8 @@
+//
+// Created by paulo on 06/02/2024.
+//
+
+#ifndef MIICRAFT_VERTICALCHUNK_H
+#define MIICRAFT_VERTICALCHUNK_H
+
+#endif //MIICRAFT_VERTICALCHUNK_H
