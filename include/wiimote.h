@@ -6,7 +6,7 @@
 #define MIICRAFT_WIIMOTE_H
 
 #include <wiiuse/wpad.h>
-#include "render.h"
+
 
 void setupWiimote();
 

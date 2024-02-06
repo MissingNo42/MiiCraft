@@ -7,18 +7,16 @@
 
 #include <gccore.h>
 #include <ogc/gu.h>
-#include <math.h>
 
-#include "render.h"
 #include "utils/matrix.h"
 
 class Camera {
-	guVector up = {0.0F, 1.0F, 0.0F},
-	look = {0.0F, 0.0F, -1.0F};
+	guVector up = {0.0F, 1.0F, 0.0F};
 	
 public:
 	Mtx44 viewMatrix, perspective;
-	guVector pos = {0.0F, 0.0F, 0.0F};
+	guVector pos = {0.0F, 0.0F, 0.0F},
+	look = {0.0F, 0.0F, -1.0F};
 	
 	/** Constructor
 	 * @param fov Field of view (half angle in degrees)
@@ -27,16 +25,17 @@ public:
 	 */
 	Camera(int fov = 45, f32 min = .1, f32 max = 300) {
 		
-		guPerspective(perspective, fov, (f32)rmode->fbWidth / rmode->xfbHeight, 0.1F, 300.0F);
+		guPerspective(perspective, fov, (f32)Renderer::rmode->fbWidth / Renderer::rmode->xfbHeight, 0.1F, 300.0F);
 		GX_LoadProjectionMtx(perspective, GX_PERSPECTIVE);
 		
-		guLookAt(viewMatrix, &pos, &look, &up);
+		guLookAt(viewMatrix, &pos, &up, &look);
 	}
 	
-	~Camera() {	}
+	~Camera() = default;
 
 	void update(bool applyTransform = true) {
-		guLookAt(viewMatrix, &pos, &look, &up);
+		guVector pl = {pos.x + look.x, pos.y + look.y, pos.z + look.z};
+		guLookAt(viewMatrix, &pos, &up, &pl);
 		if (applyTransform) GX_LoadPosMtxImm(viewMatrix, GX_PNMTX0);
 	}
 	

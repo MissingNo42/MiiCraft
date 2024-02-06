@@ -3,9 +3,9 @@
 //
 
 #include "wiimote.h"
+#include "engine/render/renderer.h"
 
 void setupWiimote() {
-	WPAD_Init();
 	WPAD_SetDataFormat(WPAD_CHAN_ALL, WPAD_FMT_BTNS_ACC_IR);
-	WPAD_SetVRes(WPAD_CHAN_ALL, rmode->fbWidth, rmode->xfbHeight);
+	WPAD_SetVRes(WPAD_CHAN_ALL, Renderer::rmode->fbWidth, Renderer::rmode->xfbHeight);
 }

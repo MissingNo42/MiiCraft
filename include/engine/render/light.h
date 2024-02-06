@@ -5,7 +5,8 @@
 #ifndef MIICRAFT_LIGHT_H
 #define MIICRAFT_LIGHT_H
 
-#include "render.h"
+
+#include "renderer.h"
 
 class Light {
 public:
@@ -14,7 +15,7 @@ public:
 	
 	Light(f32 fov = 45) {
 		Mtx translation;
-		guLightPerspective(perspective, fov, (f32)rmode->fbWidth / rmode->xfbHeight, 1.05F, 1.0F, 0.0F, 0.0F);
+		guLightPerspective(perspective, fov, (f32)Renderer::rmode->fbWidth / (f32)Renderer::rmode->xfbHeight, 1.05F, 1.0F, 0.0F, 0.0F);
 		guMtxTrans(translation, 0.0F, 0.0F, -1.0F);
 		guMtxConcat(perspective, translation, perspective);
 		GX_LoadTexMtxImm(perspective, GX_TEXMTX0, GX_MTX3x4);
