@@ -12,6 +12,9 @@
 
 #include "render.h"
 #include "wiimote.h"
+#include "engine/render/renderer.h"
+#include "engine/render/camera.h"
+#include "engine/render/light.h"
 
 
 int exiting = 0;
@@ -100,6 +103,7 @@ void print_wiimote_buttons(WPADData * wd) {
 void print_and_draw_wiimote_data() {
 	//Makes the var wd point to the data on the wiimote
 	WPADData * wd = WPAD_Data(0);
+	
 	printf(" Data->Err: %d\n", wd->err);
 	printf(" IR Dots:\n");
 	
@@ -157,34 +161,48 @@ void print_and_draw_wiimote_data() {
 }
 
 int main(int argc, char ** argv) {
-    u32 type;
-
-    PAD_Init();
-    WPAD_Init();
-
-    setupVideo();
-    setupDebugConsole();
-
-    setupWiimote();
-
-    SYS_SetResetCallback(reload);
-    SYS_SetPowerCallback(shutdown);
-
-    while (!exiting) {
-        //VIDEO_ClearFrameBuffer(rmode, xfb[fbi], COLOR_BLACK);
-        testRender();
-        WPAD_ReadPending(WPAD_CHAN_ALL, countevs);
-        int wiimote_connection_status = WPAD_Probe(0, &type);
-        print_wiimote_connection_status(wiimote_connection_status);
-
-        if (wiimote_connection_status == WPAD_ERR_NONE) {
-            print_and_draw_wiimote_data();
-        }
-
-        flushFramebuffer();
-    }
-
-    if (exiting == 2) SYS_ResetSystem(SYS_SHUTDOWN, 0, 0);
-
-    return 0;
+	u32 type;
+	
+	PAD_Init();
+	WPAD_Init();
+	
+	Renderer::setupVideo();
+	Renderer::setupVtxDesc();
+	
+	Light light;
+	GX_InvalidateTexAll();
+	
+	Camera camera;
+	
+	
+	setupWiimote();
+	
+	SYS_SetResetCallback(reload);
+	SYS_SetPowerCallback(shutdown);
+	
+	
+	while (!exiting) {
+		//VIDEO_ClearFrameBuffer(rmode,xfb[fbi],COLOR_BLACK);
+		
+		light.update(camera.viewMatrix);
+		
+		testRender();
+		//setupDebugConsole();
+		WPAD_ReadPending(WPAD_CHAN_ALL, countevs);
+		int wiimote_connection_status = WPAD_Probe(0, &type);
+		
+		//print_wiimote_connection_status(wiimote_connection_status);
+		
+		if (wiimote_connection_status == WPAD_ERR_NONE) {
+			//print_and_draw_wiimote_data();
+		}
+		
+		//drawdot(rmode->fbWidth, rmode->xfbHeight, 0, 0, COLOR_YELLOW);
+		
+		Renderer::endFrame();
+	}
+	
+	if (exiting == 2) SYS_ResetSystem(SYS_SHUTDOWN, 0, 0);
+	
+	return 0;
 }

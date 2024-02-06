@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.16)
 project(Miicraft)
 
 # set(CMAKE_CXX_STANDARD 23)
@@ -17,6 +17,9 @@ add_executable(Miicraft main.cpp
         src/world/horizontalChunck.h
         src/world/world.cpp
         src/world/world.h
+        src/engine/render/renderer.cpp
+        src/engine/render/light.cpp
+        src/matrix/matrix.cpp
 )
 
 
