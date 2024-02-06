@@ -5,11 +5,27 @@
 #ifndef MIICRAFT_VERTICALCHUNK_H
 #define MIICRAFT_VERTICALCHUNK_H
 
+#include "coord.h"
+#include "horizontalChunck.h"
+
 struct chunkPos{
     short x;
     short y;
     chunkPos();
     chunkPos(short x, short y);
 };
+
+
+class VerticalChunk {
+
+private:
+    int index;
+    t_coord coords;
+    std::vector<HorizontalChunk> chunks;
+public:
+
+
+};
+
 
 #endif //MIICRAFT_VERTICALCHUNK_H
