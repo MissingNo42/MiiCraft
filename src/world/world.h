@@ -20,7 +20,7 @@ public:
     Block getBlockAt(t_coord coord);
     void setBlockAt(t_coord coord, BlockType block);
 
-    t_pos2D to_chunk_pos(t_coord& c);
+    static t_pos2D to_chunk_pos(t_coord& c);
     VerticalChunk& getChunkAt(t_pos2D pos);
     void addChunk(t_pos2D pos, VerticalChunk* chunk);
 };
