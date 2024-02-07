@@ -17,7 +17,7 @@ public:
 
     virtual ~WorldGenerator() = default;
 
-    virtual void generateChunk(World, const t_pos2D ) = 0;
+    virtual void generateChunk(World&, const t_pos2D ) = 0;
 
 
 };

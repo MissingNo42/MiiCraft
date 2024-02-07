@@ -13,7 +13,7 @@ class FlatWorldGenerator : public WorldGenerator{
 
 public:
 
-    void generateChunk(World, const t_pos2D) override;
+    void generateChunk(World&, const t_pos2D) override;
 
 
 

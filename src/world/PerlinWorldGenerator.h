@@ -14,7 +14,7 @@ private:
     FastNoiseLite noise;
 
 public:
-    void generateChunk(World, const t_pos2D) override;
+    void generateChunk(World&, const t_pos2D) override;
 
     void generateNoise();
 

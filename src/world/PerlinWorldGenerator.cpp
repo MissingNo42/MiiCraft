@@ -11,7 +11,7 @@ PerlinWorldGenerator::PerlinWorldGenerator() {
 
 
 
-void PerlinWorldGenerator::generateChunk(World w , const t_pos2D pos) {
+void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
     Block blocks[16][128][16];
 
     for(int i = 0; i < 16; i ++){
@@ -19,6 +19,7 @@ void PerlinWorldGenerator::generateChunk(World w , const t_pos2D pos) {
 
             //TODO : A revoir ptdr
             int height = (int) (noise.GetNoise((float) (pos.x * 16 + i) / 16.0f, (float) (pos.y * 16 + j) / 16.0f) * 32 + 64);
+            std::cout << height << std::endl;
             for(int k = 0; k < 128; k++){
                 if(k < height){
                     blocks[i][k][j].type = BlockType::Stone;

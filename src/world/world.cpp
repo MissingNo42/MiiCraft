@@ -10,7 +10,12 @@ World::World() : loadedChunk() {
 }
 
 World::~World() {
-    delete[] &loadedChunk;
+
+    for (auto& pair : loadedChunk) {
+        delete pair.second;
+    }
+
+    loadedChunk.clear();
 }
 
 t_pos2D World::to_chunk_pos(t_coord& c)

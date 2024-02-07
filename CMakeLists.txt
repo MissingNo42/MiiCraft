@@ -18,6 +18,7 @@ add_executable(Miicraft main.cpp
         src/world/WorldGenerator.cpp
         src/world/FlatWorldGenerator.cpp
         src/world/PerlinWorldGenerator.cpp
+        src/world/coord.cpp
 )
 
 add_executable(MiicraftTest Debug.cpp
