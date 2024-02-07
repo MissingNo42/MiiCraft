@@ -12,8 +12,6 @@ add_executable(Miicraft main.cpp
         src/world/block.h
         src/world/verticalChunk.cpp
         src/world/verticalChunk.h
-        src/world/horizontalChunck.cpp
-        src/world/horizontalChunck.h
         src/world/world.cpp
         src/world/world.h
         src/engine/render/renderer.cpp
