@@ -12,4 +12,6 @@ struct t_coord{
     int z;
 };
 
+
+
 #endif //WII_COORD_H

@@ -19,6 +19,16 @@ add_executable(Miicraft main.cpp
         src/matrix/matrix.cpp
         src/world/coord.h
         src/world/coord.h
+        src/world/game.cpp
+        src/world/game.h
+        src/world/game.h
+        src/world/WorldGenerator.cpp
+        src/world/WorldGenerator.h
+        src/world/FlatWorldGenerator.cpp
+        src/world/FlatWorldGenerator.h
+        src/world/FlatWorldGenerator.h
+        include/utils/FastNoiseLite.h
+        include/utils/FastNoiseLite.h
 )
 
 
