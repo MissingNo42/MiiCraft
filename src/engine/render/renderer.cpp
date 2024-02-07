@@ -86,7 +86,7 @@ void Renderer::setupMisc() {
 }
 
 void Renderer::setupDebugConsole() {
-	CON_InitEx(rmode, 20, 20, rmode->fbWidth, rmode->xfbHeight);
+	CON_InitEx(rmode, 10, 10, 100, 100);
 }
 
 void Renderer::testRender() {

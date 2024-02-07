@@ -14,9 +14,6 @@
 #include "engine/render/renderer.h"
 #include "engine/render/camera.h"
 #include "engine/render/light.h"
-#include "Cube.h"
-#include "Cube_tpl.h"
-#include "pl.h"
 
 
 
@@ -103,64 +100,9 @@ void drawdot(float w, float h, float fx, float fy, u32 color) {
 
 }
 
-void print_and_draw_wiimote_data() {
-	//Makes the var wd point to the data on the wiimote
-	WPADData * wd = WPAD_Data(0);
+void print_and_draw_wiimote_data(guVector v) {
 	
-	printf(" Data->Err: %d\n", wd->err);
-	printf(" IR Dots:\n");
-	
-	for (auto & i : wd->ir.dot) {
-		if (i.visible) {
-			printf(" %4d, %3d\n", i.rx, i.ry);
-			drawdot(1024, 768, i.rx, i.ry, COLOR_YELLOW);
-		} else {
-			printf(" None\n");
-		}
-	}
-	//ir.valid - TRUE is the wiimote is pointing at the screen, else it is false
-	if (wd->ir.valid) {
-		float theta = wd->ir.angle / 180.0 * M_PI;
-		
-		//ir.x/ir.y - The x/y coordinates that the wiimote is pointing to, relative to the screen.
-		//ir.angle - how far (in degrees) the wiimote is twisted (based on ir)
-		printf(" Cursor: %.02f,%.02f\n", wd->ir.x, wd->ir.y);
-		printf(" @ %.02f deg\n", wd->ir.angle);
-		
-		drawdot(Renderer::rmode->fbWidth, Renderer::rmode->xfbHeight, wd->ir.x, wd->ir.y, COLOR_RED);
-		drawdot(Renderer::rmode->fbWidth, Renderer::rmode->xfbHeight, wd->ir.x + 10 * sinf(theta),
-		        wd->ir.y - 10 * cosf(theta), COLOR_BLUE);
-	} else {
-		printf(" No Cursor\n\n");
-	}
-	if (wd->ir.raw_valid) {
-		//ir.z - How far away the wiimote is from the screen in meters
-		printf(" Distance: %.02fm\n", wd->ir.z);
-		//orient.yaw - The left/right angle of the wiimote to the screen
-		printf(" Yaw: %.02f deg\n", wd->orient.yaw);
-	} else {
-		printf("\n\n");
-	}
-	printf(" Accel:\n");
-	//accel.x/accel.y/accel.z - analog values for the accelleration of the wiimote
-	//(Note: Gravity pulls downwards, so even if the wiimote is not moving,
-	//one(or more) axis will have a reading as if it is moving "upwards")
-	printf(" XYZ: %3d,%3d,%3d\n", wd->accel.x, wd->accel.y, wd->accel.z);
-	//orient.pitch - how far the wiimote is "tilted" in degrees
-	printf(" Pitch: %.02f\n", wd->orient.pitch);
-	//orient.roll - how far the wiimote is "twisted" in degrees (uses accelerometer)
-	printf(" Roll: %.02f\n", wd->orient.roll);
-	
-	print_wiimote_buttons(wd);
-	
-	if (wd->ir.raw_valid) {
-		for (int i = 0; i < 2; i++) {
-			drawdot(4, 4, wd->ir.sensorbar.rot_dots[i].x + 2, wd->ir.sensorbar.rot_dots[i].y + 2,
-			        COLOR_GREEN);
-		}
-	}
-	
-	//if (wd->btns_h & WPAD_BUTTON_HOME) doreload = 1;
+	printf("x : %\ny : %lf\nz : %lf\n", v.x, v.y, v.z);
 }
 
 GXTexObj texture;
@@ -181,16 +123,17 @@ guVector InverseVector(const guVector& v){
 
 
 
+
 int main(int argc, char ** argv) {
+    printf("aahahkghj");
 	u32 type;
 	
 	PAD_Init();
 	WPAD_Init();
-	
+
 	Renderer::setupVideo();
 	Renderer::setupVtxDesc();
 
-    TPLFile cubeTPL;
 	//Light light;
 	//GX_InvalidateTexAll();
 	
@@ -198,11 +141,9 @@ int main(int argc, char ** argv) {
 	
 	setupWiimote();
 
-	
+
 	SYS_SetResetCallback(reload);
 	SYS_SetPowerCallback(shutdown);
-	camera.pos.z = 8;
-	bool txx = true;
 	
 	while (!exiting) {
 		//VIDEO_ClearFrameBuffer(rmode,xfb[fbi],COLOR_BLACK);
@@ -261,16 +202,14 @@ int main(int argc, char ** argv) {
 		Renderer::renderBloc({1, 0, 0});
 		Renderer::renderBloc({0, 0, 1});
 		Renderer::renderBloc({0, 1, 0});
-		//light.update(camera.viewMatrix);
-		
+		light.update(camera.viewMatrix);
+
 		//testRender();
 
-		//Renderer::setupDebugConsole();
 		WPAD_ReadPending(WPAD_CHAN_ALL, countevs);
 		int wiimote_connection_status = WPAD_Probe(0, &type);
-		
-		//print_wiimote_connection_status(wiimote_connection_status);
-		
+
+
 		if (wiimote_connection_status == WPAD_ERR_NONE) {
             WPADData * wd = WPAD_Data(0);
              if (wd->ir.valid) {
@@ -284,7 +223,7 @@ int main(int argc, char ** argv) {
                      camera.rotateV(M_PI / 8);
              }
         }
-		
+
 		//drawdot(Renderer::rmode->fbWidth, Renderer::rmode->xfbHeight, 0, 0, COLOR_YELLOW);
         camera.update();
 		Renderer::endFrame();
