@@ -9,12 +9,14 @@
 #include <ctype.h>
 #include <math.h>
 #include <wiiuse/wpad.h>
+#include <iostream>
 
 #include "wiimote.h"
 #include "engine/render/renderer.h"
 #include "engine/render/camera.h"
 #include "engine/render/light.h"
-#include "pl.h"
+
+#include "texture.c"
 
 
 int exiting = 0;
@@ -124,11 +126,17 @@ void print_and_draw_wiimote_data() {
 	//if (wd->btns_h & WPAD_BUTTON_HOME) doreload = 1;
 }*/
 
+TPLFile TPLfile;
 GXTexObj texture;
 
-void loadTexture(const u8 *data, u32 width, u32 height) {
-    GX_InitTexObj(&texture, (void *) data, width, height, GX_TF_RGB565, GX_CLAMP, GX_CLAMP, GX_FALSE);
-    GX_LoadTexObj(&texture, GX_TEXMAP0);
+
+guVector InverseVector(const guVector& v){
+    guVector vtemp;
+    vtemp.x = - v.x;
+    vtemp.y = - v.y;
+    vtemp.z = - v.z;
+
+    return vtemp;
 }
 
 int main(int argc, char ** argv) {
@@ -139,50 +147,110 @@ int main(int argc, char ** argv) {
 	
 	Renderer::setupVideo();
 	Renderer::setupVtxDesc();
+	Renderer::setupMisc();
 	
 	//Light light;
 	//GX_InvalidateTexAll();
+	Renderer renderer;
 	
-	Camera camera;
+	TPL_OpenTPLFromMemory(&TPLfile, (void *)texture_data, texture_sz);
+	TPL_GetTexture(&TPLfile, 0, &texture);
+    GX_InitTexObjLOD(&texture, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
+	GX_SetTevOp(GX_TEVSTAGE0,GX_MODULATE);
+	GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
 	
-	loadTexture(pl.pixel_data, 64, 64);
+	GX_LoadTexObj(&texture, GX_TEXMAP0);
+	//GX_InitTexObjFilterMode(&texture, GX_NEAR, GX_NEAR);
 	
 	setupWiimote();
 	
 	SYS_SetResetCallback(reload);
 	SYS_SetPowerCallback(shutdown);
-	camera.pos.z = 8;
+	//SYS_STDIO_Report(true);
+	renderer.camera.pos.z = 5;
+	renderer.camera.pos.x = -0.5;
+	renderer.camera.pos.y = 0.5;
 	bool txx = true;
 	
 	while (!exiting) {
-		//VIDEO_ClearFrameBuffer(rmode,xfb[fbi],COLOR_BLACK);
-		if (txx) {
-			camera.pos.y += 0.05;
-			if (camera.pos.y > 5) txx = false;
-		} else {
-			camera.pos.y -= 0.05;
-			if (camera.pos.y < -5) txx = true;
-		}
+        //VIDEO_ClearFrameBuffer(rmode,xfb[fbi],COLOR_BLACK);
+
+	GX_LoadTexObj(&texture, GX_TEXMAP0);
+        WPAD_ScanPads();
+        if(WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME) exit(0);
+
+        struct expansion_t data;
+
+        WPAD_Expansion(WPAD_CHAN_0, &data); // Get expansion info from the first wiimote
+
+
+        s8 tpad;
+        u16 directions = WPAD_ButtonsHeld(0);
+
+        guVector move = {0,0,0};
+        guVector lookN;
+        lookN.x = renderer.camera.look.x;
+        lookN.y = renderer.camera.look.y;
+        lookN.z = renderer.camera.look.z;
+		
+        guVecNormalize(&lookN);
+        if ( directions & WPAD_BUTTON_LEFT ) {
+            guVecCross(&lookN, &renderer.camera.up, &move);
+            move = InverseVector(move);
+        }
+        if ( directions & WPAD_BUTTON_RIGHT ) {
+            guVecCross(&lookN, &renderer.camera.up, &move);
+        }
+        if ( directions & WPAD_BUTTON_UP ) move = lookN;
+        if ( directions & WPAD_BUTTON_DOWN ) move = InverseVector(lookN);
+
+        renderer.camera.pos.x += move.x/10;
+        renderer.camera.pos.z += move.z/10;
+
+        if ( directions & WPAD_BUTTON_A) renderer.camera.pos.y += 0.1;
+        if ( directions & WPAD_BUTTON_B) renderer.camera.pos.y -= 0.1;
+
+/*
+        if ( yrot > 360.f ) yrot -= 360.f;
+        if ( yrot < 0 ) yrot += 360.f;*/
+
+        if (data.type == WPAD_EXP_NUNCHUK) { // Ensure there's a nunchuk
+
+            tpad = data.nunchuk.js.pos.x - data.nunchuk.js.center.x;
+            if ((tpad < -8) || (tpad > 8)) renderer.camera.pos.x += (f32) tpad / 10;
+
+            tpad = data.nunchuk.js.pos.y - data.nunchuk.js.center.y;
+            if ((tpad < -8) || (tpad > 8)) renderer.camera.pos.z += (f32) tpad / 10;
+
+        }
+		//renderer.camera.rotateV(-0.10);
+		//renderer.camera.rotateH(0.50);
 		//camera.rotateH(1);
-		camera.update();
-		Renderer::renderBloc({-1, 0, 0});
-		Renderer::renderBloc({0, 0, -1});
-		Renderer::renderBloc({0, -1, 0});
-		Renderer::renderBloc({1, 0, 0});
-		Renderer::renderBloc({0, 0, 1});
-		Renderer::renderBloc({0, 1, 0});
+		renderer.camera.update();
+		//renderer.renderBloc({-1, 0, 0}, 1);
+		//renderer.renderBloc({0, 0, -1}, 1);
+		//renderer.renderBloc({0, -1, 0}, 1);
+		//renderer.renderBloc({1, 0, 0}, 1);
+		//renderer.renderBloc({0, 0, 1}, 1);
+		renderer.renderBloc({0, 0, 0}, 1);
+		renderer.renderBloc({1, -1, 0}, 1);
+		//renderer.renderBloc({4, 0, 0}, 1);
+		//renderer.renderBloc({7, -1, 0}, 1);
+		//renderer.renderBloc({8, 0, 0}, 1);
+		//renderer.renderBloc({9, -1, 0}, 1);
+		//renderer.renderBloc({1, -1, 0}, 2);
+		//renderer.renderBloc({0, -1, 1}, 2);
+		//renderer.renderBloc({0, 0, 1}, 3);
+		
+		//for (int X = -20; X < 20; X++) {
+		//	for (int Z = -20; Z < 20; Z++) {
+		//		renderer.renderBloc({static_cast<f32>(X), 0, static_cast<f32>(Z)}, 1);
+		//	}
+		//}
 		//light.update(camera.viewMatrix);
 		
 		//testRender();
 		//setupDebugConsole();
-		WPAD_ReadPending(WPAD_CHAN_ALL, countevs);
-		int wiimote_connection_status = WPAD_Probe(0, &type);
-		
-		//print_wiimote_connection_status(wiimote_connection_status);
-		
-		if (wiimote_connection_status == WPAD_ERR_NONE) {
-			//print_and_draw_wiimote_data();
-		}
 		
 		//drawdot(rmode->fbWidth, rmode->xfbHeight, 0, 0, COLOR_YELLOW);
 		

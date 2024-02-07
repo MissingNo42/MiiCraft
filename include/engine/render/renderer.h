@@ -6,12 +6,16 @@
 #define MIICRAFT_RENDERER_H
 
 #include <gccore.h>
+#include "camera.h"
 
 #define DEFAULT_FIFO_SIZE 262144  // (256 * 1024) // TODO : Need to be increased !!!
 
 class Renderer {
 	static void * gp_fifo;
+	
 public:
+	Camera camera;
+	
 	static GXColor background; // blue
 	static void * frameBuffer, *frameBuffers[2];
 	static int selectFrameBuffer;
@@ -27,7 +31,7 @@ public:
 	
 	static void endFrame();
 	
-	static void renderBloc(const guVector &coord, const GXColor& color = {0xff, 0xff, 0xff, 0xff});
+	void renderBloc(const guVector &coord, u32 code);
 };
 
 #endif //MIICRAFT_RENDERER_H

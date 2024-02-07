@@ -240,6 +240,8 @@ void DrawScene(Mtx view) {
 	}
 }
 
+
+
 int BuildLists(GXTexObj texture) {
 	// Make the new display list
 	// For display lists, each command has an associated "cost" in bytes.
