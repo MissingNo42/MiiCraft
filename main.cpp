@@ -15,6 +15,7 @@
 #include "engine/render/camera.h"
 #include "engine/render/light.h"
 #include "pl.h"
+#include "src/world/game.h"
 
 
 int exiting = 0;
@@ -251,12 +252,30 @@ int main(int argc, char ** argv) {
 
         }
 
-		Renderer::renderBloc({-1, 0, 0});
-		Renderer::renderBloc({0, 0, -1});
-		Renderer::renderBloc({0, -1, 0});
-		Renderer::renderBloc({1, 0, 0});
-		Renderer::renderBloc({0, 0, 1});
-		Renderer::renderBloc({0, 1, 0});
+//		Renderer::renderBloc({-1, 0, 0});
+//		Renderer::renderBloc({0, 0, -1});
+//		Renderer::renderBloc({0, -1, 0});
+//		Renderer::renderBloc({1, 0, 0});
+//		Renderer::renderBloc({0, 0, 1});
+//		Renderer::renderBloc({0, 1, 0});
+
+//        t_coord pos(0,0,0);
+        Game g;
+        World w = g.getWorld();
+//        for (int i = 0; i < 10; ++i) {
+//            pos.x = i;
+//            for (int j = 0; j < 10; ++j) {
+//                pos.y = j;
+//                for (int k = 0; k < 10; ++k) {
+//                    pos.z = k;
+//                    if (w.getBlockAt(pos).type != BlockType::Air)
+//                    {
+//                        Renderer::renderBloc({static_cast<f32>(i), static_cast<f32>(j), static_cast<f32>(k)});
+//                    }
+//                }
+//            }
+//        }
+
 		//light.update(camera.viewMatrix);
 		
 		//testRender();

@@ -18,3 +18,7 @@ Game::Game() {
     gen->generateChunk(w, {1, -1});
     gen->generateChunk(w, {-1, 1});
 }
+
+World &Game::getWorld() {
+    return w;
+}

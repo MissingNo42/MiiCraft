@@ -6,9 +6,9 @@
 #define WII_WORLDGENERATOR_H
 
 
-#include "block.h"
-#include "coord.h"
-#include "verticalChunk.h"
+//#include "block.h"
+//#include "coord.h"
+//#include "verticalChunk.h"
 #include "world.h"
 
 class WorldGenerator {

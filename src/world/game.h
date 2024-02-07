@@ -11,18 +11,21 @@
 
 class Game {
 protected:
-    Game();
 private:
     World w;
     WorldGenerator* gen;
     //Singleton design pattern
     static Game* instance;
-    static Game* getInstance(){
-        if(instance == nullptr){
-            instance = new Game();
-        }
-        return instance;
-    }
+public:
+//    static Game* getInstance(){
+//        if(instance == nullptr){
+//            instance = new Game();
+//        }
+//        return instance;
+//    }
+
+    Game();
+    World& getWorld();
 
 };
 
