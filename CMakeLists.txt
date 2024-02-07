@@ -29,6 +29,9 @@ add_executable(Miicraft main.cpp
         src/world/FlatWorldGenerator.h
         include/utils/FastNoiseLite.h
         include/utils/FastNoiseLite.h
+        src/world/PerlinWorldGenerator.cpp
+        src/world/PerlinWorldGenerator.h
+        src/world/PerlinWorldGenerator.h
 )
 
 

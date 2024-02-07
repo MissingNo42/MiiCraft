@@ -12,9 +12,12 @@
 class FlatWorldGenerator : public WorldGenerator{
 
 public:
-    BlockType guessBlockAt(const t_coord) override;
 
     void generateChunk(World, const t_pos2D) override;
+
+
+
+
 };
 
 

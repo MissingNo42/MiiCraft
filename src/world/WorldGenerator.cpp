@@ -4,4 +4,3 @@
 
 #include "WorldGenerator.h"
 
-BlockType WorldGenerator::guessBlockAt(t_coord) {}

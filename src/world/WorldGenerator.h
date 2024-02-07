@@ -14,7 +14,6 @@
 class WorldGenerator {
 
 public:
-    virtual BlockType guessBlockAt(const t_coord ) = 0;
 
     virtual ~WorldGenerator() = default;
 
