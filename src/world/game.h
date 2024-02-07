@@ -10,9 +10,11 @@
 #include "WorldGenerator.h"
 
 class Game {
+public:
+    Game();
 private:
     World w;
-
+    WorldGenerator* gen;
 
 };
 
