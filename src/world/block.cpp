@@ -7,3 +7,26 @@
 Block::Block(BlockType bt) : type(bt) {}
 
 Block::Block(): Block(BlockType::Air) {}
+
+std::string Block::toString() const {
+    switch (type) {
+        case BlockType::Air:
+            return "Air";
+        case BlockType::Dirt:
+            return "Dirt";
+        case BlockType::Grass:
+            return "Grass";
+        case BlockType::Stone:
+            return "Stone";
+        case BlockType::Bedrock:
+            return "Bedrock";
+        case BlockType::Log:
+            return "Log";
+        case BlockType::TopLog:
+            return "TopLog";
+        case BlockType::Leaves:
+            return "Leaves";
+        default:
+            return "inconnu au bataillon";
+    }
+}

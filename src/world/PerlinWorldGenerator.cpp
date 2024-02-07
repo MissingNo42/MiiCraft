@@ -20,14 +20,14 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
             //TODO : A revoir ptdr
 
 
-            double d = noise.GetNoise((float) (pos.x * 16 + i) / 16.0f, (float) (pos.y * 16 + j) / 16.0f) *100 +16;
+            double d = noise.GetNoise((float) (pos.x * 16 + i) / 16.0f, (float) (pos.y * 16 + j) / 16.0f) *100 +25;
             if(d < 0){
                 d = 0;
             } else if(d>128) {
                 d = 128;
             }
             int height = (int) (d );
-            std::cout << d << std::endl;
+            std::cout << height << std::endl;
             for(int k = 0; k < 128; k++){
                 if(k < height){
                     blocks[i][k][j].type = BlockType::Stone;
@@ -49,11 +49,11 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 }
 
 void PerlinWorldGenerator::generateNoise() {
-    noise.SetSeed(1337); //TODO : A changer
+    noise.SetSeed(34567678); //TODO : A changer
     noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     noise.SetFractalType(FastNoiseLite::FractalType_FBm);
-    noise.SetFractalOctaves(8);
-    noise.SetFractalLacunarity(2.0);
+    noise.SetFractalOctaves(4);
+    noise.SetFractalLacunarity(5.0);
     noise.SetFractalGain(0.5);
-    noise.SetFractalWeightedStrength(6);
+    noise.SetFractalWeightedStrength(5);
 }

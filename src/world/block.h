@@ -22,6 +22,7 @@ public:
     BlockType type;
     Block(BlockType bt);
     Block();
+    std::string toString() const;
 };
 
 #endif //MIICRAFT_BLOCK_H
