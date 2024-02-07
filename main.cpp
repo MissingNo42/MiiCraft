@@ -199,6 +199,7 @@ int main(int argc, char ** argv) {
 	SYS_SetResetCallback(reload);
 	SYS_SetPowerCallback(shutdown);
 	camera.pos.z = 8;
+    camera.pos.y = 70;
 	bool txx = true;
 
     //pour rediriger stdout dans dolphin
