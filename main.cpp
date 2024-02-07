@@ -186,21 +186,24 @@ int main(int argc, char ** argv) {
 	
 	Renderer::setupVideo();
 	Renderer::setupVtxDesc();
-	
+
 	//Light light;
 	//GX_InvalidateTexAll();
-	
+
 	Camera camera;
-	
+
 	loadTexture(pl.pixel_data, 64, 64);
-	
+
 	setupWiimote();
-	
+
 	SYS_SetResetCallback(reload);
 	SYS_SetPowerCallback(shutdown);
 	camera.pos.z = 8;
 	bool txx = true;
-	
+
+    //pour rediriger stdout dans dolphin
+    SYS_STDIO_Report(true);
+
 	while (!exiting) {
 		//VIDEO_ClearFrameBuffer(rmode,xfb[fbi],COLOR_BLACK);
 
@@ -252,16 +255,19 @@ int main(int argc, char ** argv) {
 
         }
 
-//		Renderer::renderBloc({-1, 0, 0});
-//		Renderer::renderBloc({0, 0, -1});
-//		Renderer::renderBloc({0, -1, 0});
-//		Renderer::renderBloc({1, 0, 0});
-//		Renderer::renderBloc({0, 0, 1});
-//		Renderer::renderBloc({0, 1, 0});
+		Renderer::renderBloc({-1, 0, 0});
+		Renderer::renderBloc({0, 0, -1});
+		Renderer::renderBloc({0, -1, 0});
+		Renderer::renderBloc({1, 0, 0});
+		Renderer::renderBloc({0, 0, 1});
+		Renderer::renderBloc({0, 1, 0});
+
+
+
 
 //        t_coord pos(0,0,0);
-        Game g;
-        World w = g.getWorld();
+//        Game g;
+//        World w = g.getWorld();
 //        for (int i = 0; i < 10; ++i) {
 //            pos.x = i;
 //            for (int j = 0; j < 10; ++j) {
