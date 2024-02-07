@@ -26,3 +26,8 @@ void VerticalChunk::VC_SetBlock(t_coord coord, BlockType block) {
     t_coord c = {coord.x % 16, coord.y, coord.z % 16};
     blocks[c.x][c.y][c.z].type = block;
 }
+
+Block VerticalChunk::VC_GetBlock(t_coord coord) {
+    t_coord c = {coord.x % 16, coord.y, coord.z % 16};
+    return blocks[c.x][c.y][c.z];
+}

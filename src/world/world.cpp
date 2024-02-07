@@ -9,17 +9,6 @@
 World::World() {}
 
 World::~World() {}
-/*
-void World::generate(int chunk_rad) 
-{
-    for (int i = -chunk_rad + 1; i < chunk_rad; ++i) {
-        for (int j = -chunk_rad + 1; j < chunk_rad; ++j) {
-            VerticalChunk* vc = new VerticalChunk{};
-            t_pos2D key(i, j);
-            loadedChunk[key] = vc;
-        }
-    }
-}*/
 
 t_pos2D World::to_chunk_pos(t_coord& c)
 {
@@ -30,19 +19,12 @@ t_pos2D World::to_chunk_pos(t_coord& c)
 }
 
 Block World::getBlockAt(t_coord coord) {
-
-    Block b;
-
-
-    try{
-        loadedChunk.at(to_chunk_pos(coord));
-        b.type = BlockType::Dirt;
+    t_pos2D chunk_pos = to_chunk_pos(coord);
+    if (loadedChunk.find(chunk_pos) == loadedChunk.end()) {
+        return {BlockType::Air};
     }
-    catch (std::out_of_range)
-    {
-        b.type = BlockType::Air;
-    }
-    return b;
+    return loadedChunk[chunk_pos]->VC_GetBlock(coord);
+
 }
 
 void World::setBlockAt(t_coord coord, BlockType block) {
