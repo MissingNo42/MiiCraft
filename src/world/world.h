@@ -16,7 +16,6 @@ public:
     World();
     ~World();
 
-
     Block getBlockAt(t_coord coord);
     void setBlockAt(t_coord coord, BlockType block);
 

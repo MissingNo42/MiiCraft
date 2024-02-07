@@ -10,7 +10,11 @@ enum BlockType : char {
     Air =0,
     Dirt =1,
     Grass =2,
-    Stone =3
+    Stone =3,
+    Bedrock =4,
+    Log =5,
+    TopLog =6,
+    Leaves =7
 };
 
 class Block {
