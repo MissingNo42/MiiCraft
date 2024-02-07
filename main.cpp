@@ -177,6 +177,32 @@ guVector InverseVector(const guVector& v){
     return vtemp;
 }
 
+void renderChunk(World& w){
+    t_coord pos(0,0,0);
+    for(int offset = -1; offset<=1; offset ++){
+        for (int i = 0; i < 16; ++i) {
+
+            pos.x = i+ offset * 16;
+            for (int j = 0; j < 128; ++j) {
+                pos.y = j;
+                for (int k = 0; k < 16; ++k) {
+                    pos.z = k + offset * 16;
+                    if (w.getBlockAt(pos).type != BlockType::Air)
+                    {
+                        //printf("Start Rendering : x : %d, y: %d, z: %d\r", i, j, k);
+
+                        Renderer::renderBloc({static_cast<f32>(i + offset * 16), static_cast<f32>(j), static_cast<f32>(k + offset * 16)});
+                        //printf("End Rendering : x : %d, y: %d, z: %d\r", i, j, k);
+
+                    }
+                }
+            }
+        }
+    }
+
+
+}
+
 
 int main(int argc, char ** argv) {
 	u32 type;
@@ -270,8 +296,8 @@ int main(int argc, char ** argv) {
 
 
 
-
-
+        renderChunk(w);
+        /*
         for (int i = 0; i < 16; ++i) {
             pos.x = i;
             for (int j = 0; j < 128; ++j) {
@@ -288,7 +314,7 @@ int main(int argc, char ** argv) {
                     }
                 }
             }
-        }
+        }*/
 
 		//light.update(camera.viewMatrix);
 		

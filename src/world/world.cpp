@@ -26,7 +26,7 @@ t_pos2D World::to_chunk_pos(t_coord& c)
                    c.z / VerticalChunk::CHUNK_WIDTH);
 }
 
-Block World::getBlockAt(t_coord coord) {
+Block World::getBlockAt(t_coord coord)  {
     t_pos2D chunk_pos = to_chunk_pos(coord);
     if (loadedChunk.find(chunk_pos) == loadedChunk.end()) {
         return {BlockType::Air};
