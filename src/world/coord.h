@@ -6,11 +6,16 @@
 #define WII_COORD_H
 
 struct t_coord{
-    t_coord(int x, int y, int z);
+    t_coord(int x, int y, int z){
+        this->x = x;
+        this->y = y;
+        this->z = z;
+    }
     int x;
     int y;
     int z;
 };
+
 
 
 
