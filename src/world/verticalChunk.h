@@ -6,7 +6,7 @@
 #define MIICRAFT_VERTICALCHUNK_H
 
 #include "coord.h"
-#include "horizontalChunck.h"
+#include "block.h"
 
 struct t_pos2D{
     short x;
@@ -21,15 +21,20 @@ struct t_pos2D{
 class VerticalChunk {
 
 private:
-//    t_coord coords;
-    std::vector<HorizontalChunk*> chunks;
+
+    Block blocks[16][128][16];
+
 public:
 
-    VerticalChunk();
+
+    explicit VerticalChunk(Block b[16][128][16]);
 
     void VC_SetBlock(t_coord coord, BlockType block);
+    Block VC_GetBlock(t_coord coord);
 
-
+    int static const CHUNK_WIDTH = 16;
+    int static const CHUNK_LENGTH = 16;
+    int static const CHUNK_HEIGHT = 128;
 };
 
 

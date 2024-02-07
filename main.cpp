@@ -9,12 +9,16 @@
 #include <ctype.h>
 #include <math.h>
 #include <wiiuse/wpad.h>
+#include <iostream>
 
 #include "wiimote.h"
 #include "engine/render/renderer.h"
 #include "engine/render/camera.h"
 #include "engine/render/light.h"
 
+#include "texture.c"
+
+#include "src/world/game.h"
 
 
 int exiting = 0;
@@ -63,54 +67,70 @@ void print_wiimote_buttons(WPADData * wd) {
 	if (wd->btns_h & WPAD_BUTTON_DOWN) printf("DOWN ");
 	printf("\n");
 }
-
-//Draw a square on the screen (May draw rectangles as well, I am uncertain).
-//*xfb - framebuffer
-//*rmode - the current video mode (# lines,progressive or interlaced, NTSC or PAL etc.) see libogc/gc/ogc/gx_struct.h
-// for the definition
-//w - Width of screen (Used as scale factor in converting fx to pixel coordinates)
-//h - Height of screen (Used as scale factor in converting fy to pixel coordinates)
-//fx - X coordinate to draw on the screen (0-w)
-//fy - Y coordinate to draw on the screen (!unsure!-h)
-//color - the color of the rectangle (Examples: COLOR_YELLOW, COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_BLACK, COLOR_WHITE)
-void drawdot(float w, float h, float fx, float fy, u32 color) {
-
-    //*fb - !unsure!
-    //px - !unsure!
-    //py - !unsure!
-    //x - !unsure!
-    //y - !unsure!
-
-    u32 * fb = (u32 *) Renderer::frameBuffer;
-    int px, py;
-    int x, y;
-
-    y = fy * Renderer::rmode->xfbHeight / h;
-    x = fx * Renderer::rmode->fbWidth / w / 2;
-
-    for (py = y - 4; py <= (y + 4); py++) {
-        if (py < 0 || py >= Renderer::rmode->xfbHeight)
-            continue;
-        for (px = x - 2; px <= (x + 2); px++) {
-            if (px < 0 || px >= Renderer::rmode->fbWidth / 2)
-                continue;
-            fb[Renderer::rmode->fbWidth / VI_DISPLAY_PIX_SZ * py + px] = color;
-        }
-    }
-
-}
-
-void print_and_draw_wiimote_data(guVector v) {
+/*
+void print_and_draw_wiimote_data() {
+	//Makes the var wd point to the data on the wiimote
+	WPADData * wd = WPAD_Data(0);
 	
-	printf("x : %\ny : %lf\nz : %lf\n", v.x, v.y, v.z);
-}
+	printf(" Data->Err: %d\n", wd->err);
+	printf(" IR Dots:\n");
+	
+	for (auto & i : wd->ir.dot) {
+		if (i.visible) {
+			printf(" %4d, %3d\n", i.rx, i.ry);
+			drawdot(1024, 768, i.rx, i.ry, COLOR_YELLOW);
+		} else {
+			printf(" None\n");
+		}
+	}
+	//ir.valid - TRUE is the wiimote is pointing at the screen, else it is false
+	if (wd->ir.valid) {
+		float theta = wd->ir.angle / 180.0 * M_PI;
+		
+		//ir.x/ir.y - The x/y coordinates that the wiimote is pointing to, relative to the screen.
+		//ir.angle - how far (in degrees) the wiimote is twisted (based on ir)
+		printf(" Cursor: %.02f,%.02f\n", wd->ir.x, wd->ir.y);
+		printf(" @ %.02f deg\n", wd->ir.angle);
+		
+		drawdot(rmode->fbWidth, rmode->xfbHeight, wd->ir.x, wd->ir.y, COLOR_RED);
+		drawdot(rmode->fbWidth, rmode->xfbHeight, wd->ir.x + 10 * sinf(theta),
+		        wd->ir.y - 10 * cosf(theta), COLOR_BLUE);
+	} else {
+		printf(" No Cursor\n\n");
+	}
+	if (wd->ir.raw_valid) {
+		//ir.z - How far away the wiimote is from the screen in meters
+		printf(" Distance: %.02fm\n", wd->ir.z);
+		//orient.yaw - The left/right angle of the wiimote to the screen
+		printf(" Yaw: %.02f deg\n", wd->orient.yaw);
+	} else {
+		printf("\n\n");
+	}
+	printf(" Accel:\n");
+	//accel.x/accel.y/accel.z - analog values for the accelleration of the wiimote
+	//(Note: Gravity pulls downwards, so even if the wiimote is not moving,
+	//one(or more) axis will have a reading as if it is moving "upwards")
+	printf(" XYZ: %3d,%3d,%3d\n", wd->accel.x, wd->accel.y, wd->accel.z);
+	//orient.pitch - how far the wiimote is "tilted" in degrees
+	printf(" Pitch: %.02f\n", wd->orient.pitch);
+	//orient.roll - how far the wiimote is "twisted" in degrees (uses accelerometer)
+	printf(" Roll: %.02f\n", wd->orient.roll);
+	
+	print_wiimote_buttons(wd);
+	
+	if (wd->ir.raw_valid) {
+		for (int i = 0; i < 2; i++) {
+			drawdot(4, 4, wd->ir.sensorbar.rot_dots[i].x + 2, wd->ir.sensorbar.rot_dots[i].y + 2,
+			        COLOR_GREEN);
+		}
+	}
+	
+	//if (wd->btns_h & WPAD_BUTTON_HOME) doreload = 1;
+}*/
 
+TPLFile TPLfile;
 GXTexObj texture;
 
-void loadTexture(const u8 *data, u32 width, u32 height) {
-    GX_InitTexObj(&texture, (void *) data, width, height, GX_TF_RGB565, GX_CLAMP, GX_CLAMP, GX_FALSE);
-    GX_LoadTexObj(&texture, GX_TEXMAP0);
-}
 
 guVector InverseVector(const guVector& v){
     guVector vtemp;
@@ -122,31 +142,77 @@ guVector InverseVector(const guVector& v){
 }
 
 
+void renderChunk(World& w, Renderer& renderer){
+    t_coord pos(0,0,0);
+    for(int offsetX = -1; offsetX<=1; offsetX ++){
+        for(int offsetY= -1; offsetY<=1; offsetY++){
+            for (int i = 0; i < 16; ++i) {
+
+                pos.x = i+ offsetX * 16 + offsetY * 16;
+                for (int j = 0; j < 128; ++j) {
+                    pos.y = j;
+                    for (int k = 0; k < 16; ++k) {
+                        pos.z = k + offsetX * 16 + offsetY * 16;
+                        if (w.getBlockAt(pos).type != BlockType::Air)
+                        {
+                            //printf("Start Rendering : x : %d, y: %d, z: %d\r", i, j, k);
+
+                            renderer.renderBloc({static_cast<f32>(i + offsetX * 16 + offsetY * 16), static_cast<f32>(j), static_cast<f32>(k + offsetX * 16 + offsetY * 16)}, 1);
+                            //printf("End Rendering : x : %d, y: %d, z: %d\r", i, j, k);
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+}
 
 
 int main(int argc, char ** argv) {
-    printf("aahahkghj");
 	u32 type;
 	
 	PAD_Init();
 	WPAD_Init();
-
+	
 	Renderer::setupVideo();
 	Renderer::setupVtxDesc();
+	Renderer::setupMisc();
+	
 
 	//Light light;
 	//GX_InvalidateTexAll();
+	Renderer renderer;
 	
-	Camera camera;
+	TPL_OpenTPLFromMemory(&TPLfile, (void *)texture_data, texture_sz);
+	TPL_GetTexture(&TPLfile, 0, &texture);
+    GX_InitTexObjLOD(&texture, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
+	GX_SetTevOp(GX_TEVSTAGE0,GX_MODULATE);
+	GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
+	
+	GX_LoadTexObj(&texture, GX_TEXMAP0);
+	//GX_InitTexObjFilterMode(&texture, GX_NEAR, GX_NEAR);
 	
 	setupWiimote();
 
-
 	SYS_SetResetCallback(reload);
 	SYS_SetPowerCallback(shutdown);
-	
+	//SYS_STDIO_Report(true);
+	renderer.camera.pos.z = 5;
+	renderer.camera.pos.x = -0.5;
+	renderer.camera.pos.y = 0.5;
+	bool txx = true;
+
+    //pour rediriger stdout dans dolphin
+    SYS_STDIO_Report(true);
+    Game g;
+    t_coord pos(0,0,0);
+    World w = g.getWorld();
+
 	while (!exiting) {
-		//VIDEO_ClearFrameBuffer(rmode,xfb[fbi],COLOR_BLACK);
+        //VIDEO_ClearFrameBuffer(rmode,xfb[fbi],COLOR_BLACK);
 
         WPAD_ScanPads();
         if(WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME) exit(0);
@@ -161,26 +227,26 @@ int main(int argc, char ** argv) {
 
         guVector move = {0,0,0};
         guVector lookN;
-        lookN.x = camera.look.x;
-        lookN.y = camera.look.y;
-        lookN.z = camera.look.z;
-        printf("x : %lf, y: %lf, z: %lf\n", lookN.x, lookN.y, lookN.z);
+        lookN.x = renderer.camera.look.x;
+        lookN.y = renderer.camera.look.y;
+        lookN.z = renderer.camera.look.z;
+		
         guVecNormalize(&lookN);
         if ( directions & WPAD_BUTTON_LEFT ) {
-            guVecCross(&lookN, &camera.up, &move);
+            guVecCross(&lookN, &renderer.camera.up, &move);
             move = InverseVector(move);
         }
         if ( directions & WPAD_BUTTON_RIGHT ) {
-            guVecCross(&lookN, &camera.up, &move);
+            guVecCross(&lookN, &renderer.camera.up, &move);
         }
         if ( directions & WPAD_BUTTON_UP ) move = lookN;
         if ( directions & WPAD_BUTTON_DOWN ) move = InverseVector(lookN);
 
-        camera.pos.x += move.x/10;
-        camera.pos.z += move.z/10;
+        renderer.camera.pos.x += move.x/10;
+        renderer.camera.pos.z += move.z/10;
 
-        if ( directions & WPAD_BUTTON_A) camera.pos.y += 0.1;
-        if ( directions & WPAD_BUTTON_B) camera.pos.y -= 0.1;
+        if ( directions & WPAD_BUTTON_A) renderer.camera.pos.y += 0.1;
+        if ( directions & WPAD_BUTTON_B) renderer.camera.pos.y -= 0.1;
 
 /*
         if ( yrot > 360.f ) yrot -= 360.f;
@@ -189,43 +255,62 @@ int main(int argc, char ** argv) {
         if (data.type == WPAD_EXP_NUNCHUK) { // Ensure there's a nunchuk
 
             tpad = data.nunchuk.js.pos.x - data.nunchuk.js.center.x;
-            if ((tpad < -8) || (tpad > 8)) camera.pos.x += (f32) tpad / 10;
+            if ((tpad < -8) || (tpad > 8)) renderer.camera.pos.x += (f32) tpad / 10;
 
             tpad = data.nunchuk.js.pos.y - data.nunchuk.js.center.y;
-            if ((tpad < -8) || (tpad > 8)) camera.pos.z += (f32) tpad / 10;
+            if ((tpad < -8) || (tpad > 8)) renderer.camera.pos.z += (f32) tpad / 10;
 
         }
-
-		Renderer::renderBloc({-1, 0, 0});
-		Renderer::renderBloc({0, 0, -1});
-		Renderer::renderBloc({0, -1, 0});
-		Renderer::renderBloc({1, 0, 0});
-		Renderer::renderBloc({0, 0, 1});
-		Renderer::renderBloc({0, 1, 0});
-		light.update(camera.viewMatrix);
-
+		//renderer.camera.rotateV(-0.10);
+		//renderer.camera.rotateH(0.50);
+		//camera.rotateH(1);
+		renderer.camera.update();
+		//renderer.renderBloc({-1, 0, 0}, 1);
+		//renderer.renderBloc({0, 0, -1}, 1);
+		//renderer.renderBloc({0, -1, 0}, 1);
+		//renderer.renderBloc({1, 0, 0}, 1);
+		//renderer.renderBloc({0, 0, 1}, 1);
+        renderChunk(w, renderer);
+		//renderer.renderBloc({4, 0, 0}, 1);
+		//renderer.renderBloc({7, -1, 0}, 1);
+		//renderer.renderBloc({8, 0, 0}, 1);
+		//renderer.renderBloc({9, -1, 0}, 1);
+		//renderer.renderBloc({1, -1, 0}, 2);
+		//renderer.renderBloc({0, -1, 1}, 2);
+		//renderer.renderBloc({0, 0, 1}, 3);
+		
+		//for (int X = -20; X < 20; X++) {
+		//	for (int Z = -20; Z < 20; Z++) {
+		//		renderer.renderBloc({static_cast<f32>(X), 0, static_cast<f32>(Z)}, 1);
+		//	}
+		//}
+		//light.update(camera.viewMatrix);
+		
 		//testRender();
+		//setupDebugConsole();
+		
+		//drawdot(rmode->fbWidth, rmode->xfbHeight, 0, 0, COLOR_YELLOW);
 
+		//Renderer::setupDebugConsole();
 		WPAD_ReadPending(WPAD_CHAN_ALL, countevs);
 		int wiimote_connection_status = WPAD_Probe(0, &type);
-
-
+		
+		//print_wiimote_connection_status(wiimote_connection_status);
+		
 		if (wiimote_connection_status == WPAD_ERR_NONE) {
             WPADData * wd = WPAD_Data(0);
              if (wd->ir.valid) {
                  if(wd->ir.x <  Renderer::rmode->fbWidth/2 - Renderer::rmode->fbWidth/4)
-                     camera.rotateH( M_PI / 8);
+                     renderer.camera.rotateH( M_PI / 8);
                  if(wd->ir.x >  Renderer::rmode->fbWidth/2 + Renderer::rmode->fbWidth/4)
-                     camera.rotateH(- M_PI / 8);
+                     renderer.camera.rotateH(- M_PI / 8);
                  if(wd->ir.y <  Renderer::rmode->xfbHeight/2 - Renderer::rmode->xfbHeight/4)
-                     camera.rotateV(- M_PI / 8);
+                     renderer.camera.rotateV(- M_PI / 8);
                  if(wd->ir.y >  Renderer::rmode->xfbHeight/2 + Renderer::rmode->xfbHeight/4)
-                     camera.rotateV(M_PI / 8);
+                     renderer.camera.rotateV(M_PI / 8);
              }
         }
-
-		//drawdot(Renderer::rmode->fbWidth, Renderer::rmode->xfbHeight, 0, 0, COLOR_YELLOW);
-        camera.update();
+		
 		Renderer::endFrame();
 	}
 	

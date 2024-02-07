@@ -12,7 +12,7 @@
 
 class Camera {
 
-	
+
 public:
 	Mtx44 viewMatrix, perspective;
 	guVector pos = {0.0F, 0.0F, 0.0F},
@@ -23,13 +23,7 @@ public:
 	 * @param min Minimum render distance
 	 * @param max Maximum render distance
 	 */
-	Camera(int fov = 45, f32 min = .1, f32 max = 300) {
-		
-		guPerspective(perspective, fov, (f32)Renderer::rmode->fbWidth / Renderer::rmode->xfbHeight, 0.1F, 300.0F);
-		GX_LoadProjectionMtx(perspective, GX_PERSPECTIVE);
-		
-		guLookAt(viewMatrix, &pos, &up, &look);
-	}
+	explicit Camera(f32 fov = 45, f32 min = .1, f32 max = 300);
 	
 	~Camera() = default;
 

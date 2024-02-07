@@ -6,7 +6,7 @@
 #include <malloc.h>
 #include <string.h>
 #include "engine/render/renderer.h"
-
+#include "engine/render/bloc.h"
 
 void Renderer::setupVideo() {
 	VIDEO_Init();
@@ -60,17 +60,15 @@ void Renderer::setupVtxDesc() {
 	
 	GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
 	GX_SetVtxDesc(GX_VA_NRM, GX_DIRECT);
-	GX_SetVtxDesc(GX_VA_CLR0, GX_DIRECT);
 	GX_SetVtxDesc(GX_VA_TEX0, GX_DIRECT);
 	
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_NRM_XYZ, GX_F32, 0);
-	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGB, GX_RGB8, 0);
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
 	
 	// setup texture coordinate generation
 	// args: texcoord slot 0-7, matrix type, source to generate texture coordinates from, matrix to use
-	GX_SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX3x4, GX_TG_TEX0, GX_IDENTITY); // TODO gtttttttt
+	GX_SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY); // TODO gtttttttt
 	
 }
 
@@ -125,143 +123,140 @@ int Renderer::selectFrameBuffer;
 void * Renderer::gp_fifo = nullptr;
 
 GXRModeObj * Renderer::rmode;
-GXColor Renderer::background = {0, 0, 0x90, 0xff}; // blue
+GXColor Renderer::background = {0xff, 0xff, 0xff, 0xff}; // blue = {0x29, 0xae, 0xea, 0xff}; // blue
 
 
-void Renderer::renderBloc(const guVector &coord, const GXColor& color) {
-	const f32 cx = coord.x;
-	const f32 cy = coord.y;
-	const f32 cz = coord.z;
-	const f32 mx = coord.x - 1;
-	const f32 my = coord.y - 1;
-	const f32 mz = coord.z - 1;
+void Renderer::renderBloc(const guVector &coord, u32 code) {
+	Mtx model,modelview; // Various matrices
+	
+	guMtxIdentity(model);
+	
+	guMtxTransApply(model, model, coord.x, coord.y, coord.z);
+	
+	guMtxConcat(model, camera.viewMatrix, modelview);
+	GX_LoadPosMtxImm(modelview, GX_PNMTX0);
+	
 	
 	GX_Begin(GX_QUADS, GX_VTXFMT0, 24); // Start drawing
+	
 	// Bottom face
-	GX_Position3f32(mx, my, mz);
+	f32 x = blocData[code].x[BLOC_FACE_BOTTOM];
+	f32 y = blocData[code].y[BLOC_FACE_BOTTOM];
+	//SYS_Report("jtrdthbfdg %f %f\r", x, y);
+	GX_Position3f32(-1.0f, -1.0f, -1.0f);
 	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(1.0f, 1.0f); // Top right
+	GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
 	
-	GX_Position3f32(cx, my, mz);
+	GX_Position3f32(0.0f, -1.0f, -1.0f);
 	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(0.0f, 1.0f); // Top left
+	GX_TexCoord2f32(x, y + OFFSET); // Top left
 	
-	GX_Position3f32(cx, my, cz);
+	GX_Position3f32(0.0f, -1.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(0.0f, 0.0f); // Bottom left
+	GX_TexCoord2f32(x, y); // Bottom left
 	
-	GX_Position3f32(mx, my, cz);
+	GX_Position3f32(-1.0f, -1.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(1.0f, 0.0f); // Bottom right
+	GX_TexCoord2f32(x + OFFSET, y); // Bottom right
 	
 	// Front face
-	GX_Position3f32(mx, my, cz);
-	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(0.0f, 0.0f); // Bottom left
+	x = blocData[code].x[BLOC_FACE_FRONT];
+	y = blocData[code].y[BLOC_FACE_FRONT];
 	
-	GX_Position3f32(cx, my, cz);
+	GX_Position3f32(-1.0f, -1.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(1.0f, 0.0f); // Bottom right
+	GX_TexCoord2f32(x, y); // Bottom left
 	
-	GX_Position3f32(cx, cy, cz);
+	GX_Position3f32(0.0f, -1.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(1.0f, 1.0f); // Top right
+	GX_TexCoord2f32(x + OFFSET, y); // Bottom right
 	
-	GX_Position3f32(mx, cy, cz);
+	GX_Position3f32(0.0f, 0.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(0.0f, 1.0f); // Top left
+	GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
+	
+	GX_Position3f32(-1.0f, 0.0f, 0.0f);
+	GX_Normal3f32(0, 0, 1);
+	GX_TexCoord2f32(x, y + OFFSET); // Top left
 	
 	// Back face
-	GX_Position3f32(mx, my, mz);
-	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(1.0f, 0.0f); // Bottom right
+	x = blocData[code].x[BLOC_FACE_BACK];
+	y = blocData[code].y[BLOC_FACE_BACK];
 	
-	GX_Position3f32(mx, cy, mz);
+	GX_Position3f32(-1.0f, -1.0f, -1.0f);
 	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(1.0f, 1.0f); // Top right
+	GX_TexCoord2f32(x + OFFSET, y); // Bottom right
 	
-	GX_Position3f32(cx, cy, mz);
+	GX_Position3f32(-1.0f, 0.0f, -1.0f);
 	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(0.0f, 1.0f); // Top left
+	GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
 	
-	GX_Position3f32(cx, my, mz);
+	GX_Position3f32(0.0f, 0.0f, -1.0f);
 	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(0.0f, 0.0f); // Bottom left
+	GX_TexCoord2f32(x, y + OFFSET); // Top left
+	
+	GX_Position3f32(0.0f, -1.0f, -1.0f);
+	GX_Normal3f32(0, 0, 1);
+	GX_TexCoord2f32(x, y); // Bottom left
 	
 	// Right face
-	GX_Position3f32(cx, my, mz);
-	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(1.0f, 0.0f); // Bottom right
+	x = blocData[code].x[BLOC_FACE_RIGHT];
+	y = blocData[code].y[BLOC_FACE_RIGHT];
 	
-	GX_Position3f32(cx, cy, mz);
+	GX_Position3f32(0.0f, -1.0f, -1.0f);
 	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(1.0f, 1.0f); // Top right
+	GX_TexCoord2f32(x + OFFSET, y); // Bottom right
 	
-	GX_Position3f32(cx, cy, cz);
+	GX_Position3f32(0.0f, 0.0f, -1.0f);
 	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(0.0f, 1.0f); // Top left
+	GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
 	
-	GX_Position3f32(cx, my, cz);
+	GX_Position3f32(0.0f, 0.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(0.0f, 0.0f); // Bottom left
+	GX_TexCoord2f32(x, y + OFFSET); // Top left
+	
+	GX_Position3f32(0.0f, -1.0f, 0.0f);
+	GX_Normal3f32(0, 0, 1);
+	GX_TexCoord2f32(x, y); // Bottom left
 	
 	// Left face
-	GX_Position3f32(cx, my, mz);
-	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(0.0f, 0.0f); // Bottom right
+	x = blocData[code].x[BLOC_FACE_LEFT];
+	y = blocData[code].y[BLOC_FACE_LEFT];
 	
-	GX_Position3f32(mx, my, cz);
+	GX_Position3f32(-1.0f, -1.0f, -1.0f);
 	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(1.0f, 0.0f); // Top right
+	GX_TexCoord2f32(x, y); // Bottom right
 	
-	GX_Position3f32(mx, cy, cz);
+	GX_Position3f32(-1.0f, -1.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(1.0f, 1.0f); // Top left
+	GX_TexCoord2f32(x + OFFSET, y); // Top right
 	
-	GX_Position3f32(mx, cy, mz);
+	GX_Position3f32(-1.0f, 0.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(0.0f, 1.0f); // Bottom left
+	GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top left
+	
+	GX_Position3f32(-1.0f, 0.0f, -1.0f);
+	GX_Normal3f32(0, 0, 1);
+	GX_TexCoord2f32(x, y + OFFSET); // Bottom left
 	
 	// Top face
-	GX_Position3f32(mx, cy, mz);
-	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(0.0f, 1.0f); // Top left
+	x = blocData[code].x[BLOC_FACE_TOP];
+	y = blocData[code].y[BLOC_FACE_TOP];
 	
-	GX_Position3f32(mx, cy, cz);
+	GX_Position3f32(-1.0f, 0.0f, -1.0f);
 	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(0.0f, 0.0f); // Bottom left
+	GX_TexCoord2f32(x, y + OFFSET); // Top left
 	
-	GX_Position3f32(cx, cy, cz);
+	GX_Position3f32(-1.0f, 0.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(1.0f, 0.0f); // Bottom right
+	GX_TexCoord2f32(x, y); // Bottom left
 	
-	GX_Position3f32(cx, cy, mz);
+	GX_Position3f32(0.0f, 0.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
-	GX_Color3f32(color.r, color.g, color.b);
-	GX_TexCoord2f32(1.0f, 1.0f); // Top right
+	GX_TexCoord2f32(x + OFFSET, y); // Bottom right
 	
+	GX_Position3f32(0.0f, 0.0f, -1.0f);
+	GX_Normal3f32(0, 0, 1);
+	GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
 	GX_End();         // Done drawing quads
 }
