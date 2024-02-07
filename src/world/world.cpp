@@ -6,9 +6,12 @@
 #include <stdexcept>
 
 
-World::World() {}
+World::World() : loadedChunk() {
+}
 
-World::~World() {}
+World::~World() {
+    delete[] &loadedChunk;
+}
 
 t_pos2D World::to_chunk_pos(t_coord& c)
 {
