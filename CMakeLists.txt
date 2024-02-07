@@ -11,7 +11,6 @@ add_executable(Miicraft main.cpp
         src/wiimote.cpp
         src/world/block.cpp
         src/world/verticalChunk.cpp
-        src/world/horizontalChunck.cpp
         src/world/world.cpp
         src/engine/render/renderer.cpp
         src/engine/render/light.cpp

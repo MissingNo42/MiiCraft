@@ -142,7 +142,7 @@ guVector InverseVector(const guVector& v){
 }
 
 
-void renderChunk(World& w){
+void renderChunk(World& w, Renderer& renderer){
     t_coord pos(0,0,0);
     for(int offsetX = -1; offsetX<=1; offsetX ++){
         for(int offsetY= -1; offsetY<=1; offsetY++){
@@ -157,7 +157,7 @@ void renderChunk(World& w){
                         {
                             //printf("Start Rendering : x : %d, y: %d, z: %d\r", i, j, k);
 
-                            Renderer::renderBloc({static_cast<f32>(i + offsetX * 16 + offsetY * 16), static_cast<f32>(j), static_cast<f32>(k + offsetX * 16 + offsetY * 16)});
+                            renderer.renderBloc({static_cast<f32>(i + offsetX * 16 + offsetY * 16), static_cast<f32>(j), static_cast<f32>(k + offsetX * 16 + offsetY * 16)}, 1);
                             //printf("End Rendering : x : %d, y: %d, z: %d\r", i, j, k);
 
                         }
@@ -270,7 +270,7 @@ int main(int argc, char ** argv) {
 		//renderer.renderBloc({0, -1, 0}, 1);
 		//renderer.renderBloc({1, 0, 0}, 1);
 		//renderer.renderBloc({0, 0, 1}, 1);
-        renderChunk(w);
+        renderChunk(w, renderer);
 		//renderer.renderBloc({4, 0, 0}, 1);
 		//renderer.renderBloc({7, -1, 0}, 1);
 		//renderer.renderBloc({8, 0, 0}, 1);
