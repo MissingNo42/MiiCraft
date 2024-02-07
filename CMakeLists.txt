@@ -20,7 +20,6 @@ add_executable(Miicraft main.cpp
         src/engine/render/light.cpp
         src/matrix/matrix.cpp
         src/world/coord.h
-        src/world/coord.h
 )
 
 

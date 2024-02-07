@@ -14,7 +14,10 @@
 #include "engine/render/renderer.h"
 #include "engine/render/camera.h"
 #include "engine/render/light.h"
+#include "Cube.h"
+#include "Cube_tpl.h"
 #include "pl.h"
+
 
 
 int exiting = 0;
@@ -177,6 +180,7 @@ guVector InverseVector(const guVector& v){
 }
 
 
+
 int main(int argc, char ** argv) {
 	u32 type;
 	
@@ -185,15 +189,15 @@ int main(int argc, char ** argv) {
 	
 	Renderer::setupVideo();
 	Renderer::setupVtxDesc();
-	
+
+    TPLFile cubeTPL;
 	//Light light;
 	//GX_InvalidateTexAll();
 	
 	Camera camera;
 	
-	loadTexture(pl.pixel_data, 64, 64);
-	
 	setupWiimote();
+
 	
 	SYS_SetResetCallback(reload);
 	SYS_SetPowerCallback(shutdown);
