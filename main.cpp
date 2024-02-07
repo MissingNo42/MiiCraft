@@ -18,6 +18,8 @@
 
 #include "texture.c"
 
+#include "src/world/game.h"
+
 
 int exiting = 0;
 
@@ -139,6 +141,36 @@ guVector InverseVector(const guVector& v){
     return vtemp;
 }
 
+
+void renderChunk(World& w){
+    t_coord pos(0,0,0);
+    for(int offsetX = -1; offsetX<=1; offsetX ++){
+        for(int offsetY= -1; offsetY<=1; offsetY++){
+            for (int i = 0; i < 16; ++i) {
+
+                pos.x = i+ offsetX * 16 + offsetY * 16;
+                for (int j = 0; j < 128; ++j) {
+                    pos.y = j;
+                    for (int k = 0; k < 16; ++k) {
+                        pos.z = k + offsetX * 16 + offsetY * 16;
+                        if (w.getBlockAt(pos).type != BlockType::Air)
+                        {
+                            //printf("Start Rendering : x : %d, y: %d, z: %d\r", i, j, k);
+
+                            Renderer::renderBloc({static_cast<f32>(i + offsetX * 16 + offsetY * 16), static_cast<f32>(j), static_cast<f32>(k + offsetX * 16 + offsetY * 16)});
+                            //printf("End Rendering : x : %d, y: %d, z: %d\r", i, j, k);
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+}
+
+
 int main(int argc, char ** argv) {
 	u32 type;
 	
@@ -149,6 +181,7 @@ int main(int argc, char ** argv) {
 	Renderer::setupVtxDesc();
 	Renderer::setupMisc();
 	
+
 	//Light light;
 	//GX_InvalidateTexAll();
 	Renderer renderer;
@@ -163,7 +196,7 @@ int main(int argc, char ** argv) {
 	//GX_InitTexObjFilterMode(&texture, GX_NEAR, GX_NEAR);
 	
 	setupWiimote();
-	
+
 	SYS_SetResetCallback(reload);
 	SYS_SetPowerCallback(shutdown);
 	//SYS_STDIO_Report(true);
@@ -171,11 +204,16 @@ int main(int argc, char ** argv) {
 	renderer.camera.pos.x = -0.5;
 	renderer.camera.pos.y = 0.5;
 	bool txx = true;
-	
+
+    //pour rediriger stdout dans dolphin
+    SYS_STDIO_Report(true);
+    Game g;
+    t_coord pos(0,0,0);
+    World w = g.getWorld();
+
 	while (!exiting) {
         //VIDEO_ClearFrameBuffer(rmode,xfb[fbi],COLOR_BLACK);
 
-	GX_LoadTexObj(&texture, GX_TEXMAP0);
         WPAD_ScanPads();
         if(WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME) exit(0);
 
@@ -232,8 +270,7 @@ int main(int argc, char ** argv) {
 		//renderer.renderBloc({0, -1, 0}, 1);
 		//renderer.renderBloc({1, 0, 0}, 1);
 		//renderer.renderBloc({0, 0, 1}, 1);
-		renderer.renderBloc({0, 0, 0}, 1);
-		renderer.renderBloc({1, -1, 0}, 1);
+        renderChunk(w);
 		//renderer.renderBloc({4, 0, 0}, 1);
 		//renderer.renderBloc({7, -1, 0}, 1);
 		//renderer.renderBloc({8, 0, 0}, 1);
@@ -253,6 +290,26 @@ int main(int argc, char ** argv) {
 		//setupDebugConsole();
 		
 		//drawdot(rmode->fbWidth, rmode->xfbHeight, 0, 0, COLOR_YELLOW);
+
+		//Renderer::setupDebugConsole();
+		WPAD_ReadPending(WPAD_CHAN_ALL, countevs);
+		int wiimote_connection_status = WPAD_Probe(0, &type);
+		
+		//print_wiimote_connection_status(wiimote_connection_status);
+		
+		if (wiimote_connection_status == WPAD_ERR_NONE) {
+            WPADData * wd = WPAD_Data(0);
+             if (wd->ir.valid) {
+                 if(wd->ir.x <  Renderer::rmode->fbWidth/2 - Renderer::rmode->fbWidth/4)
+                     renderer.camera.rotateH( M_PI / 8);
+                 if(wd->ir.x >  Renderer::rmode->fbWidth/2 + Renderer::rmode->fbWidth/4)
+                     renderer.camera.rotateH(- M_PI / 8);
+                 if(wd->ir.y <  Renderer::rmode->xfbHeight/2 - Renderer::rmode->xfbHeight/4)
+                     renderer.camera.rotateV(- M_PI / 8);
+                 if(wd->ir.y >  Renderer::rmode->xfbHeight/2 + Renderer::rmode->xfbHeight/4)
+                     renderer.camera.rotateV(M_PI / 8);
+             }
+        }
 		
 		Renderer::endFrame();
 	}
