@@ -265,7 +265,7 @@ int main(int argc, char ** argv) {
 		//renderer.camera.rotateV(-0.10);
 		//renderer.camera.rotateH(0.50);
 		//camera.rotateH(1);
-		renderer.camera.update();
+		renderer.camera.update(false);
 		//renderer.renderBloc({-1, 0, 0}, 1);
 		//renderer.renderBloc({0, 0, -1}, 1);
 		//renderer.renderBloc({0, -1, 0}, 1);

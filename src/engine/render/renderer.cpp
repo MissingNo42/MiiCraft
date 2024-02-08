@@ -133,7 +133,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code) {
 	
 	guMtxTransApply(model, model, coord.x, coord.y, coord.z);
 	
-	guMtxConcat(model, camera.viewMatrix, modelview);
+	guMtxConcat(camera.viewMatrix, model, modelview);
 	GX_LoadPosMtxImm(modelview, GX_PNMTX0);
 	
 	
