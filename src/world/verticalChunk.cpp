@@ -16,10 +16,7 @@ bool const t_pos2D::operator<(const t_pos2D &p) const {
     if (p.x == x){return y < p.y;}
     else {return x < p.x;}
 }
-/*
-VerticalChunk::VerticalChunk(Block b[16][128][16])  {
-    std::memcpy(blocks, b, sizeof(blocks));
-}*/
+
 
 VerticalChunk::VerticalChunk(Block b[16][128][16]) {
     for (int y = 0; y < 128; y++) {
