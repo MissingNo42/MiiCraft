@@ -20,7 +20,7 @@ void saveManager::saveChunk(t_pos2D pos, VerticalChunk *c) {
 
     printf("=====1======\r");
 
-    const uint8_t* str = c->toString();
+    const char* str = c->toString();
 
     fwrite(str, 16*16*128, 1, file);
 
