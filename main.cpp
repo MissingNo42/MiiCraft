@@ -50,20 +50,8 @@ void renderChunk(World& w, Renderer& renderer){
                         b = w.getBlockAt(pos);
                         if (b.type != BlockType::Air)
                         {
-                            if (b.type == BlockType::Grass)
-                                renderer.renderBloc({static_cast<f32>(i + offsetX * 16), static_cast<f32>(j), static_cast<f32>(k +  offsetY * 16)}, 2);
-                            else if (b.type == BlockType::Dirt)
-                                renderer.renderBloc({static_cast<f32>(i + offsetX * 16), static_cast<f32>(j), static_cast<f32>(k +  offsetY * 16)}, 1);
-                            else if (b.type == BlockType::Stone)
-                                renderer.renderBloc({static_cast<f32>(i + offsetX * 16), static_cast<f32>(j), static_cast<f32>(k +  offsetY * 16)}, 3);
-                            else if (b.type == BlockType::Bedrock)
-                                renderer.renderBloc({static_cast<f32>(i + offsetX * 16), static_cast<f32>(j), static_cast<f32>(k +  offsetY * 16)}, 4);
-                            else if (b.type == BlockType::Log)
-                                renderer.renderBloc({static_cast<f32>(i + offsetX * 16), static_cast<f32>(j), static_cast<f32>(k +  offsetY * 16)}, 5);
-                            else if (b.type == BlockType::Leaves)
-                                renderer.renderBloc({static_cast<f32>(i + offsetX * 16), static_cast<f32>(j), static_cast<f32>(k +  offsetY * 16)}, 6);
-                            else
-                                renderer.renderBloc({static_cast<f32>(i + offsetX * 16), static_cast<f32>(j), static_cast<f32>(k +  offsetY * 16)}, 1);
+                            renderer.renderBloc({static_cast<f32>(i + offsetX * 16), static_cast<f32>(j), static_cast<f32>(k +  offsetY * 16)}, b.type);
+
                         }
                     }
                 }

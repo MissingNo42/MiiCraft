@@ -16,7 +16,8 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
     Block blocks[16][128][16];
 
     //Append in a file
-    std::ofstream file("chunk.txt", std::ios::app);
+
+    int blockHeights[16][16];
 
     for(int i = 0; i < 16; i ++){
         for(int j = 0; j < 16; j++){
@@ -32,11 +33,17 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
             } else if(d> 127){
                 d = 127;
             }
-            int height;
 
-           // height = noiseToInteger(d);
-            height = (int) d;
-            file << height << std::endl;
+
+
+            int height = (int) d;
+
+
+            //On remplit le tableau des hauteurs
+            blockHeights[i][j] = height;
+
+
+
             for(int k = 0; k < 128; k++){
                 if (k == 0){
                     blocks[i][k][j].type = BlockType::Bedrock;
@@ -47,7 +54,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
                     blocks[i][k][j].type = BlockType::Dirt;
                 }else if(k == height){
                     blocks[i][k][j].type = BlockType::Grass;
-                }else{
+                } else {
                     blocks[i][k][j].type = BlockType::Air;
                 }
 
@@ -55,7 +62,47 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
         }
     }
-    file.close();
+
+    //On sélectionne une coordonnée aléatoire du tableau des hauteurs
+    int x = rand() %12 + 2;
+    int z = rand() %12 +2;
+
+    //On construit le tronc :
+    for (int y = 0; y < 5; y++) {
+        blocks[x][blockHeights[x][z] + y][z].type = BlockType::Log;
+    }
+
+    //On construit les feuilles :
+    for(int h = 0; h < 2; h++){
+        for (int i = -2; i < 3; i++) {
+            for (int j = -2; j < 3; j++) {
+                if(i == 0 && j == 0){
+                    continue;
+                }
+                blocks[x + i][blockHeights[x][z] + 2 + h][z + j].type = BlockType::Leaves;
+            }
+        }
+    }
+    for(int i = -1; i < 2; i++){
+        for(int j = -1; j < 2; j++){
+            if(i == 0 && j == 0){
+                continue;
+            }
+            blocks[x + i][blockHeights[x][z] + 4][z + j].type = BlockType::Leaves;
+        }
+    }
+
+
+    blocks[x + 1][blockHeights[x][z] + 5][z].type = BlockType::Leaves;
+    blocks[x - 1][blockHeights[x][z] + 5][z].type = BlockType::Leaves;
+    blocks[x][blockHeights[x][z] + 5][z+1].type = BlockType::Leaves;
+    blocks[x][blockHeights[x][z] + 5][z-1].type = BlockType::Leaves;
+
+
+
+
+
+
 
     VerticalChunk* vc = new VerticalChunk(blocks);
     w.addChunk(pos, vc);

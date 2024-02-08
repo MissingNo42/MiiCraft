@@ -44,6 +44,6 @@ BlocData blocData[7] {
         {
             //Leaves
             .x = { OFFSET * 4, OFFSET * 4, OFFSET * 4, OFFSET * 4, OFFSET * 4, OFFSET * 4 },
-            .y = { OFFSET, OFFSET, OFFSET, OFFSET, OFFSET, OFFSET }
+            .y = { 0, 0, 0, 0, 0, 0 }
         }
 };
