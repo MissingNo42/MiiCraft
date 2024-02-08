@@ -11,3 +11,4 @@ Camera::Camera(f32 fov, f32 min, f32 max) {
 	
 	guLookAt(viewMatrix, &pos, &up, &look);
 }
+

@@ -5,9 +5,24 @@
 #ifndef MIICRAFT_WIIMOTE_H
 #define MIICRAFT_WIIMOTE_H
 
+#include <cstdlib>
 #include <wiiuse/wpad.h>
+#include "engine/render/renderer.h"
 
+class Wiimote {
+private:
+    struct expansion_t data = {0};
+    int chan = WPAD_CHAN_0;
+    int speed = 1;
+    u32 type = 0;
 
-void setupWiimote();
+    void handleMovement(Renderer& renderer, u16 directions);
+    static void handleRotation(Renderer& renderer, WPADData * wd);
+
+public:
+    Wiimote();
+    void update(Renderer& renderer);
+};
+
 
 #endif //MIICRAFT_WIIMOTE_H

@@ -12,12 +12,12 @@
 
 class Camera {
 
-
 public:
 	Mtx44 viewMatrix, perspective;
-	guVector pos = {0.0F, 0.0F, 0.0F},
-	look = {0.0F, 0.0F, -1.0F};
     guVector up = {0.0F, 1.0F, 0.0F};
+	guVector pos = {0.0F, 0.0F, 0.0F},
+    look = {0.0F, 0.0F, -1.0F};
+
 	/** Constructor
 	 * @param fov Field of view (half angle in degrees)
 	 * @param min Minimum render distance
@@ -54,6 +54,41 @@ public:
 	
 		VecRotAxis(&look, right, rad);
 	}
+
+    static guVector InverseVector(const guVector& v){
+        guVector vtemp;
+        vtemp.x = - v.x;
+        vtemp.y = - v.y;
+        vtemp.z = - v.z;
+
+        return vtemp;
+    }
+
+    void goLeft(guVector& normalizedLook, int speed) {
+        guVector move = {0,0,0};
+        guVecCross(&normalizedLook, &up, &move);
+        move = InverseVector(move);
+        pos.x += move.x/10 * (f32) speed;
+        pos.z += move.z/10 * (f32) speed;
+    }
+
+    void goRight(guVector& normalizedLook, int speed) {
+        guVector move = {0,0,0};
+        guVecCross(&normalizedLook, &up, &move);
+        pos.x += move.x/10 * (f32) speed;
+        pos.z += move.z/10 * (f32) speed;
+    }
+
+    void goForward(guVector& normalizedLook, int speed) {
+        pos.x += normalizedLook.x/10 * (f32) speed;
+        pos.z += normalizedLook.z/10 * (f32) speed;
+    }
+
+    void goBackward(guVector& normalizedLook, int speed) {
+        guVector move = InverseVector(normalizedLook);
+        pos.x += move.x/10 * (f32) speed;
+        pos.z += move.z/10 * (f32) speed;
+    }
 };
 
 
