@@ -15,14 +15,14 @@ private:
     World w;
     WorldGenerator* gen;
     //Singleton design pattern
-    static Game* instance;
+    static inline Game* instance = nullptr;
 public:
-//    static Game* getInstance(){
-//        if(instance == nullptr){
-//            instance = new Game();
-//        }
-//        return instance;
-//    }
+    static Game* getInstance(){
+        if(instance == nullptr){
+            instance = new Game();
+        }
+        return instance;
+    }
 
     Game();
     World& getWorld();

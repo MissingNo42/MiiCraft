@@ -18,6 +18,8 @@ public:
 
     void generateNoise();
 
+    int noiseToInteger(float floatValue);
+
     PerlinWorldGenerator();
 };
 
