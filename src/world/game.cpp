@@ -10,8 +10,8 @@ Game::Game() {
 
     gen = new PerlinWorldGenerator();
     t_pos2D pos = {0, 0};
-    for (int x = 0 ; x<3; x++){
-        for (int z = 0 ; z<3; z++){
+    for (int x = 0 ; x<10; x++){
+        for (int z = 0 ; z<10; z++){
             pos.x = x;
             pos.y = z;
             gen->generateChunk(w, pos);
