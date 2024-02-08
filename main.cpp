@@ -50,7 +50,7 @@ void renderChunk(World& w, Renderer& renderer){
                         b = w.getBlockAt(pos);
                         if (b.type != BlockType::Air)
                         {
-                            renderer.renderBloc({static_cast<f32>(i + offsetX * 16), static_cast<f32>(j), static_cast<f32>(k +  offsetY * 16)}, b.type);
+                            renderer.renderBloc({static_cast<f32>(i + offsetX * 16), static_cast<f32>(j), static_cast<f32>(k +  offsetY * 16)}, b.type, true, true, true, true, true, true);
 
                         }
                     }
@@ -74,7 +74,8 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 		// X 0 Z 0
 		
 		if (c.blocks[0][y][0].type != BlockType::Air) {
-			renderer.renderBloc({(f32)px, (f32)y, (f32)pz}, 1,
+
+			renderer.renderBloc({(f32)px, (f32)y, (f32)pz}, c.blocks[0][y][0].type ,
 				c.blocks[0][y+1][0].type == BlockType::Air,
 				c.blocks[0][y-1][0].type == BlockType::Air,
 				true,
@@ -87,7 +88,7 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 		// X 0 Z 15
 		
 		if (c.blocks[0][y][15].type != BlockType::Air) {
-			renderer.renderBloc({(f32)px, (f32)y, (f32)(15 + pz)}, 1,
+			renderer.renderBloc({(f32)px, (f32)y, (f32)(15 + pz)}, c.blocks[0][y][15].type ,
 				c.blocks[0][y+1][15].type == BlockType::Air,
 				c.blocks[0][y-1][15].type == BlockType::Air,
 				true,
@@ -100,7 +101,7 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 		// X 15 Z 0
 		
 		if (c.blocks[15][y][0].type != BlockType::Air) {
-			renderer.renderBloc({(f32)(15 + px), (f32)y, (f32)pz}, 1,
+			renderer.renderBloc({(f32)(15 + px), (f32)y, (f32)pz},c.blocks[15][y][0].type ,
 				c.blocks[15][y+1][0].type == BlockType::Air,
 				c.blocks[15][y-1][0].type == BlockType::Air,
 				c.blocks[14][y][0].type == BlockType::Air,
@@ -113,7 +114,7 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 		// X 15 Z 15
 		
 		if (c.blocks[15][y][15].type != BlockType::Air) {
-			renderer.renderBloc({(f32)(15 + px), (f32)y, (f32)(15 + pz)}, 1,
+			renderer.renderBloc({(f32)(15 + px), (f32)y, (f32)(15 + pz)}, c.blocks[15][y][15].type ,
 				c.blocks[15][y+1][15].type == BlockType::Air,
 				c.blocks[15][y-1][15].type == BlockType::Air,
 				c.blocks[14][y][15].type == BlockType::Air,
@@ -128,7 +129,7 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 		
 		for (z = 1; z < 15; z++)
 			if (c.blocks[0][y][z].type != BlockType::Air) {
-				renderer.renderBloc({(f32)px, (f32)y, (f32)(z + pz)}, 1,
+				renderer.renderBloc({(f32)px, (f32)y, (f32)(z + pz)}, c.blocks[0][y][z].type ,
 					c.blocks[0][y+1][z].type == BlockType::Air,
 					c.blocks[0][y-1][z].type == BlockType::Air,
 					true,
@@ -142,7 +143,7 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 		
 		for (z = 1; z < 15; z++)
 			if (c.blocks[15][y][z].type != BlockType::Air) {
-				renderer.renderBloc({(f32)(px + 15), (f32)y, (f32)(z + pz)}, 1,
+				renderer.renderBloc({(f32)(px + 15), (f32)y, (f32)(z + pz)}, c.blocks[15][y][z].type,
 					c.blocks[15][y+1][z].type == BlockType::Air,
 					c.blocks[15][y-1][z].type == BlockType::Air,
 					c.blocks[14][y][z].type == BlockType::Air,
@@ -156,7 +157,7 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 		
 		for (x = 1; x < 15; x++)
 			if (c.blocks[x][y][0].type != BlockType::Air) {
-				renderer.renderBloc({(f32)(x + px), (f32)y, (f32)pz}, 1,
+				renderer.renderBloc({(f32)(x + px), (f32)y, (f32)pz}, c.blocks[x][y][0].type ,
 					c.blocks[x][y+1][0].type == BlockType::Air,
 					c.blocks[x][y-1][0].type == BlockType::Air,
 					c.blocks[x - 1][y][0].type == BlockType::Air,
@@ -170,7 +171,7 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 		
 		for (x = 1; x < 15; x++)
 			if (c.blocks[x][y][15].type != BlockType::Air) {
-				renderer.renderBloc({(f32)(x + px), (f32)y, (f32)(15 + pz)}, 1,
+				renderer.renderBloc({(f32)(x + px), (f32)y, (f32)(15 + pz)}, c.blocks[x][y][15].type ,
 					c.blocks[x][y+1][15].type == BlockType::Air,
 					c.blocks[x][y-1][15].type == BlockType::Air,
 					c.blocks[x - 1][y][15].type == BlockType::Air,
@@ -184,7 +185,7 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 		for (x = 1; x < 15; x++) {
 			for (z = 1; z < 15; z++) {
 				if (c.blocks[x][y][z].type != BlockType::Air) {
-					renderer.renderBloc({(f32)(x + px), (f32)y, (f32)(z + pz)}, 1,
+					renderer.renderBloc({(f32)(x + px), (f32)y, (f32)(z + pz)}, c.blocks[x][y][z].type  ,
 						c.blocks[x][y+1][z].type == BlockType::Air,
 						c.blocks[x][y-1][z].type == BlockType::Air,
 						c.blocks[x-1][y][z].type == BlockType::Air,
@@ -203,8 +204,8 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 
 void renderWorld(World& w, Renderer& renderer) {
 	t_pos2D pos;
-	for (pos.x = -1; pos.x <= 1; pos.x++) {
-		for (pos.y = -1; pos.y <= 1; pos.y++) {
+	for (pos.x = 0; pos.x <= 3; pos.x++) {
+		for (pos.y = 0; pos.y <= 3; pos.y++) {
 			renderChunk(w.getChunkAt(pos), renderer, pos);
 		}
 	}
@@ -232,8 +233,7 @@ int main(int argc, char ** argv) {
 	GX_LoadTexObj(&texture, GX_TEXMAP0);
 	//GX_InitTexObjFilterMode(&texture, GX_NEAR, GX_NEAR);
 	//GX_SetTevIndTile()
-	setupWiimote();
-	
+
 	Wiimote wiimote;
 
 	SYS_SetResetCallback(reload);

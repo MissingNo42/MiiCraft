@@ -97,7 +97,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
     blocks[x - 1][blockHeights[x][z] + 5][z].type = BlockType::Leaves;
     blocks[x][blockHeights[x][z] + 5][z+1].type = BlockType::Leaves;
     blocks[x][blockHeights[x][z] + 5][z-1].type = BlockType::Leaves;
-
+    blocks[x][blockHeights[x][z] + 5][z].type = BlockType::Leaves;
 
 
 
