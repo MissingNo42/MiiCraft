@@ -30,13 +30,17 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
             int height = (int) (d );
             std::cout << height << std::endl;
             for(int k = 0; k < 128; k++){
-                if(k < height){
+                if (k == 0){
+                    blocks[i][k][j].type = BlockType::Bedrock;
+                }
+                else if(k < height /2){
                     blocks[i][k][j].type = BlockType::Stone;
+                }else if(k < height){
+                    blocks[i][k][j].type = BlockType::Dirt;
                 }else if(k == height){
                     blocks[i][k][j].type = BlockType::Grass;
                 }else{
                     blocks[i][k][j].type = BlockType::Air;
-
                 }
 
             }
@@ -50,7 +54,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 }
 
 void PerlinWorldGenerator::generateNoise() {
-    noise.SetSeed(34567678); //TODO : A changer
+    noise.SetSeed(1345); //TODO : A changer
     noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     noise.SetFractalType(FastNoiseLite::FractalType_FBm);
     noise.SetFractalOctaves(4);

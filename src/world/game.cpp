@@ -29,14 +29,14 @@ Game::Game() {
 //    gen->generateChunk(w, {-1, 1});
 
     std::cout << w.getBlockAt({0, 0, 0}).toString() << std::endl;
-    std::cout << w.getBlockAt({-16, 0, 0}).toString() << std::endl;
-   std::cout <<  w.getBlockAt({0, 0, -16}).toString() << std::endl;
-    std::cout << w.getBlockAt({-16, 0, -16}).toString() << std::endl;
+    std::cout << w.getBlockAt({32, 0, 0}).toString() << std::endl;
+   std::cout <<  w.getBlockAt({0, 0, 32}).toString() << std::endl;
+    std::cout << w.getBlockAt({32, 0, 32}).toString() << std::endl;
     std::cout << w.getBlockAt({0, 0, 16}).toString() << std::endl;
     std::cout << w.getBlockAt({16, 0, 0}).toString() << std::endl;
     std::cout << w.getBlockAt({16, 0, 16}).toString() << std::endl;
-    std::cout << w.getBlockAt({-16, 0, 16}).toString() << std::endl;
-    std::cout << w.getBlockAt({16, 0, -16}).toString() << std::endl;
+    std::cout << w.getBlockAt({32, 0, 16}).toString() << std::endl;
+    std::cout << w.getBlockAt({16, 0, 32}).toString() << std::endl;
 
 }
 

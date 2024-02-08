@@ -144,22 +144,28 @@ guVector InverseVector(const guVector& v){
 
 void renderChunk(World& w, Renderer& renderer){
     t_coord pos(0,0,0);
-    for(int offsetX = -1; offsetX<=1; offsetX ++){
-        for(int offsetY= -1; offsetY<=1; offsetY++){
+    Block b;
+    for(int offsetX = 0; offsetX<=2; offsetX ++){
+        for(int offsetY= 0; offsetY<=2; offsetY++){
             for (int i = 0; i < 16; ++i) {
-
-                pos.x = i+ offsetX * 16 + offsetY * 16;
+                pos.x = i+ offsetX * 16;
                 for (int j = 0; j < 128; ++j) {
                     pos.y = j;
                     for (int k = 0; k < 16; ++k) {
-                        pos.z = k + offsetX * 16 + offsetY * 16;
-                        if (w.getBlockAt(pos).type != BlockType::Air)
+                        pos.z = k + offsetY * 16;
+                        b = w.getBlockAt(pos);
+                        if (b.type != BlockType::Air)
                         {
-                            //printf("Start Rendering : x : %d, y: %d, z: %d\r", i, j, k);
-
-                            renderer.renderBloc({static_cast<f32>(i + offsetX * 16), static_cast<f32>(j), static_cast<f32>(k +  offsetY * 16)}, 1);
-                            //printf("End Rendering : x : %d, y: %d, z: %d\r", i, j, k);
-
+                            if (b.type == BlockType::Grass)
+                                renderer.renderBloc({static_cast<f32>(i + offsetX * 16), static_cast<f32>(j), static_cast<f32>(k +  offsetY * 16)}, 2);
+                            else if (b.type == BlockType::Dirt)
+                                renderer.renderBloc({static_cast<f32>(i + offsetX * 16), static_cast<f32>(j), static_cast<f32>(k +  offsetY * 16)}, 1);
+                            else if (b.type == BlockType::Stone)
+                                renderer.renderBloc({static_cast<f32>(i + offsetX * 16), static_cast<f32>(j), static_cast<f32>(k +  offsetY * 16)}, 3);
+                            else if (b.type == BlockType::Bedrock)
+                                renderer.renderBloc({static_cast<f32>(i + offsetX * 16), static_cast<f32>(j), static_cast<f32>(k +  offsetY * 16)}, 4);
+                            else
+                                renderer.renderBloc({static_cast<f32>(i + offsetX * 16), static_cast<f32>(j), static_cast<f32>(k +  offsetY * 16)}, 1);
                         }
                     }
                 }
@@ -210,7 +216,9 @@ int main(int argc, char ** argv) {
     Game g;
     t_coord pos(0,0,0);
     World w = g.getWorld();
-
+    renderer.camera.pos.y = 30;
+    renderer.camera.pos.x = 48;
+    renderer.camera.pos.z = 48;
 	while (!exiting) {
         //VIDEO_ClearFrameBuffer(rmode,xfb[fbi],COLOR_BLACK);
 

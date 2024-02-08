@@ -37,4 +37,4 @@ add_executable(MiicraftTest Debug.cpp
 
 
 
-#ogc_create_dol(Miicraft)
+ogc_create_dol(Miicraft)
