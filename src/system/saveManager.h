@@ -31,7 +31,7 @@ public:
     /// Charge un chunk sans vérifier si il existe
     /// \param chunkPos
     /// \return null si problème de lecture
-    VerticalChunk* loadChunk(t_pos2D chunkPos);
+    void loadChunk(t_pos2D pos, VerticalChunk* c);
 };
 
 

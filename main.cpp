@@ -218,6 +218,7 @@ int main(int argc, char ** argv) {
     saveManager sm;
 //    VerticalChunk vc = w.getChunkAt(c_pos);
 //    sm.saveChunk(c_pos, &vc);
+//    sm.loadChunk(c_pos, &w.getChunkAt(c_pos));
 	while (!exiting) {
         //VIDEO_ClearFrameBuffer(rmode,xfb[fbi],COLOR_BLACK);
 

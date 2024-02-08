@@ -38,8 +38,13 @@ bool saveManager::isChunkSaved(t_pos2D chunkPos) {
     return false;
 }
 
-VerticalChunk *saveManager::loadChunk(t_pos2D chunkPos) {
-    return nullptr;
+void saveManager::loadChunk(t_pos2D pos, VerticalChunk* c) {
+    char filename[30];
+    sprintf(filename, "%d_%d.chunk", pos.x, pos.y);
+    FILE* file = fopen(filename, "rb");
+    if (file == NULL) {printf("ouverture du fichier %d %d foiree \r", pos.x, pos.y); return;}
+
+    fread(c->blocks, 16*16*128, 1, file);
 }
 
 saveManager::saveManager() {
