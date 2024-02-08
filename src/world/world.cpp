@@ -46,3 +46,4 @@ VerticalChunk& World::getChunkAt(t_pos2D pos) {
 void World::addChunk(t_pos2D pos, VerticalChunk* chunk) {
     loadedChunk[pos] = chunk;
 }
+

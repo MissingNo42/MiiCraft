@@ -41,3 +41,7 @@ Block VerticalChunk::VC_GetBlock(t_coord coord) {
     t_coord c = {coord.x % 16, coord.y, coord.z % 16};
     return blocks[c.x][c.y][c.z];
 }
+
+const char* VerticalChunk::toString() {
+    return (char*) blocks;
+}

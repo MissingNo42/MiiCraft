@@ -11,6 +11,7 @@
 #include <wiiuse/wpad.h>
 #include <iostream>
 
+
 #include "wiimote.h"
 #include "engine/render/renderer.h"
 #include "engine/render/camera.h"
@@ -19,6 +20,7 @@
 #include "texture.c"
 
 #include "src/world/game.h"
+#include "src/system/saveManager.h"
 
 
 int exiting = 0;
@@ -209,8 +211,13 @@ int main(int argc, char ** argv) {
     SYS_STDIO_Report(true);
     Game g;
     t_coord pos(0,0,0);
+    t_pos2D c_pos(0, 0);
     World w = g.getWorld();
 
+//    saveManager::getInstance();
+    saveManager sm;
+//    VerticalChunk vc = w.getChunkAt(c_pos);
+//    sm.saveChunk(c_pos, &vc);
 	while (!exiting) {
         //VIDEO_ClearFrameBuffer(rmode,xfb[fbi],COLOR_BLACK);
 
@@ -230,7 +237,7 @@ int main(int argc, char ** argv) {
         lookN.x = renderer.camera.look.x;
         lookN.y = renderer.camera.look.y;
         lookN.z = renderer.camera.look.z;
-		
+
         guVecNormalize(&lookN);
         if ( directions & WPAD_BUTTON_LEFT ) {
             guVecCross(&lookN, &renderer.camera.up, &move);
@@ -278,7 +285,7 @@ int main(int argc, char ** argv) {
 		//renderer.renderBloc({1, -1, 0}, 2);
 		//renderer.renderBloc({0, -1, 1}, 2);
 		//renderer.renderBloc({0, 0, 1}, 3);
-		
+
 		//for (int X = -20; X < 20; X++) {
 		//	for (int Z = -20; Z < 20; Z++) {
 		//		renderer.renderBloc({static_cast<f32>(X), 0, static_cast<f32>(Z)}, 1);

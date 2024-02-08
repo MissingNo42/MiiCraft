@@ -7,6 +7,9 @@
 
 #include "coord.h"
 #include "block.h"
+#include <cstdint>
+
+
 
 struct t_pos2D{
     short x;
@@ -28,6 +31,8 @@ public:
 
 
     explicit VerticalChunk(Block b[16][128][16]);
+
+    const char* toString();
 
     void VC_SetBlock(t_coord coord, BlockType block);
     Block VC_GetBlock(t_coord coord);
