@@ -83,13 +83,16 @@ int main(int argc, char ** argv) {
 	//Light light;
 	//GX_InvalidateTexAll();
 	Renderer renderer;
-	
+    GX_SetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_CLEAR);
+    //GX_SetBlendMode(GX_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_SET);
+
 	TPL_OpenTPLFromMemory(&TPLfile, (void *)texture_data, texture_sz);
 	TPL_GetTexture(&TPLfile, 0, &texture);
+
     GX_InitTexObjLOD(&texture, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
 	GX_SetTevOp(GX_TEVSTAGE0,GX_MODULATE);
-	GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
-	
+	GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR1A1);
+
 	GX_LoadTexObj(&texture, GX_TEXMAP0);
 	//GX_InitTexObjFilterMode(&texture, GX_NEAR, GX_NEAR);
 	
@@ -107,9 +110,6 @@ int main(int argc, char ** argv) {
 
     t_coord pos(0,0,0);
     World w = Game::getInstance()->getWorld();
-    renderer.camera.pos.y = 30;
-    renderer.camera.pos.x = 48;
-    renderer.camera.pos.z = 48;
 	while (!exiting) {
 
 		//renderer.camera.rotateV(-0.10);
@@ -117,12 +117,39 @@ int main(int argc, char ** argv) {
 		//camera.rotateH(1);
         wiimote.update(renderer);
 		renderer.camera.update(false);
-		//renderer.renderBloc({-1, 0, 0}, 1);
-		//renderer.renderBloc({0, 0, -1}, 1);
-		//renderer.renderBloc({0, -1, 0}, 1);
-		//renderer.renderBloc({1, 0, 0}, 1);
+        renderer.renderBloc({0, 0, 0}, 2);
+		renderer.renderBloc({0, 1, 0}, 5);
+		renderer.renderBloc({0, 2, 0}, 5);
+		renderer.renderBloc({0, 3, 0}, 5);
+        for(int i = -2; i < 3; i++){
+            for(int j = -2; j < 3; j++) {
+                if (i != 0 || j != 0){
+                    /*
+                    guVector v;
+                    v.x =(f32) i;
+                    v.y=3;
+                    v.z = (f32) j;*/
+                    renderer.renderBloc({(f32)i,3,(f32) j}, 6);
+                }
+            }
+        }
+        for(int i = -1; i < 2; i++){
+            for(int j = -1; j < 2; j++) {
+                guVector v;
+                v.x =(f32) i;
+                v.y=4;
+                v.z = (f32) j;
+                renderer.renderBloc(v, 6);
+            }
+        }
+        guVector v;
+        v.x =(f32) 0;
+        v.y=5;
+        v.z = (f32) 0;
+        renderer.renderBloc(v, 6);
+
 		//renderer.renderBloc({0, 0, }, 1);
-        renderChunk(w, renderer);
+        //renderChunk(w, renderer);
 		//renderer.renderBloc({4, 0, 0}, 1);
 		//renderer.renderBloc({7, -1, 0}, 1);
 		//renderer.renderBloc({8, 0, 0}, 1);

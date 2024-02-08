@@ -29,7 +29,7 @@ void Renderer::setupVideo() {
 	GX_Init(gp_fifo, DEFAULT_FIFO_SIZE);
 	
 	// clears the bg to color and clears the z buffer
-	GX_SetCopyClear(background, GX_MAX_Z24);
+	GX_SetCopyClear(background, 0x00ffff22);
 	
 	// other gx setup
 	GX_SetViewport(0, 0, rmode->fbWidth, rmode->efbHeight, 0, 1);
@@ -60,10 +60,12 @@ void Renderer::setupVtxDesc() {
 	
 	GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
 	GX_SetVtxDesc(GX_VA_NRM, GX_DIRECT);
+    GX_SetVtxDesc(GX_VA_CLR0, GX_DIRECT);
 	GX_SetVtxDesc(GX_VA_TEX0, GX_DIRECT);
 	
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_NRM_XYZ, GX_F32, 0);
+    GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
 	
 	// setup texture coordinate generation
@@ -75,7 +77,7 @@ void Renderer::setupVtxDesc() {
 void Renderer::setupMisc() {
 	
 	// set number of rasterized color channels
-	GX_SetNumChans(1);
+	GX_SetNumChans(2);
 	
 	//set number of textures to generate
 	GX_SetNumTexGens(1);
@@ -88,8 +90,8 @@ void Renderer::setupDebugConsole() {
 }
 
 void Renderer::testRender() {
-	GXColor background = {0, 0, 0, 0xff};
-	GX_SetCopyClear(background, 0x00ffffff);
+	GXColor background = {0, 255, 0, 0xff};
+	GX_SetCopyClear(background, GX_MAX_Z24);
 	GX_SetViewport(0, 0, rmode->fbWidth, rmode->efbHeight, 0, 1);
 	GX_SetScissor(0, 0, rmode->fbWidth, rmode->efbHeight);
 	GX_SetDispCopySrc(0, 0, rmode->fbWidth, rmode->efbHeight);
@@ -123,7 +125,7 @@ int Renderer::selectFrameBuffer;
 void * Renderer::gp_fifo = nullptr;
 
 GXRModeObj * Renderer::rmode;
-GXColor Renderer::background = {0xff, 0xff, 0xff, 0xff}; // blue = {0x29, 0xae, 0xea, 0xff}; // blue
+GXColor Renderer::background = {0xff, 0x00, 0xff, 0xff}; // blue = {0x29, 0xae, 0xea, 0xff}; // blue
 
 
 void Renderer::renderBloc(const guVector &coord, u32 code) {
@@ -145,18 +147,22 @@ void Renderer::renderBloc(const guVector &coord, u32 code) {
 	//SYS_Report("jtrdthbfdg %f %f\r", x, y);
 	GX_Position3f32(-1.0f, -1.0f, -1.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 0, 255, 255); // Couleur avec transparence
 	GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
 	
 	GX_Position3f32(0.0f, -1.0f, -1.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 0, 255, 255);
 	GX_TexCoord2f32(x, y + OFFSET); // Top left
 	
 	GX_Position3f32(0.0f, -1.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 0, 255, 255);
 	GX_TexCoord2f32(x, y); // Bottom left
 	
 	GX_Position3f32(-1.0f, -1.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 0, 255, 255);
 	GX_TexCoord2f32(x + OFFSET, y); // Bottom right
 	
 	// Front face
@@ -165,18 +171,22 @@ void Renderer::renderBloc(const guVector &coord, u32 code) {
 	
 	GX_Position3f32(-1.0f, -1.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 0, 255, 0);
 	GX_TexCoord2f32(x, y); // Bottom left
 	
 	GX_Position3f32(0.0f, -1.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 0, 255, 0);
 	GX_TexCoord2f32(x + OFFSET, y); // Bottom right
 	
 	GX_Position3f32(0.0f, 0.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 0, 255, 0);
 	GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
 	
 	GX_Position3f32(-1.0f, 0.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 0, 255, 0);
 	GX_TexCoord2f32(x, y + OFFSET); // Top left
 	
 	// Back face
@@ -185,18 +195,22 @@ void Renderer::renderBloc(const guVector &coord, u32 code) {
 	
 	GX_Position3f32(-1.0f, -1.0f, -1.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 0, 255, 0);
 	GX_TexCoord2f32(x + OFFSET, y); // Bottom right
 	
 	GX_Position3f32(-1.0f, 0.0f, -1.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 0, 255, 0);
 	GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
 	
 	GX_Position3f32(0.0f, 0.0f, -1.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 0, 255, 0);
 	GX_TexCoord2f32(x, y + OFFSET); // Top left
 	
 	GX_Position3f32(0.0f, -1.0f, -1.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 0, 255, 0);
 	GX_TexCoord2f32(x, y); // Bottom left
 	
 	// Right face
@@ -205,18 +219,22 @@ void Renderer::renderBloc(const guVector &coord, u32 code) {
 	
 	GX_Position3f32(0.0f, -1.0f, -1.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 0, 255, 0);
 	GX_TexCoord2f32(x + OFFSET, y); // Bottom right
 	
 	GX_Position3f32(0.0f, 0.0f, -1.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 0, 255, 0);
 	GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
 	
 	GX_Position3f32(0.0f, 0.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 0, 255, 0);
 	GX_TexCoord2f32(x, y + OFFSET); // Top left
 	
 	GX_Position3f32(0.0f, -1.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 0, 255, 0);
 	GX_TexCoord2f32(x, y); // Bottom left
 	
 	// Left face
@@ -225,18 +243,22 @@ void Renderer::renderBloc(const guVector &coord, u32 code) {
 	
 	GX_Position3f32(-1.0f, -1.0f, -1.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 0, 255, 0);
 	GX_TexCoord2f32(x, y); // Bottom right
 	
 	GX_Position3f32(-1.0f, -1.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 0, 255, 0);
 	GX_TexCoord2f32(x + OFFSET, y); // Top right
 	
 	GX_Position3f32(-1.0f, 0.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 255, 255, 0);
 	GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top left
 	
 	GX_Position3f32(-1.0f, 0.0f, -1.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 255, 255, 0);
 	GX_TexCoord2f32(x, y + OFFSET); // Bottom left
 	
 	// Top face
@@ -245,18 +267,22 @@ void Renderer::renderBloc(const guVector &coord, u32 code) {
 	
 	GX_Position3f32(-1.0f, 0.0f, -1.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 255, 255, 0);
 	GX_TexCoord2f32(x, y + OFFSET); // Top left
 	
 	GX_Position3f32(-1.0f, 0.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 255, 255, 0);
 	GX_TexCoord2f32(x, y); // Bottom left
 	
 	GX_Position3f32(0.0f, 0.0f, 0.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 255, 255, 0);
 	GX_TexCoord2f32(x + OFFSET, y); // Bottom right
 	
 	GX_Position3f32(0.0f, 0.0f, -1.0f);
 	GX_Normal3f32(0, 0, 1);
+    GX_Color4u8(255, 255, 255, 0);
 	GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
 	GX_End();         // Done drawing quads
 }
