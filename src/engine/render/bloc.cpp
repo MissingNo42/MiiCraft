@@ -23,8 +23,8 @@ BlocData blocData[7] {
 		},
 		{
             //Grass
-			.x = { 0, OFFSET, OFFSET, OFFSET, OFFSET, OFFSET },
-			.y = { 0, 0, 0, 0, 0, 0 }
+			.x = { 0, OFFSET, 0, 0, 0, 0 },
+			.y = { 0, 0, OFFSET, OFFSET, OFFSET, OFFSET }
 		},
 		{
             //Stone
