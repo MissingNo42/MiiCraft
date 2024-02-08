@@ -16,7 +16,7 @@ BlocData blocData[4] {
 			.y = { 0, 0, 0, 0, 0, 0 }
 		},
 		{
-			.x = { 0, OFFSET, OFFSET, OFFSET, OFFSET, OFFSET },
+			.x = { 0, OFFSET, OFFSET*2, OFFSET*3, OFFSET, OFFSET },
 			.y = { 0, 0, 0, 0, 0, 0 }
 		},
 		{

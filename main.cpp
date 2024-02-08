@@ -232,6 +232,7 @@ int main(int argc, char ** argv) {
         lookN.z = renderer.camera.look.z;
 		
         guVecNormalize(&lookN);
+
         if ( directions & WPAD_BUTTON_LEFT ) {
             guVecCross(&lookN, &renderer.camera.up, &move);
             move = InverseVector(move);
@@ -268,9 +269,9 @@ int main(int argc, char ** argv) {
 		//renderer.renderBloc({-1, 0, 0}, 1);
 		//renderer.renderBloc({0, 0, -1}, 1);
 		//renderer.renderBloc({0, -1, 0}, 1);
-		//renderer.renderBloc({1, 0, 0}, 1);
-		//renderer.renderBloc({0, 0, 1}, 1);
-        renderChunk(w, renderer);
+		renderer.renderBloc({1, 0, 0}, 1);
+		renderer.renderBloc({0, 0, }, 1);
+        //renderChunk(w, renderer);
 		//renderer.renderBloc({4, 0, 0}, 1);
 		//renderer.renderBloc({7, -1, 0}, 1);
 		//renderer.renderBloc({8, 0, 0}, 1);
@@ -278,7 +279,8 @@ int main(int argc, char ** argv) {
 		//renderer.renderBloc({1, -1, 0}, 2);
 		//renderer.renderBloc({0, -1, 1}, 2);
 		//renderer.renderBloc({0, 0, 1}, 3);
-		
+
+
 		//for (int X = -20; X < 20; X++) {
 		//	for (int Z = -20; Z < 20; Z++) {
 		//		renderer.renderBloc({static_cast<f32>(X), 0, static_cast<f32>(Z)}, 1);
