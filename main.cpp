@@ -213,9 +213,9 @@ int main(int argc, char ** argv) {
 
     //pour rediriger stdout dans dolphin
     SYS_STDIO_Report(true);
-    Game g;
+
     t_coord pos(0,0,0);
-    World w = g.getWorld();
+    World w = Game::getInstance()->getWorld();
     renderer.camera.pos.y = 30;
     renderer.camera.pos.x = 48;
     renderer.camera.pos.z = 48;
