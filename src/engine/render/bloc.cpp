@@ -10,21 +10,40 @@
 #define BLOC_FACE_FRONT 4
 #define BLOC_FACE_BACK 5
 
-BlocData blocData[4] {
+BlocData blocData[7] {
+        {
+            //Air
+            .x = { 0, 0, 0, 0, 0, 0 },
+            .y = { 0, 0, 0, 0, 0, 0 }
+        },
 		{
-			.x = { 0, OFFSET, OFFSET, 0, 0, OFFSET},
+            //Dirt
+            .x = { OFFSET, OFFSET, OFFSET, OFFSET, OFFSET, OFFSET },
 			.y = { 0, 0, 0, 0, 0, 0 }
 		},
 		{
+            //Grass
 			.x = { 0, OFFSET, OFFSET, OFFSET, OFFSET, OFFSET },
 			.y = { 0, 0, 0, 0, 0, 0 }
 		},
 		{
-			.x = { OFFSET, OFFSET, OFFSET, OFFSET, OFFSET, OFFSET },
+            //Stone
+			.x = { OFFSET * 5, OFFSET *5, OFFSET*5, OFFSET*5, OFFSET*5, OFFSET*5},
 			.y = { 0, 0, 0, 0, 0, 0 }
 		},
 		{
-			.x = { OFFSET * 3, OFFSET * 3, OFFSET * 2, OFFSET * 2, OFFSET * 2, OFFSET * 2 },
+            //Bedrock
+			.x = { OFFSET * 6, OFFSET * 6, OFFSET * 6, OFFSET * 6, OFFSET * 6, OFFSET * 6 },
 			.y = { 0, 0, 0, 0, 0, 0 }
-		}
+		},
+        {
+            //Log
+            .x = { OFFSET * 3, OFFSET * 3, OFFSET * 2, OFFSET * 2, OFFSET * 2, OFFSET * 2 },
+            .y = { 0, 0, 0, 0, 0, 0 }
+        },
+        {
+            //Leaves
+            .x = { OFFSET * 4, OFFSET * 4, OFFSET * 4, OFFSET * 4, OFFSET * 4, OFFSET * 4 },
+            .y = { OFFSET, OFFSET, OFFSET, OFFSET, OFFSET, OFFSET }
+        }
 };

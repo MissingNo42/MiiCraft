@@ -13,8 +13,7 @@ enum BlockType : char {
     Stone =3,
     Bedrock =4,
     Log =5,
-    TopLog =6,
-    Leaves =7
+    Leaves =6
 };
 
 class Block {
