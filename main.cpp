@@ -120,9 +120,9 @@ int main(int argc, char ** argv) {
 		//renderer.renderBloc({-1, 0, 0}, 1);
 		//renderer.renderBloc({0, 0, -1}, 1);
 		//renderer.renderBloc({0, -1, 0}, 1);
-		renderer.renderBloc({1, 0, 0}, 1);
-		renderer.renderBloc({0, 0, }, 1);
-        //renderChunk(w, renderer);
+		//renderer.renderBloc({1, 0, 0}, 1);
+		//renderer.renderBloc({0, 0, }, 1);
+        renderChunk(w, renderer);
 		//renderer.renderBloc({4, 0, 0}, 1);
 		//renderer.renderBloc({7, -1, 0}, 1);
 		//renderer.renderBloc({8, 0, 0}, 1);
