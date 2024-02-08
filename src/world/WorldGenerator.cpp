@@ -19,5 +19,5 @@ void WorldGenerator::buildTree(World &world, t_coord pos) {
             world.setBlockAt({pos.x + x, pos.y + 6, pos.z + z}, BlockType::Leaves);
         }
     }
-    world.setBlockAt({pos.x, pos.y + 7, pos.z}, BlockType::Leaves)
+    world.setBlockAt({pos.x, pos.y + 7, pos.z}, BlockType::Leaves);
 }

@@ -5,15 +5,16 @@
 #ifndef MIICRAFT_BLOCK_H
 #define MIICRAFT_BLOCK_H
 #include <iostream>
+#include <gctypes.h>
 
-enum BlockType : char {
+enum BlockType : u8 {
+    Log =5,
+    Leaves =6,
     Air =0,
     Dirt =1,
     Grass =2,
     Stone =3,
-    Bedrock =4,
-    Log =5,
-    Leaves =6
+    Bedrock =4
 };
 
 class Block {
