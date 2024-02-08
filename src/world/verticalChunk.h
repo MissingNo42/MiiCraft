@@ -22,10 +22,9 @@ class VerticalChunk {
 
 private:
 
-    Block blocks[16][128][16];
-
 public:
 
+    Block blocks[16][128][16];
 
     explicit VerticalChunk(Block b[16][128][16]);
 
