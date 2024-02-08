@@ -157,7 +157,7 @@ void renderChunk(World& w, Renderer& renderer){
                         {
                             //printf("Start Rendering : x : %d, y: %d, z: %d\r", i, j, k);
 
-                            renderer.renderBloc({static_cast<f32>(i + offsetX * 16 + offsetY * 16), static_cast<f32>(j), static_cast<f32>(k + offsetX * 16 + offsetY * 16)}, 1);
+                            renderer.renderBloc({static_cast<f32>(i + offsetX * 16), static_cast<f32>(j), static_cast<f32>(k +  offsetY * 16)}, 1);
                             //printf("End Rendering : x : %d, y: %d, z: %d\r", i, j, k);
 
                         }

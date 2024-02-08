@@ -20,6 +20,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
             //TODO : A revoir ptdr
 
 
+
             double d = noise.GetNoise((float) (pos.x * 16 + i) / 16.0f, (float) (pos.y * 16 + j) / 16.0f) *100 +25;
             if(d < 0){
                 d = 0;
@@ -55,5 +56,5 @@ void PerlinWorldGenerator::generateNoise() {
     noise.SetFractalOctaves(4);
     noise.SetFractalLacunarity(5.0);
     noise.SetFractalGain(0.5);
-    noise.SetFractalWeightedStrength(5);
+    //noise.SetFractalWeightedStrength(5);
 }
