@@ -31,7 +31,9 @@ public:
 	
 	static void endFrame();
 	
-	void renderBloc(const guVector &coord, u32 code);
+	void renderBloc(const guVector &coord, u32 code,
+					bool top, bool bottom, bool left, bool right, bool front, bool back
+					);
 };
 
 #endif //MIICRAFT_RENDERER_H

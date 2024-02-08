@@ -22,8 +22,6 @@ std::string Block::toString() const {
             return "Bedrock";
         case BlockType::Log:
             return "Log";
-        case BlockType::TopLog:
-            return "TopLog";
         case BlockType::Leaves:
             return "Leaves";
         default:

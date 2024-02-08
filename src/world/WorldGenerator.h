@@ -19,6 +19,7 @@ public:
 
     virtual void generateChunk(World&, const t_pos2D ) = 0;
 
+    void buildTree(World& world, t_coord pos);
 
 };
 

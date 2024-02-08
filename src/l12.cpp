@@ -232,7 +232,7 @@ void DrawScene(Mtx view) {
 
 			guMtxTransApply(model,model,(camx+((float)xloop*2.8f)-((float)yloop*1.4f)),(((6.0f-(float)yloop)*2.2f)-7.0f),-camy);
 
-			guMtxConcat(model,view,modelview);
+			guMtxConcat(model,view, modelview);
 			GX_LoadPosMtxImm(modelview, GX_PNMTX0);
 
 			GX_CallDispList(boxList[yloop-1],boxSize[yloop-1]); // Draw the box

@@ -25,7 +25,6 @@ class VerticalChunk {
 
 private:
 
-
 public:
 
     Block blocks[16][128][16];
