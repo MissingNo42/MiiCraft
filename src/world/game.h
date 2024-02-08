@@ -26,7 +26,9 @@ public:
 
     Game();
     World& getWorld();
-
+	WorldGenerator& getWorldGenerator() {
+		return *gen;
+	}
 };
 
 

@@ -58,10 +58,157 @@ void renderChunk(World& w, Renderer& renderer){
             }
         }
     }
-
-
 }
 
+
+
+void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
+	//int f[16][128][16][6];
+	
+	int px = pos.x << 4;
+	int pz = pos.y << 4;
+	int x, y, z;
+	
+	for (y = 0; y < 128; y++) { // for each vertical levels
+		
+		// X 0 Z 0
+		
+		if (c.blocks[0][y][0].type != BlockType::Air) {
+			renderer.renderBloc({(f32)px, (f32)y, (f32)pz}, 1,
+				c.blocks[0][y+1][0].type == BlockType::Air,
+				c.blocks[0][y-1][0].type == BlockType::Air,
+				true,
+				c.blocks[1][y][0].type == BlockType::Air,
+				c.blocks[0][y][1].type == BlockType::Air,
+				true
+				);
+		}
+		
+		// X 0 Z 15
+		
+		if (c.blocks[0][y][15].type != BlockType::Air) {
+			renderer.renderBloc({(f32)px, (f32)y, (f32)(15 + pz)}, 1,
+				c.blocks[0][y+1][15].type == BlockType::Air,
+				c.blocks[0][y-1][15].type == BlockType::Air,
+				true,
+				c.blocks[1][y][15].type == BlockType::Air,
+				true,
+				c.blocks[0][y][14].type == BlockType::Air
+				);
+		}
+		
+		// X 15 Z 0
+		
+		if (c.blocks[15][y][0].type != BlockType::Air) {
+			renderer.renderBloc({(f32)(15 + px), (f32)y, (f32)pz}, 1,
+				c.blocks[15][y+1][0].type == BlockType::Air,
+				c.blocks[15][y-1][0].type == BlockType::Air,
+				c.blocks[14][y][0].type == BlockType::Air,
+				true,
+				c.blocks[15][y][1].type == BlockType::Air,
+				true
+				);
+		}
+		
+		// X 15 Z 15
+		
+		if (c.blocks[15][y][15].type != BlockType::Air) {
+			renderer.renderBloc({(f32)(15 + px), (f32)y, (f32)(15 + pz)}, 1,
+				c.blocks[15][y+1][15].type == BlockType::Air,
+				c.blocks[15][y-1][15].type == BlockType::Air,
+				c.blocks[14][y][15].type == BlockType::Air,
+				true,
+				true,
+				c.blocks[15][y][14].type == BlockType::Air
+				);
+		}
+		
+		
+		// X 0
+		
+		for (z = 1; z < 15; z++)
+			if (c.blocks[0][y][z].type != BlockType::Air) {
+				renderer.renderBloc({(f32)px, (f32)y, (f32)(z + pz)}, 1,
+					c.blocks[0][y+1][z].type == BlockType::Air,
+					c.blocks[0][y-1][z].type == BlockType::Air,
+					true,
+					c.blocks[1][y][z].type == BlockType::Air,
+					c.blocks[0][y][z+1].type == BlockType::Air,
+					c.blocks[0][y][z-1].type == BlockType::Air
+					);
+			}
+		
+		// X 15
+		
+		for (z = 1; z < 15; z++)
+			if (c.blocks[15][y][z].type != BlockType::Air) {
+				renderer.renderBloc({(f32)(px + 15), (f32)y, (f32)(z + pz)}, 1,
+					c.blocks[15][y+1][z].type == BlockType::Air,
+					c.blocks[15][y-1][z].type == BlockType::Air,
+					c.blocks[14][y][z].type == BlockType::Air,
+					true,
+					c.blocks[15][y][z+1].type == BlockType::Air,
+					c.blocks[15][y][z-1].type == BlockType::Air
+					);
+			}
+		
+		// Z 0
+		
+		for (x = 1; x < 15; x++)
+			if (c.blocks[x][y][0].type != BlockType::Air) {
+				renderer.renderBloc({(f32)(x + px), (f32)y, (f32)pz}, 1,
+					c.blocks[x][y+1][0].type == BlockType::Air,
+					c.blocks[x][y-1][0].type == BlockType::Air,
+					c.blocks[x - 1][y][0].type == BlockType::Air,
+					c.blocks[x + 1][y][0].type == BlockType::Air,
+					c.blocks[x][y][1].type == BlockType::Air,
+					true
+					);
+			}
+		
+		// Z 15
+		
+		for (x = 1; x < 15; x++)
+			if (c.blocks[x][y][15].type != BlockType::Air) {
+				renderer.renderBloc({(f32)(x + px), (f32)y, (f32)(15 + pz)}, 1,
+					c.blocks[x][y+1][15].type == BlockType::Air,
+					c.blocks[x][y-1][15].type == BlockType::Air,
+					c.blocks[x - 1][y][15].type == BlockType::Air,
+					c.blocks[x + 1][y][15].type == BlockType::Air,
+					true,
+					c.blocks[x][y][14].type == BlockType::Air
+					);
+			}
+		
+		
+		for (x = 1; x < 15; x++) {
+			for (z = 1; z < 15; z++) {
+				if (c.blocks[x][y][z].type != BlockType::Air) {
+					renderer.renderBloc({(f32)(x + px), (f32)y, (f32)(z + pz)}, 1,
+						c.blocks[x][y+1][z].type == BlockType::Air,
+						c.blocks[x][y-1][z].type == BlockType::Air,
+						c.blocks[x-1][y][z].type == BlockType::Air,
+						c.blocks[x+1][y][z].type == BlockType::Air,
+						c.blocks[x][y][z+1].type == BlockType::Air,
+						c.blocks[x][y][z-1].type == BlockType::Air
+						);
+				}
+			}
+		}
+	}
+}
+
+
+
+
+void renderWorld(World& w, Renderer& renderer) {
+	t_pos2D pos;
+	for (pos.x = -1; pos.x <= 1; pos.x++) {
+		for (pos.y = -1; pos.y <= 1; pos.y++) {
+			renderChunk(w.getChunkAt(pos), renderer, pos);
+		}
+	}
+}
 
 int main(int argc, char ** argv) {
 	PAD_Init();
@@ -84,6 +231,8 @@ int main(int argc, char ** argv) {
 	
 	GX_LoadTexObj(&texture, GX_TEXMAP0);
 	//GX_InitTexObjFilterMode(&texture, GX_NEAR, GX_NEAR);
+	//GX_SetTevIndTile()
+	setupWiimote();
 	
 	Wiimote wiimote;
 
@@ -114,7 +263,21 @@ int main(int argc, char ** argv) {
 		//renderer.renderBloc({0, -1, 0}, 1);
 		//renderer.renderBloc({1, 0, 0}, 1);
 		//renderer.renderBloc({0, 0, }, 1);
-        renderChunk(w, renderer);
+		//renderer.renderBloc({-1, 0, 0}, 2, true, true, true, true, true, true);
+		//renderer.renderBloc({0, 0, 0}, 1, true, true, true, true, true, true);
+		//renderer.renderBloc({1, 0, 0}, 1, true, true, true, true, true, true);
+		//renderer.renderBloc({2, 0, 0}, 1, true, true, true, true, true, true);
+		//renderer.renderBloc({3, 0, 0}, 1, true, true, true, true, true, true);
+		//renderer.renderBloc({0, 1, 0}, 1, true, true, true, true, true, true);
+		//renderer.renderBloc({0, 2, 0}, 1, true, true, true, true, true, true);
+		//renderer.renderBloc({0, 3, 0}, 1, true, true, true, true, true, true);
+		//renderer.renderBloc({0, 0, 1}, 1, true, true, true, true, true, true);
+		//renderer.renderBloc({0, 0, 2}, 1, true, true, true, true, true, true);
+		//renderer.renderBloc({0, 0, 3}, 1, true, true, true, true, true, true);
+		//renderer.renderBloc({0, -1, 0}, 1, false, true, true, true, true, true);
+		//renderer.renderBloc({1, 0, 0}, 1, false, true, true, true, true, true);
+		//renderer.renderBloc({0, 0, 1}, 1, false, true, true, true, true, true);
+        renderWorld(w, renderer);
 		//renderer.renderBloc({4, 0, 0}, 1);
 		//renderer.renderBloc({7, -1, 0}, 1);
 		//renderer.renderBloc({8, 0, 0}, 1);
