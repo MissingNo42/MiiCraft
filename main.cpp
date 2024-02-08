@@ -142,34 +142,154 @@ guVector InverseVector(const guVector& v){
 }
 
 
-void renderChunk(World& w, Renderer& renderer){
-    t_coord pos(0,0,0);
-    for(int offsetX = -1; offsetX<=1; offsetX ++){
-        for(int offsetY= -1; offsetY<=1; offsetY++){
-            for (int i = 0; i < 16; ++i) {
 
-                pos.x = i+ offsetX * 16 + offsetY * 16;
-                for (int j = 0; j < 128; ++j) {
-                    pos.y = j;
-                    for (int k = 0; k < 16; ++k) {
-                        pos.z = k + offsetX * 16 + offsetY * 16;
-                        if (w.getBlockAt(pos).type != BlockType::Air)
-                        {
-                            //printf("Start Rendering : x : %d, y: %d, z: %d\r", i, j, k);
-
-                            renderer.renderBloc({static_cast<f32>(i + offsetX * 16 + offsetY * 16), static_cast<f32>(j), static_cast<f32>(k + offsetX * 16 + offsetY * 16)}, 1);
-                            //printf("End Rendering : x : %d, y: %d, z: %d\r", i, j, k);
-
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
+void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
+	//int f[16][128][16][6];
+	
+	int px = pos.x << 4;
+	int pz = pos.y << 4;
+	int x, y, z;
+	
+	for (y = 0; y < 128; y++) { // for each vertical levels
+		
+		// X 0 Z 0
+		
+		if (c.blocks[0][y][0].type != BlockType::Air) {
+			renderer.renderBloc({(f32)px, (f32)y, (f32)pz}, 1,
+				c.blocks[0][y+1][0].type == BlockType::Air,
+				c.blocks[0][y-1][0].type == BlockType::Air,
+				true,
+				c.blocks[1][y][0].type == BlockType::Air,
+				c.blocks[0][y][1].type == BlockType::Air,
+				true
+				);
+		}
+		
+		// X 0 Z 15
+		
+		if (c.blocks[0][y][15].type != BlockType::Air) {
+			renderer.renderBloc({(f32)px, (f32)y, (f32)(15 + pz)}, 1,
+				c.blocks[0][y+1][15].type == BlockType::Air,
+				c.blocks[0][y-1][15].type == BlockType::Air,
+				true,
+				c.blocks[1][y][15].type == BlockType::Air,
+				true,
+				c.blocks[0][y][14].type == BlockType::Air
+				);
+		}
+		
+		// X 15 Z 0
+		
+		if (c.blocks[15][y][0].type != BlockType::Air) {
+			renderer.renderBloc({(f32)(15 + px), (f32)y, (f32)pz}, 1,
+				c.blocks[15][y+1][0].type == BlockType::Air,
+				c.blocks[15][y-1][0].type == BlockType::Air,
+				c.blocks[14][y][0].type == BlockType::Air,
+				true,
+				c.blocks[15][y][1].type == BlockType::Air,
+				true
+				);
+		}
+		
+		// X 15 Z 15
+		
+		if (c.blocks[15][y][15].type != BlockType::Air) {
+			renderer.renderBloc({(f32)(15 + px), (f32)y, (f32)(15 + pz)}, 1,
+				c.blocks[15][y+1][15].type == BlockType::Air,
+				c.blocks[15][y-1][15].type == BlockType::Air,
+				c.blocks[14][y][15].type == BlockType::Air,
+				true,
+				true,
+				c.blocks[15][y][14].type == BlockType::Air
+				);
+		}
+		
+		
+		// X 0
+		
+		for (z = 1; z < 15; z++)
+			if (c.blocks[0][y][z].type != BlockType::Air) {
+				renderer.renderBloc({(f32)px, (f32)y, (f32)(z + pz)}, 1,
+					c.blocks[0][y+1][z].type == BlockType::Air,
+					c.blocks[0][y-1][z].type == BlockType::Air,
+					true,
+					c.blocks[1][y][z].type == BlockType::Air,
+					c.blocks[0][y][z+1].type == BlockType::Air,
+					c.blocks[0][y][z-1].type == BlockType::Air
+					);
+			}
+		
+		// X 15
+		
+		for (z = 1; z < 15; z++)
+			if (c.blocks[15][y][z].type != BlockType::Air) {
+				renderer.renderBloc({(f32)(px + 15), (f32)y, (f32)(z + pz)}, 1,
+					c.blocks[15][y+1][z].type == BlockType::Air,
+					c.blocks[15][y-1][z].type == BlockType::Air,
+					c.blocks[14][y][z].type == BlockType::Air,
+					true,
+					c.blocks[15][y][z+1].type == BlockType::Air,
+					c.blocks[15][y][z-1].type == BlockType::Air
+					);
+			}
+		
+		// Z 0
+		
+		for (x = 1; x < 15; x++)
+			if (c.blocks[x][y][0].type != BlockType::Air) {
+				renderer.renderBloc({(f32)(x + px), (f32)y, (f32)pz}, 1,
+					c.blocks[x][y+1][0].type == BlockType::Air,
+					c.blocks[x][y-1][0].type == BlockType::Air,
+					c.blocks[x - 1][y][0].type == BlockType::Air,
+					c.blocks[x + 1][y][0].type == BlockType::Air,
+					c.blocks[x][y][1].type == BlockType::Air,
+					true
+					);
+			}
+		
+		// Z 15
+		
+		for (x = 1; x < 15; x++)
+			if (c.blocks[x][y][15].type != BlockType::Air) {
+				renderer.renderBloc({(f32)(x + px), (f32)y, (f32)(15 + pz)}, 1,
+					c.blocks[x][y+1][15].type == BlockType::Air,
+					c.blocks[x][y-1][15].type == BlockType::Air,
+					c.blocks[x - 1][y][15].type == BlockType::Air,
+					c.blocks[x + 1][y][15].type == BlockType::Air,
+					true,
+					c.blocks[x][y][14].type == BlockType::Air
+					);
+			}
+		
+		
+		for (x = 1; x < 15; x++) {
+			for (z = 1; z < 15; z++) {
+				if (c.blocks[x][y][z].type != BlockType::Air) {
+					renderer.renderBloc({(f32)(x + px), (f32)y, (f32)(z + pz)}, 1,
+						c.blocks[x][y+1][z].type == BlockType::Air,
+						c.blocks[x][y-1][z].type == BlockType::Air,
+						c.blocks[x-1][y][z].type == BlockType::Air,
+						c.blocks[x+1][y][z].type == BlockType::Air,
+						c.blocks[x][y][z+1].type == BlockType::Air,
+						c.blocks[x][y][z-1].type == BlockType::Air
+						);
+				}
+			}
+		}
+	}
 }
 
+
+
+
+void renderWorld(World& w, Renderer& renderer) {
+	t_pos2D pos;
+	for (pos.x = -1; pos.x <= 1; pos.x++) {
+		for (pos.y = -1; pos.y <= 1; pos.y++) {
+			renderChunk(w.getChunkAt(pos), renderer, pos);
+		}
+	}
+}
 
 int main(int argc, char ** argv) {
 	u32 type;
@@ -194,7 +314,7 @@ int main(int argc, char ** argv) {
 	
 	GX_LoadTexObj(&texture, GX_TEXMAP0);
 	//GX_InitTexObjFilterMode(&texture, GX_NEAR, GX_NEAR);
-	
+	//GX_SetTevIndTile()
 	setupWiimote();
 
 	SYS_SetResetCallback(reload);
@@ -210,6 +330,9 @@ int main(int argc, char ** argv) {
     Game g;
     t_coord pos(0,0,0);
     World w = g.getWorld();
+	
+	for (int x = -5; x < 5; x++) for (int y = -5; y < 5; y++)
+        g.getWorldGenerator().generateChunk(w, {(s16)x, (s16)y});
 
 	while (!exiting) {
         //VIDEO_ClearFrameBuffer(rmode,xfb[fbi],COLOR_BLACK);
@@ -265,12 +388,21 @@ int main(int argc, char ** argv) {
 		//renderer.camera.rotateH(0.50);
 		//camera.rotateH(1);
 		renderer.camera.update(false);
-		//renderer.renderBloc({-1, 0, 0}, 1);
-		//renderer.renderBloc({0, 0, -1}, 1);
-		//renderer.renderBloc({0, -1, 0}, 1);
-		//renderer.renderBloc({1, 0, 0}, 1);
-		//renderer.renderBloc({0, 0, 1}, 1);
-        renderChunk(w, renderer);
+		//renderer.renderBloc({-1, 0, 0}, 2, true, true, true, true, true, true);
+		//renderer.renderBloc({0, 0, 0}, 1, true, true, true, true, true, true);
+		//renderer.renderBloc({1, 0, 0}, 1, true, true, true, true, true, true);
+		//renderer.renderBloc({2, 0, 0}, 1, true, true, true, true, true, true);
+		//renderer.renderBloc({3, 0, 0}, 1, true, true, true, true, true, true);
+		//renderer.renderBloc({0, 1, 0}, 1, true, true, true, true, true, true);
+		//renderer.renderBloc({0, 2, 0}, 1, true, true, true, true, true, true);
+		//renderer.renderBloc({0, 3, 0}, 1, true, true, true, true, true, true);
+		//renderer.renderBloc({0, 0, 1}, 1, true, true, true, true, true, true);
+		//renderer.renderBloc({0, 0, 2}, 1, true, true, true, true, true, true);
+		//renderer.renderBloc({0, 0, 3}, 1, true, true, true, true, true, true);
+		//renderer.renderBloc({0, -1, 0}, 1, false, true, true, true, true, true);
+		//renderer.renderBloc({1, 0, 0}, 1, false, true, true, true, true, true);
+		//renderer.renderBloc({0, 0, 1}, 1, false, true, true, true, true, true);
+        renderWorld(w, renderer);
 		//renderer.renderBloc({4, 0, 0}, 1);
 		//renderer.renderBloc({7, -1, 0}, 1);
 		//renderer.renderBloc({8, 0, 0}, 1);
