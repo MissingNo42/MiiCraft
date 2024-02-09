@@ -20,6 +20,7 @@
 
 #include "src/world/game.h"
 #include "engine/render/bloc.h"
+#include "src/system/saveManager.h"
 
 
 int exiting = 0;
@@ -40,97 +41,102 @@ GXTexObj texture;
 
 void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 	//int f[16][128][16][6];
-	
+
 	int px = pos.x << 4;
 	int pz = pos.y << 4;
 	int x, y, z;
 	
+    VerticalChunk& cnorth = *c.neighboors[CHUNK_NORTH];
+    VerticalChunk& csouth = *c.neighboors[CHUNK_SOUTH];
+    VerticalChunk& cest = *c.neighboors[CHUNK_EST];
+    VerticalChunk& cwest = *c.neighboors[CHUNK_WEST];
+
 	for (y = 1; y < 127; y++) { // for each vertical levels (except 1st and last)
 		
 		// X 0 Z 0
-		
+
 		if (c.blocks[0][y][0].type != BlockType::Air) {
 
 			renderer.renderBloc({(f32)px, (f32)y, (f32)pz}, c.blocks[0][y][0].type ,
 				c.blocks[0][y+1][0].type == BlockType::Air,
 				c.blocks[0][y-1][0].type == BlockType::Air,
-				true,
+				cwest.blocks[15][y][0].type == BlockType::Air,
 				c.blocks[1][y][0].type == BlockType::Air,
 				c.blocks[0][y][1].type == BlockType::Air,
-				true
+				csouth.blocks[0][y][15].type == BlockType::Air
 				);
 		}
-		
+
 		// X 0 Z 15
-		
+
 		if (c.blocks[0][y][15].type != BlockType::Air) {
 			renderer.renderBloc({(f32)px, (f32)y, (f32)(15 + pz)}, c.blocks[0][y][15].type ,
 				c.blocks[0][y+1][15].type == BlockType::Air,
 				c.blocks[0][y-1][15].type == BlockType::Air,
-				true,
+				cwest.blocks[15][y][15].type == BlockType::Air,
 				c.blocks[1][y][15].type == BlockType::Air,
-				true,
+				cnorth.blocks[0][y][0].type == BlockType::Air,
 				c.blocks[0][y][14].type == BlockType::Air
 				);
 		}
-		
+
 		// X 15 Z 0
-		
+
 		if (c.blocks[15][y][0].type != BlockType::Air) {
 			renderer.renderBloc({(f32)(15 + px), (f32)y, (f32)pz},c.blocks[15][y][0].type ,
 				c.blocks[15][y+1][0].type == BlockType::Air,
 				c.blocks[15][y-1][0].type == BlockType::Air,
 				c.blocks[14][y][0].type == BlockType::Air,
-				true,
+				cest.blocks[0][y][0].type == BlockType::Air,
 				c.blocks[15][y][1].type == BlockType::Air,
-				true
+				csouth.blocks[15][y][15].type == BlockType::Air
 				);
 		}
-		
+
 		// X 15 Z 15
-		
+
 		if (c.blocks[15][y][15].type != BlockType::Air) {
 			renderer.renderBloc({(f32)(15 + px), (f32)y, (f32)(15 + pz)}, c.blocks[15][y][15].type ,
 				c.blocks[15][y+1][15].type == BlockType::Air,
 				c.blocks[15][y-1][15].type == BlockType::Air,
 				c.blocks[14][y][15].type == BlockType::Air,
-				true,
-				true,
+				cest.blocks[0][y][15].type == BlockType::Air,
+				cnorth.blocks[15][y][0].type == BlockType::Air,
 				c.blocks[15][y][14].type == BlockType::Air
 				);
 		}
-		
-		
+
+
 		// X 0
-		
+
 		for (z = 1; z < 15; z++)
 			if (c.blocks[0][y][z].type != BlockType::Air) {
 				renderer.renderBloc({(f32)px, (f32)y, (f32)(z + pz)}, c.blocks[0][y][z].type ,
 					c.blocks[0][y+1][z].type == BlockType::Air,
 					c.blocks[0][y-1][z].type == BlockType::Air,
-					true,
+					cwest.blocks[15][y][z].type == BlockType::Air,
 					c.blocks[1][y][z].type == BlockType::Air,
 					c.blocks[0][y][z+1].type == BlockType::Air,
 					c.blocks[0][y][z-1].type == BlockType::Air
 					);
 			}
-		
+
 		// X 15
-		
+
 		for (z = 1; z < 15; z++)
 			if (c.blocks[15][y][z].type != BlockType::Air) {
 				renderer.renderBloc({(f32)(px + 15), (f32)y, (f32)(z + pz)}, c.blocks[15][y][z].type,
 					c.blocks[15][y+1][z].type == BlockType::Air,
 					c.blocks[15][y-1][z].type == BlockType::Air,
 					c.blocks[14][y][z].type == BlockType::Air,
-					true,
+					cest.blocks[0][y][z].type == BlockType::Air,
 					c.blocks[15][y][z+1].type == BlockType::Air,
 					c.blocks[15][y][z-1].type == BlockType::Air
 					);
 			}
-		
+
 		// Z 0
-		
+
 		for (x = 1; x < 15; x++)
 			if (c.blocks[x][y][0].type != BlockType::Air) {
 				renderer.renderBloc({(f32)(x + px), (f32)y, (f32)pz}, c.blocks[x][y][0].type ,
@@ -139,12 +145,12 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 					c.blocks[x - 1][y][0].type == BlockType::Air,
 					c.blocks[x + 1][y][0].type == BlockType::Air,
 					c.blocks[x][y][1].type == BlockType::Air,
-					true
+					csouth.blocks[x][y][15].type == BlockType::Air
 					);
 			}
-		
+
 		// Z 15
-		
+
 		for (x = 1; x < 15; x++)
 			if (c.blocks[x][y][15].type != BlockType::Air) {
 				renderer.renderBloc({(f32)(x + px), (f32)y, (f32)(15 + pz)}, c.blocks[x][y][15].type ,
@@ -152,12 +158,12 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 					c.blocks[x][y-1][15].type == BlockType::Air,
 					c.blocks[x - 1][y][15].type == BlockType::Air,
 					c.blocks[x + 1][y][15].type == BlockType::Air,
-					true,
+					cnorth.blocks[x][y][0].type == BlockType::Air,
 					c.blocks[x][y][14].type == BlockType::Air
 					);
 			}
-		
-		
+
+
 		for (x = 1; x < 15; x++) {
 			for (z = 1; z < 15; z++) {
 				if (c.blocks[x][y][z].type != BlockType::Air) {
@@ -178,10 +184,10 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 
 
 
-void renderWorld(World& w, Renderer& renderer) {
+void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
 	t_pos2D pos;
-	for (pos.x = 0; pos.x <= 2; pos.x++) {
-		for (pos.y = 0; pos.y <= 2; pos.y++) {
+	for (pos.x = posCam.x-1; pos.x < posCam.x + 2; pos.x++) {
+		for (pos.y = posCam.y - 1 ;  pos.y < posCam.y + 2 ; pos.y++) {
 			renderChunk(w.getChunkAt(pos), renderer, pos);
 		}
 	}
@@ -223,44 +229,32 @@ int main(int, char **) {
     SYS_STDIO_Report(true);
 
     t_coord pos(0,0,0);
-    World w = Game::getInstance()->getWorld();
-    renderer.camera.pos.y = 30;
-    renderer.camera.pos.x = 48;
-    renderer.camera.pos.z = 48;
-	while (!exiting) {
+    World& w = Game::getInstance()->getWorld();
+    renderer.camera.pos.y = 40;
+    renderer.camera.pos.x = 8;
+    renderer.camera.pos.z = 8;
+
+
+    while (!exiting) {
+        pos.x = renderer.camera.pos.x;
+        pos.y = renderer.camera.pos.y;
+        pos.z = renderer.camera.pos.z;
+        Game::getInstance()->requestChunk(w.to_chunk_pos(pos));
 
 		//renderer.camera.rotateV(-0.10);
 		//renderer.camera.rotateH(0.50);
 		//camera.rotateH(1);
         wiimote.update(renderer);
 		renderer.camera.update(false);
-		//renderer.renderBloc({-1, 0, 0}, 1);
-		//renderer.renderBloc({0, 0, -1}, 1);
-		//renderer.renderBloc({0, -1, 0}, 1);
-		//renderer.renderBloc({1, 0, 0}, 1);
-		//renderer.renderBloc({0, 0, }, 1);
-		//renderer.renderBloc({-1, 0, 0}, 2, true, true, true, true, true, true);
-		//renderer.renderBloc({0, 0, 0}, 1, true, true, true, true, true, true);
-		//renderer.renderBloc({1, 0, 0}, 1, true, true, true, true, true, true);
-		//renderer.renderBloc({2, 0, 0}, 1, true, true, true, true, true, true);
-		//renderer.renderBloc({3, 0, 0}, 1, true, true, true, true, true, true);
-		//renderer.renderBloc({0, 1, 0}, 1, true, true, true, true, true, true);
-		//renderer.renderBloc({0, 2, 0}, 1, true, true, true, true, true, true);
-		//renderer.renderBloc({0, 3, 0}, 1, true, true, true, true, true, true);
-		//renderer.renderBloc({0, 0, 1}, 1, true, true, true, true, true, true);
-		//renderer.renderBloc({0, 0, 2}, 1, true, true, true, true, true, true);
-		//renderer.renderBloc({0, 0, 3}, 1, true, true, true, true, true, true);
-		//renderer.renderBloc({0, -1, 0}, 1, false, true, true, true, true, true);
-		//renderer.renderBloc({1, 0, 0}, 1, false, true, true, true, true, true);
-		//renderer.renderBloc({0, 0, 1}, 1, false, true, true, true, true, true);
-        renderWorld(w, renderer);
+
+        renderWorld(w, renderer, w.to_chunk_pos(pos));
+
+
 		//renderer.renderBloc({4, 0, 0}, 1);
 		//renderer.renderBloc({7, -1, 0}, 1);
-		//renderer.renderBloc({8, 0, 0}, 1);
-		//renderer.renderBloc({9, -1, 0}, 1);
-		//renderer.renderBloc({1, -1, 0}, 2);
-		//renderer.renderBloc({0, -1, 1}, 2);
-		//renderer.renderBloc({0, 0, 1}, 3);
+		
+		
+		
 		
 		//Renderer::setupVtxDesc2D();
 		//
@@ -285,12 +279,9 @@ int main(int, char **) {
 		//GX_TexCoord2f32(OFFSET, 0); // Bottom right
 	
 		//GX_End();
-
-		//for (int X = -20; X < 20; X++) {
-		//	for (int Z = -20; Z < 20; Z++) {
-		//		renderer.renderBloc({static_cast<f32>(X), 0, static_cast<f32>(Z)}, 1);
-		//	}
-		//}
+		
+		
+		
 		//light.update(camera.viewMatrix);
 		
 		//testRender();

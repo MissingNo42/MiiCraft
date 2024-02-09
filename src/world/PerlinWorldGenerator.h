@@ -8,10 +8,12 @@
 
 #include "WorldGenerator.h"
 #include "utils/FastNoiseLite.h"
+#include "BiomeMap.h"
 
 class PerlinWorldGenerator : public WorldGenerator {
 private:
     FastNoiseLite noise;
+    BiomeMap biomeGen;
 
 public:
     void generateChunk(World&, const t_pos2D) override;
@@ -21,6 +23,8 @@ public:
     int noiseToInteger(float floatValue);
 
     PerlinWorldGenerator();
+
+    void buildTree(t_coord pos, VerticalChunk* vc);
 };
 
 
