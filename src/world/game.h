@@ -12,12 +12,12 @@
 class Game {
 protected:
 private:
+    int globalSeed;
     World w;
     WorldGenerator* gen;
     //Singleton design pattern
     static inline Game* instance = nullptr;
 public:
-
     static Game* getInstance(){
         if(instance == nullptr){
             instance = new Game();
@@ -30,6 +30,7 @@ public:
 	WorldGenerator& getWorldGenerator() {
 		return *gen;
 	}
+    int getSeed();
 
     void requestChunk(t_pos2D pos);
 };

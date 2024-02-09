@@ -10,8 +10,6 @@
 #include <math.h>
 #include <wiiuse/wpad.h>
 #include <iostream>
-#include <chrono>
-#include <thread>
 
 #include "wiimote.h"
 #include "engine/render/renderer.h"
@@ -38,6 +36,30 @@ void shutdown() {
 
 TPLFile TPLfile;
 GXTexObj texture;
+
+void renderChunk(World& w, Renderer& renderer){
+    t_coord pos(0,0,0);
+    Block b;
+    for(int offsetX = 0; offsetX<=2; offsetX ++){
+        for(int offsetY= 0; offsetY<=2; offsetY++){
+            for (int i = 0; i < 16; ++i) {
+                pos.x = i+ offsetX * 16;
+                for (int j = 0; j < 128; ++j) {
+                    pos.y = j;
+                    for (int k = 0; k < 16; ++k) {
+                        pos.z = k + offsetY * 16;
+                        b = w.getBlockAt(pos);
+                        if (b.type != BlockType::Air)
+                        {
+                            renderer.renderBloc({static_cast<f32>(i + offsetX * 16), static_cast<f32>(j), static_cast<f32>(k +  offsetY * 16)}, b.type, true, true, true, true, true, true);
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 
 

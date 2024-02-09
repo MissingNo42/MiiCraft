@@ -9,20 +9,10 @@
 Game::Game() {
     VerticalChunk::emptyChunk->fillWithBedrock();
     gen = new PerlinWorldGenerator();
-    /*
- t_pos2D pos;
- pos.x = 0;
- pos.y = 0;
 
- for (int x = 0 ; x<20; x++){
-     for (int z = 0 ; z<20; z++){
-         pos.x = x;
-         pos.y = z;
-         gen->generateChunk(w, pos);
 
-     }
- }
- */
+
+
 
 
 //    gen->generateChunk(w, {1, 0});
@@ -54,3 +44,5 @@ void Game::requestChunk(t_pos2D pos) {
 World& Game::getWorld() {
     return w;
 }
+
+
