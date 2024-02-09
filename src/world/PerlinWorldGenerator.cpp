@@ -78,6 +78,15 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
 
     w.addChunk(pos, vc);
+    w.setNeighboors(pos, vc);
+    std::cout << "Chunk generated at " << pos.x << " " << pos.y << " with id : " << vc->id << std::endl;
+    std::cout << " with neighboors : " << std::endl;
+    for(int i = 0; i < 4; i++){
+        if(vc->VC_GetNeighboors() != nullptr){
+            std::cout << "Neighboor " << i << " : " << vc->VC_GetNeighboor(i)->id << std::endl;
+        }
+    }
+
 
 }
 

@@ -46,3 +46,28 @@ void World::addChunk(t_pos2D pos, VerticalChunk* chunk) {
     loadedChunk[pos] = chunk;
 }
 
+void World::setNeighboors(t_pos2D newcoord, VerticalChunk *pChunk) {
+    t_pos2D coord(newcoord.x + 1, newcoord.y);
+    if(loadedChunk.find(coord) != loadedChunk.end()){
+        pChunk->VC_SetNeighboors(0, loadedChunk[coord]);
+        loadedChunk[coord]->VC_SetNeighboors(2, pChunk);
+    }
+    coord = t_pos2D(newcoord.x - 1, newcoord.y);
+    if(loadedChunk.find(coord) != loadedChunk.end()){
+        pChunk->VC_SetNeighboors(2, loadedChunk[coord]);
+        loadedChunk[coord]->VC_SetNeighboors(0, pChunk);
+    }
+    coord = t_pos2D(newcoord.x, newcoord.y + 1);
+    if(loadedChunk.find(coord) != loadedChunk.end()){
+        pChunk->VC_SetNeighboors(1, loadedChunk[coord]);
+        loadedChunk[coord]->VC_SetNeighboors(3, pChunk);
+    }
+    coord = t_pos2D(newcoord.x, newcoord.y - 1);
+    if(loadedChunk.find(coord) != loadedChunk.end()){
+        pChunk->VC_SetNeighboors(3, loadedChunk[coord]);
+        loadedChunk[coord]->VC_SetNeighboors(1, pChunk);
+    }
+}
+
+
+
