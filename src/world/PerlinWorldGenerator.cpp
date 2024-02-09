@@ -68,42 +68,10 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
     //On sélectionne une coordonnée aléatoire du tableau des hauteurs
     int x = rand() %12 + 2;
     int z = rand() %12 +2;
+    int y = blockHeights[x][z];
 
-    //On construit le tronc :
-    for (int y = 0; y < 5; y++) {
-        vc->VC_SetBlock({x, blockHeights[x][z] + y, z}, BlockType::Log);
-    }
-
-    //On construit les feuilles :
-    for(int h = 0; h < 2; h++){
-        for (int i = -2; i < 3; i++) {
-            for (int j = -2; j < 3; j++) {
-                if(i == 0 && j == 0){
-                    continue;
-                }
-                vc->VC_SetBlock({x + i, blockHeights[x][z] + 2 + h, z + j}, BlockType::Leaves);
-            }
-        }
-    }
-    for(int i = -1; i < 2; i++){
-        for(int j = -1; j < 2; j++){
-            if(i == 0 && j == 0){
-                continue;
-            }
-            vc->VC_SetBlock({x + i, blockHeights[x][z] + 4, z + j}, BlockType::Leaves);
-        }
-    }
-
-    vc->VC_SetBlock({x + 1, blockHeights[x][z] + 5, z}, BlockType::Leaves);
-    vc->VC_SetBlock({x - 1, blockHeights[x][z] + 5, z}, BlockType::Leaves);
-    vc->VC_SetBlock({x, blockHeights[x][z] + 5, z+1}, BlockType::Leaves);
-    vc->VC_SetBlock({x, blockHeights[x][z] + 5, z-1}, BlockType::Leaves);
-    vc->VC_SetBlock({x, blockHeights[x][z] + 5, z}, BlockType::Leaves);
-
-
-
-
-
+    //On construit un arbre à cette position
+    buildTree({x, y, z}, vc);
 
 
     w.addChunk(pos, vc);
@@ -147,4 +115,37 @@ void PerlinWorldGenerator::generateNoise() {
     noise.SetFractalGain(0.5);
     noise.SetFrequency(0.01f);
 
+}
+
+void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
+    //On construit le tronc :
+    for (int y = 0; y < 5; y++) {
+        vc->VC_SetBlock({pos.x, pos.y + y, pos.z}, BlockType::Log);
+    }
+
+    //On construit les feuilles :
+    for(int h = 0; h < 2; h++){
+        for (int i = -2; i < 3; i++) {
+            for (int j = -2; j < 3; j++) {
+                if(i == 0 && j == 0){
+                    continue;
+                }
+                vc->VC_SetBlock({pos.x + i, pos.y + 2 + h, pos.z + j}, BlockType::Leaves);
+            }
+        }
+    }
+    for(int i = -1; i < 2; i++){
+        for(int j = -1; j < 2; j++){
+            if(i == 0 && j == 0){
+                continue;
+            }
+            vc->VC_SetBlock({pos.x + i, pos.y + 4, pos.z + j}, BlockType::Leaves);
+        }
+    }
+
+    vc->VC_SetBlock({pos.x + 1, pos.y + 5, pos.z}, BlockType::Leaves);
+    vc->VC_SetBlock({pos.x - 1, pos.y + 5, pos.z}, BlockType::Leaves);
+    vc->VC_SetBlock({pos.x, pos.y + 5, pos.z+1}, BlockType::Leaves);
+    vc->VC_SetBlock({pos.x, pos.y + 5, pos.z-1}, BlockType::Leaves);
+    vc->VC_SetBlock({pos.x, pos.y + 5, pos.z}, BlockType::Leaves);
 }
