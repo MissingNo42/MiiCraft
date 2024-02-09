@@ -9,13 +9,15 @@
  #include <map>
 
 class World{
+
 private:
     std::map<t_pos2D, VerticalChunk*> loadedChunk;
-    inline const static VerticalChunk emptyChunk = VerticalChunk();
-    
+
 public:
     World();
     ~World();
+
+
 
     Block getBlockAt(t_coord coord) ;
     void setBlockAt(t_coord coord, BlockType block);
@@ -23,6 +25,8 @@ public:
     static t_pos2D to_chunk_pos(t_coord& c);
     VerticalChunk& getChunkAt(t_pos2D pos);
     void addChunk(t_pos2D pos, VerticalChunk* chunk);
+
+    void setNeighboors(t_pos2D coord, VerticalChunk *pChunk);
 };
 
 

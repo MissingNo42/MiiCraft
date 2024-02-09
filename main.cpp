@@ -70,6 +70,11 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 	int pz = pos.y << 4;
 	int x, y, z;
 
+    VerticalChunk& cnorth = *c.neighboors[CHUNK_NORTH];
+    VerticalChunk& csouth = *c.neighboors[CHUNK_SOUTH];
+    VerticalChunk& cest = *c.neighboors[CHUNK_EST];
+    VerticalChunk& cwest = *c.neighboors[CHUNK_WEST];
+
 	for (y = 0; y < 128; y++) { // for each vertical levels
 
 		// X 0 Z 0
@@ -79,10 +84,10 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 			renderer.renderBloc({(f32)px, (f32)y, (f32)pz}, c.blocks[0][y][0].type ,
 				c.blocks[0][y+1][0].type == BlockType::Air,
 				c.blocks[0][y-1][0].type == BlockType::Air,
-				true,
+				cwest.blocks[15][y][0].type == BlockType::Air,
 				c.blocks[1][y][0].type == BlockType::Air,
 				c.blocks[0][y][1].type == BlockType::Air,
-				true
+				csouth.blocks[0][y][15].type == BlockType::Air
 				);
 		}
 
@@ -92,9 +97,9 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 			renderer.renderBloc({(f32)px, (f32)y, (f32)(15 + pz)}, c.blocks[0][y][15].type ,
 				c.blocks[0][y+1][15].type == BlockType::Air,
 				c.blocks[0][y-1][15].type == BlockType::Air,
-				true,
+				cwest.blocks[15][y][15].type == BlockType::Air,
 				c.blocks[1][y][15].type == BlockType::Air,
-				true,
+				cnorth.blocks[0][y][0].type == BlockType::Air,
 				c.blocks[0][y][14].type == BlockType::Air
 				);
 		}
@@ -106,9 +111,9 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 				c.blocks[15][y+1][0].type == BlockType::Air,
 				c.blocks[15][y-1][0].type == BlockType::Air,
 				c.blocks[14][y][0].type == BlockType::Air,
-				true,
+				cest.blocks[0][y][0].type == BlockType::Air,
 				c.blocks[15][y][1].type == BlockType::Air,
-				true
+				csouth.blocks[15][y][15].type == BlockType::Air
 				);
 		}
 
@@ -119,8 +124,8 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 				c.blocks[15][y+1][15].type == BlockType::Air,
 				c.blocks[15][y-1][15].type == BlockType::Air,
 				c.blocks[14][y][15].type == BlockType::Air,
-				true,
-				true,
+				cest.blocks[0][y][15].type == BlockType::Air,
+				cnorth.blocks[15][y][0].type == BlockType::Air,
 				c.blocks[15][y][14].type == BlockType::Air
 				);
 		}
@@ -133,7 +138,7 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 				renderer.renderBloc({(f32)px, (f32)y, (f32)(z + pz)}, c.blocks[0][y][z].type ,
 					c.blocks[0][y+1][z].type == BlockType::Air,
 					c.blocks[0][y-1][z].type == BlockType::Air,
-					true,
+					cwest.blocks[15][y][z].type == BlockType::Air,
 					c.blocks[1][y][z].type == BlockType::Air,
 					c.blocks[0][y][z+1].type == BlockType::Air,
 					c.blocks[0][y][z-1].type == BlockType::Air
@@ -148,7 +153,7 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 					c.blocks[15][y+1][z].type == BlockType::Air,
 					c.blocks[15][y-1][z].type == BlockType::Air,
 					c.blocks[14][y][z].type == BlockType::Air,
-					true,
+					cest.blocks[0][y][z].type == BlockType::Air,
 					c.blocks[15][y][z+1].type == BlockType::Air,
 					c.blocks[15][y][z-1].type == BlockType::Air
 					);
@@ -164,7 +169,7 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 					c.blocks[x - 1][y][0].type == BlockType::Air,
 					c.blocks[x + 1][y][0].type == BlockType::Air,
 					c.blocks[x][y][1].type == BlockType::Air,
-					true
+					csouth.blocks[x][y][15].type == BlockType::Air
 					);
 			}
 
@@ -177,7 +182,7 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 					c.blocks[x][y-1][15].type == BlockType::Air,
 					c.blocks[x - 1][y][15].type == BlockType::Air,
 					c.blocks[x + 1][y][15].type == BlockType::Air,
-					true,
+					cnorth.blocks[x][y][0].type == BlockType::Air,
 					c.blocks[x][y][14].type == BlockType::Air
 					);
 			}

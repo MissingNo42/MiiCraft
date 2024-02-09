@@ -18,9 +18,13 @@ bool const t_pos2D::operator<(const t_pos2D &p) const {
 }
 
 
+VerticalChunk* VerticalChunk::emptyChunk = new VerticalChunk();
 
-
-VerticalChunk::VerticalChunk() = default;
+VerticalChunk::VerticalChunk() : id(cpt++) {
+    for(int i = 0; i < 4; i++){
+        neighboors[i] = VerticalChunk::emptyChunk;
+    }
+}
 
 
 void VerticalChunk::VC_SetBlock(t_coord coord, BlockType block) {
@@ -32,6 +36,14 @@ Block VerticalChunk::VC_GetBlock(t_coord coord) {
     t_coord c = {coord.x % 16, coord.y, coord.z % 16};
     return blocks[c.x][c.y][c.z];
 }
+
+void VerticalChunk::VC_SetNeighboors(int indice, VerticalChunk *chunk) {
+    neighboors[indice] = chunk;
+}
+
+
+
+
 
 const char* VerticalChunk::toString() {
     return (char*) blocks;
@@ -45,4 +57,12 @@ void VerticalChunk::fillWithBedrock() {
             }
         }
     }
+}
+
+VerticalChunk *VerticalChunk::VC_GetNeighboors() {
+    return *neighboors;
+}
+
+VerticalChunk* VerticalChunk::VC_GetNeighboor(int indice ) {
+    return neighboors[indice];
 }
