@@ -2,10 +2,16 @@ cmake_minimum_required(VERSION 3.16)
 project(Miicraft)
 project(MiicraftTest)
 
-# set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 23)
 
 include_directories(include)
 include_directories(assets)
+
+add_compile_options(-Wall)
+add_compile_options(-Wextra)
+add_compile_options(-Wpedantic)
+#add_compile_options(-Ofast)
+
 
 add_executable(Miicraft main.cpp
         src/wiimote.cpp
@@ -26,7 +32,6 @@ add_executable(Miicraft main.cpp
         src/system/saveManager.cpp
         src/world/BiomeMap.cpp
         src/system/Random.cpp
-        src/system/Random.h
 )
 
 add_executable(MiicraftTest Debug.cpp
@@ -41,8 +46,8 @@ add_executable(MiicraftTest Debug.cpp
         src/world/blockTemplate.cpp
         src/world/BiomeMap.cpp
         src/system/Random.cpp
-        src/system/Random.h
 )
+
 
 #add_compile_options(-lfat)
 target_link_libraries(Miicraft fat)
