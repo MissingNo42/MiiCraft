@@ -10,6 +10,8 @@
 #include <math.h>
 #include <wiiuse/wpad.h>
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 #include "wiimote.h"
 #include "engine/render/renderer.h"
@@ -36,30 +38,6 @@ void shutdown() {
 
 TPLFile TPLfile;
 GXTexObj texture;
-
-void renderChunk(World& w, Renderer& renderer){
-    t_coord pos(0,0,0);
-    Block b;
-    for(int offsetX = 0; offsetX<=2; offsetX ++){
-        for(int offsetY= 0; offsetY<=2; offsetY++){
-            for (int i = 0; i < 16; ++i) {
-                pos.x = i+ offsetX * 16;
-                for (int j = 0; j < 128; ++j) {
-                    pos.y = j;
-                    for (int k = 0; k < 16; ++k) {
-                        pos.z = k + offsetY * 16;
-                        b = w.getBlockAt(pos);
-                        if (b.type != BlockType::Air)
-                        {
-                            renderer.renderBloc({static_cast<f32>(i + offsetX * 16), static_cast<f32>(j), static_cast<f32>(k +  offsetY * 16)}, b.type, true, true, true, true, true, true);
-
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
 
 
 
@@ -208,10 +186,10 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 
 
 
-void renderWorld(World& w, Renderer& renderer) {
+void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
 	t_pos2D pos;
-	for (pos.x = 0; pos.x < 3; pos.x++) {
-		for (pos.y = 0; pos.y < 3; pos.y++) {
+	for (pos.x = posCam.x-1; pos.x < posCam.x + 2; pos.x++) {
+		for (pos.y = posCam.y - 1 ;  pos.y < posCam.y + 2 ; pos.y++) {
 			renderChunk(w.getChunkAt(pos), renderer, pos);
 		}
 	}
@@ -253,11 +231,17 @@ int main(int argc, char ** argv) {
     SYS_STDIO_Report(true);
 
     t_coord pos(0,0,0);
-    World w = Game::getInstance()->getWorld();
-    renderer.camera.pos.y = 30;
-    renderer.camera.pos.x = 48;
-    renderer.camera.pos.z = 48;
-	while (!exiting) {
+    World& w = Game::getInstance()->getWorld();
+    renderer.camera.pos.y = 40;
+    renderer.camera.pos.x = 8;
+    renderer.camera.pos.z = 8;
+
+
+    while (!exiting) {
+        pos.x = renderer.camera.pos.x;
+        pos.y = renderer.camera.pos.y;
+        pos.z = renderer.camera.pos.z;
+        Game::getInstance()->requestChunk(w.to_chunk_pos(pos));
 
 		//renderer.camera.rotateV(-0.10);
 		//renderer.camera.rotateH(0.50);
@@ -283,7 +267,12 @@ int main(int argc, char ** argv) {
 		//renderer.renderBloc({0, -1, 0}, 1, false, true, true, true, true, true);
 		//renderer.renderBloc({1, 0, 0}, 1, false, true, true, true, true, true);
 		//renderer.renderBloc({0, 0, 1}, 1, false, true, true, true, true, true);
-        renderWorld(w, renderer);
+
+
+
+        renderWorld(w, renderer, w.to_chunk_pos(pos));
+
+
 		//renderer.renderBloc({4, 0, 0}, 1);
 		//renderer.renderBloc({7, -1, 0}, 1);
 		//renderer.renderBloc({8, 0, 0}, 1);
