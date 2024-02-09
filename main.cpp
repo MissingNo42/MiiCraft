@@ -182,8 +182,6 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 }
 
 
-
-
 void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
 	t_pos2D pos;
 	for (pos.x = posCam.x-1; pos.x < posCam.x + 2; pos.x++) {
