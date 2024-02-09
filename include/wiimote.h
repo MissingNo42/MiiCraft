@@ -11,7 +11,7 @@
 
 class Wiimote {
 private:
-    struct expansion_t data = {0};
+    struct expansion_t data;
     int chan = WPAD_CHAN_0;
     int speed = 1;
     u32 type = 0;

@@ -46,15 +46,14 @@ void Renderer::setupVideo() {
 	GX_SetCullMode(GX_CULL_FRONT); // TODO: set to GX_CULL_BACK to disable backface culling (INIT as default)
 	GX_CopyDisp(frameBuffer, GX_TRUE);
 	GX_SetDispCopyGamma(GX_GM_1_0);
+	
+	// setup texture coordinate generation
+	// args: texcoord slot 0-7, matrix type, source to generate texture coordinates from, matrix to use
+	GX_SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY);
 }
 
-void Renderer::setupVtxDesc() {
+void Renderer::setupVtxDesc3D() {
 	// setup the vertex attribute table
-	// describes the data
-	// args: vat location 0-7, type of data, data format, size, scale
-	// so for ex. in the first call we are sending position data with
-	// 3 values X,Y,Z of size F32. scale sets the number of fractional
-	// bits for non float data.
 	GX_ClearVtxDesc();
 	GX_InvVtxCache();
 	
@@ -65,11 +64,19 @@ void Renderer::setupVtxDesc() {
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_NRM_XYZ, GX_F32, 0);
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+}
+
+void Renderer::setupVtxDesc2D() {
+	// setup the vertex attribute table
+	GX_InvVtxCache();
+	GX_InvalidateTexAll();
+	GX_ClearVtxDesc();
 	
-	// setup texture coordinate generation
-	// args: texcoord slot 0-7, matrix type, source to generate texture coordinates from, matrix to use
-	GX_SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY); // TODO gtttttttt
+	GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GX_SetVtxDesc(GX_VA_TEX0, GX_DIRECT);
 	
+	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XY, GX_F32, 0);
+	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
 }
 
 void Renderer::setupMisc() {
@@ -123,7 +130,7 @@ int Renderer::selectFrameBuffer;
 void * Renderer::gp_fifo = nullptr;
 
 GXRModeObj * Renderer::rmode;
-GXColor Renderer::background = {0xff, 0xff, 0xff, 0xff}; // blue = {0x29, 0xae, 0xea, 0xff}; // blue
+GXColor Renderer::background = {0x83, 0xDC, 0xE5, 0xff}; // blue = {0x29, 0xae, 0xea, 0xff}; // blue
 
 #include "fat.h"
 #include "../../world/verticalChunk.h"
