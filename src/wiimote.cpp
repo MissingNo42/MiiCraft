@@ -70,6 +70,7 @@ void Wiimote::handleMovement(Renderer& renderer, u16 directions) {
 
     if ( directions & WPAD_BUTTON_A) renderer.camera.pos.y += 0.1;
     if ( directions & WPAD_BUTTON_B) renderer.camera.pos.y -= 0.1;
+    if ( directions & WPAD_BUTTON_1) renderer.camera.pos.x += 10000;
 }
 
 Wiimote::Wiimote() {
