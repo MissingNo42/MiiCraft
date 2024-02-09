@@ -12,6 +12,7 @@
 class Game {
 protected:
 private:
+    int globalSeed;
     World w;
     WorldGenerator* gen;
     //Singleton design pattern
@@ -29,6 +30,7 @@ public:
 	WorldGenerator& getWorldGenerator() {
 		return *gen;
 	}
+    int getSeed();
 };
 
 

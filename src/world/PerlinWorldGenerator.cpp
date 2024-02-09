@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include "PerlinWorldGenerator.h"
+#include "../system/Random.h"
 
 
 PerlinWorldGenerator::PerlinWorldGenerator() {
@@ -25,25 +26,22 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
             //TODO : A revoir ptdr
 
+            float block_x = (float) (pos.x * 16 + i);
+            float block_y = (float) (pos.y * 16 + j);
 
-
-
-            double d = noise.GetNoise((float) (pos.x * 16 + i) / 16.0f, (float) (pos.y * 16 + j) / 16.0f) *100 +25;
+            double d = noise.GetNoise(block_x / 16.0f, block_y / 16.0f) *100 +25;
             if(d < 0){
                 d = 0;
             } else if(d> 127){
                 d = 127;
             }
-
-
-
             int height = (int) d;
+
+            BiomeType biome = biomeGen.GetBiomeAtBlock(block_x , block_y);
 
 
             //On remplit le tableau des hauteurs
             blockHeights[i][j] = height;
-
-
 
             for(int k = 0; k < 128; k++){
                 if (k <2){
@@ -55,7 +53,9 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
                 else if(k < height /1.2){
                     blocks[i][k][j].type = BlockType::Stone;
                 }else if(k < height){
+
                     blocks[i][k][j].type = BlockType::Dirt;
+
                 }else if(k == height){
                     blocks[i][k][j].type = BlockType::Grass;
                 } else {
@@ -102,7 +102,7 @@ int PerlinWorldGenerator::noiseToInteger(float floatValue) {
 }
 
 void PerlinWorldGenerator::generateNoise() {
-    noise.SetSeed(10042002); //TODO : A changer
+    noise.SetSeed(Random::getSeed()); //TODO : A changer
     /*
     noise.SetNoiseType(FastNoiseLite::NoiseType_Cellular);
     noise.SetCellularDistanceFunction(FastNoiseLite::CellularDistanceFunction_EuclideanSq);
