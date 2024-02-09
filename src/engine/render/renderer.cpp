@@ -46,6 +46,22 @@ void Renderer::setupVideo() {
 	GX_SetCullMode(GX_CULL_FRONT); // TODO: set to GX_CULL_BACK to disable backface culling (INIT as default)
 	GX_CopyDisp(frameBuffer, GX_TRUE);
 	GX_SetDispCopyGamma(GX_GM_1_0);
+
+    ///FOG
+    GXColor greyBackground = {0x80, 0x80, 0x80, 0xff};
+    GX_SetFog(GX_FOG_PERSP_LIN, 900, 990, 20, 1200, greyBackground);
+
+    GXFogAdjTbl* fogTable = (GXFogAdjTbl*)memalign(32, 8 * sizeof(GXFogAdjTbl));
+
+    f32 projmtx[4][4] = {
+            {2.0f / rmode->fbWidth, 0.0f, 0.0f, 0.0f},
+            {0.0f, 2.0f / rmode->efbHeight, 0.0f, 0.0f},
+            {0.0f, 0.0f, 0.0f, 0.0f},
+            {-1.0f, -1.0f, 0.0f, 1.0f}
+    };
+
+    GX_InitFogAdjTable(fogTable, rmode->fbWidth, projmtx);
+    GX_SetFogRangeAdj(true, 500, fogTable);
 }
 
 void Renderer::setupVtxDesc() {
@@ -123,7 +139,7 @@ int Renderer::selectFrameBuffer;
 void * Renderer::gp_fifo = nullptr;
 
 GXRModeObj * Renderer::rmode;
-GXColor Renderer::background = {0xff, 0xff, 0xff, 0xff}; // blue = {0x29, 0xae, 0xea, 0xff}; // blue
+GXColor Renderer::background = {0x80, 0x80, 0x80, 0xff};; // blue = {0x29, 0xae, 0xea, 0xff}; // blue
 
 #include "fat.h"
 #include "../../world/verticalChunk.h"
