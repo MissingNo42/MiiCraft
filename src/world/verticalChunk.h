@@ -39,6 +39,8 @@ public:
     int static const CHUNK_WIDTH = 16;
     int static const CHUNK_LENGTH = 16;
     int static const CHUNK_HEIGHT = 128;
+
+    void fillWithBedrock();
 };
 
 

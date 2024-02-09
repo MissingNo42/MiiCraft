@@ -42,3 +42,13 @@ Block VerticalChunk::VC_GetBlock(t_coord coord) {
 const char* VerticalChunk::toString() {
     return (char*) blocks;
 }
+
+void VerticalChunk::fillWithBedrock() {
+    for (int i = 0; i < 16; ++i) {
+        for (int j = 0; j < 128; ++j) {
+            for (int k = 0; k < 16; ++k) {
+                blocks[i][j][k] = BlockType::Bedrock;
+            }
+        }
+    }
+}
