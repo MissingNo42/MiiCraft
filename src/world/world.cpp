@@ -5,7 +5,6 @@
 #include "world.h"
 #include <stdexcept>
 
-
 World::World() : loadedChunk() {
 }
 

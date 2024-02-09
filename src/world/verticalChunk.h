@@ -22,11 +22,12 @@ class VerticalChunk {
 
 private:
 
+
+
 public:
 
     Block blocks[16][128][16];
-
-    explicit VerticalChunk(Block b[16][128][16]);
+    VerticalChunk();
 
     void VC_SetBlock(t_coord coord, BlockType block);
     Block VC_GetBlock(t_coord coord);

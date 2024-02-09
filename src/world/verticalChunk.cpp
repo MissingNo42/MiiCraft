@@ -18,15 +18,9 @@ bool const t_pos2D::operator<(const t_pos2D &p) const {
 }
 
 
-VerticalChunk::VerticalChunk(Block b[16][128][16]) {
-    for (int y = 0; y < 128; y++) {
-        for (int x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++) {
-                blocks[x][y][z] = b[x][y][z];
-            }
-        }
-    }
-}
+
+
+VerticalChunk::VerticalChunk() = default;
 
 
 void VerticalChunk::VC_SetBlock(t_coord coord, BlockType block) {

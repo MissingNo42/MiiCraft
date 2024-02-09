@@ -14,6 +14,7 @@ PerlinWorldGenerator::PerlinWorldGenerator() {
 
 void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
     Block blocks[16][128][16];
+    VerticalChunk* vc = new VerticalChunk();
 
     //Append in a file
 
@@ -45,10 +46,10 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
 
             for(int k = 0; k < 128; k++){
-                if (k == 0){
+                if (k <2){
                     blocks[i][k][j].type = BlockType::Bedrock;
                 }
-                else if(k < height /2){
+                else if(k < height /1.2){
                     blocks[i][k][j].type = BlockType::Stone;
                 }else if(k < height){
                     blocks[i][k][j].type = BlockType::Dirt;
@@ -57,6 +58,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
                 } else {
                     blocks[i][k][j].type = BlockType::Air;
                 }
+                vc->VC_SetBlock({i, k, j}, blocks[i][k][j].type);
 
             }
 
@@ -69,7 +71,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
     //On construit le tronc :
     for (int y = 0; y < 5; y++) {
-        blocks[x][blockHeights[x][z] + y][z].type = BlockType::Log;
+        vc->VC_SetBlock({x, blockHeights[x][z] + y, z}, BlockType::Log);
     }
 
     //On construit les feuilles :
@@ -79,7 +81,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
                 if(i == 0 && j == 0){
                     continue;
                 }
-                blocks[x + i][blockHeights[x][z] + 2 + h][z + j].type = BlockType::Leaves;
+                vc->VC_SetBlock({x + i, blockHeights[x][z] + 2 + h, z + j}, BlockType::Leaves);
             }
         }
     }
@@ -88,23 +90,22 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
             if(i == 0 && j == 0){
                 continue;
             }
-            blocks[x + i][blockHeights[x][z] + 4][z + j].type = BlockType::Leaves;
+            vc->VC_SetBlock({x + i, blockHeights[x][z] + 4, z + j}, BlockType::Leaves);
         }
     }
 
-
-    blocks[x + 1][blockHeights[x][z] + 5][z].type = BlockType::Leaves;
-    blocks[x - 1][blockHeights[x][z] + 5][z].type = BlockType::Leaves;
-    blocks[x][blockHeights[x][z] + 5][z+1].type = BlockType::Leaves;
-    blocks[x][blockHeights[x][z] + 5][z-1].type = BlockType::Leaves;
-    blocks[x][blockHeights[x][z] + 5][z].type = BlockType::Leaves;
-
+    vc->VC_SetBlock({x + 1, blockHeights[x][z] + 5, z}, BlockType::Leaves);
+    vc->VC_SetBlock({x - 1, blockHeights[x][z] + 5, z}, BlockType::Leaves);
+    vc->VC_SetBlock({x, blockHeights[x][z] + 5, z+1}, BlockType::Leaves);
+    vc->VC_SetBlock({x, blockHeights[x][z] + 5, z-1}, BlockType::Leaves);
+    vc->VC_SetBlock({x, blockHeights[x][z] + 5, z}, BlockType::Leaves);
 
 
 
 
 
-    VerticalChunk* vc = new VerticalChunk(blocks);
+
+
     w.addChunk(pos, vc);
 
 }
@@ -121,7 +122,7 @@ int PerlinWorldGenerator::noiseToInteger(float floatValue) {
 }
 
 void PerlinWorldGenerator::generateNoise() {
-    noise.SetSeed(1345); //TODO : A changer
+    noise.SetSeed(10042002); //TODO : A changer
     /*
     noise.SetNoiseType(FastNoiseLite::NoiseType_Cellular);
     noise.SetCellularDistanceFunction(FastNoiseLite::CellularDistanceFunction_EuclideanSq);

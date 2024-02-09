@@ -11,6 +11,7 @@
 class World{
 private:
     std::map<t_pos2D, VerticalChunk*> loadedChunk;
+    inline const static VerticalChunk emptyChunk = VerticalChunk();
     
 public:
     World();
