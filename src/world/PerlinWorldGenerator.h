@@ -21,6 +21,8 @@ public:
     int noiseToInteger(float floatValue);
 
     PerlinWorldGenerator();
+
+    void buildTree(t_coord pos, VerticalChunk* vc);
 };
 
 

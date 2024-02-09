@@ -14,6 +14,7 @@ PerlinWorldGenerator::PerlinWorldGenerator() {
 
 void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
     Block blocks[16][128][16];
+    VerticalChunk* vc = new VerticalChunk();
 
     //Append in a file
 
@@ -45,10 +46,13 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
 
             for(int k = 0; k < 128; k++){
-                if (k == 0){
+                if (k <2){
                     blocks[i][k][j].type = BlockType::Bedrock;
                 }
-                else if(k < height /2){
+                else if (k < 5){
+                    blocks[i][k][j].type = rand() % 2 == 0 ? BlockType::Stone : BlockType::Bedrock;
+                }
+                else if(k < height /1.2){
                     blocks[i][k][j].type = BlockType::Stone;
                 }else if(k < height){
                     blocks[i][k][j].type = BlockType::Dirt;
@@ -57,6 +61,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
                 } else {
                     blocks[i][k][j].type = BlockType::Air;
                 }
+                vc->VC_SetBlock({i, k, j}, blocks[i][k][j].type);
 
             }
 
@@ -66,46 +71,22 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
     //On sélectionne une coordonnée aléatoire du tableau des hauteurs
     int x = rand() %12 + 2;
     int z = rand() %12 +2;
+    int y = blockHeights[x][z];
 
-    //On construit le tronc :
-    for (int y = 0; y < 5; y++) {
-        blocks[x][blockHeights[x][z] + y][z].type = BlockType::Log;
-    }
-
-    //On construit les feuilles :
-    for(int h = 0; h < 2; h++){
-        for (int i = -2; i < 3; i++) {
-            for (int j = -2; j < 3; j++) {
-                if(i == 0 && j == 0){
-                    continue;
-                }
-                blocks[x + i][blockHeights[x][z] + 2 + h][z + j].type = BlockType::Leaves;
-            }
-        }
-    }
-    for(int i = -1; i < 2; i++){
-        for(int j = -1; j < 2; j++){
-            if(i == 0 && j == 0){
-                continue;
-            }
-            blocks[x + i][blockHeights[x][z] + 4][z + j].type = BlockType::Leaves;
-        }
-    }
+    //On construit un arbre à cette position
+    buildTree({x, y, z}, vc);
 
 
-    blocks[x + 1][blockHeights[x][z] + 5][z].type = BlockType::Leaves;
-    blocks[x - 1][blockHeights[x][z] + 5][z].type = BlockType::Leaves;
-    blocks[x][blockHeights[x][z] + 5][z+1].type = BlockType::Leaves;
-    blocks[x][blockHeights[x][z] + 5][z-1].type = BlockType::Leaves;
-    blocks[x][blockHeights[x][z] + 5][z].type = BlockType::Leaves;
-
-
-
-
-
-
-    VerticalChunk* vc = new VerticalChunk(blocks);
     w.addChunk(pos, vc);
+    w.setNeighboors(pos, vc);
+    std::cout << "Chunk generated at " << pos.x << " " << pos.y << " with id : " << vc->id << std::endl;
+    std::cout << " with neighboors : " << std::endl;
+    for(int i = 0; i < 4; i++){
+        if(vc->VC_GetNeighboors() != nullptr){
+            std::cout << "Neighboor " << i << " : " << vc->VC_GetNeighboor(i)->id << std::endl;
+        }
+    }
+
 
 }
 
@@ -121,7 +102,7 @@ int PerlinWorldGenerator::noiseToInteger(float floatValue) {
 }
 
 void PerlinWorldGenerator::generateNoise() {
-    noise.SetSeed(1345); //TODO : A changer
+    noise.SetSeed(10042002); //TODO : A changer
     /*
     noise.SetNoiseType(FastNoiseLite::NoiseType_Cellular);
     noise.SetCellularDistanceFunction(FastNoiseLite::CellularDistanceFunction_EuclideanSq);
@@ -137,4 +118,37 @@ void PerlinWorldGenerator::generateNoise() {
     noise.SetFractalGain(0.5);
     noise.SetFrequency(0.01f);
 
+}
+
+void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
+    //On construit le tronc :
+    for (int y = 0; y < 5; y++) {
+        vc->VC_SetBlock({pos.x, pos.y + y, pos.z}, BlockType::Log);
+    }
+
+    //On construit les feuilles :
+    for(int h = 0; h < 2; h++){
+        for (int i = -2; i < 3; i++) {
+            for (int j = -2; j < 3; j++) {
+                if(i == 0 && j == 0){
+                    continue;
+                }
+                vc->VC_SetBlock({pos.x + i, pos.y + 2 + h, pos.z + j}, BlockType::Leaves);
+            }
+        }
+    }
+    for(int i = -1; i < 2; i++){
+        for(int j = -1; j < 2; j++){
+            if(i == 0 && j == 0){
+                continue;
+            }
+            vc->VC_SetBlock({pos.x + i, pos.y + 4, pos.z + j}, BlockType::Leaves);
+        }
+    }
+
+    vc->VC_SetBlock({pos.x + 1, pos.y + 5, pos.z}, BlockType::Leaves);
+    vc->VC_SetBlock({pos.x - 1, pos.y + 5, pos.z}, BlockType::Leaves);
+    vc->VC_SetBlock({pos.x, pos.y + 5, pos.z+1}, BlockType::Leaves);
+    vc->VC_SetBlock({pos.x, pos.y + 5, pos.z-1}, BlockType::Leaves);
+    vc->VC_SetBlock({pos.x, pos.y + 5, pos.z}, BlockType::Leaves);
 }

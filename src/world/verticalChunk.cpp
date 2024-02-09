@@ -18,13 +18,11 @@ bool const t_pos2D::operator<(const t_pos2D &p) const {
 }
 
 
-VerticalChunk::VerticalChunk(Block b[16][128][16]) {
-    for (int y = 0; y < 128; y++) {
-        for (int x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++) {
-                blocks[x][y][z] = b[x][y][z];
-            }
-        }
+VerticalChunk* VerticalChunk::emptyChunk = new VerticalChunk();
+
+VerticalChunk::VerticalChunk() : id(cpt++) {
+    for(int i = 0; i < 4; i++){
+        neighboors[i] = VerticalChunk::emptyChunk;
     }
 }
 
@@ -37,4 +35,34 @@ void VerticalChunk::VC_SetBlock(t_coord coord, BlockType block) {
 Block VerticalChunk::VC_GetBlock(t_coord coord) {
     t_coord c = {coord.x % 16, coord.y, coord.z % 16};
     return blocks[c.x][c.y][c.z];
+}
+
+void VerticalChunk::VC_SetNeighboors(int indice, VerticalChunk *chunk) {
+    neighboors[indice] = chunk;
+}
+
+
+
+
+
+const char* VerticalChunk::toString() {
+    return (char*) blocks;
+}
+
+void VerticalChunk::fillWithBedrock() {
+    for (int i = 0; i < 16; ++i) {
+        for (int j = 0; j < 128; ++j) {
+            for (int k = 0; k < 16; ++k) {
+                blocks[i][j][k] = BlockType::Bedrock;
+            }
+        }
+    }
+}
+
+VerticalChunk *VerticalChunk::VC_GetNeighboors() {
+    return *neighboors;
+}
+
+VerticalChunk* VerticalChunk::VC_GetNeighboor(int indice ) {
+    return neighboors[indice];
 }
