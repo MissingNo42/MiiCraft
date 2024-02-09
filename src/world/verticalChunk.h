@@ -7,6 +7,9 @@
 
 #include "coord.h"
 #include "block.h"
+#include <cstdint>
+
+
 
 struct t_pos2D{
     short x;
@@ -29,12 +32,16 @@ public:
     Block blocks[16][128][16];
     VerticalChunk();
 
+    const char* toString();
+
     void VC_SetBlock(t_coord coord, BlockType block);
     Block VC_GetBlock(t_coord coord);
 
     int static const CHUNK_WIDTH = 16;
     int static const CHUNK_LENGTH = 16;
     int static const CHUNK_HEIGHT = 128;
+
+    void fillWithBedrock();
 };
 
 
