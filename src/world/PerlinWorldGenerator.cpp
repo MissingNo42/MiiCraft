@@ -49,6 +49,9 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
                 if (k <2){
                     blocks[i][k][j].type = BlockType::Bedrock;
                 }
+                else if (k < 5){
+                    blocks[i][k][j].type = rand() % 2 == 0 ? BlockType::Stone : BlockType::Bedrock;
+                }
                 else if(k < height /1.2){
                     blocks[i][k][j].type = BlockType::Stone;
                 }else if(k < height){
