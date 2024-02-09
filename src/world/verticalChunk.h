@@ -16,8 +16,8 @@ struct t_pos2D{
     short y;
     t_pos2D();
     t_pos2D(short x, short y);
-    bool const operator==(const t_pos2D& p) const;
-    bool const operator<(const t_pos2D& p) const;
+    bool operator==(const t_pos2D& p) const;
+    bool operator<(const t_pos2D& p) const;
 };
 
 #define CHUNK_NORTH 1

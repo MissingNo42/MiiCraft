@@ -19,6 +19,7 @@
 #include "texture.c"
 
 #include "src/world/game.h"
+#include "engine/render/bloc.h"
 #include "src/system/saveManager.h"
 
 
@@ -37,31 +38,6 @@ void shutdown() {
 TPLFile TPLfile;
 GXTexObj texture;
 
-void renderChunk(World& w, Renderer& renderer){
-    t_coord pos(0,0,0);
-    Block b;
-    for(int offsetX = 0; offsetX<=2; offsetX ++){
-        for(int offsetY= 0; offsetY<=2; offsetY++){
-            for (int i = 0; i < 16; ++i) {
-                pos.x = i+ offsetX * 16;
-                for (int j = 0; j < 128; ++j) {
-                    pos.y = j;
-                    for (int k = 0; k < 16; ++k) {
-                        pos.z = k + offsetY * 16;
-                        b = w.getBlockAt(pos);
-                        if (b.type != BlockType::Air)
-                        {
-                            renderer.renderBloc({static_cast<f32>(i + offsetX * 16), static_cast<f32>(j), static_cast<f32>(k +  offsetY * 16)}, b.type, true, true, true, true, true, true);
-
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-
 
 void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 	//int f[16][128][16][6];
@@ -69,14 +45,14 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 	int px = pos.x << 4;
 	int pz = pos.y << 4;
 	int x, y, z;
-
+	
     VerticalChunk& cnorth = *c.neighboors[CHUNK_NORTH];
     VerticalChunk& csouth = *c.neighboors[CHUNK_SOUTH];
     VerticalChunk& cest = *c.neighboors[CHUNK_EST];
     VerticalChunk& cwest = *c.neighboors[CHUNK_WEST];
 
-	for (y = 0; y < 128; y++) { // for each vertical levels
-
+	for (y = 1; y < 127; y++) { // for each vertical levels (except 1st and last)
+		
 		// X 0 Z 0
 
 		if (c.blocks[0][y][0].type != BlockType::Air) {
@@ -206,8 +182,6 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 }
 
 
-
-
 void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
 	t_pos2D pos;
 	for (pos.x = posCam.x-1; pos.x < posCam.x + 2; pos.x++) {
@@ -217,12 +191,12 @@ void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
 	}
 }
 
-int main(int argc, char ** argv) {
+int main(int, char **) {
 	PAD_Init();
 	WPAD_Init();
 	
 	Renderer::setupVideo();
-	Renderer::setupVtxDesc();
+	Renderer::setupVtxDesc3D();
 	Renderer::setupMisc();
 	
 
@@ -270,45 +244,42 @@ int main(int argc, char ** argv) {
 		//camera.rotateH(1);
         wiimote.update(renderer);
 		renderer.camera.update(false);
-		//renderer.renderBloc({-1, 0, 0}, 1);
-		//renderer.renderBloc({0, 0, -1}, 1);
-		//renderer.renderBloc({0, -1, 0}, 1);
-		//renderer.renderBloc({1, 0, 0}, 1);
-		//renderer.renderBloc({0, 0, }, 1);
-		//renderer.renderBloc({-1, 0, 0}, 2, true, true, true, true, true, true);
-		//renderer.renderBloc({0, 0, 0}, 1, true, true, true, true, true, true);
-		//renderer.renderBloc({1, 0, 0}, 1, true, true, true, true, true, true);
-		//renderer.renderBloc({2, 0, 0}, 1, true, true, true, true, true, true);
-		//renderer.renderBloc({3, 0, 0}, 1, true, true, true, true, true, true);
-		//renderer.renderBloc({0, 1, 0}, 1, true, true, true, true, true, true);
-		//renderer.renderBloc({0, 2, 0}, 1, true, true, true, true, true, true);
-		//renderer.renderBloc({0, 3, 0}, 1, true, true, true, true, true, true);
-		//renderer.renderBloc({0, 0, 1}, 1, true, true, true, true, true, true);
-		//renderer.renderBloc({0, 0, 2}, 1, true, true, true, true, true, true);
-		//renderer.renderBloc({0, 0, 3}, 1, true, true, true, true, true, true);
-		//renderer.renderBloc({0, -1, 0}, 1, false, true, true, true, true, true);
-		//renderer.renderBloc({1, 0, 0}, 1, false, true, true, true, true, true);
-		//renderer.renderBloc({0, 0, 1}, 1, false, true, true, true, true, true);
-
-
 
         renderWorld(w, renderer, w.to_chunk_pos(pos));
 
 
 		//renderer.renderBloc({4, 0, 0}, 1);
 		//renderer.renderBloc({7, -1, 0}, 1);
-		//renderer.renderBloc({8, 0, 0}, 1);
-		//renderer.renderBloc({9, -1, 0}, 1);
-		//renderer.renderBloc({1, -1, 0}, 2);
-		//renderer.renderBloc({0, -1, 1}, 2);
-		//renderer.renderBloc({0, 0, 1}, 3);
-
-
-		//for (int X = -20; X < 20; X++) {
-		//	for (int Z = -20; Z < 20; Z++) {
-		//		renderer.renderBloc({static_cast<f32>(X), 0, static_cast<f32>(Z)}, 1);
-		//	}
-		//}
+		
+		
+		
+		
+		//Renderer::setupVtxDesc2D();
+		//
+		//Mtx GXmodelView2D, perspective;
+	    //guOrtho(perspective,0,479,0,639,0,300);
+	    //GX_LoadProjectionMtx(perspective, GX_ORTHOGRAPHIC);
+		//guMtxIdentity(GXmodelView2D);
+		//guMtxTransApply (GXmodelView2D, GXmodelView2D, 0.0F, 0.0F, -5.0F);
+		//GX_LoadPosMtxImm(GXmodelView2D,GX_PNMTX0);
+		//GX_Begin(GX_QUADS, GX_VTXFMT0, 4); // Start drawing
+	
+		//GX_Position2f32(0, 0);
+		//GX_TexCoord2f32(OFFSET, OFFSET); // Top right
+		//
+		//GX_Position2f32(100, 0);
+		//GX_TexCoord2f32(0, OFFSET); // Top left
+		//
+		//GX_Position2f32(100, 100);
+		//GX_TexCoord2f32(0, 0); // Bottom left
+		//
+		//GX_Position2f32(0, 100);
+		//GX_TexCoord2f32(OFFSET, 0); // Bottom right
+	
+		//GX_End();
+		
+		
+		
 		//light.update(camera.viewMatrix);
 		
 		//testRender();

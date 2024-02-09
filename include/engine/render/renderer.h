@@ -22,7 +22,8 @@ public:
 	static GXRModeObj * rmode;
 	
 	static void setupVideo();
-	static void setupVtxDesc();
+	static void setupVtxDesc3D();
+	static void setupVtxDesc2D();
 	static void setupMisc();
 	
 	static void setupDebugConsole();
