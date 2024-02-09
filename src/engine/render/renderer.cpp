@@ -147,7 +147,6 @@ void * Renderer::gp_fifo = nullptr;
 
 GXRModeObj * Renderer::rmode;
 GXColor Renderer::background = {0x80, 0x80, 0x80, 0xff};; // blue = {0x29, 0xae, 0xea, 0xff}; // blue
-GXColor Renderer::background = {0x83, 0xDC, 0xE5, 0xff}; // blue = {0x29, 0xae, 0xea, 0xff}; // blue
 
 
 void Renderer::renderBloc(const guVector &coord, u32 code,
