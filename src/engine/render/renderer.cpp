@@ -45,7 +45,7 @@ void Renderer::setupVideo() {
 	
 	GX_SetPixelFmt(rmode->aa ? GX_PF_RGB565_Z16 : GX_PF_RGB8_Z24, GX_ZC_LINEAR);
 	
-	GX_SetCullMode(GX_CULL_FRONT); // TODO: set to GX_CULL_BACK to disable backface culling (INIT as default)
+	GX_SetCullMode(GX_CULL_NONE); // TODO: set to GX_CULL_BACK to disable backface culling (INIT as default)
 	GX_CopyDisp(frameBuffer, GX_TRUE);
 	GX_SetDispCopyGamma(GX_GM_1_0);
 }
@@ -107,8 +107,9 @@ void Renderer::testRender() {
 }
 
 void Renderer::endFrame() {
-	GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
+    GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
 	GX_SetColorUpdate(GX_TRUE);
+    //GX_SetAlphaUpdate(GX_TRUE);
 	GX_CopyDisp(frameBuffer, GX_TRUE);
 	
 	GX_DrawDone();
@@ -141,9 +142,12 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 	
 	guMtxConcat(camera.viewMatrix, model, modelview);
 	GX_LoadPosMtxImm(modelview, GX_PNMTX0);
-	
+
+
 	int sz = (top + bottom + left + right + front + back) << 2;
 	f32 x, y;
+    int alphaValue = 255;
+    if(code < SOLIDBLOCK) alphaValue = 0;
 
 	GX_Begin(GX_QUADS, GX_VTXFMT0, sz); // Start drawing
 	
@@ -154,42 +158,24 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 		//SYS_Report("jtrdthbfdg %f %f\r", x, y);
 		GX_Position3f32(-1.0f, -1.0f, -1.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
 
 		GX_Position3f32(0.0f, -1.0f, -1.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x, y + OFFSET); // Top left
 
 		GX_Position3f32(0.0f, -1.0f, 0.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x, y); // Bottom left
 
 		GX_Position3f32(-1.0f, -1.0f, 0.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x + OFFSET, y); // Bottom right
 	}
-	x = blocData[code].x[BLOC_FACE_BOTTOM];
-	y = blocData[code].y[BLOC_FACE_BOTTOM];
-	//SYS_Report("jtrdthbfdg %f %f\r", x, y);
-	GX_Position3f32(-1.0f, -1.0f, -1.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 0, 255, 255); // Couleur avec transparence
-	GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
-
-	GX_Position3f32(0.0f, -1.0f, -1.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 0, 255, 255);
-	GX_TexCoord2f32(x, y + OFFSET); // Top left
-
-	GX_Position3f32(0.0f, -1.0f, 0.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 0, 255, 255);
-	GX_TexCoord2f32(x, y); // Bottom left
-
-	GX_Position3f32(-1.0f, -1.0f, 0.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 0, 255, 255);
-	GX_TexCoord2f32(x + OFFSET, y); // Bottom right
 
 	// Front face
 	if (front) {
@@ -198,42 +184,24 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 
 		GX_Position3f32(-1.0f, -1.0f, 0.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x, y); // Bottom left
 
 		GX_Position3f32(0.0f, -1.0f, 0.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x + OFFSET, y); // Bottom right
 
 		GX_Position3f32(0.0f, 0.0f, 0.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
 
 		GX_Position3f32(-1.0f, 0.0f, 0.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x, y + OFFSET); // Top left
 	}
-	x = blocData[code].x[BLOC_FACE_FRONT];
-	y = blocData[code].y[BLOC_FACE_FRONT];
-
-	GX_Position3f32(-1.0f, -1.0f, 0.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 0, 255, 0);
-	GX_TexCoord2f32(x, y); // Bottom left
-
-	GX_Position3f32(0.0f, -1.0f, 0.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 0, 255, 0);
-	GX_TexCoord2f32(x + OFFSET, y); // Bottom right
-
-	GX_Position3f32(0.0f, 0.0f, 0.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 0, 255, 0);
-	GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
-
-	GX_Position3f32(-1.0f, 0.0f, 0.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 0, 255, 0);
-	GX_TexCoord2f32(x, y + OFFSET); // Top left
 
 	// Back face
 	if (back) {
@@ -242,42 +210,24 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 
 		GX_Position3f32(-1.0f, -1.0f, -1.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x + OFFSET, y); // Bottom right
 
 		GX_Position3f32(-1.0f, 0.0f, -1.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
 
 		GX_Position3f32(0.0f, 0.0f, -1.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x, y + OFFSET); // Top left
 
 		GX_Position3f32(0.0f, -1.0f, -1.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x, y); // Bottom left
 	}
-	x = blocData[code].x[BLOC_FACE_BACK];
-	y = blocData[code].y[BLOC_FACE_BACK];
-
-	GX_Position3f32(-1.0f, -1.0f, -1.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 0, 255, 0);
-	GX_TexCoord2f32(x + OFFSET, y); // Bottom right
-
-	GX_Position3f32(-1.0f, 0.0f, -1.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 0, 255, 0);
-	GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
-
-	GX_Position3f32(0.0f, 0.0f, -1.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 0, 255, 0);
-	GX_TexCoord2f32(x, y + OFFSET); // Top left
-
-	GX_Position3f32(0.0f, -1.0f, -1.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 0, 255, 0);
-	GX_TexCoord2f32(x, y); // Bottom left
 
 	// Right face
 	if (right) {
@@ -286,42 +236,24 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 
 		GX_Position3f32(0.0f, -1.0f, -1.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x + OFFSET, y); // Bottom right
 
 		GX_Position3f32(0.0f, 0.0f, -1.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
 
 		GX_Position3f32(0.0f, 0.0f, 0.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x, y + OFFSET); // Top left
 
 		GX_Position3f32(0.0f, -1.0f, 0.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x, y); // Bottom left
 	}
-	x = blocData[code].x[BLOC_FACE_RIGHT];
-	y = blocData[code].y[BLOC_FACE_RIGHT];
-
-	GX_Position3f32(0.0f, -1.0f, -1.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 0, 255, 0);
-	GX_TexCoord2f32(x + OFFSET, y); // Bottom right
-
-	GX_Position3f32(0.0f, 0.0f, -1.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 0, 255, 0);
-	GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
-
-	GX_Position3f32(0.0f, 0.0f, 0.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 0, 255, 0);
-	GX_TexCoord2f32(x, y + OFFSET); // Top left
-
-	GX_Position3f32(0.0f, -1.0f, 0.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 0, 255, 0);
-	GX_TexCoord2f32(x, y); // Bottom left
 
 	// Left face
 	if (left) {
@@ -330,42 +262,24 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 
 		GX_Position3f32(-1.0f, -1.0f, -1.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x, y); // Bottom right
 
 		GX_Position3f32(-1.0f, -1.0f, 0.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x + OFFSET, y); // Top right
 
 		GX_Position3f32(-1.0f, 0.0f, 0.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top left
 
 		GX_Position3f32(-1.0f, 0.0f, -1.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x, y + OFFSET); // Bottom left
 	}
-	x = blocData[code].x[BLOC_FACE_LEFT];
-	y = blocData[code].y[BLOC_FACE_LEFT];
-
-	GX_Position3f32(-1.0f, -1.0f, -1.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 0, 255, 0);
-	GX_TexCoord2f32(x, y); // Bottom right
-
-	GX_Position3f32(-1.0f, -1.0f, 0.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 0, 255, 0);
-	GX_TexCoord2f32(x + OFFSET, y); // Top right
-
-	GX_Position3f32(-1.0f, 0.0f, 0.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 255, 255, 0);
-	GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top left
-
-	GX_Position3f32(-1.0f, 0.0f, -1.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 255, 255, 0);
-	GX_TexCoord2f32(x, y + OFFSET); // Bottom left
 
 	// Top face
 	if (top) {
@@ -374,43 +288,25 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 
 		GX_Position3f32(-1.0f, 0.0f, -1.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x, y + OFFSET); // Top left
 
 		GX_Position3f32(-1.0f, 0.0f, 0.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x, y); // Bottom left
 
 		GX_Position3f32(0.0f, 0.0f, 0.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x + OFFSET, y); // Bottom right
 
 		GX_Position3f32(0.0f, 0.0f, -1.0f);
 		GX_Normal3f32(0, 0, 1);
+        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
 	}
 
-	x = blocData[code].x[BLOC_FACE_TOP];
-	y = blocData[code].y[BLOC_FACE_TOP];
-
-	GX_Position3f32(-1.0f, 0.0f, -1.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 255, 255, 0);
-	GX_TexCoord2f32(x, y + OFFSET); // Top left
-
-	GX_Position3f32(-1.0f, 0.0f, 0.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 255, 255, 0);
-	GX_TexCoord2f32(x, y); // Bottom left
-
-	GX_Position3f32(0.0f, 0.0f, 0.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 255, 255, 0);
-	GX_TexCoord2f32(x + OFFSET, y); // Bottom right
-
-	GX_Position3f32(0.0f, 0.0f, -1.0f);
-	GX_Normal3f32(0, 0, 1);
-    GX_Color4u8(255, 255, 255, 0);
-	GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
 	GX_End();         // Done drawing quads
 }
 /*

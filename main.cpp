@@ -35,7 +35,7 @@ void shutdown() {
 
 TPLFile TPLfile;
 GXTexObj texture;
-
+/*
 void renderChunk(World& w, Renderer& renderer){
     t_coord pos(0,0,0);
     Block b;
@@ -58,155 +58,159 @@ void renderChunk(World& w, Renderer& renderer){
             }
         }
     }
-}
+}*/
 
 
 
 void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
-	//int f[16][128][16][6];
+    //int f[16][128][16][6];
 
-	int px = pos.x << 4;
-	int pz = pos.y << 4;
-	int x, y, z;
+    int px = pos.x << 4;
+    int pz = pos.y << 4;
+    int x, y, z;
 
-	for (y = 0; y < 128; y++) { // for each vertical levels
+    VerticalChunk& cnorth = *c.neighboors[CHUNK_NORTH];
+    VerticalChunk& csouth = *c.neighboors[CHUNK_SOUTH];
+    VerticalChunk& cest = *c.neighboors[CHUNK_EST];
+    VerticalChunk& cwest = *c.neighboors[CHUNK_WEST];
 
-		// X 0 Z 0
+    for (y = 0; y < 128; y++) { // for each vertical levels
 
-		if (c.blocks[0][y][0].type != BlockType::Air) {
+        // X 0 Z 0
 
-			renderer.renderBloc({(f32)px, (f32)y, (f32)pz}, c.blocks[0][y][0].type ,
-				c.blocks[0][y+1][0].type == BlockType::Air,
-				c.blocks[0][y-1][0].type == BlockType::Air,
-				true,
-				c.blocks[1][y][0].type == BlockType::Air,
-				c.blocks[0][y][1].type == BlockType::Air,
-				true
-				);
-		}
+        if (c.blocks[0][y][0].type != BlockType::Air) {
 
-		// X 0 Z 15
+            renderer.renderBloc({(f32)px, (f32)y, (f32)pz}, c.blocks[0][y][0].type ,
+                                c.blocks[0][y+1][0].type == BlockType::Air,
+                                c.blocks[0][y-1][0].type == BlockType::Air,
+                                cwest.blocks[15][y][0].type == BlockType::Air,
+                                c.blocks[1][y][0].type == BlockType::Air,
+                                c.blocks[0][y][1].type == BlockType::Air,
+                                csouth.blocks[0][y][15].type == BlockType::Air
+            );
+        }
 
-		if (c.blocks[0][y][15].type != BlockType::Air) {
-			renderer.renderBloc({(f32)px, (f32)y, (f32)(15 + pz)}, c.blocks[0][y][15].type ,
-				c.blocks[0][y+1][15].type == BlockType::Air,
-				c.blocks[0][y-1][15].type == BlockType::Air,
-				true,
-				c.blocks[1][y][15].type == BlockType::Air,
-				true,
-				c.blocks[0][y][14].type == BlockType::Air
-				);
-		}
+        // X 0 Z 15
 
-		// X 15 Z 0
+        if (c.blocks[0][y][15].type != BlockType::Air) {
+            renderer.renderBloc({(f32)px, (f32)y, (f32)(15 + pz)}, c.blocks[0][y][15].type ,
+                                c.blocks[0][y+1][15].type == BlockType::Air,
+                                c.blocks[0][y-1][15].type == BlockType::Air,
+                                cwest.blocks[15][y][15].type == BlockType::Air,
+                                c.blocks[1][y][15].type == BlockType::Air,
+                                cnorth.blocks[0][y][0].type == BlockType::Air,
+                                c.blocks[0][y][14].type == BlockType::Air
+            );
+        }
 
-		if (c.blocks[15][y][0].type != BlockType::Air) {
-			renderer.renderBloc({(f32)(15 + px), (f32)y, (f32)pz},c.blocks[15][y][0].type ,
-				c.blocks[15][y+1][0].type == BlockType::Air,
-				c.blocks[15][y-1][0].type == BlockType::Air,
-				c.blocks[14][y][0].type == BlockType::Air,
-				true,
-				c.blocks[15][y][1].type == BlockType::Air,
-				true
-				);
-		}
+        // X 15 Z 0
 
-		// X 15 Z 15
+        if (c.blocks[15][y][0].type != BlockType::Air) {
+            renderer.renderBloc({(f32)(15 + px), (f32)y, (f32)pz},c.blocks[15][y][0].type ,
+                                c.blocks[15][y+1][0].type == BlockType::Air,
+                                c.blocks[15][y-1][0].type == BlockType::Air,
+                                c.blocks[14][y][0].type == BlockType::Air,
+                                cest.blocks[0][y][0].type == BlockType::Air,
+                                c.blocks[15][y][1].type == BlockType::Air,
+                                csouth.blocks[15][y][15].type == BlockType::Air
+            );
+        }
 
-		if (c.blocks[15][y][15].type != BlockType::Air) {
-			renderer.renderBloc({(f32)(15 + px), (f32)y, (f32)(15 + pz)}, c.blocks[15][y][15].type ,
-				c.blocks[15][y+1][15].type == BlockType::Air,
-				c.blocks[15][y-1][15].type == BlockType::Air,
-				c.blocks[14][y][15].type == BlockType::Air,
-				true,
-				true,
-				c.blocks[15][y][14].type == BlockType::Air
-				);
-		}
+        // X 15 Z 15
 
-
-		// X 0
-
-		for (z = 1; z < 15; z++)
-			if (c.blocks[0][y][z].type != BlockType::Air) {
-				renderer.renderBloc({(f32)px, (f32)y, (f32)(z + pz)}, c.blocks[0][y][z].type ,
-					c.blocks[0][y+1][z].type == BlockType::Air,
-					c.blocks[0][y-1][z].type == BlockType::Air,
-					true,
-					c.blocks[1][y][z].type == BlockType::Air,
-					c.blocks[0][y][z+1].type == BlockType::Air,
-					c.blocks[0][y][z-1].type == BlockType::Air
-					);
-			}
-
-		// X 15
-
-		for (z = 1; z < 15; z++)
-			if (c.blocks[15][y][z].type != BlockType::Air) {
-				renderer.renderBloc({(f32)(px + 15), (f32)y, (f32)(z + pz)}, c.blocks[15][y][z].type,
-					c.blocks[15][y+1][z].type == BlockType::Air,
-					c.blocks[15][y-1][z].type == BlockType::Air,
-					c.blocks[14][y][z].type == BlockType::Air,
-					true,
-					c.blocks[15][y][z+1].type == BlockType::Air,
-					c.blocks[15][y][z-1].type == BlockType::Air
-					);
-			}
-
-		// Z 0
-
-		for (x = 1; x < 15; x++)
-			if (c.blocks[x][y][0].type != BlockType::Air) {
-				renderer.renderBloc({(f32)(x + px), (f32)y, (f32)pz}, c.blocks[x][y][0].type ,
-					c.blocks[x][y+1][0].type == BlockType::Air,
-					c.blocks[x][y-1][0].type == BlockType::Air,
-					c.blocks[x - 1][y][0].type == BlockType::Air,
-					c.blocks[x + 1][y][0].type == BlockType::Air,
-					c.blocks[x][y][1].type == BlockType::Air,
-					true
-					);
-			}
-
-		// Z 15
-
-		for (x = 1; x < 15; x++)
-			if (c.blocks[x][y][15].type != BlockType::Air) {
-				renderer.renderBloc({(f32)(x + px), (f32)y, (f32)(15 + pz)}, c.blocks[x][y][15].type ,
-					c.blocks[x][y+1][15].type == BlockType::Air,
-					c.blocks[x][y-1][15].type == BlockType::Air,
-					c.blocks[x - 1][y][15].type == BlockType::Air,
-					c.blocks[x + 1][y][15].type == BlockType::Air,
-					true,
-					c.blocks[x][y][14].type == BlockType::Air
-					);
-			}
+        if (c.blocks[15][y][15].type != BlockType::Air) {
+            renderer.renderBloc({(f32)(15 + px), (f32)y, (f32)(15 + pz)}, c.blocks[15][y][15].type ,
+                                c.blocks[15][y+1][15].type == BlockType::Air,
+                                c.blocks[15][y-1][15].type == BlockType::Air,
+                                c.blocks[14][y][15].type == BlockType::Air,
+                                cest.blocks[0][y][15].type == BlockType::Air,
+                                cnorth.blocks[15][y][0].type == BlockType::Air,
+                                c.blocks[15][y][14].type == BlockType::Air
+            );
+        }
 
 
-		for (x = 1; x < 15; x++) {
-			for (z = 1; z < 15; z++) {
-				if (c.blocks[x][y][z].type != BlockType::Air) {
-					renderer.renderBloc({(f32)(x + px), (f32)y, (f32)(z + pz)}, c.blocks[x][y][z].type  ,
-						c.blocks[x][y+1][z].type == BlockType::Air,
-						c.blocks[x][y-1][z].type == BlockType::Air,
-						c.blocks[x-1][y][z].type == BlockType::Air,
-						c.blocks[x+1][y][z].type == BlockType::Air,
-						c.blocks[x][y][z+1].type == BlockType::Air,
-						c.blocks[x][y][z-1].type == BlockType::Air
-						);
-				}
-			}
-		}
-	}
+        // X 0
+
+        for (z = 1; z < 15; z++)
+            if (c.blocks[0][y][z].type != BlockType::Air) {
+                renderer.renderBloc({(f32)px, (f32)y, (f32)(z + pz)}, c.blocks[0][y][z].type ,
+                                    c.blocks[0][y+1][z].type == BlockType::Air,
+                                    c.blocks[0][y-1][z].type == BlockType::Air,
+                                    cwest.blocks[15][y][z].type == BlockType::Air,
+                                    c.blocks[1][y][z].type == BlockType::Air,
+                                    c.blocks[0][y][z+1].type == BlockType::Air,
+                                    c.blocks[0][y][z-1].type == BlockType::Air
+                );
+            }
+
+        // X 15
+
+        for (z = 1; z < 15; z++)
+            if (c.blocks[15][y][z].type != BlockType::Air) {
+                renderer.renderBloc({(f32)(px + 15), (f32)y, (f32)(z + pz)}, c.blocks[15][y][z].type,
+                                    c.blocks[15][y+1][z].type == BlockType::Air,
+                                    c.blocks[15][y-1][z].type == BlockType::Air,
+                                    c.blocks[14][y][z].type == BlockType::Air,
+                                    cest.blocks[0][y][z].type == BlockType::Air,
+                                    c.blocks[15][y][z+1].type == BlockType::Air,
+                                    c.blocks[15][y][z-1].type == BlockType::Air
+                );
+            }
+
+        // Z 0
+
+        for (x = 1; x < 15; x++)
+            if (c.blocks[x][y][0].type != BlockType::Air) {
+                renderer.renderBloc({(f32)(x + px), (f32)y, (f32)pz}, c.blocks[x][y][0].type ,
+                                    c.blocks[x][y+1][0].type == BlockType::Air,
+                                    c.blocks[x][y-1][0].type == BlockType::Air,
+                                    c.blocks[x - 1][y][0].type == BlockType::Air,
+                                    c.blocks[x + 1][y][0].type == BlockType::Air,
+                                    c.blocks[x][y][1].type == BlockType::Air,
+                                    csouth.blocks[x][y][15].type == BlockType::Air
+                );
+            }
+
+        // Z 15
+
+        for (x = 1; x < 15; x++)
+            if (c.blocks[x][y][15].type != BlockType::Air) {
+                renderer.renderBloc({(f32)(x + px), (f32)y, (f32)(15 + pz)}, c.blocks[x][y][15].type ,
+                                    c.blocks[x][y+1][15].type == BlockType::Air,
+                                    c.blocks[x][y-1][15].type == BlockType::Air,
+                                    c.blocks[x - 1][y][15].type == BlockType::Air,
+                                    c.blocks[x + 1][y][15].type == BlockType::Air,
+                                    cnorth.blocks[x][y][0].type == BlockType::Air,
+                                    c.blocks[x][y][14].type == BlockType::Air
+                );
+            }
+
+
+        for (x = 1; x < 15; x++) {
+            for (z = 1; z < 15; z++) {
+                if (c.blocks[x][y][z].type != BlockType::Air) {
+                    renderer.renderBloc({(f32)(x + px), (f32)y, (f32)(z + pz)}, c.blocks[x][y][z].type  ,
+                                        c.blocks[x][y+1][z].type == BlockType::Air,
+                                        c.blocks[x][y-1][z].type == BlockType::Air,
+                                        c.blocks[x-1][y][z].type == BlockType::Air,
+                                        c.blocks[x+1][y][z].type == BlockType::Air,
+                                        c.blocks[x][y][z+1].type == BlockType::Air,
+                                        c.blocks[x][y][z-1].type == BlockType::Air
+                    );
+                }
+            }
+        }
+    }
 }
 
 
 
-
-void renderWorld(World& w, Renderer& renderer) {
+void renderWorld(World& w, Renderer& renderer, guVector& cam) {
 	t_pos2D pos;
-	for (pos.x = 0; pos.x <= 5; pos.x++) {
-		for (pos.y = 0; pos.y <= 5; pos.y++) {
-			renderChunk(w.getChunkAt(pos), renderer, pos);
+	for (pos.x = 0; pos.x <= 2; pos.x++) {
+		for (pos.y = 0; pos.y <= 2; pos.y++) {
+			renderChunk(w.getChunkAt(pos), renderer, pos, cam);
 		}
 	}
 }
@@ -232,6 +236,7 @@ int main(int argc, char ** argv) {
 	GX_SetTevOp(GX_TEVSTAGE0,GX_MODULATE);
 	GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR1A1);
 
+
 	GX_LoadTexObj(&texture, GX_TEXMAP0);
 	//GX_InitTexObjFilterMode(&texture, GX_NEAR, GX_NEAR);
 	//GX_SetTevIndTile()
@@ -241,15 +246,17 @@ int main(int argc, char ** argv) {
 	SYS_SetResetCallback(reload);
 	SYS_SetPowerCallback(shutdown);
 	//SYS_STDIO_Report(true);
+    renderer.camera.pos.y = 16;
+    renderer.camera.pos.x = 8;
     renderer.camera.pos.z = 5;
-    renderer.camera.pos.x = -0.5;
-    renderer.camera.pos.y = 0.5;
+    
 
     //pour rediriger stdout dans dolphin
     SYS_STDIO_Report(true);
 
     t_coord pos(0,0,0);
     World w = Game::getInstance()->getWorld();
+
 	while (!exiting) {
 
 		//renderer.camera.rotateV(-0.10);
@@ -258,11 +265,9 @@ int main(int argc, char ** argv) {
         wiimote.update(renderer);
 		renderer.camera.update(false);
 		//renderer.renderBloc({-1, 0, 0}, 1);
-		//renderer.renderBloc({0, 0, -1}, 1);
-		//renderer.renderBloc({0, -1, 0}, 1);
-		//renderer.renderBloc({1, 0, 0}, 1);
+
 		//renderer.renderBloc({0, 0, }, 1);
-        renderChunk(w, renderer);
+        renderWorld(w, renderer, renderer.camera.pos);
 		//renderer.renderBloc({4, 0, 0}, 1);
 		//renderer.renderBloc({7, -1, 0}, 1);
 		//renderer.renderBloc({8, 0, 0}, 1);

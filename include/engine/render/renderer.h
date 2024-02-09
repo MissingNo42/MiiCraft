@@ -8,7 +8,7 @@
 #include <gccore.h>
 #include "camera.h"
 
-#define DEFAULT_FIFO_SIZE 262144  // (256 * 1024) // TODO : Need to be increased !!!
+#define DEFAULT_FIFO_SIZE 262144 // (256 * 1024) // TODO : Need to be increased !!!
 
 class Renderer {
 	static void * gp_fifo;
