@@ -102,7 +102,7 @@ int PerlinWorldGenerator::noiseToInteger(float floatValue) {
 }
 
 void PerlinWorldGenerator::generateNoise() {
-    noise.SetSeed(Random::getSeed()); //TODO : A changer
+    noise.SetSeed(Random::getSeed());
     /*
     noise.SetNoiseType(FastNoiseLite::NoiseType_Cellular);
     noise.SetCellularDistanceFunction(FastNoiseLite::CellularDistanceFunction_EuclideanSq);
