@@ -10,14 +10,14 @@ Game::Game() {
     VerticalChunk::emptyChunk->fillWithBedrock();
     gen = new PerlinWorldGenerator();
     t_pos2D pos = {0, 0};
-    for (int x = 0 ; x<3; x++){
-        for (int z = 0 ; z<3; z++){
+    for (int x = 0 ; x<10; x++){
+        for (int z = 0 ; z<10; z++){
             pos.x = x;
             pos.y = z;
             gen->generateChunk(w, pos);
 
-        }
-    }
+
+
 
 
 //    gen->generateChunk(w, {1, 0});
@@ -29,18 +29,25 @@ Game::Game() {
 //    gen->generateChunk(w, {1, -1});
 //    gen->generateChunk(w, {-1, 1});
 
-    std::cout << w.getBlockAt({0, 0, 0}).toString() << std::endl;
-    std::cout << w.getBlockAt({32, 0, 0}).toString() << std::endl;
-    std::cout <<  w.getBlockAt({0, 0, 32}).toString() << std::endl;
-    std::cout << w.getBlockAt({32, 0, 32}).toString() << std::endl;
-    std::cout << w.getBlockAt({0, 0, 16}).toString() << std::endl;
-    std::cout << w.getBlockAt({16, 0, 0}).toString() << std::endl;
-    std::cout << w.getBlockAt({16, 0, 16}).toString() << std::endl;
-    std::cout << w.getBlockAt({32, 0, 16}).toString() << std::endl;
-    std::cout << w.getBlockAt({16, 0, 32}).toString() << std::endl;
+}
+
+void Game::requestChunk(t_pos2D pos) {
+    for(int x = pos.x -2; x <  pos.x + 3; x++){
+        for(int y = pos.y -2; y < pos.y + 3; y++){
+            t_pos2D p;
+            p.x = x;
+            p.y = y;
+
+            if (w.getLoadedChunk().find(p) == w.getLoadedChunk().end() ) {
+                gen->generateChunk(w, p);
+           }
+        }
+    }
 
 }
 
-World &Game::getWorld() {
+World& Game::getWorld() {
     return w;
 }
+
+

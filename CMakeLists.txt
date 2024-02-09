@@ -24,6 +24,9 @@ add_executable(Miicraft main.cpp
         src/world/coord.cpp
         src/world/blockTemplate.cpp
         src/system/saveManager.cpp
+        src/world/BiomeMap.cpp
+        src/system/Random.cpp
+        src/system/Random.h
 )
 
 add_executable(MiicraftTest Debug.cpp
@@ -36,6 +39,9 @@ add_executable(MiicraftTest Debug.cpp
         src/world/PerlinWorldGenerator.cpp
         src/world/coord.cpp
         src/world/blockTemplate.cpp
+        src/world/BiomeMap.cpp
+        src/system/Random.cpp
+        src/system/Random.h
 )
 
 #add_compile_options(-lfat)
