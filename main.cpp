@@ -205,8 +205,8 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 
 void renderWorld(World& w, Renderer& renderer) {
 	t_pos2D pos;
-	for (pos.x = 0; pos.x <= 3; pos.x++) {
-		for (pos.y = 0; pos.y <= 3; pos.y++) {
+	for (pos.x = 0; pos.x <= 5; pos.x++) {
+		for (pos.y = 0; pos.y <= 5; pos.y++) {
 			renderChunk(w.getChunkAt(pos), renderer, pos);
 		}
 	}
