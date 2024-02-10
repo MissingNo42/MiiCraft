@@ -26,7 +26,10 @@ add_executable(Miicraft main.cpp
         src/system/saveManager.cpp
         src/world/BiomeMap.cpp
         src/system/Random.cpp
-        src/system/Random.h
+        src/world/biome/BiomeTemplate.cpp
+        src/world/biome/BiomeTemplate.h
+        src/world/biome/Hills.cpp
+        src/world/biome/Hills.h
 )
 
 add_executable(MiicraftTest Debug.cpp
@@ -41,8 +44,10 @@ add_executable(MiicraftTest Debug.cpp
         src/world/blockTemplate.cpp
         src/world/BiomeMap.cpp
         src/system/Random.cpp
-        src/system/Random.h
+        src/world/biome/BiomeTemplate.cpp
+        src/world/biome/BiomeTemplate.h
 )
+
 
 #add_compile_options(-lfat)
 target_link_libraries(Miicraft fat)

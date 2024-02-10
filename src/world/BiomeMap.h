@@ -6,11 +6,8 @@
 #define MIICRAFTTEST_BIOMEMAP_H
 
 #include "utils/FastNoiseLite.h"
+#include "biome/BiomeTemplate.h"
 
-enum BiomeType{
-    Hills = 0,
-    Ocean = 1
-};
 
 class BiomeMap {
     FastNoiseLite biomeNoise;
