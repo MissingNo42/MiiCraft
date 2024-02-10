@@ -31,6 +31,8 @@ public:
 		return *gen;
 	}
     int getSeed();
+
+    void requestChunk(t_pos2D pos);
 };
 
 
