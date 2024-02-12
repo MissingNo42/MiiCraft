@@ -315,7 +315,7 @@ void Renderer::drawFocus(Block block, f32 x, f32 y, f32 z) {
 
     GX_SetLineWidth(20.0f, GX_VTXFMT0);
 
-    GX_Begin(GX_LINESTRIP, GX_VTXFMT0, 24); // 12 lignes + 4 pour la fermeture de la boucle
+    GX_Begin(GX_LINESTRIP, GX_VTXFMT0, 26);
 
         GX_Position3f32(-1.0f, -1.0f, -1.0f);
         GX_Normal3f32(0, -1, 0);
@@ -349,6 +349,10 @@ void Renderer::drawFocus(Block block, f32 x, f32 y, f32 z) {
         GX_Normal3f32(0, 0, 1);
         GX_TexCoord2f32(0, 3); // Top left
 
+        GX_Position3f32(-1.0f, -1.0f, 0.0f);
+        GX_Normal3f32(0, 0, 1);
+        GX_TexCoord2f32(0, 3); // Top left
+
         GX_Position3f32(-1.0f, -1.0f, -1.0f);
         GX_Normal3f32(0, 0, -1);
         GX_TexCoord2f32(0, 3); // Bottom right
@@ -378,6 +382,10 @@ void Renderer::drawFocus(Block block, f32 x, f32 y, f32 z) {
         GX_TexCoord2f32(0, 3); // Top left
 
         GX_Position3f32(0.0f, -1.0f, 0.0f);
+        GX_Normal3f32(1, 0, 0);
+        GX_TexCoord2f32(0, 3); // Bottom left
+
+        GX_Position3f32(-1.0f, -1.0f, 0.0f);
         GX_Normal3f32(1, 0, 0);
         GX_TexCoord2f32(0, 3); // Bottom left
 
