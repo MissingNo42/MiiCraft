@@ -10,11 +10,16 @@
 #define BLOC_FACE_FRONT 4
 #define BLOC_FACE_BACK 5
 
-BlocData blocData[7] {
+BlocData blocData[8] {
         {
             //Air
             .x = { 0, 0, 0, 0, 0, 0 },
             .y = { 0, 0, 0, 0, 0, 0 }
+        },
+        {
+                //Leaves
+                .x = { OFFSET * 4, OFFSET * 4, OFFSET * 4, OFFSET * 4, OFFSET * 4, OFFSET * 4 },
+                .y = { 0, 0, 0, 0, 0, 0 }
         },
 		{
             //Dirt
@@ -42,8 +47,8 @@ BlocData blocData[7] {
             .y = { 0, 0, 0, 0, 0, 0 }
         },
         {
-            //Leaves
-            .x = { OFFSET * 4, OFFSET * 4, OFFSET * 4, OFFSET * 4, OFFSET * 4, OFFSET * 4 },
+            //Eau
+            .x = { OFFSET * 7, OFFSET * 7, OFFSET * 7, OFFSET * 7, OFFSET * 7, OFFSET * 7 },
             .y = { 0, 0, 0, 0, 0, 0 }
         }
 };
