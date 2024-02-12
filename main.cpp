@@ -14,8 +14,7 @@
 
 #include "wiimote.h"
 #include "engine/render/renderer.h"
-#include "engine/render/camera.h"
-#include "engine/render/light.h"
+
 
 #include "texture.c"
 
@@ -184,12 +183,43 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 
 
 void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
-	t_pos2D pos;
-	for (pos.x = posCam.x-1; pos.x < posCam.x + 2; pos.x++) {
-		for (pos.y = posCam.y - 1 ;  pos.y < posCam.y + 2 ; pos.y++) {
-			renderChunk(w.getChunkAt(pos), renderer, pos);
-		}
-	}
+//	t_pos2D pos;
+//	for (pos.x = posCam.x-1; pos.x < posCam.x + 2; pos.x++) {
+//		for (pos.y = posCam.y - 1 ;  pos.y < posCam.y + 2 ; pos.y++) {
+//			renderChunk(w.getChunkAt(pos), renderer, pos);
+//		}
+//	}
+    t_pos2D pos;
+    if (renderer.camera.look.x > 0.5f) {
+        for (pos.x = posCam.x + 1; pos.x > posCam.x - 2; pos.x--) {
+            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
+                renderChunk(w.getChunkAt(pos), renderer, pos);
+        }
+    }
+    else if (renderer.camera.look.x < -0.5f) {
+        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
+            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
+                renderChunk(w.getChunkAt(pos), renderer, pos);
+        }
+    }
+    else if (renderer.camera.look.z > 0.5f) {
+        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
+            for (pos.y = posCam.y + 1; pos.y > posCam.y - 2; pos.y--)
+                renderChunk(w.getChunkAt(pos), renderer, pos);
+        }
+    }
+    else if (renderer.camera.look.z < -0.5f) {
+        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
+            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
+                renderChunk(w.getChunkAt(pos), renderer, pos);
+        }
+    }
+    else{
+        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
+            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
+                renderChunk(w.getChunkAt(pos), renderer, pos);
+        }
+    }
 }
 
 int main(int, char **) {
@@ -235,7 +265,7 @@ int main(int, char **) {
 
 
     while (!exiting) {
-        pos.x = renderer.camera.pos.x;
+        pos.x = renderer.camera.pos.x-1;
         pos.y = renderer.camera.pos.y;
         pos.z = renderer.camera.pos.z;
         Game::getInstance()->requestChunk(w.to_chunk_pos(pos));
@@ -243,7 +273,7 @@ int main(int, char **) {
 		//renderer.camera.rotateV(-0.10);
 		//renderer.camera.rotateH(0.50);
 		//camera.rotateH(1);
-        wiimote.update(renderer);
+        wiimote.update(renderer, w);
 		renderer.camera.update(false);
 
         renderWorld(w, renderer, w.to_chunk_pos(pos));

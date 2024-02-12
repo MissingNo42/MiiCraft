@@ -9,7 +9,7 @@
 Game::Game() {
     VerticalChunk::emptyChunk->fillWithBedrock();
     gen = new PerlinWorldGenerator();
-
+}
 
 
 
@@ -24,8 +24,6 @@ Game::Game() {
 //    gen->generateChunk(w, {1, -1});
 //    gen->generateChunk(w, {-1, 1});
 
-}
-
 void Game::requestChunk(t_pos2D pos) {
     for(int x = pos.x -2; x <  pos.x + 3; x++){
         for(int y = pos.y -2; y < pos.y + 3; y++){
@@ -38,7 +36,6 @@ void Game::requestChunk(t_pos2D pos) {
            }
         }
     }
-
 }
 
 World& Game::getWorld() {
