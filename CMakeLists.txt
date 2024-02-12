@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 23)
 
 include_directories(include)
 include_directories(assets)
+include_directories(src)
+include_directories(include/engine)
 
 add_compile_options(-Wall)
 add_compile_options(-Wextra)

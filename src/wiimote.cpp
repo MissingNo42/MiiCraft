@@ -34,7 +34,7 @@ void Wiimote::handleRotation(Renderer& renderer, WPADData * wd) {
     }
 }
 
-void Wiimote::update(Renderer &renderer) {
+void Wiimote::update(Renderer &renderer, World& w) {
 
     WPAD_ScanPads();
     if(WPAD_ButtonsDown(chan) & WPAD_BUTTON_HOME) exit(1);
@@ -42,7 +42,7 @@ void Wiimote::update(Renderer &renderer) {
     WPAD_Expansion(chan, &data); // Get expansion info from the first wiimote
 
     u16 directions = WPAD_ButtonsHeld(chan);
-    handleMovement(renderer, directions);
+    handleMovement(renderer, directions, w);
     //WPAD_ReadPending(WPAD_CHAN_ALL, countevs);
     int wiimote_connection_status = WPAD_Probe(0, &type);
 
@@ -53,24 +53,42 @@ void Wiimote::update(Renderer &renderer) {
 }
 
 
-void Wiimote::handleMovement(Renderer& renderer, u16 directions) {
+void Wiimote::handleMovement(Renderer& renderer, u16 directions, World& w) {
     guVector normalizedLook = renderer.camera.look;
     guVecNormalize(&normalizedLook);
+    t_coord coord((int)renderer.camera.pos.x+1, (int)renderer.camera.pos.y, (int)renderer.camera.pos.z+1);
+
     speed = 1;
     if ( directions & WPAD_BUTTON_PLUS)
-        speed = 2;
+        speed = 3;
     if ( directions & WPAD_BUTTON_LEFT )
-        renderer.camera.goLeft(normalizedLook, speed);
+        renderer.camera.goLeft(normalizedLook, speed, collision, w);
     if ( directions & WPAD_BUTTON_RIGHT )
-        renderer.camera.goRight(normalizedLook, speed);
+        renderer.camera.goRight(normalizedLook, speed, collision, w);
     if ( directions & WPAD_BUTTON_UP )
-        renderer.camera.goForward(normalizedLook, speed);
+        renderer.camera.goForward(normalizedLook, speed, collision, w);
     if ( directions & WPAD_BUTTON_DOWN )
-        renderer.camera.goBackward(normalizedLook, speed);
+        renderer.camera.goBackward(normalizedLook, speed, collision, w);
 
-    if ( directions & WPAD_BUTTON_A) renderer.camera.pos.y += 0.1;
-    if ( directions & WPAD_BUTTON_B) renderer.camera.pos.y -= 0.1;
-    if ( directions & WPAD_BUTTON_1) renderer.camera.pos.x += 10000;
+    if ( directions & WPAD_BUTTON_A ) {
+        if ( collision ){
+            coord.y += 1;
+            if (w.getBlockAt(coord).type == BlockType::Air)
+                renderer.camera.pos.y += 0.1;
+        }
+        else
+            renderer.camera.pos.y += 0.1;
+        }
+
+    if ( directions & WPAD_BUTTON_B) {
+        if ( collision ){
+            coord.y -= 1;
+            if (w.getBlockAt(coord).type == BlockType::Air)
+                renderer.camera.pos.y -= 0.1;
+        }
+        else
+            renderer.camera.pos.y -= 0.1;
+    }
 }
 
 Wiimote::Wiimote() {

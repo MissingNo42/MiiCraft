@@ -67,14 +67,17 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
         }
     }
-
+    int o;
     //On sélectionne une coordonnée aléatoire du tableau des hauteurs
-    int x = rand() %12 + 2;
-    int z = rand() %12 +2;
-    int y = blockHeights[x][z] + 1;
+    for (o=0; o< rand() % 5;o++) {
+        int x = rand() % 12 + 2;
+        int z = rand() % 12 + 2;
+        int y = blockHeights[x][z] + 1;
+        buildTree({x, y, z}, vc);
+    }
 
     //On construit un arbre à cette position
-    buildTree({x, y, z}, vc);
+
 
 
     w.addChunk(pos, vc);

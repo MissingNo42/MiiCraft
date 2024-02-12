@@ -48,6 +48,7 @@ void Renderer::setupVideo() {
 	GX_SetDispCopyGamma(GX_GM_1_0);
 
     ///FOG
+    /*
     GXColor greyBackground = {0x80, 0x80, 0x80, 0xff};
     GX_SetFog(GX_FOG_PERSP_LIN, 900, 990, 20, 1200, greyBackground);
 
@@ -65,7 +66,7 @@ void Renderer::setupVideo() {
 
 	// setup texture coordinate generation
 	// args: texcoord slot 0-7, matrix type, source to generate texture coordinates from, matrix to use
-	GX_SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY);
+	GX_SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY);*/
 }
 
 void Renderer::setupVtxDesc3D() {
