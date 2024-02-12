@@ -39,6 +39,8 @@ TPLFile TPLfile;
 GXTexObj texture;
 
 
+void SetLightDiff(int i, guVector vecf, float d, float d1, int i1);
+
 void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 	//int f[16][128][16][6];
 
@@ -51,7 +53,7 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
     VerticalChunk& cest = *c.neighboors[CHUNK_EST];
     VerticalChunk& cwest = *c.neighboors[CHUNK_WEST];
 
-	for (y = 1; y < 127; y++) { // for each vertical levels (except 1st and last)
+	for (y = 126; y > 1; y--) { // for each vertical levels (except 1st and last)
 		
 		// X 0 Z 0
 
@@ -191,6 +193,7 @@ void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
 	}
 }
 
+
 int main(int, char **) {
 	PAD_Init();
 	WPAD_Init();
@@ -201,16 +204,19 @@ int main(int, char **) {
 	
 
 	//Light light;
-	//GX_InvalidateTexAll();
+	GX_InvalidateTexAll();
 	Renderer renderer;
 	
 	TPL_OpenTPLFromMemory(&TPLfile, (void *)texture_data, texture_sz);
 	TPL_GetTexture(&TPLfile, 0, &texture);
     GX_InitTexObjLOD(&texture, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
-	GX_SetTevOp(GX_TEVSTAGE0,GX_MODULATE);
-	GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
-	
+//	GX_SetTevOp(GX_TEVSTAGE0,GX_MODULATE);
+//	GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
+//
 	GX_LoadTexObj(&texture, GX_TEXMAP0);
+
+
+
 	//GX_InitTexObjFilterMode(&texture, GX_NEAR, GX_NEAR);
 	//GX_SetTevIndTile()
 
@@ -232,8 +238,25 @@ int main(int, char **) {
     renderer.camera.pos.x = 8;
     renderer.camera.pos.z = 8;
 
+    /*
+    GX_InitLightPos(&light, 80, 300, 80);
+    GX_InitLightDistAttn(&light, 100, 1.0f, GX_DA_GENTLE);
+    //GX_InitLightSpot(&light, 30, GX_SP_FLAT);
+    GX_InitLightColor(&light, (GXColor){255, 255, 255, 255});
+    GX_InitLightShininess(&light, 64);
+    GX_LoadLightObj(&light, GX_LIGHT0);
+    GX_SetChanCtrl(GX_COLOR0A0, GX_TRUE, GX_SRC_REG, GX_SRC_VTX, GX_LIGHT0, GX_DF_CLAMP, GX_AF_NONE);
+*/
+
+    f32 l2 = 0.0f;
+
+
 
     while (!exiting) {
+
+
+
+
         pos.x = renderer.camera.pos.x;
         pos.y = renderer.camera.pos.y;
         pos.z = renderer.camera.pos.z;
@@ -245,10 +268,68 @@ int main(int, char **) {
         wiimote.update(renderer);
 		renderer.camera.update(false);
 
+
+//
+//        GXLightObj MyLight;
+//        guVector lpos = {(f32)pos.x, (f32)pos.y, (f32)pos.z};
+//
+//        GXColor lightColor = {0, 255, 255, 255};
+//
+//        f32 brightness = 1.0f;
+//        f32 distattn = 20.0f;
+//
+//        guVecMultiply(renderer.camera.viewMatrix, &lpos, &lpos);
+//        GX_InitLightPos(&MyLight, lpos.x, lpos.y, lpos.z);
+//        GX_InitLightColor(&MyLight, lightColor);
+//        GX_InitLightSpot(&MyLight, 90.0f, GX_SP_OFF);
+//        GX_InitLightDistAttn(&MyLight, distattn, brightness, GX_DA_MEDIUM); // DistAttn = 20.0  &  Brightness=1.0f (full)
+//        GX_LoadLightObj(&MyLight, (1<<0));
+//
+//        // Turn light ON
+//        GX_SetNumChans(1);
+//        GX_SetChanCtrl(GX_COLOR0A0, GX_ENABLE, GX_SRC_REG, GX_SRC_VTX, 0, GX_DF_CLAMP, GX_AF_SPOT);
+//
+//
+
+        GX_SetChanAmbColor(GX_COLOR0A0, (GXColor) { 0x33, 0x33, 0x33, 0xFF});
+
+        Renderer::setupVtxDesc3D();
+
+        //Set lightoff
+        GX_SetNumTevStages(1);
+        GX_SetTevOp  (GX_TEVSTAGE0, GX_PASSCLR);
+        GX_SetNumChans(1);
+        GX_SetChanCtrl(GX_COLOR0A0, GX_DISABLE, GX_SRC_VTX, GX_SRC_VTX, 0, GX_DF_NONE, GX_AF_NONE);
+        GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
+
+
+        GXLightObj MyLight;
+        guVector lpos = {renderer.camera.pos.x, renderer.camera.pos.y, renderer.camera.pos.z};
+
+        //GRRLIB_Settings.lights |= (1<<num);
+
+        f32 distattn = 900.0f;
+        f32 brightness = 1.0f;
+
+        guVecMultiply(renderer.camera.viewMatrix, &lpos, &lpos);
+        GX_InitLightPos(&MyLight, 8.0f, 50.0f, 8.0f);
+        GX_InitLightColor(&MyLight, (GXColor) { 0xff, 0xff, 0xff, 0xFF });
+        GX_InitLightDir(&MyLight, -1.0f, -1.0f, -1.0f);
+        GX_InitLightSpot(&MyLight, 45.0f, GX_SP_COS);
+        GX_InitLightDistAttn(&MyLight, distattn, brightness, GX_DA_MEDIUM); // DistAttn = 20.0  &  Brightness=1.0f (full)
+        GX_LoadLightObj(&MyLight, (1<<0));
+
+        // Turn light ON
+        GX_SetNumChans(1);
+        GX_SetChanCtrl(GX_COLOR0A0, GX_ENABLE, GX_SRC_REG, GX_SRC_VTX, 1<<0, GX_DF_CLAMP, GX_AF_SPOT);
+
+
+
         renderWorld(w, renderer, w.to_chunk_pos(pos));
 
 
-		//renderer.renderBloc({4, 0, 0}, 1);
+
+        //renderer.renderBloc({4, 0, 0}, 1);
 		//renderer.renderBloc({7, -1, 0}, 1);
 		
 		
@@ -277,8 +358,7 @@ int main(int, char **) {
 		//GX_TexCoord2f32(OFFSET, 0); // Bottom right
 	
 		//GX_End();
-		
-		
+
 		
 		//light.update(camera.viewMatrix);
 		
@@ -289,6 +369,8 @@ int main(int, char **) {
 
 		//Renderer::setupDebugConsole();
 
+
+
 		Renderer::endFrame();
 	}
 	
@@ -296,3 +378,4 @@ int main(int, char **) {
 	
 	return 0;
 }
+
