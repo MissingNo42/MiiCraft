@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 23)
 
 include_directories(include)
 include_directories(assets)
+include_directories(src)
+include_directories(include/engine)
 
 add_compile_options(-Wall)
 add_compile_options(-Wextra)
@@ -30,7 +32,6 @@ add_executable(Miicraft main.cpp
         src/world/coord.cpp
         src/world/blockTemplate.cpp
         src/system/saveManager.cpp
-        src/world/BiomeMap.cpp
         src/system/Random.cpp
 )
 
@@ -44,7 +45,6 @@ add_executable(MiicraftTest Debug.cpp
         src/world/PerlinWorldGenerator.cpp
         src/world/coord.cpp
         src/world/blockTemplate.cpp
-        src/world/BiomeMap.cpp
         src/system/Random.cpp
 )
 

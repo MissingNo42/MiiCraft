@@ -56,6 +56,7 @@
 
 
 #include <cmath>
+#include <cstdio>
 
 class FastNoiseLite
 {
@@ -140,6 +141,7 @@ public:
         mDomainWarpType = DomainWarpType_OpenSimplex2;
         mWarpTransformType3D = TransformType3D_DefaultOpenSimplex2;
         mDomainWarpAmp = 1.0f;
+        mDomainWarpFreq = mFrequency;
     }
 
     /// <summary>
@@ -290,6 +292,14 @@ public:
     /// </remarks>
     void SetDomainWarpAmp(float domainWarpAmp) { mDomainWarpAmp = domainWarpAmp; }
 
+    /// <summary>
+    /// Sets the frequency when using domain warping and domain warp fractal
+    /// </summary>
+    /// <remarks>
+    /// Default: 1.0
+    /// </remarks>
+    void SetDomainWarpFrequency(float domainWarpFreq) {mDomainWarpFreq = domainWarpFreq; }
+
 
     /// <summary>
     /// 2D noise at given position using current settings
@@ -432,6 +442,7 @@ private:
     DomainWarpType mDomainWarpType;
     TransformType3D mWarpTransformType3D;
     float mDomainWarpAmp;
+    float mDomainWarpFreq;
 
 
     template <typename T>
@@ -2016,7 +2027,7 @@ private:
     {
         int seed = mSeed;
         float amp = mDomainWarpAmp * mFractalBounding;
-        float freq = mFrequency;
+        float freq = mDomainWarpFreq;
 
         FNfloat xs = x;
         FNfloat ys = y;
@@ -2030,7 +2041,7 @@ private:
     {
         int seed = mSeed;
         float amp = mDomainWarpAmp * mFractalBounding;
-        float freq = mFrequency;
+        float freq = mDomainWarpFreq;
 
         FNfloat xs = x;
         FNfloat ys = y;
@@ -2048,7 +2059,7 @@ private:
     {
         int seed = mSeed;
         float amp = mDomainWarpAmp * mFractalBounding;
-        float freq = mFrequency;
+        float freq = mDomainWarpFreq;
 
         for (int i = 0; i < mOctaves; i++)
         {
@@ -2069,7 +2080,7 @@ private:
     {
         int seed = mSeed;
         float amp = mDomainWarpAmp * mFractalBounding;
-        float freq = mFrequency;
+        float freq = mDomainWarpFreq;
 
         for (int i = 0; i < mOctaves; i++)
         {
@@ -2098,7 +2109,7 @@ private:
 
         int seed = mSeed;
         float amp = mDomainWarpAmp * mFractalBounding;
-        float freq = mFrequency;
+        float freq = mDomainWarpFreq;
 
         for (int i = 0; i < mOctaves; i++)
         {
@@ -2120,7 +2131,7 @@ private:
 
         int seed = mSeed;
         float amp = mDomainWarpAmp * mFractalBounding;
-        float freq = mFrequency;
+        float freq = mDomainWarpFreq;
 
         for (int i = 0; i < mOctaves; i++)
         {
@@ -2140,6 +2151,8 @@ private:
     {
         FNfloat xf = x * frequency;
         FNfloat yf = y * frequency;
+
+        printf("->%f\r", frequency);
 
         int x0 = FastFloor(xf);
         int y0 = FastFloor(yf);

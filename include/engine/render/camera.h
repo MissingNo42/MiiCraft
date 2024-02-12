@@ -7,7 +7,8 @@
 
 #include <gccore.h>
 #include <ogc/gu.h>
-
+//#include "wiimote.h"
+#include  "world/world.h"
 #include "utils/matrix.h"
 
 class Camera {
@@ -28,68 +29,27 @@ public:
 	
 	~Camera() = default;
 
-	void update(bool applyTransform = true) {
-		guVector pl = {pos.x + look.x, pos.y + look.y, pos.z + look.z};
-		guLookAt(viewMatrix, &pos, &up, &pl);
-		if (applyTransform) GX_LoadPosMtxImm(viewMatrix, GX_PNMTX0);
-	}
+	void update(bool applyTransform);
 	
-	void applyTransform() {
-		GX_LoadPosMtxImm(viewMatrix, GX_PNMTX0);
-	}
+	void applyTransform();
 	
-	void rotateH(f32 rad) {
-	    // Calculate the right axis (cross product of look-at and up)
-	    guVector right, rotup;
-	    guVecCross(&up, &look, &right);
-		guVecCross(&look, &right, &rotup);
-
-		
-		VecRotAxis(&look, rotup, rad);
-	}
+	void rotateH(f32 rad);
 	
-	void rotateV(f32 rad) {
-	    // Calculate the right axis (cross product of look-at and up)
-	    guVector right;
-	    guVecCross(&up, &look, &right);
-	
-		VecRotAxis(&look, right, rad);
-	}
+	void rotateV(f32 rad);
 
-    static guVector InverseVector(const guVector& v){
-        guVector vtemp;
-        vtemp.x = - v.x;
-        vtemp.y = - v.y;
-        vtemp.z = - v.z;
+    static guVector InverseVector(const guVector& v);
 
-        return vtemp;
-    }
+    void goLeft(guVector& normalizedLook, int speed, bool collision, World& w);
 
-    void goLeft(guVector& normalizedLook, int speed) {
-        guVector move = {0,0,0};
-        guVecCross(&normalizedLook, &up, &move);
-        move = InverseVector(move);
-        pos.x += move.x/10 * (f32) speed;
-        pos.z += move.z/10 * (f32) speed;
-    }
+    void goRight(guVector& normalizedLook, int speed, bool collision, World& w);
 
-    void goRight(guVector& normalizedLook, int speed) {
-        guVector move = {0,0,0};
-        guVecCross(&normalizedLook, &up, &move);
-        pos.x += move.x/10 * (f32) speed;
-        pos.z += move.z/10 * (f32) speed;
-    }
+    void goForward(guVector& normalizedLook, int speed, bool collision, World& w);
 
-    void goForward(guVector& normalizedLook, int speed) {
-        pos.x += normalizedLook.x/10 * (f32) speed;
-        pos.z += normalizedLook.z/10 * (f32) speed;
-    }
+    void goBackward(guVector& normalizedLook, int speed, bool collision, World& w);
 
-    void goBackward(guVector& normalizedLook, int speed) {
-        guVector move = InverseVector(normalizedLook);
-        pos.x += move.x/10 * (f32) speed;
-        pos.z += move.z/10 * (f32) speed;
-    }
+    void goUp(int speed, bool collision, World& w);
+
+    void goDown(int speed, bool collision, World& w);
 };
 
 
