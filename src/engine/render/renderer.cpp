@@ -7,10 +7,6 @@
 #include <string.h>
 #include "engine/render/renderer.h"
 #include "engine/render/bloc.h"
-#include "fat.h"
-#include "../../world/verticalChunk.h"
-
-Mtx                 GXmodelView2D;
 
 void Renderer::setupVideo() {
 	VIDEO_Init();
@@ -46,107 +42,63 @@ void Renderer::setupVideo() {
 	GX_SetFieldMode(rmode->field_rendering, ((rmode->viHeight == 2 * rmode->xfbHeight) ? GX_ENABLE : GX_DISABLE));
 	
 	GX_SetPixelFmt(rmode->aa ? GX_PF_RGB565_Z16 : GX_PF_RGB8_Z24, GX_ZC_LINEAR);
-
+	
+	GX_SetCullMode(GX_CULL_FRONT); // TODO: set to GX_CULL_BACK to disable backface culling (INIT as default)
 	GX_CopyDisp(frameBuffer, GX_TRUE);
 	GX_SetDispCopyGamma(GX_GM_1_0);
+
+    ///FOG
+    GXColor greyBackground = {0x80, 0x80, 0x80, 0xff};
+    GX_SetFog(GX_FOG_PERSP_LIN, 900, 990, 20, 1200, greyBackground);
+
+    GXFogAdjTbl* fogTable = (GXFogAdjTbl*)memalign(32, 8 * sizeof(GXFogAdjTbl));
+
+    f32 projmtx[4][4] = {
+            {2.0f / rmode->fbWidth, 0.0f, 0.0f, 0.0f},
+            {0.0f, 2.0f / rmode->efbHeight, 0.0f, 0.0f},
+            {0.0f, 0.0f, 0.0f, 0.0f},
+            {-1.0f, -1.0f, 0.0f, 1.0f}
+    };
+
+    GX_InitFogAdjTable(fogTable, rmode->fbWidth, projmtx);
+    GX_SetFogRangeAdj(true, 500, fogTable);
+
+	// setup texture coordinate generation
+	// args: texcoord slot 0-7, matrix type, source to generate texture coordinates from, matrix to use
+	GX_SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY);
 }
 
-void Renderer::setup3dMode(f32 minDist, f32 maxDist, f32 fov) {
-    Mtx44 m;
-    guVector pl = {camera.pos.x + camera.look.x, camera.pos.y + camera.look.y, camera.pos.z + camera.look.z};
-
-    guLookAt(camera.viewMatrix, &camera.pos, &camera.up, &pl);
-
-    guPerspective(m, fov, (f32)rmode->fbWidth/rmode->xfbHeight, minDist, maxDist);
-    GX_LoadProjectionMtx(m, GX_PERSPECTIVE);
-    GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
-
-    GX_SetCullMode(GX_CULL_NONE);
-
-    GX_ClearVtxDesc();
-
-    GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
-    GX_SetVtxDesc(GX_VA_NRM, GX_DIRECT);
-    GX_SetVtxDesc(GX_VA_CLR0, GX_DIRECT);
-    GX_SetVtxDesc(GX_VA_TEX0, GX_DIRECT);
-
-    GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
-    GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_NRM_XYZ, GX_F32, 0);
-    GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
-    GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
-
-    GX_SetTevOp(GX_TEVSTAGE0, GX_MODULATE);
-}
-
-void Renderer::setup2dMode() const {
-    Mtx view;
-    Mtx44 m;
-
-    GX_SetZMode(GX_FALSE, GX_LEQUAL, GX_TRUE);
-
-    GX_SetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_CLEAR);
-
-    guOrtho(m, 0, rmode->efbHeight, 0, rmode->fbWidth, 0, 1000.0f);
-    GX_LoadProjectionMtx(m, GX_ORTHOGRAPHIC);
-
-    guMtxIdentity(view);
-    guMtxTransApply(view, view, 0, 0, -100.0f);
-    GX_LoadPosMtxImm(view, GX_PNMTX0);
-
-    GX_ClearVtxDesc();
-    GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
-    GX_SetVtxDesc(GX_VA_CLR0, GX_DIRECT);
-    GX_SetVtxDesc(GX_VA_TEX0, GX_NONE);
-    GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
-    GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
-    GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
-
-    GX_SetNumTexGens(1);  // One texture exists
-    GX_SetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
-    GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
-    GX_SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY);
-
-    GX_SetNumTevStages(1);
-
-    GX_SetTevOp  (GX_TEVSTAGE0, GX_PASSCLR);
-
-    GX_SetNumChans(1);
-    GX_SetChanCtrl(GX_COLOR0A0, GX_DISABLE, GX_SRC_VTX, GX_SRC_VTX, 0, GX_DF_NONE, GX_AF_NONE);
-    GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
-
-}
-
-void Renderer::setupVtxDesc() {
+void Renderer::setupVtxDesc3D() {
 	// setup the vertex attribute table
-	// describes the data
-	// args: vat location 0-7, type of data, data format, size, scale
-	// so for ex. in the first call we are sending position data with
-	// 3 values X,Y,Z of size F32. scale sets the number of fractional
-	// bits for non float data.
 	GX_ClearVtxDesc();
 	GX_InvVtxCache();
 	
 	GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
 	GX_SetVtxDesc(GX_VA_NRM, GX_DIRECT);
-    GX_SetVtxDesc(GX_VA_CLR0, GX_DIRECT);
 	GX_SetVtxDesc(GX_VA_TEX0, GX_DIRECT);
 	
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_NRM_XYZ, GX_F32, 0);
-    GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+}
 
+void Renderer::setupVtxDesc2D() {
+	// setup the vertex attribute table
+	GX_InvVtxCache();
+	GX_InvalidateTexAll();
+	GX_ClearVtxDesc();
+
+	GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GX_SetVtxDesc(GX_VA_TEX0, GX_DIRECT);
 	
-	// setup texture coordinate generation
-	// args: texcoord slot 0-7, matrix type, source to generate texture coordinates from, matrix to use
-	GX_SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY); // TODO gtttttttt
-	
+	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XY, GX_F32, 0);
+	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
 }
 
 void Renderer::setupMisc() {
 	
 	// set number of rasterized color channels
-	GX_SetNumChans(2);
+	GX_SetNumChans(1);
 	
 	//set number of textures to generate
 	GX_SetNumTexGens(1);
@@ -174,9 +126,8 @@ void Renderer::testRender() {
 }
 
 void Renderer::endFrame() {
-    GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
+	GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
 	GX_SetColorUpdate(GX_TRUE);
-    //GX_SetAlphaUpdate(GX_TRUE);
 	GX_CopyDisp(frameBuffer, GX_TRUE);
 	
 	GX_DrawDone();
@@ -195,13 +146,11 @@ int Renderer::selectFrameBuffer;
 void * Renderer::gp_fifo = nullptr;
 
 GXRModeObj * Renderer::rmode;
-GXColor Renderer::background = {0xff, 0xff, 0xff, 0xff}; // blue = {0x29, 0xae, 0xea, 0xff}; // blue
-
+GXColor Renderer::background = {0x80, 0x80, 0x80, 0xff};; // blue = {0x29, 0xae, 0xea, 0xff}; // blue
 
 
 void Renderer::renderBloc(const guVector &coord, u32 code,
 						  bool top, bool bottom, bool left, bool right, bool front, bool back) {
-
 	Mtx model, modelview; // Various matrices
 	
 	guMtxIdentity(model);
@@ -210,170 +159,149 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 	
 	guMtxConcat(camera.viewMatrix, model, modelview);
 	GX_LoadPosMtxImm(modelview, GX_PNMTX0);
-
-
+	
 	int sz = (top + bottom + left + right + front + back) << 2;
 	f32 x, y;
-    int alphaValue = 255;
-    if(code < SOLIDBLOCK) alphaValue = 0;
-
+	
 	GX_Begin(GX_QUADS, GX_VTXFMT0, sz); // Start drawing
 	
 	// Bottom face
 	if (bottom) {
 		x = blocData[code].x[BLOC_FACE_BOTTOM];
 		y = blocData[code].y[BLOC_FACE_BOTTOM];
-		//SYS_Report("jtrdthbfdg %f %f\r", x, y);
+
 		GX_Position3f32(-1.0f, -1.0f, -1.0f);
-		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
+		GX_Normal3f32(0, -1, 0);
 		GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
-
+		
 		GX_Position3f32(0.0f, -1.0f, -1.0f);
-		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
+		GX_Normal3f32(0, -1, 0);
 		GX_TexCoord2f32(x, y + OFFSET); // Top left
-
+		
 		GX_Position3f32(0.0f, -1.0f, 0.0f);
-		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
+		GX_Normal3f32(0, -1, 0);
 		GX_TexCoord2f32(x, y); // Bottom left
-
+		
 		GX_Position3f32(-1.0f, -1.0f, 0.0f);
-		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
+		GX_Normal3f32(0, -1, 0);
 		GX_TexCoord2f32(x + OFFSET, y); // Bottom right
 	}
-
+	
 	// Front face
 	if (front) {
 		x = blocData[code].x[BLOC_FACE_FRONT];
 		y = blocData[code].y[BLOC_FACE_FRONT];
-
+		
 		GX_Position3f32(-1.0f, -1.0f, 0.0f);
 		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x, y); // Bottom left
-
+		
 		GX_Position3f32(0.0f, -1.0f, 0.0f);
 		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x + OFFSET, y); // Bottom right
-
+		
 		GX_Position3f32(0.0f, 0.0f, 0.0f);
 		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
-
+		
 		GX_Position3f32(-1.0f, 0.0f, 0.0f);
 		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
 		GX_TexCoord2f32(x, y + OFFSET); // Top left
 	}
-
+	
 	// Back face
 	if (back) {
 		x = blocData[code].x[BLOC_FACE_BACK];
 		y = blocData[code].y[BLOC_FACE_BACK];
-
+		
 		GX_Position3f32(-1.0f, -1.0f, -1.0f);
-		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
+		GX_Normal3f32(0, 0, -1);
 		GX_TexCoord2f32(x + OFFSET, y); // Bottom right
-
+		
 		GX_Position3f32(-1.0f, 0.0f, -1.0f);
-		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
+		GX_Normal3f32(0, 0, -1);
 		GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
-
+		
 		GX_Position3f32(0.0f, 0.0f, -1.0f);
-		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
+		GX_Normal3f32(0, 0, -1);
 		GX_TexCoord2f32(x, y + OFFSET); // Top left
-
+		
 		GX_Position3f32(0.0f, -1.0f, -1.0f);
-		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
+		GX_Normal3f32(0, 0, -1);
 		GX_TexCoord2f32(x, y); // Bottom left
 	}
-
+	
 	// Right face
 	if (right) {
 		x = blocData[code].x[BLOC_FACE_RIGHT];
 		y = blocData[code].y[BLOC_FACE_RIGHT];
-
+		
 		GX_Position3f32(0.0f, -1.0f, -1.0f);
-		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
+		GX_Normal3f32(1, 0, 0);
 		GX_TexCoord2f32(x + OFFSET, y); // Bottom right
-
+		
 		GX_Position3f32(0.0f, 0.0f, -1.0f);
-		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
+		GX_Normal3f32(1, 0, 0);
 		GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
-
+		
 		GX_Position3f32(0.0f, 0.0f, 0.0f);
-		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
+		GX_Normal3f32(1, 0, 0);
 		GX_TexCoord2f32(x, y + OFFSET); // Top left
-
+		
 		GX_Position3f32(0.0f, -1.0f, 0.0f);
-		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
+		GX_Normal3f32(1, 0, 0);
 		GX_TexCoord2f32(x, y); // Bottom left
 	}
-
+	
 	// Left face
 	if (left) {
 		x = blocData[code].x[BLOC_FACE_LEFT];
 		y = blocData[code].y[BLOC_FACE_LEFT];
-
+		
 		GX_Position3f32(-1.0f, -1.0f, -1.0f);
-		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
+		GX_Normal3f32(-1, 0, 0);
 		GX_TexCoord2f32(x, y); // Bottom right
-
+		
 		GX_Position3f32(-1.0f, -1.0f, 0.0f);
-		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
+		GX_Normal3f32(-1, 0, 0);
 		GX_TexCoord2f32(x + OFFSET, y); // Top right
-
+		
 		GX_Position3f32(-1.0f, 0.0f, 0.0f);
-		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
+		GX_Normal3f32(-1, 0, 0);
 		GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top left
-
+		
 		GX_Position3f32(-1.0f, 0.0f, -1.0f);
-		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
+		GX_Normal3f32(-1, 0, 0);
 		GX_TexCoord2f32(x, y + OFFSET); // Bottom left
 	}
-
+	
 	// Top face
 	if (top) {
 		x = blocData[code].x[BLOC_FACE_TOP];
 		y = blocData[code].y[BLOC_FACE_TOP];
-
+		
 		GX_Position3f32(-1.0f, 0.0f, -1.0f);
-		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
+		GX_Normal3f32(0, 1, 0);
 		GX_TexCoord2f32(x, y + OFFSET); // Top left
-
+		
 		GX_Position3f32(-1.0f, 0.0f, 0.0f);
-		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
+		GX_Normal3f32(0, 1, 0);
 		GX_TexCoord2f32(x, y); // Bottom left
-
+		
 		GX_Position3f32(0.0f, 0.0f, 0.0f);
-		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
+		GX_Normal3f32(0, 1, 0);
 		GX_TexCoord2f32(x + OFFSET, y); // Bottom right
-
+		
 		GX_Position3f32(0.0f, 0.0f, -1.0f);
-		GX_Normal3f32(0, 0, 1);
-        GX_Color4u8(255, 255, 255, alphaValue);
+		GX_Normal3f32(0, 1, 0);
 		GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
 	}
-
+	
 	GX_End();         // Done drawing quads
 }
+/*
+Renderer::CacheChunk(const VerticalChunk& c){
+	BlockType bk[16][16][16];
+	
+	
+}*/

@@ -69,5 +69,9 @@ void World::setNeighboors(t_pos2D newcoord, VerticalChunk *pChunk) {
     }
 }
 
+std::map<t_pos2D, VerticalChunk *>& World::getLoadedChunk() {
+    return loadedChunk;
+}
+
 
 

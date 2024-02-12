@@ -8,7 +8,7 @@
 #include <gccore.h>
 #include "camera.h"
 
-#define DEFAULT_FIFO_SIZE 262144 // (256 * 1024) // TODO : Need to be increased !!!
+#define DEFAULT_FIFO_SIZE 262144  // (256 * 1024) // TODO : Need to be increased !!!
 
 class Renderer {
 	static void * gp_fifo;
@@ -22,13 +22,11 @@ public:
 	static GXRModeObj * rmode;
 	
 	static void setupVideo();
-    void setup3dMode(f32 minDist = 0.1, f32 maxDist = 300, f32 fov = 45);
-    void setup2dMode() const;
-	static void setupVtxDesc();
+	static void setupVtxDesc3D();
+	static void setupVtxDesc2D();
 	static void setupMisc();
-    static int video_init();
 	
-	void setupDebugConsole();
+	static void setupDebugConsole();
 	
 	static void testRender();
 	
@@ -37,7 +35,6 @@ public:
 	void renderBloc(const guVector &coord, u32 code,
 					bool top, bool bottom, bool left, bool right, bool front, bool back
 					);
-    void renderCross();
 };
 
 #endif //MIICRAFT_RENDERER_H

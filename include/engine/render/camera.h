@@ -17,7 +17,7 @@ public:
     Mtx viewMatrix;
     guVector up = {0.0F, 1.0F, 0.0F};
 	guVector pos = {0.0F, 0.0F, 0.0F},
-    look = {0.0F, 0.0F, -1.0F};
+    look = {0.0F, 0.0F, 1.0F};
 
 	/** Constructor
 	 * @param fov Field of view (half angle in degrees)
