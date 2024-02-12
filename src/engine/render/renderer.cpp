@@ -7,6 +7,7 @@
 #include <string.h>
 #include "engine/render/renderer.h"
 #include "engine/render/bloc.h"
+#include "../../world/block.h"
 
 void Renderer::setupVideo() {
 	VIDEO_Init();
@@ -80,6 +81,7 @@ void Renderer::setupVtxDesc3D() {
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_NRM_XYZ, GX_F32, 0);
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+
 }
 
 void Renderer::setupVtxDesc2D() {
@@ -90,7 +92,7 @@ void Renderer::setupVtxDesc2D() {
 
 	GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
 	GX_SetVtxDesc(GX_VA_TEX0, GX_DIRECT);
-	
+
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XY, GX_F32, 0);
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
 }
@@ -283,7 +285,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 		GX_Position3f32(-1.0f, 0.0f, -1.0f);
 		GX_Normal3f32(0, 1, 0);
 		GX_TexCoord2f32(x, y + OFFSET); // Top left
-		
+
 		GX_Position3f32(-1.0f, 0.0f, 0.0f);
 		GX_Normal3f32(0, 1, 0);
 		GX_TexCoord2f32(x, y); // Bottom left
@@ -299,6 +301,88 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 	
 	GX_End();         // Done drawing quads
 }
+
+void Renderer::drawFocus(Block block, f32 x, f32 y, f32 z) {
+    GX_Begin(GX_LINESTRIP, GX_VTXFMT0, 16); // 12 lignes + 4 pour la fermeture de la boucle
+
+// Face inférieure
+    GX_Position3f32(x -1.0f, y -1.0f, z -1.0f);
+    GX_Normal3f32(0, 1, 0);
+    GX_TexCoord2f32(0, 0); // Top right
+
+    GX_Position3f32(x, y -1.0f, z -1.0f);
+    GX_Normal3f32(0, 1, 0);
+    GX_TexCoord2f32(0, 0); // Top right
+
+    GX_Position3f32(x, y -1.0f, z);
+    GX_Normal3f32(0, 1, 0);
+    GX_TexCoord2f32(0, 0); // Top right
+
+    GX_Position3f32(x -1.0f, y -1.0f, z);
+    GX_Normal3f32(0, 1, 0);
+    GX_TexCoord2f32(0, 0); // Top right
+
+    GX_Position3f32(x -1.0f, y -1.0f, z -1.0f); // Fermeture de la boucle
+    GX_Normal3f32(0, 1, 0);
+    GX_TexCoord2f32(0, 0); // Top right
+
+// Face supérieure
+    GX_Position3f32(x -1.0f, y, z -1.0f);
+    GX_Normal3f32(0, 1, 0);
+    GX_TexCoord2f32(0, 0); // Top right
+
+    GX_Position3f32(x, y, z -1.0f);
+    GX_Normal3f32(0, 1, 0);
+    GX_TexCoord2f32(0, 0); // Top right
+
+    GX_Position3f32(x, y, z);
+    GX_Normal3f32(0, 1, 0);
+    GX_TexCoord2f32(0, 0); // Top right
+
+    GX_Position3f32(x -1.0f, y, z);
+    GX_Normal3f32(0, 1, 0);
+    GX_TexCoord2f32(0, 0); // Top right
+
+    GX_Position3f32(x -1.0f, y, z -1.0f); // Fermeture de la boucle
+    GX_Normal3f32(0, 1, 0);
+    GX_TexCoord2f32(0, 0); // Top right
+
+// Arêtes verticales
+    GX_Position3f32(x -1.0f, y -1.0f, z -1.0f);
+    GX_Normal3f32(0, 1, 0);
+    GX_TexCoord2f32(0, 0); // Top right
+
+    GX_Position3f32(x -1.0f, y, z -1.0f);
+    GX_Normal3f32(0, 1, 0);
+    GX_TexCoord2f32(0, 0); // Top right
+
+    GX_Position3f32(x, y -1.0f, z -1.0f);
+    GX_Normal3f32(0, 1, 0);
+    GX_TexCoord2f32(0, 0); // Top right
+
+    GX_Position3f32(x, y, z -1.0f);
+    GX_Normal3f32(0, 1, 0);
+    GX_TexCoord2f32(0, 0); // Top right
+
+    GX_Position3f32(x, y -1.0f, z);
+    GX_Normal3f32(0, 1, 0);
+    GX_TexCoord2f32(0, 0); // Top right
+
+    GX_Position3f32(x, y, z);
+    GX_Normal3f32(0, 1, 0);
+    GX_TexCoord2f32(0, 0); // Top right
+
+    GX_Position3f32(x -1.0f, y -1.0f, z);
+    GX_Normal3f32(0, 1, 0);
+    GX_TexCoord2f32(0, 0); // Top right
+
+    GX_Position3f32(x -1.0f, y, z);
+    GX_Normal3f32(0, 1, 0);
+    GX_TexCoord2f32(0, 0); // Top right
+
+    GX_End();
+}
+
 /*
 Renderer::CacheChunk(const VerticalChunk& c){
 	BlockType bk[16][16][16];

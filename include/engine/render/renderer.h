@@ -7,6 +7,7 @@
 
 #include <gccore.h>
 #include "camera.h"
+#include "../../../src/world/block.h"
 
 #define DEFAULT_FIFO_SIZE 262144  // (256 * 1024) // TODO : Need to be increased !!!
 
@@ -35,6 +36,8 @@ public:
 	void renderBloc(const guVector &coord, u32 code,
 					bool top, bool bottom, bool left, bool right, bool front, bool back
 					);
+
+    static void drawFocus(Block block, f32 x, f32 y, f32 z);
 };
 
 #endif //MIICRAFT_RENDERER_H
