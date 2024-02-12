@@ -8,23 +8,33 @@
 
 #include "WorldGenerator.h"
 #include "utils/FastNoiseLite.h"
-#include "BiomeMap.h"
+#include "biome/BiomeGenerator.h"
+#include "../system/Random.h"
+#include <fstream>
+#include <iostream>
+#include <algorithm>
+
+#define APPLY_BLOCK(BLOCK_TYPE) \
+chunk->VC_SetBlock(pos, BLOCK_TYPE);
+
 
 class PerlinWorldGenerator : public WorldGenerator {
 private:
-    FastNoiseLite noise;
-    BiomeMap biomeGen;
+//    FastNoiseLite noise;
 
-public:
-    void generateChunk(World&, const t_pos2D) override;
-
-    void generateNoise();
-
-    int noiseToInteger(float floatValue);
-
-    PerlinWorldGenerator();
+    FastNoiseLite noiseErosion;
+    FastNoiseLite noiseTemperature;
+    FastNoiseLite noiseHumidity;
+    FastNoiseLite noiseAltitude;
+    FastNoiseLite noiseContinental;
 
     void buildTree(t_coord pos, VerticalChunk* vc);
+public:
+    PerlinWorldGenerator();
+    void initNoise();
+
+    BiomeType guessBiome(float ero, float temp, float hum, float cont);
+    void generateChunk(World&, const t_pos2D) override;
 };
 
 

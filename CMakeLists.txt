@@ -30,10 +30,7 @@ add_executable(Miicraft main.cpp
         src/world/coord.cpp
         src/world/blockTemplate.cpp
         src/system/saveManager.cpp
-        src/world/BiomeMap.cpp
         src/system/Random.cpp
-        src/world/biome/BiomeTemplate.cpp
-        src/world/biome/Hills.cpp
 )
 
 add_executable(MiicraftTest Debug.cpp
@@ -46,9 +43,7 @@ add_executable(MiicraftTest Debug.cpp
         src/world/PerlinWorldGenerator.cpp
         src/world/coord.cpp
         src/world/blockTemplate.cpp
-        src/world/BiomeMap.cpp
         src/system/Random.cpp
-        src/world/biome/BiomeTemplate.cpp
 )
 
 
