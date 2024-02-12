@@ -13,7 +13,8 @@
 class Camera {
 
 public:
-	Mtx44 viewMatrix, perspective;
+	Mtx44 perspective;
+    Mtx viewMatrix;
     guVector up = {0.0F, 1.0F, 0.0F};
 	guVector pos = {0.0F, 0.0F, 0.0F},
     look = {0.0F, 0.0F, -1.0F};

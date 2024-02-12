@@ -210,8 +210,8 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 
 void renderWorld(World& w, Renderer& renderer) {
 	t_pos2D pos;
-	for (pos.x = 0; pos.x < 10; pos.x++) {
-		for (pos.y = 0; pos.y < 10; pos.y++) {
+	for (pos.x = 0; pos.x < 2; pos.x++) {
+		for (pos.y = 0; pos.y < 2; pos.y++) {
 			renderChunk(w.getChunkAt(pos), renderer, pos);
 		}
 	}
@@ -220,22 +220,22 @@ void renderWorld(World& w, Renderer& renderer) {
 int main(int argc, char ** argv) {
 	PAD_Init();
 	WPAD_Init();
-	
-	Renderer::setupVideo();
-	Renderer::setupVtxDesc();
-	Renderer::setupMisc();
-	
+
+
+	Renderer::video_init();
+    Renderer renderer;
+
 
 	//Light light;
 	//GX_InvalidateTexAll();
-	Renderer renderer;
-	
+
 	TPL_OpenTPLFromMemory(&TPLfile, (void *)texture_data, texture_sz);
 	TPL_GetTexture(&TPLfile, 0, &texture);
     GX_InitTexObjLOD(&texture, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
-	GX_SetTevOp(GX_TEVSTAGE0,GX_MODULATE);
 	GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
-	
+/*
+    guOrtho(renderer.camera.perspective,0,479,0,639,0,300);
+    GX_LoadProjectionMtx(renderer.camera.perspective, GX_ORTHOGRAPHIC);*/
 	GX_LoadTexObj(&texture, GX_TEXMAP0);
 	//GX_InitTexObjFilterMode(&texture, GX_NEAR, GX_NEAR);
 	//GX_SetTevIndTile()
@@ -254,16 +254,17 @@ int main(int argc, char ** argv) {
 
     t_coord pos(0,0,0);
     World w = Game::getInstance()->getWorld();
-    renderer.camera.pos.y = 30;
+    renderer.camera.pos.y = 65;
     renderer.camera.pos.x = 48;
     renderer.camera.pos.z = 48;
 	while (!exiting) {
-
+        renderer.setup2dMode();
 		//renderer.camera.rotateV(-0.10);
 		//renderer.camera.rotateH(0.50);
 		//camera.rotateH(1);
+        renderer.setup3dMode();
         wiimote.update(renderer);
-		renderer.camera.update(false);
+		//renderer.camera.update(false);
 		//renderer.renderBloc({-1, 0, 0}, 1);
 		//renderer.renderBloc({0, 0, -1}, 1);
 		//renderer.renderBloc({0, -1, 0}, 1);
@@ -284,6 +285,7 @@ int main(int argc, char ** argv) {
 		//renderer.renderBloc({1, 0, 0}, 1, false, true, true, true, true, true);
 		//renderer.renderBloc({0, 0, 1}, 1, false, true, true, true, true, true);
         renderWorld(w, renderer);
+        //renderer.renderCross();
 		//renderer.renderBloc({4, 0, 0}, 1);
 		//renderer.renderBloc({7, -1, 0}, 1);
 		//renderer.renderBloc({8, 0, 0}, 1);
@@ -306,7 +308,7 @@ int main(int argc, char ** argv) {
 		//drawdot(rmode->fbWidth, rmode->xfbHeight, 0, 0, COLOR_YELLOW);
 
 		//Renderer::setupDebugConsole();
-
+        renderer.setup2dMode();
 		Renderer::endFrame();
 	}
 	
