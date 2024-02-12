@@ -37,7 +37,7 @@ public:
 					bool top, bool bottom, bool left, bool right, bool front, bool back
 					);
 
-    static void drawFocus(Block block, f32 x, f32 y, f32 z);
+    void drawFocus(Block block, f32 x, f32 y, f32 z);
 };
 
 #endif //MIICRAFT_RENDERER_H

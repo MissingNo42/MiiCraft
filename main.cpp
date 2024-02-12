@@ -191,31 +191,22 @@ void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
 	}
 }
 Block getFocusedBlock(World& w, Renderer& renderer){
-    guVector normalizedLook;
     BlockType type = BlockType::Air;
     t_coord pos = t_coord(0,0,0);
     f32 distance = 0,
     x = renderer.camera.pos.x + 1,
-    y = renderer.camera.pos.y,
+    y = renderer.camera.pos.y + 1,
     z = renderer.camera.pos.z + 1;
-    //c_guVecNormalize(&normalizedLook);
     while(type == BlockType::Air && distance <= 5){
         x += renderer.camera.look.x/20;
         y += renderer.camera.look.y/20;
         z += renderer.camera.look.z/20;
         distance += 0.05;
         pos = t_coord((int)floor(x), (int)floor(y), (int)floor(z));
-        //printf("Pos : x: %d, y: %d, z: %d\r", pos.x, pos.y, pos.z);
-        //printf("PosJoueur : x: %lf, y: %lf, z: %lf\r", renderer.camera.pos.x, renderer.camera.pos.y, renderer.camera.pos.z);
-        //printf("Look : x: %lf, y: %lf, z: %lf\r", renderer.camera.look.x, renderer.camera.look.y, renderer.camera.look.z);
-
         type = w.getBlockAt(pos).type;
     }
-    Renderer::drawFocus(w.getBlockAt(pos), (f32) pos.x, (f32)pos.y, (f32)pos.z);
-    printf("Distance: %lf\r", distance);
-    printf("PosJoueur : x: %lf, y: %lf, z: %lf\r", renderer.camera.pos.x, renderer.camera.pos.y, renderer.camera.pos.z);
-    printf("Look : x: %lf, y: %lf, z: %lf\r", renderer.camera.look.x, renderer.camera.look.y, renderer.camera.look.z);
-    printf("PosBlock : x: %d, y: %d, z: %d\r", pos.x, pos.y, pos.z);
+    if(type != BlockType::Air)
+        renderer.drawFocus(w.getBlockAt(pos), (f32) pos.x, (f32)pos.y, (f32)pos.z);
     return w.getBlockAt(pos);
 }
 
