@@ -274,6 +274,9 @@ int main(int, char **) {
 		//renderer.camera.rotateH(0.50);
 		//camera.rotateH(1);
         wiimote.update(renderer, w);
+        pos.x = renderer.camera.pos.x-1;
+        pos.y = renderer.camera.pos.y;
+        pos.z = renderer.camera.pos.z;
 		renderer.camera.update(false);
 
         renderWorld(w, renderer, w.to_chunk_pos(pos));

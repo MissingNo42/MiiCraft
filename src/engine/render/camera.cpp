@@ -55,9 +55,8 @@ void Camera::goLeft(guVector& normalizedLook, int speed, bool collision, World& 
     guVecCross(&normalizedLook, &up, &move);
     move = InverseVector(move);
     if (collision) {
-//        printf("cam:%d %d %d              block:%d %d %d\r", (int) pos.x, (int) pos.y, (int) pos.z, (int)floor(pos.x + move.x), (int) pos.y, (int)floor(pos.z + move.z));
-//        printf("%f %f %f\r", move.x, move.y, move.z);
-        if (w.getBlockAt({(int)ceil(pos.x + move.x), (int) pos.y, (int)ceil(pos.z + move.z)}).type == BlockType::Air){
+        if (w.getBlockAt({(int)ceil(pos.x + move.x), (int) pos.y, (int)ceil(pos.z + move.z)}).type == BlockType::Air
+        && w.getBlockAt({(int)ceil(pos.x + move.x), (int) pos.y+1, (int)ceil(pos.z + move.z)}).type == BlockType::Air){
             pos.x += move.x / 10 * (f32) speed;
             pos.z += move.z / 10 * (f32) speed;
         }
@@ -66,13 +65,15 @@ void Camera::goLeft(guVector& normalizedLook, int speed, bool collision, World& 
         pos.x += move.x / 10 * (f32) speed;
         pos.z += move.z / 10 * (f32) speed;
     }
+    update(true);
 }
 
 void Camera::goRight(guVector& normalizedLook, int speed, bool collision, World& w) {
     guVector move = {0,0,0};
     guVecCross(&normalizedLook, &up, &move);
     if (collision) {
-        if (w.getBlockAt({(int)ceil( pos.x + move.x), (int) pos.y, (int)ceil(pos.z+move.z)}).type == BlockType::Air){
+        if (w.getBlockAt({(int)ceil( pos.x + move.x), (int) pos.y, (int)ceil(pos.z+move.z)}).type == BlockType::Air
+        && w.getBlockAt({(int)ceil( pos.x + move.x), (int) pos.y+1, (int)ceil(pos.z+move.z)}).type == BlockType::Air){
             pos.x += move.x / 10 * (f32) speed;
             pos.z += move.z / 10 * (f32) speed;
         }
@@ -81,11 +82,13 @@ void Camera::goRight(guVector& normalizedLook, int speed, bool collision, World&
         pos.x += move.x / 10 * (f32) speed;
         pos.z += move.z / 10 * (f32) speed;
     }
+    update(true);
 }
 
 void Camera::goForward(guVector& normalizedLook, int speed, bool collision, World& w) {
     if (collision) {
-        if (w.getBlockAt({(int)ceil(pos.x + look.x), (int) pos.y, (int)ceil(pos.z+look.z)}).type == BlockType::Air){
+        if (w.getBlockAt({(int)ceil(pos.x + look.x), (int) pos.y, (int)ceil(pos.z+look.z)}).type == BlockType::Air
+        && w.getBlockAt({(int)ceil(pos.x + look.x), (int) pos.y+1, (int)ceil(pos.z+look.z)}).type == BlockType::Air){
             pos.x += normalizedLook.x/10 * (f32) speed;
             pos.z += normalizedLook.z/10 * (f32) speed;
         }
@@ -94,12 +97,14 @@ void Camera::goForward(guVector& normalizedLook, int speed, bool collision, Worl
         pos.x += normalizedLook.x / 10 * (f32) speed;
         pos.z += normalizedLook.z / 10 * (f32) speed;
     }
+    update(true);
 }
 
 void Camera::goBackward(guVector& normalizedLook, int speed, bool collision, World& w) {
     guVector move = InverseVector(normalizedLook);
     if (collision) {
-        if (w.getBlockAt({(int)ceil( pos.x+1 + move.x), (int) pos.y, (int) ceil(pos.z+move.z)}).type == BlockType::Air){
+        if (w.getBlockAt({(int)ceil( pos.x+1 + move.x), (int) pos.y, (int) ceil(pos.z+move.z)}).type == BlockType::Air
+        && w.getBlockAt({(int)ceil( pos.x+1 + move.x), (int) pos.y+1, (int) ceil(pos.z+move.z)}).type == BlockType::Air){
             pos.x += move.x/10 * (f32) speed;
             pos.z += move.z/10 * (f32) speed;
         }
@@ -108,6 +113,7 @@ void Camera::goBackward(guVector& normalizedLook, int speed, bool collision, Wor
         pos.x += move.x/10 * (f32) speed;
         pos.z += move.z/10 * (f32) speed;
     }
+    update(true);
 }
 
 //void Camera::goUp(int speed, bool collision, World& w) {

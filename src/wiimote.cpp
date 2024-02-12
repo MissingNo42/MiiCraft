@@ -78,6 +78,7 @@ void Wiimote::handleMovement(Renderer& renderer, u16 directions, World& w) {
         }
         else
             renderer.camera.pos.y += 0.1;
+        renderer.camera.update(true);
         }
 
     if ( directions & WPAD_BUTTON_B) {
@@ -88,6 +89,7 @@ void Wiimote::handleMovement(Renderer& renderer, u16 directions, World& w) {
         }
         else
             renderer.camera.pos.y -= 0.1;
+        renderer.camera.update(true);
     }
 }
 
