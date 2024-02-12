@@ -65,7 +65,7 @@ void Camera::goLeft(guVector& normalizedLook, int speed, bool collision, World& 
         pos.x += move.x / 10 * (f32) speed;
         pos.z += move.z / 10 * (f32) speed;
     }
-    update(true);
+    //update(true);
 }
 
 void Camera::goRight(guVector& normalizedLook, int speed, bool collision, World& w) {
@@ -82,7 +82,7 @@ void Camera::goRight(guVector& normalizedLook, int speed, bool collision, World&
         pos.x += move.x / 10 * (f32) speed;
         pos.z += move.z / 10 * (f32) speed;
     }
-    update(true);
+    //update(true);
 }
 
 void Camera::goForward(guVector& normalizedLook, int speed, bool collision, World& w) {
@@ -97,7 +97,7 @@ void Camera::goForward(guVector& normalizedLook, int speed, bool collision, Worl
         pos.x += normalizedLook.x / 10 * (f32) speed;
         pos.z += normalizedLook.z / 10 * (f32) speed;
     }
-    update(true);
+    //update(true);
 }
 
 void Camera::goBackward(guVector& normalizedLook, int speed, bool collision, World& w) {
@@ -113,17 +113,27 @@ void Camera::goBackward(guVector& normalizedLook, int speed, bool collision, Wor
         pos.x += move.x/10 * (f32) speed;
         pos.z += move.z/10 * (f32) speed;
     }
+    //update(true);
+}
+
+void Camera::goUp(int speed, bool collision, World& w) {
+    if ( collision ){
+        if (w.getBlockAt({(int) pos.x, (int) pos.y+1, (int) pos.z}).type == BlockType::Air)
+            pos.y += 0.1 ;
+    }
+    else
+        pos.y += 0.1;
     update(true);
 }
 
-//void Camera::goUp(int speed, bool collision, World& w) {
-//    if ( collision ){
-//        coord.y += 1;
-//        if (w.getBlockAt(coord).type == BlockType::Air)
-//            renderer.camera.pos.y += 0.1;
-//    }
-//    else
-//        renderer.camera.pos.y += 0.1;
-//}
+void Camera::goDown(int speed, bool collision, World& w) {
+    if ( collision ){
+        if (w.getBlockAt({(int) pos.x+1, (int) pos.y-1, (int) pos.z}).type == BlockType::Air)
+            pos.y -= 0.1;
+    }
+    else
+        pos.y -= 0.1;
+    update(true);
+}
 
 

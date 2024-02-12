@@ -17,13 +17,16 @@ private:
     int chan = WPAD_CHAN_0;
     int speed = 1;
     u32 type = 0;
-    static inline bool collision = true;
+    bool collision = true;
 
     void handleMovement(Renderer& renderer, u16 directions, World& w);
     static void handleRotation(Renderer& renderer, WPADData * wd);
 
 public:
-    Wiimote();
+    Wiimote() {
+        WPAD_SetDataFormat(WPAD_CHAN_ALL, WPAD_FMT_BTNS_ACC_IR);
+        WPAD_SetVRes(WPAD_CHAN_ALL, Renderer::rmode->fbWidth, Renderer::rmode->xfbHeight);
+    }
     void update(Renderer& renderer, World& w);
 };
 

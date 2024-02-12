@@ -267,15 +267,15 @@ int main(int, char **) {
         pos.x = renderer.camera.pos.x-1;
         pos.y = renderer.camera.pos.y;
         pos.z = renderer.camera.pos.z;
+        //printf("pos : %d %d %d\r", pos.x, pos.y, pos.z);
         Game::getInstance()->requestChunk(w.to_chunk_pos(pos));
+        //printf("%d %d\r", w.to_chunk_pos(pos).x, w.to_chunk_pos(pos).y);
 
 		//renderer.camera.rotateV(-0.10);
 		//renderer.camera.rotateH(0.50);
 		//camera.rotateH(1);
         wiimote.update(renderer, w);
-        pos.x = renderer.camera.pos.x-1;
-        pos.y = renderer.camera.pos.y;
-        pos.z = renderer.camera.pos.z;
+
 		renderer.camera.update(false);
 
         renderWorld(w, renderer, w.to_chunk_pos(pos));
