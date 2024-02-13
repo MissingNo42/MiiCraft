@@ -221,6 +221,25 @@ void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
         }
     }
 }
+Block getFocusedBlock(World& w, Renderer& renderer){
+    BlockType type = BlockType::Air;
+    t_coord pos = t_coord(0,0,0);
+    f32 distance = 0,
+    x = renderer.camera.pos.x + 1,
+    y = renderer.camera.pos.y + 1,
+    z = renderer.camera.pos.z + 1;
+    while(type == BlockType::Air && distance <= 5){
+        x += renderer.camera.look.x/20;
+        y += renderer.camera.look.y/20;
+        z += renderer.camera.look.z/20;
+        distance += 0.05;
+        pos = t_coord((int)floor(x), (int)floor(y), (int)floor(z));
+        type = w.getBlockAt(pos).type;
+    }
+    if(type != BlockType::Air)
+        renderer.drawFocus(w.getBlockAt(pos), (f32) pos.x, (f32)pos.y, (f32)pos.z);
+    return w.getBlockAt(pos);
+}
 
 int main(int, char **) {
 	PAD_Init();
@@ -279,7 +298,10 @@ int main(int, char **) {
         pos.z = renderer.camera.pos.z;
 		renderer.camera.update(false);
 
+
         renderWorld(w, renderer, w.to_chunk_pos(pos));
+        Block b = getFocusedBlock(w, renderer);
+        printf("Type de block visé : %s\r", b.toString().c_str());
 
 
 		//renderer.renderBloc({4, 0, 0}, 1);

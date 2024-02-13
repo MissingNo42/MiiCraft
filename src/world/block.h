@@ -5,8 +5,10 @@
 #ifndef MIICRAFT_BLOCK_H
 #define MIICRAFT_BLOCK_H
 #include <iostream>
+#include <gctypes.h>
+#define SOLIDBLOCK 2
 
-enum BlockType : char {
+enum BlockType : u8 {
 //     Air =0,
 //     Bedrock,
 //     Dirt,
