@@ -61,6 +61,8 @@ bool Wiimote::update(Camera &camera) {
 void Wiimote::handleMovement(Camera& camera) {
     guVector normalizedLook = camera.look;
     guVecNormalize(&normalizedLook);
+    t_coord coord((int)camera.pos.x+1, (int)camera.pos.y, (int)camera.pos.z+1);
+
     speed = 1;
     if ( hold & WPAD_BUTTON_PLUS)
         speed = 2;
@@ -72,9 +74,38 @@ void Wiimote::handleMovement(Camera& camera) {
         camera.goForward(normalizedLook, speed);
     if ( hold & WPAD_BUTTON_DOWN )
         camera.goBackward(normalizedLook, speed);
+    //if ( directions & WPAD_BUTTON_PLUS)
+    //    speed = 3;
+    //if ( directions & WPAD_BUTTON_LEFT )
+    //    renderer.camera.goLeft(normalizedLook, speed, collision, w);
+    //if ( directions & WPAD_BUTTON_RIGHT )
+    //    renderer.camera.goRight(normalizedLook, speed, collision, w);
+    //if ( directions & WPAD_BUTTON_UP )
+    //    renderer.camera.goForward(normalizedLook, speed, collision, w);
+    //if ( directions & WPAD_BUTTON_DOWN )
+    //    renderer.camera.goBackward(normalizedLook, speed, collision, w);
 
-    if ( hold & WPAD_BUTTON_A) camera.pos.y += 0.1;
-    if ( hold & WPAD_BUTTON_B) camera.pos.y -= 0.1;
+    if ( hold & WPAD_BUTTON_A ) {
+        if ( collision ){
+            coord.y += 1;
+            if (w.getBlockAt(coord).type == BlockType::Air)
+                camera.pos.y += 0.1;
+        }
+        else
+            camera.pos.y += 0.1;
+        camera.update(true);
+        }
+
+    if ( hold & WPAD_BUTTON_B) {
+        if ( collision ){
+            coord.y -= 1;
+            if (w.getBlockAt(coord).type == BlockType::Air)
+                camera.pos.y -= 0.1;
+        }
+        else
+            camera.pos.y -= 0.1;
+        camera.update(true);
+    }
 }
 
 

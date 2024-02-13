@@ -8,6 +8,8 @@
 #include <cstdlib>
 #include <wiiuse/wpad.h>
 #include "engine/render/renderer.h"
+#include "world/world.h"
+
 
 class Wiimote {
 private:
@@ -15,6 +17,7 @@ private:
     int chan = WPAD_CHAN_0;
     int speed = 1;
     u32 type = 0;
+    static inline bool collision = true;
 
     void handleMovement(Camera& camera);
     void handleRotation(Camera& camera);
@@ -24,7 +27,7 @@ public:
 	WPADData * wd;
 	
     explicit Wiimote(int chan = WPAD_CHAN_0);
-    bool update(Camera& camera);
+    void update(Renderer& renderer, World& w);
 };
 
 
