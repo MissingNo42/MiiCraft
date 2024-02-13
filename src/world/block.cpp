@@ -14,16 +14,10 @@ std::string Block::toString() const {
             return "Air";
         case BlockType::Dirt:
             return "Dirt";
-        case BlockType::Grass:
-            return "Grass";
         case BlockType::Stone:
             return "Stone";
         case BlockType::Bedrock:
             return "Bedrock";
-        case BlockType::Log:
-            return "Log";
-        case BlockType::Leaves:
-            return "Leaves";
         default:
             return "inconnu au bataillon";
     }
