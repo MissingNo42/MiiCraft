@@ -2,7 +2,7 @@
 // Created by paulo on 06/02/2024.
 //
 
-#include "verticalChunk.h"
+#include "world/verticalChunk.h"
 #include <cstring>
 
 t_pos2D::t_pos2D() : t_pos2D(0, 0) {}

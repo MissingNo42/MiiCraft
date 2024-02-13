@@ -17,9 +17,9 @@
 
 
 
-#include "src/world/game.h"
+#include "world/game.h"
 #include "engine/render/block.h"
-#include "src/system/saveManager.h"
+#include "system/saveManager.h"
 
 
 int exiting = 0;
@@ -277,32 +277,32 @@ int main(int, char **) {
 		
 		renderer.camera.loadPerspective(); // restore for next 3D
 		
-        pos.x = renderer.camera.pos.x-1;
-        pos.y = renderer.camera.pos.y;
-        pos.z = renderer.camera.pos.z;
+        pos.x = (int)renderer.camera.pos.x-1;
+        pos.y = (int)renderer.camera.pos.y;
+        pos.z = (int)renderer.camera.pos.z;
         Game::getInstance()->requestChunk(w.to_chunk_pos(pos));
 
 		//renderer.camera.rotateV(-0.10);
 		//renderer.camera.rotateH(0.50);
 		//camera.rotateH(1);
-        wiimote.update(renderer.camera);
-        pos.x = renderer.camera.pos.x-1;
-        pos.y = renderer.camera.pos.y;
-        pos.z = renderer.camera.pos.z;
+        wiimote.update(renderer.camera, w);
+        pos.x = (int)renderer.camera.pos.x-1;
+        pos.y = (int)renderer.camera.pos.y;
+        pos.z = (int)renderer.camera.pos.z;
 		renderer.camera.update(false);
 
 
         renderWorld(w, renderer, w.to_chunk_pos(pos));
 		
 		
-		renderer.camera.loadOrtho(); // set for 2D
-        Block b = getFocusedBlock(w, renderer);
-        printf("Type de block visé : %s\r", b.toString().c_str());
+        Block bl = getFocusedBlock(w, renderer);
+        printf("Type de block visé : %s\r", bl.toString().c_str());
 
 
 		//renderer.renderBloc({4, 0, 0}, 1);
 		//renderer.renderBloc({7, -1, 0}, 1);
 		
+		renderer.camera.loadOrtho(); // set for 2D drawing
 		renderer.camera.applyTransform2D();
 		x = 0.1, y = 0.1;
 		GX_Begin(GX_QUADS, GX_VTXFMT0, 8); // Start drawing

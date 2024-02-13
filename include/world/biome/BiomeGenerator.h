@@ -5,8 +5,8 @@
 #ifndef MIICRAFTTEST_BIOMEGENERATOR_H
 #define MIICRAFTTEST_BIOMEGENERATOR_H
 
-#include "../block.h"
-#include "../verticalChunk.h"
+#include "world/block.h"
+#include "world/verticalChunk.h"
 
 enum BiomeType{
     Ocean = 0,

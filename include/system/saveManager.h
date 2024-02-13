@@ -5,7 +5,7 @@
 #ifndef MIICRAFTTEST_SAVEMANAGER_H
 #define MIICRAFTTEST_SAVEMANAGER_H
 
-#include "../world/verticalChunk.h"
+#include "world/verticalChunk.h"
 #include <gccore.h>
 #include <fat.h>
 

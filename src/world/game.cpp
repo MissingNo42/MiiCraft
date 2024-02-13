@@ -2,8 +2,8 @@
 // Created by guill on 06/02/2024.
 //
 
-#include "game.h"
-#include "PerlinWorldGenerator.h"
+#include "world/game.h"
+#include "world/PerlinWorldGenerator.h"
 
 
 Game::Game() {

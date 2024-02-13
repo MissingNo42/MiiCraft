@@ -7,7 +7,7 @@
 
 #include <gccore.h>
 #include "camera.h"
-#include "../../../src/world/block.h"
+#include "world/block.h"
 
 #define DEFAULT_FIFO_SIZE 262144  // (256 * 1024) // TODO : Need to be increased !!!
 

@@ -34,7 +34,7 @@ void Wiimote::handleRotation(Camera& camera) {
     }
 }
 
-bool Wiimote::update(Camera &camera) {
+bool Wiimote::update(Camera &camera, World& w) {
 
     WPAD_ScanPads();
     if(WPAD_ButtonsDown(chan) & WPAD_BUTTON_HOME) return true;
@@ -45,7 +45,7 @@ bool Wiimote::update(Camera &camera) {
 	pressed = WPAD_ButtonsDown(chan);
 	released = WPAD_ButtonsUp(chan);
 	
-    handleMovement(camera);
+    handleMovement(camera, w);
     //WPAD_ReadPending(WPAD_CHAN_ALL, countevs);
     int wiimote_connection_status = WPAD_Probe(0, &type);
 
@@ -58,22 +58,24 @@ bool Wiimote::update(Camera &camera) {
 }
 
 
-void Wiimote::handleMovement(Camera& camera) {
+void Wiimote::handleMovement(Camera& camera, World& w) {
     guVector normalizedLook = camera.look;
     guVecNormalize(&normalizedLook);
     t_coord coord((int)camera.pos.x+1, (int)camera.pos.y, (int)camera.pos.z+1);
 
+	bool collision = true;
+	
     speed = 1;
     if ( hold & WPAD_BUTTON_PLUS)
         speed = 2;
     if ( hold & WPAD_BUTTON_LEFT )
-        camera.goLeft(normalizedLook, speed);
+        camera.goLeft(normalizedLook, speed, collision, w);
     if ( hold & WPAD_BUTTON_RIGHT )
-        camera.goRight(normalizedLook, speed);
+        camera.goRight(normalizedLook, speed, collision, w);
     if ( hold & WPAD_BUTTON_UP )
-        camera.goForward(normalizedLook, speed);
+        camera.goForward(normalizedLook, speed, collision, w);
     if ( hold & WPAD_BUTTON_DOWN )
-        camera.goBackward(normalizedLook, speed);
+        camera.goBackward(normalizedLook,speed, collision, w);
     //if ( directions & WPAD_BUTTON_PLUS)
     //    speed = 3;
     //if ( directions & WPAD_BUTTON_LEFT )

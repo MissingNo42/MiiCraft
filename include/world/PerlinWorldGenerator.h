@@ -8,8 +8,8 @@
 
 #include "WorldGenerator.h"
 #include "utils/FastNoiseLite.h"
-#include "biome/BiomeGenerator.h"
-#include "../system/Random.h"
+#include "world/biome/BiomeGenerator.h"
+#include "system/Random.h"
 #include <fstream>
 #include <iostream>
 #include <algorithm>

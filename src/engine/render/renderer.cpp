@@ -10,7 +10,7 @@
 #include "engine/render/block.h"
 
 #include "texture.c"
-#include "../../world/block.h"
+#include "world/block.h"
 
 void Renderer::setupVideo() {
 	VIDEO_Init();

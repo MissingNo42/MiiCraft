@@ -29,7 +29,6 @@ add_executable(Miicraft main.cpp
         src/world/PerlinWorldGenerator.cpp
         src/world/coord.cpp
         src/world/blockTemplate.cpp
-        src/world/BiomeMap.cpp
         src/system/saveManager.cpp
         src/system/Random.cpp
 )

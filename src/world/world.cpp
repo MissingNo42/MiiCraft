@@ -2,7 +2,7 @@
 // Created by paulo on 06/02/2024.
 //
 
-#include "world.h"
+#include "world/world.h"
 #include <stdexcept>
 
 World::World() : loadedChunk() {
