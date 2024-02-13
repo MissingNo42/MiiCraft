@@ -16,12 +16,15 @@ private:
     int speed = 1;
     u32 type = 0;
 
-    void handleMovement(Renderer& renderer, u16 directions);
-    static void handleRotation(Renderer& renderer, WPADData * wd);
+    void handleMovement(Camera& camera);
+    void handleRotation(Camera& camera);
 
 public:
-    Wiimote();
-    void update(Renderer& renderer);
+	u16 hold = 0, pressed = 0, released = 0;
+	WPADData * wd;
+	
+    explicit Wiimote(int chan = WPAD_CHAN_0);
+    bool update(Camera& camera);
 };
 
 

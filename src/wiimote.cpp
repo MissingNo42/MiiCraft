@@ -9,73 +9,80 @@
 #include "wiimote.h"
 
 
-void Wiimote::handleRotation(Renderer& renderer, WPADData * wd) {
+void Wiimote::handleRotation(Camera& camera) {
     if (wd->ir.valid) {
         if(wd->ir.x <  (f32) Renderer::rmode->fbWidth/2 - deadzone)
         {
             f32 angle = wd->ir.x / (f32) ((f32) Renderer::rmode->fbWidth/2 - deadzone) * 6;
-            renderer.camera.rotateH( M_PI /(2 + angle));
+            camera.rotateH( M_PI /(2 + angle));
         }
         if(wd->ir.x >  (f32) Renderer::rmode->fbWidth/2 + deadzone)
         {
             f32 angle = (wd->ir.x - (f32) Renderer::rmode->fbWidth/2 + deadzone) / (f32) ((f32) Renderer::rmode->fbWidth/2 - deadzone) * 6;
-            renderer.camera.rotateH( - (f32) M_PI /(8 - angle));
+            camera.rotateH( - (f32) M_PI /(8 - angle));
         }
         if(wd->ir.y <  (f32) Renderer::rmode->xfbHeight/2 - deadzoneTop)
         {
             f32 angle = wd->ir.y / (f32) ((f32) Renderer::rmode->xfbHeight/2 - deadzoneTop) * 6;
-            renderer.camera.rotateV( - (f32) M_PI /(2 +angle));
+            camera.rotateV( - (f32) M_PI /(2 +angle));
         }
         if(wd->ir.y >  (f32) Renderer::rmode->xfbHeight/2 + deadzone)
         {
             f32 angle = (wd->ir.y - (f32) Renderer::rmode->xfbHeight/2 + deadzone) / ((f32) Renderer::rmode->xfbHeight/2 - deadzone) * 6;
-            renderer.camera.rotateV( M_PI /(8 - angle));
+            camera.rotateV( M_PI /(8 - angle));
         }
     }
 }
 
-void Wiimote::update(Renderer &renderer) {
+bool Wiimote::update(Camera &camera) {
 
     WPAD_ScanPads();
-    if(WPAD_ButtonsDown(chan) & WPAD_BUTTON_HOME) exit(1);
+    if(WPAD_ButtonsDown(chan) & WPAD_BUTTON_HOME) return true;
 
     WPAD_Expansion(chan, &data); // Get expansion info from the first wiimote
 
-    u16 directions = WPAD_ButtonsHeld(chan);
-    handleMovement(renderer, directions);
+    hold = WPAD_ButtonsHeld(chan);
+	pressed = WPAD_ButtonsDown(chan);
+	released = WPAD_ButtonsUp(chan);
+	
+    handleMovement(camera);
     //WPAD_ReadPending(WPAD_CHAN_ALL, countevs);
     int wiimote_connection_status = WPAD_Probe(0, &type);
 
     if (wiimote_connection_status == WPAD_ERR_NONE) {
-        WPADData * wd = WPAD_Data(0);
-        handleRotation(renderer, wd);
+        wd = WPAD_Data(0);
+        handleRotation(camera);
     }
+	
+	return false;
 }
 
 
-void Wiimote::handleMovement(Renderer& renderer, u16 directions) {
-    guVector normalizedLook = renderer.camera.look;
+void Wiimote::handleMovement(Camera& camera) {
+    guVector normalizedLook = camera.look;
     guVecNormalize(&normalizedLook);
     speed = 1;
-    if ( directions & WPAD_BUTTON_PLUS)
+    if ( hold & WPAD_BUTTON_PLUS)
         speed = 2;
-    if ( directions & WPAD_BUTTON_LEFT )
-        renderer.camera.goLeft(normalizedLook, speed);
-    if ( directions & WPAD_BUTTON_RIGHT )
-        renderer.camera.goRight(normalizedLook, speed);
-    if ( directions & WPAD_BUTTON_UP )
-        renderer.camera.goForward(normalizedLook, speed);
-    if ( directions & WPAD_BUTTON_DOWN )
-        renderer.camera.goBackward(normalizedLook, speed);
+    if ( hold & WPAD_BUTTON_LEFT )
+        camera.goLeft(normalizedLook, speed);
+    if ( hold & WPAD_BUTTON_RIGHT )
+        camera.goRight(normalizedLook, speed);
+    if ( hold & WPAD_BUTTON_UP )
+        camera.goForward(normalizedLook, speed);
+    if ( hold & WPAD_BUTTON_DOWN )
+        camera.goBackward(normalizedLook, speed);
 
-    if ( directions & WPAD_BUTTON_A) renderer.camera.pos.y += 0.1;
-    if ( directions & WPAD_BUTTON_B) renderer.camera.pos.y -= 0.1;
+    if ( hold & WPAD_BUTTON_A) camera.pos.y += 0.1;
+    if ( hold & WPAD_BUTTON_B) camera.pos.y -= 0.1;
 }
 
-Wiimote::Wiimote() {
-    WPAD_SetDataFormat(WPAD_CHAN_ALL, WPAD_FMT_BTNS_ACC_IR);
-    WPAD_SetVRes(WPAD_CHAN_ALL, Renderer::rmode->fbWidth, Renderer::rmode->xfbHeight);
+
+Wiimote::Wiimote(int chan): chan(chan) {
+    WPAD_SetDataFormat(chan, WPAD_FMT_BTNS_ACC_IR);
+    WPAD_SetVRes(chan, Renderer::rmode->fbWidth, Renderer::rmode->xfbHeight);
 }
+
 
 void print_wiimote_connection_status(int wiimote_connection_status) {
     switch (wiimote_connection_status) {
