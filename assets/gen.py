@@ -6,11 +6,10 @@ sz = len(r)
 dt = ", ".join(map(hex, r))
 
 c = f"""
-static const u8 {name}_data[] = {{
+static const u8 {name}_data[] ATTRIBUTE_ALIGN(32) = {{
     {dt}
 }};
 static const u32 {name}_sz = {sz};
-static const float offset = {16 / 256};
 """
 
 open(f"{name}.c", "w").write(c)
