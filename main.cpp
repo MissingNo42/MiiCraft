@@ -236,6 +236,7 @@ Block getFocusedBlock(World& w, Renderer& renderer){
         pos = t_coord((int)floor(x), (int)floor(y), (int)floor(z));
         type = w.getBlockAt(pos).type;
     }
+    //printf("pos : %d %d %d\r", pos.x, pos.y, pos.z);
     if(type != BlockType::Air)
         renderer.drawFocus(w.getBlockAt(pos), (f32) pos.x, (f32)pos.y, (f32)pos.z);
     return w.getBlockAt(pos);
@@ -279,17 +280,17 @@ int main(int, char **) {
     t_coord pos(0,0,0);
     World& w = Game::getInstance()->getWorld();
     renderer.camera.pos.y = 40;
-    renderer.camera.pos.x = 8;
-    renderer.camera.pos.z = 8;
+    renderer.camera.pos.x = 0;
+    renderer.camera.pos.z = 0;
 
 
     while (!exiting) {
-        pos.x = renderer.camera.pos.x-1;
+        pos.x = renderer.camera.pos.x;
         pos.y = renderer.camera.pos.y;
         pos.z = renderer.camera.pos.z;
-        //printf("pos : %d %d %d\r", pos.x, pos.y, pos.z);
+        printf("pos : %d %d %d\r", pos.x & 15, pos.y &15, pos.z &15);
         Game::getInstance()->requestChunk(w.to_chunk_pos(pos));
-        //printf("%d %d\r", w.to_chunk_pos(pos).x, w.to_chunk_pos(pos).y);
+        printf("%d %d\r", w.to_chunk_pos(pos).x, w.to_chunk_pos(pos).y);
 
 		//renderer.camera.rotateV(-0.10);
 		//renderer.camera.rotateH(0.50);

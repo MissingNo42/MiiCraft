@@ -105,7 +105,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
     int y = blockHeights[x][z] + 1;
 
     //On construit un arbre à cette position
-//    buildTree({x, y, z}, vc);
+    buildTree({x, y, z}, vc);
 
 
     w.addChunk(pos, vc);

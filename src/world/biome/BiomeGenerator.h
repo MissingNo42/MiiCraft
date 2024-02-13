@@ -55,7 +55,7 @@ public:
 
         for (int i = 2; i < VerticalChunk::CHUNK_HEIGHT; ++i) {
             pos.y = i;
-            if (i <= height) { APPLY_BLOCK(BlockType::Stone);}
+            if (i <= height) { APPLY_BLOCK(BlockType::Grass);}
             else
 //            if (block_x == 3)
             {APPLY_BLOCK(BlockType::Air);}
