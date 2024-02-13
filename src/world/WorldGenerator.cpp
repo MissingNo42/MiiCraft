@@ -2,6 +2,6 @@
 // Created by guill on 06/02/2024.
 //
 
-#include "WorldGenerator.h"
-#include "block.h"
+#include "world/WorldGenerator.h"
+#include "world/block.h"
 

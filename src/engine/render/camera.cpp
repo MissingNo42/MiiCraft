@@ -3,24 +3,31 @@
 //
 
 #include <cmath>
+#include <cstdio>
 #include "engine/render/camera.h"
 #include "engine/render/renderer.h"
 
-Camera::Camera(f32 fov, f32, f32) {
-	guPerspective(perspective, fov, (f32)Renderer::rmode->fbWidth / (f32)Renderer::rmode->xfbHeight, 0.1F, 300.0F);
-	GX_LoadProjectionMtx(perspective, GX_PERSPECTIVE);
+Camera::Camera(f32 fov, f32 min, f32 max) {
+	f32 ratio = (f32)Renderer::rmode->fbWidth / (f32)Renderer::rmode->xfbHeight;
+	guPerspective(perspective, fov, ratio, min, max);
+	guOrtho(ortho, 1, -1, -1, 1, 0, 300);
+	guLookAt(view3D, &pos, &up, &look);
 	
-	guLookAt(viewMatrix, &pos, &up, &look);
+	guMtxIdentity(view2D);
+	guMtxIdentity(view2Dsquare);
+	guMtxRowCol(view2Dsquare, 1, 1) = ratio;
+	
+	GX_LoadProjectionMtx(perspective, GX_PERSPECTIVE);
 }
 
-void Camera::update(bool applyTransform = true) {
+void Camera::update(bool applyTransform) {
     guVector pl = {pos.x + look.x, pos.y + look.y, pos.z + look.z};
-    guLookAt(viewMatrix, &pos, &up, &pl);
-    if (applyTransform) GX_LoadPosMtxImm(viewMatrix, GX_PNMTX0);
+    guLookAt(view3D, &pos, &up, &pl);
+    if (applyTransform) GX_LoadPosMtxImm(view3D, GX_PNMTX0);
 }
 
 void Camera::applyTransform() {
-    GX_LoadPosMtxImm(viewMatrix, GX_PNMTX0);
+    GX_LoadPosMtxImm(view3D, GX_PNMTX0);
 }
 
 void Camera::rotateH(f32 rad) {

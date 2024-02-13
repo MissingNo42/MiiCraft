@@ -19,12 +19,15 @@ private:
     u32 type = 0;
     static inline bool collision = true;
 
-    void handleMovement(Renderer& renderer, u16 directions, World& w);
-    static void handleRotation(Renderer& renderer, WPADData * wd);
+    void handleMovement(Camera& camera, World& w);
+    void handleRotation(Camera& camera);
 
 public:
-    Wiimote();
-    void update(Renderer& renderer, World& w);
+	u16 hold = 0, pressed = 0, released = 0;
+	WPADData * wd;
+	
+    explicit Wiimote(int chan = WPAD_CHAN_0);
+    bool update(Camera& camera, World& w);
 };
 
 

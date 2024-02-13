@@ -16,11 +16,10 @@
 #include "engine/render/renderer.h"
 
 
-#include "texture.c"
 
-#include "src/world/game.h"
-#include "engine/render/bloc.h"
-#include "src/system/saveManager.h"
+#include "world/game.h"
+#include "engine/render/block.h"
+#include "system/saveManager.h"
 
 
 int exiting = 0;
@@ -34,9 +33,6 @@ void reload(u32, void *) {
 void shutdown() {
 	exiting = 2;
 }
-
-TPLFile TPLfile;
-GXTexObj texture;
 
 
 void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
@@ -221,6 +217,7 @@ void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
         }
     }
 }
+
 Block getFocusedBlock(World& w, Renderer& renderer){
     BlockType type = BlockType::Air;
     t_coord pos = t_coord(0,0,0);
@@ -242,26 +239,20 @@ Block getFocusedBlock(World& w, Renderer& renderer){
 }
 
 int main(int, char **) {
-	PAD_Init();
+	
 	WPAD_Init();
 	
-	Renderer::setupVideo();
-	Renderer::setupVtxDesc3D();
-	Renderer::setupMisc();
+    //pour rediriger stdout dans dolphin
+    SYS_STDIO_Report(true);
 	
-
+	Renderer::setupVideo();
+	Renderer::setupVtxDesc();
+	Renderer::setupTexture();
+	
 	//Light light;
 	//GX_InvalidateTexAll();
 	Renderer renderer;
 	
-	TPL_OpenTPLFromMemory(&TPLfile, (void *)texture_data, texture_sz);
-	TPL_GetTexture(&TPLfile, 0, &texture);
-    GX_InitTexObjLOD(&texture, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
-	GX_SetTevOp(GX_TEVSTAGE0,GX_MODULATE);
-	GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
-	
-	GX_LoadTexObj(&texture, GX_TEXMAP0);
-	//GX_InitTexObjFilterMode(&texture, GX_NEAR, GX_NEAR);
 	//GX_SetTevIndTile()
 
 	Wiimote wiimote;
@@ -273,77 +264,91 @@ int main(int, char **) {
     renderer.camera.pos.x = -0.5;
     renderer.camera.pos.y = 0.5;
 
-    //pour rediriger stdout dans dolphin
-    SYS_STDIO_Report(true);
-
     t_coord pos(0,0,0);
     World& w = Game::getInstance()->getWorld();
     renderer.camera.pos.y = 40;
     renderer.camera.pos.x = 8;
     renderer.camera.pos.z = 8;
 
+	renderer.camera.pos = {8, 40, 9};
 
     while (!exiting) {
-        pos.x = renderer.camera.pos.x-1;
-        pos.y = renderer.camera.pos.y;
-        pos.z = renderer.camera.pos.z;
+		f32 x = 0.1, y = 0.1;
+		
+		renderer.camera.loadPerspective(); // restore for next 3D
+		
+        pos.x = (int)renderer.camera.pos.x-1;
+        pos.y = (int)renderer.camera.pos.y;
+        pos.z = (int)renderer.camera.pos.z;
         Game::getInstance()->requestChunk(w.to_chunk_pos(pos));
 
 		//renderer.camera.rotateV(-0.10);
 		//renderer.camera.rotateH(0.50);
 		//camera.rotateH(1);
-        wiimote.update(renderer, w);
-        pos.x = renderer.camera.pos.x-1;
-        pos.y = renderer.camera.pos.y;
-        pos.z = renderer.camera.pos.z;
+        wiimote.update(renderer.camera, w);
+        pos.x = (int)renderer.camera.pos.x-1;
+        pos.y = (int)renderer.camera.pos.y;
+        pos.z = (int)renderer.camera.pos.z;
 		renderer.camera.update(false);
 
 
         renderWorld(w, renderer, w.to_chunk_pos(pos));
-        Block b = getFocusedBlock(w, renderer);
-        printf("Type de block visé : %s\r", b.toString().c_str());
+		
+		
+        Block bl = getFocusedBlock(w, renderer);
+        printf("Type de block visé : %s\r", bl.toString().c_str());
 
 
 		//renderer.renderBloc({4, 0, 0}, 1);
 		//renderer.renderBloc({7, -1, 0}, 1);
 		
+		renderer.camera.loadOrtho(); // set for 2D drawing
+		renderer.camera.applyTransform2D();
+		x = 0.1, y = 0.1;
+		GX_Begin(GX_QUADS, GX_VTXFMT0, 8); // Start drawing
 		
+		GX_Position3f32(-x, y, 0);
+		GX_Normal3f32(0, 0, 1);
+		GX_TexCoord2f32(BLOCK_COORD(11), BLOCK_COORD(10)); // Top left
 		
+		GX_Position3f32(x, y, 0);
+		GX_Normal3f32(0, 0, 1);
+		GX_TexCoord2f32(BLOCK_COORD(12), BLOCK_COORD(10)); // Top right
 		
-		//Renderer::setupVtxDesc2D();
-		//
-		//Mtx GXmodelView2D, perspective;
-	    //guOrtho(perspective,0,479,0,639,0,300);
-	    //GX_LoadProjectionMtx(perspective, GX_ORTHOGRAPHIC);
-		//guMtxIdentity(GXmodelView2D);
-		//guMtxTransApply (GXmodelView2D, GXmodelView2D, 0.0F, 0.0F, -5.0F);
-		//GX_LoadPosMtxImm(GXmodelView2D,GX_PNMTX0);
-		//GX_Begin(GX_QUADS, GX_VTXFMT0, 4); // Start drawing
-	
-		//GX_Position2f32(0, 0);
-		//GX_TexCoord2f32(OFFSET, OFFSET); // Top right
-		//
-		//GX_Position2f32(100, 0);
-		//GX_TexCoord2f32(0, OFFSET); // Top left
-		//
-		//GX_Position2f32(100, 100);
-		//GX_TexCoord2f32(0, 0); // Bottom left
-		//
-		//GX_Position2f32(0, 100);
-		//GX_TexCoord2f32(OFFSET, 0); // Bottom right
-	
-		//GX_End();
+		GX_Position3f32(x, -y, 0);
+		GX_Normal3f32(0, 0, 1);
+		GX_TexCoord2f32(BLOCK_COORD(12), BLOCK_COORD(9)); // Bottom right
 		
+		GX_Position3f32(-x, -y, 0);
+		GX_Normal3f32(0, 0, 1);
+		GX_TexCoord2f32(BLOCK_COORD(11), BLOCK_COORD(9)); // Bottom left
 		
+		f32 a = 0, b = 0;
+		auto wd = wiimote.wd;
+		if (wd->ir.valid) {
+			a = wd->ir.x / (f32)Renderer::rmode->fbWidth - .5;
+			b = -wd->ir.y / (f32)Renderer::rmode->xfbHeight + .5;
+		}
+		a -= x / 2;
+		b += y / 2;
 		
-		//light.update(camera.viewMatrix);
+		GX_Position3f32(-x+a, y+b, 0);
+		GX_Normal3f32(0, 0, 1);
+		GX_TexCoord2f32(BLOCK_COORD(11), BLOCK_COORD(10)); // Top left
 		
-		//testRender();
-		//setupDebugConsole();
+		GX_Position3f32(x+a, y+b, 0);
+		GX_Normal3f32(0, 0, 1);
+		GX_TexCoord2f32(BLOCK_COORD(12), BLOCK_COORD(10)); // Top right
 		
-		//drawdot(rmode->fbWidth, rmode->xfbHeight, 0, 0, COLOR_YELLOW);
+		GX_Position3f32(x+a, -y+b, 0);
+		GX_Normal3f32(0, 0, 1);
+		GX_TexCoord2f32(BLOCK_COORD(12), BLOCK_COORD(9)); // Bottom right
+		
+		GX_Position3f32(-x+a, -y+b, 0);
+		GX_Normal3f32(0, 0, 1);
+		GX_TexCoord2f32(BLOCK_COORD(11), BLOCK_COORD(9)); // Bottom left
 
-		//Renderer::setupDebugConsole();
+		GX_End();
 
 		Renderer::endFrame();
 	}

@@ -6,8 +6,6 @@ set(CMAKE_CXX_STANDARD 23)
 
 include_directories(include)
 include_directories(assets)
-include_directories(src)
-include_directories(include/engine)
 
 add_compile_options(-Wall)
 add_compile_options(-Wextra)
@@ -17,14 +15,14 @@ add_compile_options(-Wpedantic)
 
 add_executable(Miicraft main.cpp
         src/wiimote.cpp
+        src/engine/render/renderer.cpp
+        src/engine/render/light.cpp
+        src/engine/render/block.cpp
+        src/engine/render/camera.cpp
+        src/matrix/matrix.cpp
         src/world/block.cpp
         src/world/verticalChunk.cpp
         src/world/world.cpp
-        src/engine/render/renderer.cpp
-        src/engine/render/light.cpp
-        src/matrix/matrix.cpp
-        src/engine/render/bloc.cpp
-        src/engine/render/camera.cpp
         src/world/game.cpp
         src/world/WorldGenerator.cpp
         src/world/FlatWorldGenerator.cpp
