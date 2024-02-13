@@ -422,7 +422,127 @@ void Renderer::drawFocus(Block block, f32 x, f32 y, f32 z) {
         GX_TexCoord2f32(0, 3); // Top right
 
     GX_End();
+    GX_SetLineWidth(1.0f, GX_VTXFMT0);
 }
+/*
+void Renderer::miningAnimation(int state, f32 x, f32 y, f32 z) {
+    Mtx model, modelview; // Various matrices
+
+    guMtxIdentity(model);
+
+    guMtxTransApply(model, model, x, y, z);
+
+    guMtxConcat(camera.viewMatrix, model, modelview);
+    GX_LoadPosMtxImm(modelview, GX_PNMTX0);
+
+    GX_Begin(GX_QUADS, GX_VTXFMT0, 24); // Start drawing
+
+    // Bottom face
+        GX_Position3f32(-1.0f, -1.0f, -1.0f);
+        GX_Normal3f32(0, -1, 0);
+        GX_TexCoord2f32(x + (f32) state * OFFSET, y + (f32) state * OFFSET); // Top right
+
+        GX_Position3f32(0.0f, -1.0f, -1.0f);
+        GX_Normal3f32(0, -1, 0);
+        GX_TexCoord2f32(x, y + (f32) state * OFFSET); // Top left
+
+        GX_Position3f32(0.0f, -1.0f, 0.0f);
+        GX_Normal3f32(0, -1, 0);
+        GX_TexCoord2f32(x, y); // Bottom left
+
+        GX_Position3f32(-1.0f, -1.0f, 0.0f);
+        GX_Normal3f32(0, -1, 0);
+        GX_TexCoord2f32(x + (f32) state * OFFSET, y); // Bottom right
+
+        GX_Position3f32(-1.0f, -1.0f, 0.0f);
+        GX_Normal3f32(0, 0, 1);
+        GX_TexCoord2f32(x, y); // Bottom left
+
+        GX_Position3f32(0.0f, -1.0f, 0.0f);
+        GX_Normal3f32(0, 0, 1);
+        GX_TexCoord2f32(x + OFFSET, y); // Bottom right
+
+        GX_Position3f32(0.0f, 0.0f, 0.0f);
+        GX_Normal3f32(0, 0, 1);
+        GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
+
+        GX_Position3f32(-1.0f, 0.0f, 0.0f);
+        GX_Normal3f32(0, 0, 1);
+        GX_TexCoord2f32(x, y + OFFSET); // Top left
+
+    // Back face
+
+        GX_Position3f32(-1.0f, -1.0f, -1.0f);
+        GX_Normal3f32(0, 0, -1);
+        GX_TexCoord2f32(x + OFFSET, y); // Bottom right
+
+        GX_Position3f32(-1.0f, 0.0f, -1.0f);
+        GX_Normal3f32(0, 0, -1);
+        GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
+
+        GX_Position3f32(0.0f, 0.0f, -1.0f);
+        GX_Normal3f32(0, 0, -1);
+        GX_TexCoord2f32(x, y + OFFSET); // Top left
+
+        GX_Position3f32(0.0f, -1.0f, -1.0f);
+        GX_Normal3f32(0, 0, -1);
+        GX_TexCoord2f32(x, y); // Bottom left
+
+    // Right face
+
+        GX_Position3f32(0.0f, -1.0f, -1.0f);
+        GX_Normal3f32(1, 0, 0);
+        GX_TexCoord2f32(x + OFFSET, y); // Bottom right
+
+        GX_Position3f32(0.0f, 0.0f, -1.0f);
+        GX_Normal3f32(1, 0, 0);
+        GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
+
+        GX_Position3f32(0.0f, 0.0f, 0.0f);
+        GX_Normal3f32(1, 0, 0);
+        GX_TexCoord2f32(x, y + OFFSET); // Top left
+
+        GX_Position3f32(0.0f, -1.0f, 0.0f);
+        GX_Normal3f32(1, 0, 0);
+        GX_TexCoord2f32(x, y); // Bottom left
+
+    // Left face
+
+        GX_Position3f32(-1.0f, -1.0f, -1.0f);
+        GX_Normal3f32(-1, 0, 0);
+        GX_TexCoord2f32(x, y); // Bottom right
+
+        GX_Position3f32(-1.0f, -1.0f, 0.0f);
+        GX_Normal3f32(-1, 0, 0);
+        GX_TexCoord2f32(x + OFFSET, y); // Top right
+
+        GX_Position3f32(-1.0f, 0.0f, 0.0f);
+        GX_Normal3f32(-1, 0, 0);
+        GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top left
+
+        GX_Position3f32(-1.0f, 0.0f, -1.0f);
+        GX_Normal3f32(-1, 0, 0);
+        GX_TexCoord2f32(x, y + OFFSET); // Bottom left
+
+    // Top face
+        GX_Position3f32(-1.0f, 0.0f, -1.0f);
+        GX_Normal3f32(0, 1, 0);
+        GX_TexCoord2f32(x, y + OFFSET); // Top left
+
+        GX_Position3f32(-1.0f, 0.0f, 0.0f);
+        GX_Normal3f32(0, 1, 0);
+        GX_TexCoord2f32(x, y); // Bottom left
+
+        GX_Position3f32(0.0f, 0.0f, 0.0f);
+        GX_Normal3f32(0, 1, 0);
+        GX_TexCoord2f32(x + OFFSET, y); // Bottom right
+
+        GX_Position3f32(0.0f, 0.0f, -1.0f);
+        GX_Normal3f32(0, 1, 0);
+        GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
+
+    GX_End();         // Done drawing quads
+}*/
 
 /*
 Renderer::CacheChunk(const VerticalChunk& c){

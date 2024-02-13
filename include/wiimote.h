@@ -15,16 +15,14 @@ class Wiimote {
 private:
     struct expansion_t data;
     int chan = WPAD_CHAN_0;
-    int speed = 1;
     u32 type = 0;
-    static inline bool collision = true;
-
-    void handleMovement(Renderer& renderer, u16 directions, World& w);
-    static void handleRotation(Renderer& renderer, WPADData * wd);
 
 public:
     Wiimote();
-    void update(Renderer& renderer, World& w);
+    bool update();
+
+    WPADData * wd;
+    u16 directions;
 };
 
 
