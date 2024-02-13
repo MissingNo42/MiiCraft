@@ -254,7 +254,8 @@ int main(int, char **) {
 
     t_coord pos(0,0,0);
     World& w = Game::getInstance()->getWorld();
-
+    t_coord coordBlock(0,0,0);
+    bool targetable = false;
     while (!exiting) {
 
         pos.x = player.renderer.camera.pos.x - 1;
@@ -266,13 +267,18 @@ int main(int, char **) {
 		//renderer.camera.rotateH(0.50);
 		//camera.rotateH(1);
 
-
         renderWorld(w, player.renderer, w.to_chunk_pos(pos));
-        t_coord coord = player.getFocusedBlock(w);
-        printf("Position du block visé : x :%d, y:%d, z:%d\r", coord.x, coord.y, coord.z);
+        try{
+            coordBlock = player.getFocusedBlock(w);
+            targetable = true;
+        }
+        catch(std::invalid_argument& ex){
+            targetable = false;
+        }
 
-        if(!player.handleInput(w))
+        if(!player.handleInput(w, coordBlock, targetable))
             exit(1);
+
         player.renderer.camera.update(false);
 
 

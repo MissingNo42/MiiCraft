@@ -24,9 +24,9 @@ public:
 
     void handleRotation();
 
-    void handleMovement(World& w, bool collision = true);
+    void handleMovement(World& w, t_coord focusedBlockPos, bool targetable, bool collision = true);
 
-    bool handleInput(World& w);
+    bool handleInput(World& w, t_coord focusedBlockPos, bool targetable);
 
     void goLeft(guVector& normalizedLook, int speed, bool collision, World& w);
 
@@ -41,6 +41,8 @@ public:
     void goDown(t_coord coord, bool collision, World& w);
 
     void setPos(f32 x, f32 y, f32 z);
+
+    void DestroyBlock(t_coord coord, World& w);
 };
 
 

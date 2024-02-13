@@ -23,9 +23,11 @@ t_coord Player::getFocusedBlock(World &w) {
         pos = t_coord((int)floor(x), (int)floor(y), (int)floor(z));
         type = w.getBlockAt(pos).type;
     }
-    if(type != BlockType::Air)
-        renderer.drawFocus(w.getBlockAt(pos), (f32) pos.x, (f32)pos.y, (f32)pos.z);
-    return pos;
+    if(type != BlockType::Air) {
+        renderer.drawFocus(w.getBlockAt(pos), (f32) pos.x, (f32) pos.y, (f32) pos.z);
+        return pos;
+    }
+    throw std::invalid_argument("No blocks are targeted");
 }
 
 guVector Player::InverseVector(const guVector& v){
@@ -131,7 +133,7 @@ Player::Player(f32 x, f32 y, f32 z) : speed(1), renderer(), wiimote() {
     renderer.camera.pos.z = z;
 }
 
-void Player::handleMovement(World& w, bool collision) {
+void Player::handleMovement(World& w, t_coord focusedBlockPos, bool targetable, bool collision) {
     guVector normalizedLook = renderer.camera.look;
     guVecNormalize(&normalizedLook);
     t_coord coord((int)renderer.camera.pos.x+1, (int)renderer.camera.pos.y, (int)renderer.camera.pos.z+1);
@@ -139,6 +141,8 @@ void Player::handleMovement(World& w, bool collision) {
 
     if ( wiimote.directions & WPAD_BUTTON_PLUS)
         speed = 3;
+    if ( wiimote.directions & WPAD_BUTTON_MINUS && targetable)
+        DestroyBlock(focusedBlockPos, w);
     if ( wiimote.directions & WPAD_BUTTON_LEFT )
         goLeft(normalizedLook, speed, collision, w);
     if ( wiimote.directions & WPAD_BUTTON_RIGHT )
@@ -180,14 +184,18 @@ void Player::handleRotation() {
     wiimote.wd = nullptr;
 }
 
-bool Player::handleInput(World& w){
+bool Player::handleInput(World& w, t_coord focusedBlockPos, bool targetable){
     if(wiimote.update()){
-        handleMovement(w);
+        handleMovement(w, focusedBlockPos, targetable);
         handleRotation();
         return true;
     }
     return false;
 }
 
+
+void Player::DestroyBlock(t_coord coord, World& w){
+    w.setBlockAt(coord, BlockType::Air);
+}
 
 
