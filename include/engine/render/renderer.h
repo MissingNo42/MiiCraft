@@ -20,21 +20,21 @@ public:
 	static void * frameBuffer, *frameBuffers[2];
 	static int selectFrameBuffer;
 	static GXRModeObj * rmode;
+	static GXTexObj texture ATTRIBUTE_ALIGN(32);
 	
 	static void setupVideo();
-	static void setupVtxDesc3D();
-	static void setupVtxDesc2D();
-	static void setupMisc();
+	static void setupVtxDesc();
+	static void setupTexture();
 	
 	static void setupDebugConsole();
-	
-	static void testRender();
 	
 	static void endFrame();
 	
 	void renderBloc(const guVector &coord, u32 code,
 					bool top, bool bottom, bool left, bool right, bool front, bool back
 					);
+	
+	~Renderer();
 };
 
 #endif //MIICRAFT_RENDERER_H
