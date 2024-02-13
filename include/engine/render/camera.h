@@ -13,7 +13,7 @@
 class Camera {
 
 public:
-	Mtx44 viewMatrix, perspective;
+	Mtx44 view3D, perspective, ortho, view2D, view2Dsquare;
     guVector up = {0.0F, 1.0F, 0.0F};
 	guVector pos = {0.0F, 0.0F, 0.0F},
     look = {0.0F, 0.0F, 1.0F};
@@ -29,12 +29,24 @@ public:
 
 	void update(bool applyTransform = true) {
 		guVector pl = {pos.x + look.x, pos.y + look.y, pos.z + look.z};
-		guLookAt(viewMatrix, &pos, &up, &pl);
-		if (applyTransform) GX_LoadPosMtxImm(viewMatrix, GX_PNMTX0);
+		guLookAt(view3D, &pos, &up, &pl);
+		if (applyTransform) GX_LoadPosMtxImm(view3D, GX_PNMTX0);
 	}
 	
 	void applyTransform() {
-		GX_LoadPosMtxImm(viewMatrix, GX_PNMTX0);
+		GX_LoadPosMtxImm(view3D, GX_PNMTX0);
+	}
+	
+	void applyTransform2D(bool sqare = true) {
+		GX_LoadPosMtxImm(sqare ? view2Dsquare: view2D, GX_PNMTX0);
+	}
+	
+	void loadOrtho() {
+		GX_LoadProjectionMtx(ortho, GX_ORTHOGRAPHIC);
+	}
+	
+	void loadPerspective() {
+		GX_LoadProjectionMtx(perspective, GX_PERSPECTIVE);
 	}
 	
 	void rotateH(f32 rad) {
