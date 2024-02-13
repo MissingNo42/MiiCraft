@@ -15,22 +15,22 @@ add_compile_options(-Wpedantic)
 
 add_executable(Miicraft main.cpp
         src/wiimote.cpp
+        src/engine/render/renderer.cpp
+        src/engine/render/light.cpp
+        src/engine/render/block.cpp
+        src/engine/render/camera.cpp
+        src/matrix/matrix.cpp
         src/world/block.cpp
         src/world/verticalChunk.cpp
         src/world/world.cpp
-        src/engine/render/renderer.cpp
-        src/engine/render/light.cpp
-        src/matrix/matrix.cpp
-        src/engine/render/bloc.cpp
-        src/engine/render/camera.cpp
         src/world/game.cpp
         src/world/WorldGenerator.cpp
         src/world/FlatWorldGenerator.cpp
         src/world/PerlinWorldGenerator.cpp
         src/world/coord.cpp
         src/world/blockTemplate.cpp
-        src/system/saveManager.cpp
         src/world/BiomeMap.cpp
+        src/system/saveManager.cpp
         src/system/Random.cpp
 )
 
