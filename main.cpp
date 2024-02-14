@@ -235,6 +235,7 @@ int main(int, char **) {
 	//GX_InvalidateTexAll();
     Player player(8, 40, 8);
 
+
 	TPL_OpenTPLFromMemory(&TPLfile, (void *)texture_data, texture_sz);
 	TPL_GetTexture(&TPLfile, 0, &texture);
     GX_InitTexObjLOD(&texture, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
@@ -252,6 +253,7 @@ int main(int, char **) {
     //pour rediriger stdout dans dolphin
     SYS_STDIO_Report(true);
 
+
     t_coord pos(0,0,0);
     World& w = Game::getInstance()->getWorld();
     t_coord coordBlock(0,0,0);
@@ -268,6 +270,7 @@ int main(int, char **) {
 		//camera.rotateH(1);
 
         renderWorld(w, player.renderer, w.to_chunk_pos(pos));
+
         try{
             coordBlock = player.getFocusedBlock(w);
             targetable = true;
@@ -276,7 +279,7 @@ int main(int, char **) {
             targetable = false;
         }
 
-        if(!player.handleInput(w, coordBlock, targetable))
+        if(!player.handleInput(w, coordBlock,wiimote, targetable))
             exit(1);
 
         player.renderer.camera.update(false);

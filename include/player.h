@@ -14,7 +14,6 @@ private:
     int speed;
 public:
     Renderer renderer;
-    Wiimote wiimote;
     Player(f32 x, f32 y, f32 z);
     Player();
 
@@ -22,11 +21,11 @@ public:
 
     static guVector InverseVector(const guVector& v);
 
-    void handleRotation();
+    void handleRotation(Wiimote&);
 
-    void handleMovement(World& w, t_coord focusedBlockPos, bool targetable, bool collision = true);
+    void handleMovement(World& w, t_coord focusedBlockPos, bool targetable,  Wiimote&, bool collision = true );
 
-    bool handleInput(World& w, t_coord focusedBlockPos, bool targetable);
+    bool handleInput(World& w, t_coord focusedBlockPos, Wiimote&, bool targetable);
 
     void goLeft(guVector& normalizedLook, int speed, bool collision, World& w);
 

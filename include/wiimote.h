@@ -9,6 +9,7 @@
 #include <wiiuse/wpad.h>
 #include "engine/render/renderer.h"
 #include "world/world.h"
+#include "player.h"
 
 
 class Wiimote {
@@ -19,9 +20,8 @@ private:
 
 public:
     Wiimote();
-    bool update();
+    bool update(Player player);
 
-    WPADData * wd;
     u16 directions;
 };
 

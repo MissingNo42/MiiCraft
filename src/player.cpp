@@ -127,13 +127,13 @@ void Player::setPos(f32 x, f32 y, f32 z) {
     renderer.camera.pos.z = z;
 }
 
-Player::Player(f32 x, f32 y, f32 z) : speed(1), renderer(), wiimote() {
+Player::Player(f32 x, f32 y, f32 z) : speed(1) {
     renderer.camera.pos.x = x;
     renderer.camera.pos.y = y;
     renderer.camera.pos.z = z;
 }
 
-void Player::handleMovement(World& w, t_coord focusedBlockPos, bool targetable, bool collision) {
+void Player::handleMovement(World& w, t_coord focusedBlockPos, bool targetable,  Wiimote& wiimote, bool collision ) {
     guVector normalizedLook = renderer.camera.look;
     guVecNormalize(&normalizedLook);
     t_coord coord((int)renderer.camera.pos.x+1, (int)renderer.camera.pos.y, (int)renderer.camera.pos.z+1);
@@ -158,7 +158,7 @@ void Player::handleMovement(World& w, t_coord focusedBlockPos, bool targetable, 
     wiimote.directions = 0;
 }
 
-void Player::handleRotation() {
+void Player::handleRotation(Wiimote& wiimote) {
     if (wiimote.wd->ir.valid) {
         if(wiimote.wd->ir.x <  (f32) Renderer::rmode->fbWidth/2 - deadzone)
         {
@@ -184,10 +184,10 @@ void Player::handleRotation() {
     wiimote.wd = nullptr;
 }
 
-bool Player::handleInput(World& w, t_coord focusedBlockPos, bool targetable){
+bool Player::handleInput(World& w, t_coord focusedBlockPos, Wiimote& wiimote, bool targetable){
     if(wiimote.update()){
-        handleMovement(w, focusedBlockPos, targetable);
-        handleRotation();
+        handleMovement(w, focusedBlockPos, targetable, wiimote);
+        handleRotation(wiimote);
         return true;
     }
     return false;
