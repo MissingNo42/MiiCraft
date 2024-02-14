@@ -1,2 +1,0 @@
-# MiiCraft
-Minecraft for Wii
