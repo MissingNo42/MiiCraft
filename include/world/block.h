@@ -9,29 +9,29 @@
 #define SOLIDBLOCK 2
 
 enum BlockType : u8 {
-//     Air =0,
-//     Bedrock,
-//     Dirt,
-     Grass,
-//     Stone,
-//     Sand,
-//     Snow,
-//     Ice,
-//     RedClay,
-//     WhiteClay,
-//
-//     //Wood
-//
-     Log, //Oak
-     Leaves, //Oak
-//     AcaciaWood,
-//     AcaciaLeave,
-//     SpruceWood,
-//     SpruceLeave,
-//     JungleWood,
-//     JungleLeave,
-//
-//     Cactus,
+////     Air =0,
+////     Bedrock,
+////     Dirt,
+//     Grass,
+////     Stone,
+////     Sand,
+////     Snow,
+////     Ice,
+////     RedClay,
+////     WhiteClay,
+////
+////     //Wood
+////
+//     Log, //Oak
+//     Leaves, //Oak
+////     AcaciaWood,
+////     AcaciaLeave,
+////     SpruceWood,
+////     SpruceLeave,
+////     JungleWood,
+////     JungleLeave,
+////
+////     Cactus,
 
     Air = 0,
 
@@ -84,14 +84,6 @@ enum BlockType : u8 {
     GrassSnow,
 
     //Leave
-    LeaveAcacia,
-    LeaveOak,
-    LeaveJungle,
-    LeaveSpruce,
-    LeaveDark,
-    LeaveBirch,
-    LeaveSakura,
-    LeaveSnow,
     LeaveMushroomRed,
     LeaveMushroomBrown,
 
@@ -114,13 +106,10 @@ enum BlockType : u8 {
     PlankBirch,
     PlankSakura,
 
-    //Plant
-    Cactus,
 
     //Misc
     Furnace,
     CraftingTable,
-    Glass,
     BrickStone,
     BrickDark,
     BrickRed,
@@ -142,8 +131,6 @@ enum BlockType : u8 {
     //Elemental
     BlueIce,
     StdIce,
-    ClearIce, //Transparent
-    Water,
     Lava,
     Netherrack,
     QuartzOre,
@@ -155,9 +142,42 @@ enum BlockType : u8 {
     Trinitrotoluene,
     QuartzBlock,
     Glowstone,
-    Torch,
-    Impostor
+    Impostor,
 
+    //Plant
+    Cactus,
+
+    ////=============
+    //   TRANSPARENT
+    ////=============
+
+    //Leave
+    LeaveAcacia,
+    LeaveOak,
+    LeaveJungle,
+    LeaveSpruce,
+    LeaveDark,
+    LeaveBirch,
+    LeaveSakura,
+    LeaveSnow,
+
+    //Misc 
+    Glass,
+    ClearIce,
+    Water,
+
+
+    //Bloc Breaking
+    BlockBreaking0,
+    BlockBreaking1,
+    BlockBreaking2,
+    BlockBreaking3,
+    BlockBreaking4,
+    BlockBreaking5,
+    BlockBreaking6,
+    BlockBreaking7,
+    BlockBreaking8,
+    BlockBreaking9,
 
 
 };

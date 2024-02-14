@@ -184,7 +184,7 @@ void PerlinWorldGenerator::initNoise() {
 void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
     //On construit le tronc :
     for (int y = 0; y < 5; y++) {
-        vc->VC_SetBlock({pos.x, pos.y + y, pos.z}, BlockType::Log);
+        vc->VC_SetBlock({pos.x, pos.y + y, pos.z}, BlockType::WoodOak);
     }
 
     //On construit les feuilles :
@@ -194,7 +194,7 @@ void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
                 if(i == 0 && j == 0){
                     continue;
                 }
-                vc->VC_SetBlock({pos.x + i, pos.y + 2 + h, pos.z + j}, BlockType::Leaves);
+                vc->VC_SetBlock({pos.x + i, pos.y + 2 + h, pos.z + j}, BlockType::LeaveOak);
             }
         }
     }
@@ -203,15 +203,15 @@ void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
             if(i == 0 && j == 0){
                 continue;
             }
-            vc->VC_SetBlock({pos.x + i, pos.y + 4, pos.z + j}, BlockType::Leaves);
+            vc->VC_SetBlock({pos.x + i, pos.y + 4, pos.z + j}, BlockType::LeaveOak);
         }
     }
 
-    vc->VC_SetBlock({pos.x + 1, pos.y + 5, pos.z}, BlockType::Leaves);
-    vc->VC_SetBlock({pos.x - 1, pos.y + 5, pos.z}, BlockType::Leaves);
-    vc->VC_SetBlock({pos.x, pos.y + 5, pos.z+1}, BlockType::Leaves);
-    vc->VC_SetBlock({pos.x, pos.y + 5, pos.z-1}, BlockType::Leaves);
-    vc->VC_SetBlock({pos.x, pos.y + 5, pos.z}, BlockType::Leaves);
+    vc->VC_SetBlock({pos.x + 1, pos.y + 5, pos.z}, BlockType::LeaveOak);
+    vc->VC_SetBlock({pos.x - 1, pos.y + 5, pos.z}, BlockType::LeaveOak);
+    vc->VC_SetBlock({pos.x, pos.y + 5, pos.z+1}, BlockType::LeaveOak);
+    vc->VC_SetBlock({pos.x, pos.y + 5, pos.z-1}, BlockType::LeaveOak);
+    vc->VC_SetBlock({pos.x, pos.y + 5, pos.z}, BlockType::LeaveOak);
 }
 
 BiomeType PerlinWorldGenerator::guessBiome(float ero, float temp, float hum, float cont) {
