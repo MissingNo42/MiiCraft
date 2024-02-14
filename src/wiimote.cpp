@@ -63,7 +63,7 @@ void Wiimote::handleMovement(Camera& camera, World& w) {
     guVecNormalize(&normalizedLook);
     t_coord coord((int)camera.pos.x+1, (int)camera.pos.y, (int)camera.pos.z+1);
 
-	bool collision = true;
+	bool collision = false;
 	
     speed = 1;
     if ( hold & WPAD_BUTTON_PLUS)

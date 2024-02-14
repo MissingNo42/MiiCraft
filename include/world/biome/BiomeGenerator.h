@@ -61,6 +61,30 @@ public:
             {APPLY_BLOCK(BlockType::Air);}
         }
     }
+
+    /// Dolphin exclusive.
+    inline static void generateBlockShowCase(VerticalChunk *chunk, int block_x, int block_z, int height)
+    {
+        t_coord pos(block_x, 0, block_z);
+        BlockType id = BlockType::Air;
+
+        if (block_x % 2 == 1 && block_z % 2 == 1)
+        {
+            for (int k = 0; k < VerticalChunk::CHUNK_HEIGHT; ++k) {
+                chunk->VC_SetBlock(pos, id);
+                u8 temp = (u8)id + 1;
+                if (temp > BlockTypeCount)
+                {
+                    id = BlockType::Air;
+                }
+                else
+                {
+                    id = (BlockType)(temp);
+                }
+                pos.y++;
+            }
+        }
+    }
 };
 const int seaLevel = 16;
 //void generateVoid( VerticalChunk* chunk, int block_x, int block_z, int height);

@@ -8,6 +8,10 @@
 #include <gctypes.h>
 #define SOLIDBLOCK 2
 
+const int BlockTypeCount = 106;
+const int BlockTypeCountTransparent = 21;
+const int BlockTypeCountOpaque = BlockTypeCount - BlockTypeCountTransparent;
+
 enum BlockType : u8 {
 ////     Air =0,
 ////     Bedrock,

@@ -42,6 +42,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
             BiomeGenerator::generateDesert(vc, i, j, height);
 
+
 //            switch (biome) {
 //                case Ocean:
 //                    break;
