@@ -8,6 +8,19 @@
 #include "engine/render/renderer.h"
 #include "engine/render/bloc.h"
 #include "../../world/block.h"
+#include "texture.c"
+
+void * Renderer::frameBuffer;
+void * Renderer::frameBuffers[2];
+int Renderer::selectFrameBuffer;
+void * Renderer::gp_fifo = nullptr;
+
+GXTexObj Renderer::texture ATTRIBUTE_ALIGN(32);
+
+
+GXRModeObj * Renderer::rmode;
+GXColor Renderer::background =  {0x29, 0xae, 0xea, 0xff}; // blue = {0x29, 0xae, 0xea, 0xff}; // blue
+
 
 void Renderer::setupVideo() {
 	VIDEO_Init();
@@ -44,7 +57,7 @@ void Renderer::setupVideo() {
 	
 	GX_SetPixelFmt(rmode->aa ? GX_PF_RGB565_Z16 : GX_PF_RGB8_Z24, GX_ZC_LINEAR);
 	
-	GX_SetCullMode(GX_CULL_FRONT); // TODO: set to GX_CULL_BACK to disable backface culling (INIT as default)
+	//GX_SetCullMode(GX_CULL_FRONT); // TODO: set to GX_CULL_BACK to disable backface culling (INIT as default)
 	GX_CopyDisp(frameBuffer, GX_TRUE);
 	GX_SetDispCopyGamma(GX_GM_1_0);
 
@@ -68,6 +81,9 @@ void Renderer::setupVideo() {
 	// setup texture coordinate generation
 	// args: texcoord slot 0-7, matrix type, source to generate texture coordinates from, matrix to use
 	*/
+
+    ///End Fog
+
      GX_SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX3x4, GX_TG_TEX0, GX_IDENTITY);
 
 
@@ -113,8 +129,9 @@ void Renderer::setupVtxDesc2D() {
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
 }
 
-void Renderer::setupMisc() {
-	
+void Renderer::setupTexture() {
+
+    TPLFile  TPLfile;
 	// set number of rasterized color channels
 	GX_SetNumChans(2);
 	
@@ -122,6 +139,23 @@ void Renderer::setupMisc() {
 	GX_SetNumTexGens(1);
 	
 	GX_InvalidateTexAll();
+
+
+
+    TPL_OpenTPLFromMemory(&TPLfile, (void *)texture_data, texture_sz);
+    TPL_GetTexture(&TPLfile, 0, &texture);
+    GX_InitTexObjLOD(&texture, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
+
+
+    GX_SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_TEXC, GX_CC_RASC, GX_CC_ZERO);
+    GX_SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_TEXA, GX_CA_RASA, GX_CA_ZERO);
+
+    GX_SetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVPREV);
+    GX_SetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVPREV);
+
+    GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
+
+    GX_LoadTexObj(&texture, GX_TEXMAP0);
 }
 
 void Renderer::setupDebugConsole() {
@@ -149,224 +183,217 @@ void Renderer::endFrame() {
 	GX_CopyDisp(frameBuffer, GX_TRUE);
 	
 	GX_DrawDone();
-	
+
+    VIDEO_SetNextFramebuffer(frameBuffer);
+    VIDEO_Flush();
+    VIDEO_WaitVSync();
+
 	selectFrameBuffer ^= 1;
 	frameBuffer = frameBuffers[selectFrameBuffer];
 	
-	VIDEO_SetNextFramebuffer(frameBuffer);
-	VIDEO_Flush();
-	VIDEO_WaitVSync();
+
 }
 
-void * Renderer::frameBuffer;
-void * Renderer::frameBuffers[2];
-int Renderer::selectFrameBuffer;
-void * Renderer::gp_fifo = nullptr;
-
-GXRModeObj * Renderer::rmode;
-GXColor Renderer::background =  {0x29, 0xae, 0xea, 0xff}; // blue = {0x29, 0xae, 0xea, 0xff}; // blue
 
 
 void Renderer::renderBloc(const guVector &coord, u32 code,
 						  bool top, bool bottom, bool left, bool right, bool front, bool back) {
-	Mtx model, modelview; // Various matrices
-	
-	guMtxIdentity(model);
-	
-	guMtxTransApply(model, model, coord.x, coord.y, coord.z);
-	
-	guMtxConcat(camera.viewMatrix, model, modelview);
-	GX_LoadPosMtxImm(modelview, GX_PNMTX0);
-	
-	int sz = (top + bottom + left + right + front + back) << 2;
-	f32 x, y;
+    Mtx model, modelview; // Various matrices
 
-    u32 shadow = 0xff0000ff;
+    guMtxIdentity(model);
+
+    guMtxTransApply(model, model, coord.x, coord.y, coord.z);
+
+    guMtxConcat(camera.view3D, model, modelview);
+    GX_LoadPosMtxImm(modelview, GX_PNMTX0);
+
+    int sz = (top + bottom + left + right + front + back) << 2;
+    f32 x, y;
+
     u32 white = 0xffffffff;
 
     GX_Begin(GX_QUADS, GX_VTXFMT0, sz); // Start drawing
 
-	// Bottom face
-	if (bottom) {
-		x = blocData[code].x[BLOC_FACE_BOTTOM];
-		y = blocData[code].y[BLOC_FACE_BOTTOM];
+    // Bottom face
+    if (bottom) {
+        x = blocData[code].x[BLOC_FACE_BOTTOM];
+        y = blocData[code].y[BLOC_FACE_BOTTOM];
 
-		GX_Position3f32(-1.0f, -1.0f, -1.0f);
-		GX_Normal3f32(0, -1, 0);
-        GX_Color1u32(shadow);
+        GX_Position3f32(-1.0f, -1.0f, 0.0f);
+        GX_Normal3f32(0, -1, 0);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Bottom right
 
-		GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
-		
-		GX_Position3f32(0.0f, -1.0f, -1.0f);
-		GX_Normal3f32(0, -1, 0);
-        GX_Color1u32(shadow);
-
-		GX_TexCoord2f32(x, y + OFFSET); // Top left
-		
-		GX_Position3f32(0.0f, -1.0f, 0.0f);
-		GX_Normal3f32(0, -1, 0);
-        GX_Color1u32(shadow);
-
-		GX_TexCoord2f32(x, y); // Bottom left
-		
-		GX_Position3f32(-1.0f, -1.0f, 0.0f);
-		GX_Normal3f32(0, -1, 0);
-        GX_Color1u32(shadow);
-
-		GX_TexCoord2f32(x + OFFSET, y); // Bottom right
-	}
-
-	// Front face
-	if (front) {
-		x = blocData[code].x[BLOC_FACE_FRONT];
-		y = blocData[code].y[BLOC_FACE_FRONT];
-		
-		GX_Position3f32(-1.0f, -1.0f, 0.0f);
-		GX_Normal3f32(0, 0, 1);
+        GX_Position3f32(0.0f, -1.0f, 0.0f);
+        GX_Normal3f32(0, -1, 0);
         GX_Color1u32(white);
 
-        GX_TexCoord2f32(x, y); // Bottom left
-		
-		GX_Position3f32(0.0f, -1.0f, 0.0f);
-		GX_Normal3f32(0, 0, 1);
+        GX_TexCoord2f32(x, y + OFFSET); // Bottom left
+
+        GX_Position3f32(0.0f, -1.0f, -1.0f);
+        GX_Normal3f32(0, -1, 0);
         GX_Color1u32(white);
 
-		GX_TexCoord2f32(x + OFFSET, y); // Bottom right
-		
-		GX_Position3f32(0.0f, 0.0f, 0.0f);
-		GX_Normal3f32(0, 0, 1);
+        GX_TexCoord2f32(x, y); // Top left
+
+        GX_Position3f32(-1.0f, -1.0f, -1.0f);
+        GX_Normal3f32(0, -1, 0);
         GX_Color1u32(white);
 
-		GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
-		
-		GX_Position3f32(-1.0f, 0.0f, 0.0f);
-		GX_Normal3f32(0, 0, 1);
+        GX_TexCoord2f32(x + OFFSET, y); // Top right
+    }
+
+    // Front face
+    if (front) {
+        x = blocData[code].x[BLOC_FACE_FRONT];
+        y = blocData[code].y[BLOC_FACE_FRONT];
+
+        GX_Position3f32(-1.0f, 0.0f, 0.0f);
+        GX_Normal3f32(0, 0, 1);
         GX_Color1u32(white);
 
-		GX_TexCoord2f32(x, y + OFFSET); // Top left
-	}
+        GX_TexCoord2f32(x, y); // Top left
 
-	// Back face
-	if (back) {
-		x = blocData[code].x[BLOC_FACE_BACK];
-		y = blocData[code].y[BLOC_FACE_BACK];
-		
-		GX_Position3f32(-1.0f, -1.0f, -1.0f);
-		GX_Normal3f32(0, 0, -1);
-        GX_Color1u32(shadow);
+        GX_Position3f32(0.0f, 0.0f, 0.0f);
+        GX_Normal3f32(0, 0, 1);
+        GX_Color1u32(white);
 
-		GX_TexCoord2f32(x + OFFSET, y); // Bottom right
-		
-		GX_Position3f32(-1.0f, 0.0f, -1.0f);
-		GX_Normal3f32(0, 0, -1);
-        GX_Color1u32(shadow);
+        GX_TexCoord2f32(x + OFFSET, y); // Top right
 
-		GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
-		
-		GX_Position3f32(0.0f, 0.0f, -1.0f);
-		GX_Normal3f32(0, 0, -1);
-        GX_Color1u32(shadow);
+        GX_Position3f32(0.0f, -1.0f, 0.0f);
+        GX_Normal3f32(0, 0, 1);
+        GX_Color1u32(white);
 
-		GX_TexCoord2f32(x, y + OFFSET); // Top left
-		
-		GX_Position3f32(0.0f, -1.0f, -1.0f);
-		GX_Normal3f32(0, 0, -1);
-        GX_Color1u32(shadow);
+        GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Bottom right
 
-		GX_TexCoord2f32(x, y); // Bottom left
-	}
+        GX_Position3f32(-1.0f, -1.0f, 0.0f);
+        GX_Normal3f32(0, 0, 1);
+        GX_Color1u32(white);
 
-	// Right face
-	if (right) {
-		x = blocData[code].x[BLOC_FACE_RIGHT];
-		y = blocData[code].y[BLOC_FACE_RIGHT];
-		
-		GX_Position3f32(0.0f, -1.0f, -1.0f);
-		GX_Normal3f32(1, 0, 0);
-        GX_Color1u32(shadow);
+        GX_TexCoord2f32(x, y + OFFSET); // Bottom left
+    }
 
-		GX_TexCoord2f32(x + OFFSET, y); // Bottom right
-		
-		GX_Position3f32(0.0f, 0.0f, -1.0f);
-		GX_Normal3f32(1, 0, 0);
-        GX_Color1u32(shadow);
+    // Back face
+    if (back) {
+        x = blocData[code].x[BLOC_FACE_BACK];
+        y = blocData[code].y[BLOC_FACE_BACK];
 
-		GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
-		
-		GX_Position3f32(0.0f, 0.0f, 0.0f);
-		GX_Normal3f32(1, 0, 0);
-        GX_Color1u32(shadow);
+        GX_Position3f32(0.0f, -1.0f, -1.0f);
+        GX_Normal3f32(0, 0, -1);
+        GX_Color1u32(white);
 
-		GX_TexCoord2f32(x, y + OFFSET); // Top left
-		
-		GX_Position3f32(0.0f, -1.0f, 0.0f);
-		GX_Normal3f32(1, 0, 0);
-        GX_Color1u32(shadow);
+        GX_TexCoord2f32(x, y + OFFSET); // Bottom left
 
-		GX_TexCoord2f32(x, y); // Bottom left
-	}
+        GX_Position3f32(0.0f, 0.0f, -1.0f);
+        GX_Normal3f32(0, 0, -1);
+        GX_Color1u32(white);
 
-	// Left face
-	if (left) {
-		x = blocData[code].x[BLOC_FACE_LEFT];
-		y = blocData[code].y[BLOC_FACE_LEFT];
-		
-		GX_Position3f32(-1.0f, -1.0f, -1.0f);
-		GX_Normal3f32(-1, 0, 0);
-        GX_Color1u32(shadow);
+        GX_TexCoord2f32(x, y); // Top left
 
-		GX_TexCoord2f32(x, y); // Bottom right
-		
-		GX_Position3f32(-1.0f, -1.0f, 0.0f);
-		GX_Normal3f32(-1, 0, 0);
-        GX_Color1u32(shadow);
+        GX_Position3f32(-1.0f, 0.0f, -1.0f);
+        GX_Normal3f32(0, 0, -1);
+        GX_Color1u32(white);
 
-		GX_TexCoord2f32(x + OFFSET, y); // Top right
-		
-		GX_Position3f32(-1.0f, 0.0f, 0.0f);
-		GX_Normal3f32(-1, 0, 0);
-        GX_Color1u32(shadow);
+        GX_TexCoord2f32(x + OFFSET, y); // Top right
 
-		GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top left
-		
-		GX_Position3f32(-1.0f, 0.0f, -1.0f);
-		GX_Normal3f32(-1, 0, 0);
-        GX_Color1u32(shadow);
+        GX_Position3f32(-1.0f, -1.0f, -1.0f);
+        GX_Normal3f32(0, 0, -1);
+        GX_Color1u32(white);
 
-		GX_TexCoord2f32(x, y + OFFSET); // Bottom left
-	}
+        GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Bottom right
 
-	// Top face
-	if (top) {
-		x = blocData[code].x[BLOC_FACE_TOP];
-		y = blocData[code].y[BLOC_FACE_TOP];
-		
-		GX_Position3f32(-1.0f, 0.0f, -1.0f);
-		GX_Normal3f32(0, 1, 0);
-        GX_Color1u32(shadow);
+    }
 
-		GX_TexCoord2f32(x, y + OFFSET); // Top left
+    // Right face
+    if (right) {
+        x = blocData[code].x[BLOC_FACE_RIGHT];
+        y = blocData[code].y[BLOC_FACE_RIGHT];
 
-		GX_Position3f32(-1.0f, 0.0f, 0.0f);
-		GX_Normal3f32(0, 1, 0);
-        GX_Color1u32(shadow);
+        GX_Position3f32(0.0f, -1.0f, 0.0f);
+        GX_Normal3f32(1, 0, 0);
+        GX_Color1u32(white);
 
-		GX_TexCoord2f32(x, y); // Bottom left
-		
-		GX_Position3f32(0.0f, 0.0f, 0.0f);
-		GX_Normal3f32(0, 1, 0);
-        GX_Color1u32(shadow);
+        GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Bottom left
 
-		GX_TexCoord2f32(x + OFFSET, y); // Bottom right
-		
-		GX_Position3f32(0.0f, 0.0f, -1.0f);
-		GX_Normal3f32(0, 1, 0);
-        GX_Color1u32(shadow);
+        GX_Position3f32(0.0f, 0.0f, 0.0f);
+        GX_Normal3f32(1, 0, 0);
+        GX_Color1u32(white);
 
-		GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
-	}
+        GX_TexCoord2f32(x + OFFSET, y); // Top left
 
-	GX_End();         // Done drawing quads
+        GX_Position3f32(0.0f, 0.0f, -1.0f);
+        GX_Normal3f32(1, 0, 0);
+        GX_Color1u32(white);
+
+        GX_TexCoord2f32(x, y); // Top right
+
+        GX_Position3f32(0.0f, -1.0f, -1.0f);
+        GX_Normal3f32(1, 0, 0);
+        GX_Color1u32(white);
+
+        GX_TexCoord2f32(x, y + OFFSET); // Bottom right
+    }
+
+    // Left face
+    if (left) {
+        x = blocData[code].x[BLOC_FACE_LEFT];
+        y = blocData[code].y[BLOC_FACE_LEFT];
+
+        GX_Position3f32(-1.0f, 0.0f, -1.0f);
+        GX_Normal3f32(-1, 0, 0);
+        GX_Color1u32(white);
+
+        GX_TexCoord2f32(x + OFFSET, y); // Bottom left
+
+        GX_Position3f32(-1.0f, 0.0f, 0.0f);
+        GX_Normal3f32(-1, 0, 0);
+        GX_Color1u32(white);
+
+        GX_TexCoord2f32(x, y); // Top left
+
+        GX_Position3f32(-1.0f, -1.0f, 0.0f);
+        GX_Normal3f32(-1, 0, 0);
+        GX_Color1u32(white);
+
+        GX_TexCoord2f32(x, y + OFFSET); // Top right
+
+        GX_Position3f32(-1.0f, -1.0f, -1.0f);
+        GX_Normal3f32(-1, 0, 0);
+        GX_Color1u32(white);
+
+        GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Bottom right
+    }
+
+    // Top face
+    if (top) {
+        x = blocData[code].x[BLOC_FACE_TOP];
+        y = blocData[code].y[BLOC_FACE_TOP];
+
+        GX_Position3f32(0.0f, 0.0f, -1.0f);
+        GX_Normal3f32(0, 1, 0);
+        GX_Color1u32(white);
+
+        GX_TexCoord2f32(x + OFFSET, y); // Top right
+
+        GX_Position3f32(0.0f, 0.0f, 0.0f);
+        GX_Normal3f32(0, 1, 0);
+        GX_Color1u32(white);
+
+        GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Bottom right
+
+        GX_Position3f32(-1.0f, 0.0f, 0.0f);
+        GX_Normal3f32(0, 1, 0);
+        GX_Color1u32(white);
+
+        GX_TexCoord2f32(x, y + OFFSET); // Bottom left
+
+        GX_Position3f32(-1.0f, 0.0f, -1.0f);
+        GX_Normal3f32(0, 1, 0);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(x, y); // Top left
+    }
+
+    GX_End();         // Done drawing quads
 }
 
 void Renderer::drawFocus(Block block, f32 x, f32 y, f32 z) {
@@ -376,10 +403,10 @@ void Renderer::drawFocus(Block block, f32 x, f32 y, f32 z) {
 
     guMtxTransApply(model, model, x, y, z);
 
-    guMtxConcat(camera.viewMatrix, model, modelview);
+    guMtxConcat(camera.view3D, model, modelview);
     GX_LoadPosMtxImm(modelview, GX_PNMTX0);
 
-    u32 white = 0xffffffff;
+    u32 black = 0x000000ff;
 
     GX_SetLineWidth(20.0f, GX_VTXFMT0);
 
@@ -387,156 +414,156 @@ void Renderer::drawFocus(Block block, f32 x, f32 y, f32 z) {
 
         GX_Position3f32(-1.0f, -1.0f, -1.0f);
         GX_Normal3f32(0, -1, 0);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
         GX_TexCoord2f32(0, OFFSET); // Top right
 
         GX_Position3f32(0.0f, -1.0f, -1.0f);
         GX_Normal3f32(0, -1, 0);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Top left
 
         GX_Position3f32(0.0f, -1.0f, 0.0f);
         GX_Normal3f32(0, -1, 0);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Bottom left
 
         GX_Position3f32(-1.0f, -1.0f, 0.0f);
         GX_Normal3f32(0, -1, 0);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Bottom right
 
         GX_Position3f32(-1.0f, -1.0f, 0.0f);
         GX_Normal3f32(0, 0, 1);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Bottom left
 
         GX_Position3f32(0.0f, -1.0f, 0.0f);
         GX_Normal3f32(0, 0, 1);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Bottom right
 
         GX_Position3f32(0.0f, 0.0f, 0.0f);
         GX_Normal3f32(0, 0, 1);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Top right
 
         GX_Position3f32(-1.0f, 0.0f, 0.0f);
         GX_Normal3f32(0, 0, 1);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Top left
 
         GX_Position3f32(-1.0f, -1.0f, 0.0f);
         GX_Normal3f32(0, 0, 1);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Top left
 
         GX_Position3f32(-1.0f, -1.0f, -1.0f);
         GX_Normal3f32(0, 0, -1);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Bottom right
 
         GX_Position3f32(-1.0f, 0.0f, -1.0f);
         GX_Normal3f32(0, 0, -1);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Top right
 
         GX_Position3f32(0.0f, 0.0f, -1.0f);
         GX_Normal3f32(0, 0, -1);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Top left
 
         GX_Position3f32(0.0f, -1.0f, -1.0f);
         GX_Normal3f32(0, 0, -1);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Bottom left
 
         GX_Position3f32(0.0f, -1.0f, -1.0f);
         GX_Normal3f32(1, 0, 0);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Bottom right
 
         GX_Position3f32(0.0f, 0.0f, -1.0f);
         GX_Normal3f32(1, 0, 0);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Top right
 
         GX_Position3f32(0.0f, 0.0f, 0.0f);
         GX_Normal3f32(1, 0, 0);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Top left
 
         GX_Position3f32(0.0f, -1.0f, 0.0f);
         GX_Normal3f32(1, 0, 0);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Bottom left
 
         GX_Position3f32(-1.0f, -1.0f, 0.0f);
         GX_Normal3f32(1, 0, 0);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Bottom left
 
         GX_Position3f32(-1.0f, -1.0f, -1.0f);
         GX_Normal3f32(-1, 0, 0);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Bottom right
 
         GX_Position3f32(-1.0f, -1.0f, 0.0f);
         GX_Normal3f32(-1, 0, 0);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Top right
 
         GX_Position3f32(-1.0f, 0.0f, 0.0f);
         GX_Normal3f32(-1, 0, 0);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Top left
 
         GX_Position3f32(-1.0f, 0.0f, -1.0f);
         GX_Normal3f32(-1, 0, 0);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Bottom left
 
         GX_Position3f32(-1.0f, 0.0f, -1.0f);
         GX_Normal3f32(0, 1, 0);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Top left
 
         GX_Position3f32(-1.0f, 0.0f, 0.0f);
         GX_Normal3f32(0, 1, 0);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Bottom left
 
         GX_Position3f32(0.0f, 0.0f, 0.0f);
         GX_Normal3f32(0, 1, 0);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Bottom right
 
         GX_Position3f32(0.0f, 0.0f, -1.0f);
         GX_Normal3f32(0, 1, 0);
-    GX_Color1u32(white);
+    GX_Color1u32(black);
 
     GX_TexCoord2f32(0, OFFSET); // Top right
 

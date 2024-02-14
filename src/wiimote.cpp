@@ -13,7 +13,7 @@ void Wiimote::update(Player& player, World& w) {
     int wiimote_connection_status = WPAD_Probe(chan, &type);
 
     if (wiimote_connection_status == WPAD_ERR_NONE) {
-        WPADData * wd = WPAD_Data(chan);
+        wd = WPAD_Data(chan);
         player.handleRotation(wd);
     }
     if(WPAD_ButtonsDown(chan) & WPAD_BUTTON_HOME)

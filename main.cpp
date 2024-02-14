@@ -16,7 +16,6 @@
 #include "engine/render/renderer.h"
 
 
-#include "texture.c"
 
 #include "src/world/game.h"
 #include "engine/render/bloc.h"
@@ -229,27 +228,13 @@ int main(int, char **) {
 	
 	Renderer::setupVideo();
 	Renderer::setupVtxDesc3D();
-	Renderer::setupMisc();
+    Renderer::setupTexture();
+
 
 	//Light light;
 	//GX_InvalidateTexAll();
     Player player(8, 40, 8);
 
-
-	TPL_OpenTPLFromMemory(&TPLfile, (void *)texture_data, texture_sz);
-	TPL_GetTexture(&TPLfile, 0, &texture);
-    GX_InitTexObjLOD(&texture, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
-
-
-    GX_SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_TEXC, GX_CC_RASC, GX_CC_ZERO);
-    GX_SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_TEXA, GX_CA_RASA, GX_CA_ZERO);
-
-    GX_SetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVPREV);
-    GX_SetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVPREV);
-
-    GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
-	
-	GX_LoadTexObj(&texture, GX_TEXMAP0);
 	//GX_InitTexObjFilterMode(&texture, GX_NEAR, GX_NEAR);
 	//GX_SetTevIndTile()
 
@@ -267,6 +252,8 @@ int main(int, char **) {
     World& w = Game::getInstance()->getWorld();
 
     while (!exiting) {
+
+        player.renderer.camera.loadPerspective();
 
         pos.x = player.renderer.camera.pos.x - 1;
         pos.y = player.renderer.camera.pos.y;
@@ -321,6 +308,65 @@ int main(int, char **) {
 		//drawdot(rmode->fbWidth, rmode->xfbHeight, 0, 0, COLOR_YELLOW);
 
 		//Renderer::setupDebugConsole();
+
+        u32 white = 0xFFFFFFFF;
+
+        player.renderer.camera.loadOrtho(); // set for 2D drawing
+        player.renderer.camera.applyTransform2D();
+        f32 x,y;
+        x = 0.1, y = 0.1;
+        GX_Begin(GX_QUADS, GX_VTXFMT0, 8); // Start drawing
+
+        GX_Position3f32(-x, y, 0);
+        GX_Normal3f32(0, 0, 1);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(BLOCK_COORD(0), BLOCK_COORD(1)); // Top left
+
+        GX_Position3f32(x, y, 0);
+        GX_Normal3f32(0, 0, 1);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(BLOCK_COORD(1), BLOCK_COORD(0)); // Top right
+
+        GX_Position3f32(x, -y, 0);
+        GX_Normal3f32(0, 0, 1);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(BLOCK_COORD(0), BLOCK_COORD(1)); // Bottom right
+
+        GX_Position3f32(-x, -y, 0);
+        GX_Normal3f32(0, 0, 1);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(BLOCK_COORD(1), BLOCK_COORD(1)); // Bottom left
+
+        f32 a = 0, b = 0;
+        auto wd = wiimote.wd;
+        if (wd->ir.valid) {
+            a = wd->ir.x / (f32)Renderer::rmode->fbWidth - .5;
+            b = -wd->ir.y / (f32)Renderer::rmode->xfbHeight + .5;
+        }
+        a -= x / 2;
+        b += y / 2;
+
+        GX_Position3f32(-x+a, y+b, 0);
+        GX_Normal3f32(0, 0, 1);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(BLOCK_COORD(0), BLOCK_COORD(1)); // Top left
+
+        GX_Position3f32(x+a, y+b, 0);
+        GX_Normal3f32(0, 0, 1);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(BLOCK_COORD(1), BLOCK_COORD(0)); // Top right
+
+        GX_Position3f32(x+a, -y+b, 0);
+        GX_Normal3f32(0, 0, 1);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(BLOCK_COORD(0), BLOCK_COORD(1)); // Bottom right
+
+        GX_Position3f32(-x+a, -y+b, 0);
+        GX_Normal3f32(0, 0, 1);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(BLOCK_COORD(1), BLOCK_COORD(1)); // Bottom left
+
+        GX_End();
 
 		Renderer::endFrame();
 	}
