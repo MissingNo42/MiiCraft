@@ -119,6 +119,15 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
         }
     }
 
+    //print the whole chunk
+    for(int i = 0; i < 16; i++){
+        for(int j = 0; j < 16; j++){
+            for(int k = 0; k < 128; k++){
+                    printf("Block at %d %d %d : %d\r",i,j,k,vc->VC_GetBlock({i, k, j}).type);
+
+            }
+        }
+    }
 
 }
 
@@ -224,10 +233,12 @@ void PerlinWorldGenerator::initLight(VerticalChunk* c) {
                     t_coord p(x, 127, z);
                     if (c->VC_GetBlock(p).type < 16) {
                         lightQueue.push(p);
+                        break;
                     }
                 }
                 else if(c->VC_GetBlock({x, y, z}).type < 16 && c->VC_GetBlock({x, y + 1, z}).type > 0){
                     c->VC_SetBlock({x, y, z}, static_cast<BlockType>(0));
+                    break;
                 }
 
             }
@@ -244,37 +255,37 @@ void PerlinWorldGenerator::initLight(VerticalChunk* c) {
         else
         {
             if(p.x + 1 < 16) {// right neighboor
-                if (c->VC_GetBlock({p.x + 1, p.y, p.z}).type < CurrentLightValue - 1) {
+                if (c->VC_GetBlock({p.x + 1, p.y, p.z}).type < CurrentLightValue - 1 || c->VC_GetBlock({p.x, p.y - 1, p.z}).type > 16 ) {
                     c->VC_SetBlock({p.x + 1, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
                     lightQueue.push({p.x + 1, p.y, p.z});
                 }
             }
             if(p.x - 1 >= 0) {// left neighboor
-                if (c->VC_GetBlock({p.x - 1, p.y, p.z}).type < CurrentLightValue - 1) {
+                if (c->VC_GetBlock({p.x - 1, p.y, p.z}).type < CurrentLightValue - 1 || c->VC_GetBlock({p.x, p.y - 1, p.z}).type > 16) {
                     c->VC_SetBlock({p.x - 1, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
                     lightQueue.push({p.x - 1, p.y, p.z});
                 }
             }
             if(p.z + 1 < 16) {// front neighboor
-                if (c->VC_GetBlock({p.x, p.y, p.z + 1}).type < CurrentLightValue - 1) {
+                if (c->VC_GetBlock({p.x, p.y, p.z + 1}).type < CurrentLightValue - 1 || c->VC_GetBlock({p.x, p.y - 1, p.z}).type > 16 ) {
                     c->VC_SetBlock({p.x, p.y, p.z + 1}, static_cast<BlockType>(CurrentLightValue - 1));
                     lightQueue.push({p.x, p.y, p.z + 1});
                 }
             }
             if(p.z - 1 >= 0) {// back neighboor
-                if (c->VC_GetBlock({p.x, p.y, p.z - 1}).type < CurrentLightValue - 1) {
+                if (c->VC_GetBlock({p.x, p.y, p.z - 1}).type < CurrentLightValue - 1 || c->VC_GetBlock({p.x, p.y - 1, p.z}).type > 16 ) {
                     c->VC_SetBlock({p.x, p.y, p.z - 1}, static_cast<BlockType>(CurrentLightValue - 1));
                     lightQueue.push({p.x, p.y, p.z - 1});
                 }
             }
             if(p.y + 1 < 128) {// top neighboor
-                if (c->VC_GetBlock({p.x, p.y + 1, p.z}).type < CurrentLightValue - 1) {
+                if (c->VC_GetBlock({p.x, p.y + 1, p.z}).type < CurrentLightValue - 1 || c->VC_GetBlock({p.x, p.y - 1, p.z}).type > 16 ) {
                     c->VC_SetBlock({p.x, p.y + 1, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
                     lightQueue.push({p.x, p.y + 1, p.z});
                 }
             }
             if(p.y - 1 >= 0) {// bottom neighboor
-                if (c->VC_GetBlock({p.x, p.y - 1, p.z}).type < CurrentLightValue - 1) {
+                if (c->VC_GetBlock({p.x, p.y - 1, p.z}).type < CurrentLightValue - 1 || c->VC_GetBlock({p.x, p.y - 1, p.z}).type > 16) {
                     c->VC_SetBlock({p.x, p.y - 1, p.z}, static_cast<BlockType>(CurrentLightValue)); //// /!\ No minus 1 for the sun in bottom propagation
                     lightQueue.push({p.x, p.y - 1, p.z});
                 }
@@ -288,6 +299,13 @@ void PerlinWorldGenerator::initLight(VerticalChunk* c) {
 
 }
 
+
+void PerlinWorldGenerator::propagateLightToNeighbor(VerticalChunk* c, const t_coord& neighbor, int CurrentLightValue, std::queue<t_coord>& lightQueue) {
+    if (c->VC_GetBlock(neighbor).type < CurrentLightValue || c->VC_GetBlock(neighbor).type >= 16) {
+        c->VC_SetBlock(neighbor, static_cast<BlockType>(CurrentLightValue));
+        lightQueue.push(neighbor);
+    }
+}
 
 
 

@@ -11,6 +11,8 @@
 #include "biome/BiomeGenerator.h"
 #include "../system/Random.h"
 #include <fstream>
+#include <queue>
+
 #include <iostream>
 #include <algorithm>
 
@@ -39,6 +41,9 @@ public:
     void initLight(VerticalChunk *c);
 
     void propagateLight(VerticalChunk *c, t_coord pos, u8 light);
+
+    void propagateLightToNeighbor(VerticalChunk *c, const t_coord &neighbor, int CurrentLightValue,
+                                  std::queue<t_coord> &lightQueue);
 };
 
 
