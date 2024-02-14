@@ -67,7 +67,20 @@ void Renderer::setupVideo() {
 
 	// setup texture coordinate generation
 	// args: texcoord slot 0-7, matrix type, source to generate texture coordinates from, matrix to use
-	GX_SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY);*/
+	*/
+     GX_SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX3x4, GX_TG_TEX0, GX_IDENTITY);
+
+
+    GX_SetNumTevStages(1);
+//
+//    GX_SetAlphaCompare(GX_ALWAYS, 0, GX_AOP_AND, GX_ALWAYS, 0);
+    GX_SetAlphaCompare(GX_GREATER, 0, GX_AOP_AND, GX_ALWAYS, 0);
+
+    GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
+    GX_SetZCompLoc(GX_FALSE);
+    GX_SetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_CLEAR);
+    GX_SetColorUpdate(GX_TRUE);
+    GX_SetAlphaUpdate(GX_TRUE);
 }
 
 void Renderer::setupVtxDesc3D() {
@@ -101,7 +114,7 @@ void Renderer::setupVtxDesc2D() {
 void Renderer::setupMisc() {
 	
 	// set number of rasterized color channels
-	GX_SetNumChans(1);
+	GX_SetNumChans(2);
 	
 	//set number of textures to generate
 	GX_SetNumTexGens(1);
@@ -129,8 +142,8 @@ void Renderer::testRender() {
 }
 
 void Renderer::endFrame() {
-	GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
-	GX_SetColorUpdate(GX_TRUE);
+	//GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
+	//GX_SetColorUpdate(GX_TRUE);
 	GX_CopyDisp(frameBuffer, GX_TRUE);
 	
 	GX_DrawDone();
@@ -149,7 +162,7 @@ int Renderer::selectFrameBuffer;
 void * Renderer::gp_fifo = nullptr;
 
 GXRModeObj * Renderer::rmode;
-GXColor Renderer::background = {0x80, 0x80, 0x80, 0xff};; // blue = {0x29, 0xae, 0xea, 0xff}; // blue
+GXColor Renderer::background =  {0x29, 0xae, 0xea, 0xff}; // blue = {0x29, 0xae, 0xea, 0xff}; // blue
 
 
 void Renderer::renderBloc(const guVector &coord, u32 code,
