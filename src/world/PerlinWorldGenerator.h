@@ -35,6 +35,10 @@ public:
 
     BiomeType guessBiome(float ero, float temp, float hum, float cont);
     void generateChunk(World&, const t_pos2D) override;
+
+    void initLight(VerticalChunk *c);
+
+    void propagateLight(VerticalChunk *c, t_coord pos, u8 light);
 };
 
 

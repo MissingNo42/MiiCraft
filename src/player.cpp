@@ -21,7 +21,7 @@ void Player::getFocusedBlock(World &w) {
             x = renderer.camera.pos.x + 1,
             y = renderer.camera.pos.y + 1,
             z = renderer.camera.pos.z + 1;
-    while(type == BlockType::Air && distance <= 5){
+    while(type <= BlockType::Air && distance <= 5){
         x += renderer.camera.look.x/20;
         y += renderer.camera.look.y/20;
         z += renderer.camera.look.z/20;
@@ -29,7 +29,7 @@ void Player::getFocusedBlock(World &w) {
         pos = t_coord((int)floor(x), (int)floor(y), (int)floor(z));
         type = w.getBlockAt(pos).type;
     }
-    if(type != BlockType::Air) {
+    if(type > BlockType::Air) {
         renderer.drawFocus(w.getBlockAt(pos), (f32) pos.x, (f32) pos.y, (f32) pos.z);
         targetable = true;
         focusedBlockPos = pos;
@@ -52,8 +52,8 @@ void Player::goLeft(guVector& normalizedLook, bool collision, World& w) {
     guVecCross(&normalizedLook, &renderer.camera.up, &move);
     move = InverseVector(move);
     if (collision) {
-        if (w.getBlockAt({(int)ceil(renderer.camera.pos.x + move.x), (int) renderer.camera.pos.y, (int)ceil(renderer.camera.pos.z + move.z)}).type == BlockType::Air
-            && w.getBlockAt({(int)ceil(renderer.camera.pos.x + move.x), (int) renderer.camera.pos.y+1, (int)ceil(renderer.camera.pos.z + move.z)}).type == BlockType::Air){
+        if (w.getBlockAt({(int)ceil(renderer.camera.pos.x + move.x), (int) renderer.camera.pos.y, (int)ceil(renderer.camera.pos.z + move.z)}).type <= BlockType::Air
+            && w.getBlockAt({(int)ceil(renderer.camera.pos.x + move.x), (int) renderer.camera.pos.y+1, (int)ceil(renderer.camera.pos.z + move.z)}).type <= BlockType::Air){
             renderer.camera.pos.x += move.x / 10 * (f32) speed;
             renderer.camera.pos.z += move.z / 10 * (f32) speed;
         }
@@ -68,8 +68,8 @@ void Player::goRight(guVector& normalizedLook, bool collision, World& w) {
     guVector move = {0,0,0};
     guVecCross(&normalizedLook, &renderer.camera.up, &move);
     if (collision) {
-        if (w.getBlockAt({(int)ceil( renderer.camera.pos.x + move.x), (int) renderer.camera.pos.y, (int)ceil(renderer.camera.pos.z+move.z)}).type == BlockType::Air
-            && w.getBlockAt({(int)ceil( renderer.camera.pos.x + move.x), (int) renderer.camera.pos.y+1, (int)ceil(renderer.camera.pos.z+move.z)}).type == BlockType::Air){
+        if (w.getBlockAt({(int)ceil( renderer.camera.pos.x + move.x), (int) renderer.camera.pos.y, (int)ceil(renderer.camera.pos.z+move.z)}).type <= BlockType::Air
+            && w.getBlockAt({(int)ceil( renderer.camera.pos.x + move.x), (int) renderer.camera.pos.y+1, (int)ceil(renderer.camera.pos.z+move.z)}).type <= BlockType::Air){
             renderer.camera.pos.x += move.x / 10 * (f32) speed;
             renderer.camera.pos.z += move.z / 10 * (f32) speed;
         }
@@ -82,8 +82,8 @@ void Player::goRight(guVector& normalizedLook, bool collision, World& w) {
 
 void Player::goForward(guVector& normalizedLook, bool collision, World& w) {
     if (collision) {
-        if (w.getBlockAt({(int)ceil(renderer.camera.pos.x + renderer.camera.look.x), (int) renderer.camera.pos.y, (int)ceil(renderer.camera.pos.z+renderer.camera.look.z)}).type == BlockType::Air
-            && w.getBlockAt({(int)ceil(renderer.camera.pos.x + renderer.camera.look.x), (int) renderer.camera.pos.y+1, (int)ceil(renderer.camera.pos.z+renderer.camera.look.z)}).type == BlockType::Air){
+        if (w.getBlockAt({(int)ceil(renderer.camera.pos.x + renderer.camera.look.x), (int) renderer.camera.pos.y, (int)ceil(renderer.camera.pos.z+renderer.camera.look.z)}).type <= BlockType::Air
+            && w.getBlockAt({(int)ceil(renderer.camera.pos.x + renderer.camera.look.x), (int) renderer.camera.pos.y+1, (int)ceil(renderer.camera.pos.z+renderer.camera.look.z)}).type <= BlockType::Air){
             renderer.camera.pos.x += normalizedLook.x/10 * (f32) speed;
             renderer.camera.pos.z += normalizedLook.z/10 * (f32) speed;
         }
@@ -97,8 +97,8 @@ void Player::goForward(guVector& normalizedLook, bool collision, World& w) {
 void Player::goBackward(guVector& normalizedLook, bool collision, World& w) {
     guVector move = InverseVector(normalizedLook);
     if (collision) {
-        if (w.getBlockAt({(int)ceil(renderer.camera.pos.x+1 + move.x), (int) renderer.camera.pos.y, (int) ceil(renderer.camera.pos.z+move.z)}).type == BlockType::Air
-            && w.getBlockAt({(int)ceil(renderer.camera.pos.x+1 + move.x), (int) renderer.camera.pos.y+1, (int) ceil(renderer.camera.pos.z+move.z)}).type == BlockType::Air){
+        if (w.getBlockAt({(int)ceil(renderer.camera.pos.x+1 + move.x), (int) renderer.camera.pos.y, (int) ceil(renderer.camera.pos.z+move.z)}).type <= BlockType::Air
+            && w.getBlockAt({(int)ceil(renderer.camera.pos.x+1 + move.x), (int) renderer.camera.pos.y+1, (int) ceil(renderer.camera.pos.z+move.z)}).type <= BlockType::Air){
             renderer.camera.pos.x += move.x/10 * (f32) speed;
             renderer.camera.pos.z += move.z/10 * (f32) speed;
         }
@@ -112,7 +112,7 @@ void Player::goBackward(guVector& normalizedLook, bool collision, World& w) {
 void Player::goUp(t_coord coord, bool collision, World &w) {
     if ( collision ){
         coord.y += 1;
-        if (w.getBlockAt(coord).type == BlockType::Air)
+        if (w.getBlockAt(coord).type <= BlockType::Air)
             renderer.camera.pos.y += 0.1;
     }
     else
@@ -122,7 +122,7 @@ void Player::goUp(t_coord coord, bool collision, World &w) {
 void Player::goDown(t_coord coord, bool collision, World &w) {
     if ( collision ){
         coord.y -= 1;
-        if (w.getBlockAt(coord).type == BlockType::Air)
+        if (w.getBlockAt(coord).type <= BlockType::Air)
             renderer.camera.pos.y -= 0.1;
     }
     else
@@ -191,19 +191,19 @@ void Player::handleAction(World &w, u16 actions) {
     if (actions & WPAD_BUTTON_MINUS && targetable) {
         if (breakingState < 10) {
             breakingState++;
-            renderer.renderBloc(coordToGuVector(focusedBlockPos), 1, true, true, true, true, true, true);
+            renderer.renderBloc(coordToGuVector(focusedBlockPos), 17, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0);
         }
         else if (breakingState < 20) {
             breakingState++;
-            renderer.renderBloc(coordToGuVector(focusedBlockPos), 2, true, true, true, true, true, true);
+            renderer.renderBloc(coordToGuVector(focusedBlockPos), 18, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0);
         }
         else if (breakingState < 30) {
             breakingState++;
-            renderer.renderBloc(coordToGuVector(focusedBlockPos), 3, true, true, true, true, true, true);
+            renderer.renderBloc(coordToGuVector(focusedBlockPos), 19, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0);
         }
         else if (breakingState < 40) {
             breakingState++;
-            renderer.renderBloc(coordToGuVector(focusedBlockPos), 5, true, true, true, true, true, true);
+            renderer.renderBloc(coordToGuVector(focusedBlockPos), 20, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0);
         }
         else{
             DestroyBlock(focusedBlockPos, w);

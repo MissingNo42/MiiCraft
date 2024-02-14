@@ -190,14 +190,15 @@ void Renderer::endFrame() {
 
 	selectFrameBuffer ^= 1;
 	frameBuffer = frameBuffers[selectFrameBuffer];
-	
+
 
 }
 
 
 
 void Renderer::renderBloc(const guVector &coord, u32 code,
-						  bool top, bool bottom, bool left, bool right, bool front, bool back) {
+						  int top, int bottom, int left, int right, int front, int back,
+                          int topVal, int bottomVal, int leftVal, int rightVal, int frontVal, int backVal) {
     Mtx model, modelview; // Various matrices
 
     guMtxIdentity(model);
@@ -207,12 +208,17 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
     guMtxConcat(camera.view3D, model, modelview);
     GX_LoadPosMtxImm(modelview, GX_PNMTX0);
 
+
+
     int sz = (top + bottom + left + right + front + back) << 2;
     f32 x, y;
 
     u32 white = 0xffffffff;
+    u32 shadow = 0x7f7f7fff;
 
     GX_Begin(GX_QUADS, GX_VTXFMT0, sz); // Start drawing
+
+
 
     // Bottom face
     if (bottom) {
@@ -371,25 +377,44 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 
         GX_Position3f32(0.0f, 0.0f, -1.0f);
         GX_Normal3f32(0, 1, 0);
-        GX_Color1u32(white);
-
+        if(topVal){
+            GX_Color1u32(shadow);
+        }
+        else {
+            GX_Color1u32(white);
+        }
         GX_TexCoord2f32(x + OFFSET, y); // Top right
 
         GX_Position3f32(0.0f, 0.0f, 0.0f);
         GX_Normal3f32(0, 1, 0);
-        GX_Color1u32(white);
+        if(topVal){
+            GX_Color1u32(shadow);
+        }
+        else {
+            GX_Color1u32(white);
+        }
 
         GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Bottom right
 
         GX_Position3f32(-1.0f, 0.0f, 0.0f);
         GX_Normal3f32(0, 1, 0);
-        GX_Color1u32(white);
+        if(topVal){
+            GX_Color1u32(shadow);
+        }
+        else {
+            GX_Color1u32(white);
+        }
 
         GX_TexCoord2f32(x, y + OFFSET); // Bottom left
 
         GX_Position3f32(-1.0f, 0.0f, -1.0f);
         GX_Normal3f32(0, 1, 0);
-        GX_Color1u32(white);
+        if(topVal){
+            GX_Color1u32(shadow);
+        }
+        else {
+            GX_Color1u32(white);
+        }
         GX_TexCoord2f32(x, y); // Top left
     }
 

@@ -55,54 +55,79 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 		
 		// X 0 Z 0
 
-		if (c.blocks[0][y][0].type != BlockType::Air) {
+		if (c.blocks[0][y][0].type > BlockType::Air) {
 
 			renderer.renderBloc({(f32)px, (f32)y, (f32)pz}, c.blocks[0][y][0].type ,
-				c.blocks[0][y+1][0].type == BlockType::Air,
-				c.blocks[0][y-1][0].type == BlockType::Air,
-				cwest.blocks[15][y][0].type == BlockType::Air,
-				c.blocks[1][y][0].type == BlockType::Air,
-				c.blocks[0][y][1].type == BlockType::Air,
-				csouth.blocks[0][y][15].type == BlockType::Air
+				c.blocks[0][y+1][0].type <= BlockType::Air,
+				c.blocks[0][y-1][0].type <= BlockType::Air ,
+				cwest.blocks[15][y][0].type <= BlockType::Air,
+				c.blocks[1][y][0].type <= BlockType::Air,
+				c.blocks[0][y][1].type <= BlockType::Air,
+				csouth.blocks[0][y][15].type <= BlockType::Air,
+                                c.blocks[0][y+1][0].type <= BlockType::Air14,
+                                c.blocks[0][y-1][0].type <= BlockType::Air14,
+                                cwest.blocks[15][y][0].type <= BlockType::Air14,
+                                c.blocks[1][y][0].type <= BlockType::Air14,
+                                c.blocks[0][y][1].type <= BlockType::Air14,
+                                csouth.blocks[0][y][15].type <= BlockType::Air14
 				);
 		}
 
 		// X 0 Z 15
 
-		if (c.blocks[0][y][15].type != BlockType::Air) {
+		if (c.blocks[0][y][15].type > BlockType::Air) {
 			renderer.renderBloc({(f32)px, (f32)y, (f32)(15 + pz)}, c.blocks[0][y][15].type ,
-				c.blocks[0][y+1][15].type == BlockType::Air,
-				c.blocks[0][y-1][15].type == BlockType::Air,
-				cwest.blocks[15][y][15].type == BlockType::Air,
-				c.blocks[1][y][15].type == BlockType::Air,
-				cnorth.blocks[0][y][0].type == BlockType::Air,
-				c.blocks[0][y][14].type == BlockType::Air
+				c.blocks[0][y+1][15].type <= BlockType::Air,
+				c.blocks[0][y-1][15].type <= BlockType::Air,
+				cwest.blocks[15][y][15].type<= BlockType::Air,
+				c.blocks[1][y][15].type <= BlockType::Air,
+				cnorth.blocks[0][y][0].type <= BlockType::Air,
+				c.blocks[0][y][14].type <= BlockType::Air,
+                                c.blocks[0][y+1][15].type <= BlockType::Air14,
+                                c.blocks[0][y-1][15].type <= BlockType::Air14,
+                                cwest.blocks[15][y][15].type <= BlockType::Air14,
+                                c.blocks[1][y][15].type <= BlockType::Air14,
+                                cnorth.blocks[0][y][0].type <= BlockType::Air14,
+                                c.blocks[0][y][14].type <= BlockType::Air14
+
 				);
 		}
 
 		// X 15 Z 0
 
-		if (c.blocks[15][y][0].type != BlockType::Air) {
+		if (c.blocks[15][y][0].type > BlockType::Air) {
 			renderer.renderBloc({(f32)(15 + px), (f32)y, (f32)pz},c.blocks[15][y][0].type ,
-				c.blocks[15][y+1][0].type == BlockType::Air,
-				c.blocks[15][y-1][0].type == BlockType::Air,
-				c.blocks[14][y][0].type == BlockType::Air,
-				cest.blocks[0][y][0].type == BlockType::Air,
-				c.blocks[15][y][1].type == BlockType::Air,
-				csouth.blocks[15][y][15].type == BlockType::Air
+				c.blocks[15][y+1][0].type <= BlockType::Air,
+				c.blocks[15][y-1][0].type <= BlockType::Air,
+				c.blocks[14][y][0].type <= BlockType::Air,
+				cest.blocks[0][y][0].type <= BlockType::Air,
+				c.blocks[15][y][1].type <= BlockType::Air,
+				csouth.blocks[15][y][15].type <= BlockType::Air,
+                                c.blocks[15][y+1][0].type <= BlockType::Air14,
+                                c.blocks[15][y-1][0].type <= BlockType::Air14,
+                                c.blocks[14][y][0].type <= BlockType::Air14,
+                                cest.blocks[0][y][0].type <= BlockType::Air14,
+                                c.blocks[15][y][1].type <= BlockType::Air14,
+                                csouth.blocks[15][y][15].type <= BlockType::Air14
 				);
 		}
 
 		// X 15 Z 15
 
-		if (c.blocks[15][y][15].type != BlockType::Air) {
+		if (c.blocks[15][y][15].type > BlockType::Air) {
 			renderer.renderBloc({(f32)(15 + px), (f32)y, (f32)(15 + pz)}, c.blocks[15][y][15].type ,
-				c.blocks[15][y+1][15].type == BlockType::Air,
-				c.blocks[15][y-1][15].type == BlockType::Air,
-				c.blocks[14][y][15].type == BlockType::Air,
-				cest.blocks[0][y][15].type == BlockType::Air,
-				cnorth.blocks[15][y][0].type == BlockType::Air,
-				c.blocks[15][y][14].type == BlockType::Air
+				c.blocks[15][y+1][15].type <= BlockType::Air,
+				c.blocks[15][y-1][15].type <= BlockType::Air,
+				c.blocks[14][y][15].type <= BlockType::Air,
+				cest.blocks[0][y][15].type <= BlockType::Air,
+				cnorth.blocks[15][y][0].type <= BlockType::Air,
+				c.blocks[15][y][14].type <= BlockType::Air,
+                                c.blocks[15][y+1][15].type <= BlockType::Air14,
+                                c.blocks[15][y-1][15].type <= BlockType::Air14,
+                                c.blocks[14][y][15].type <= BlockType::Air14,
+                                cest.blocks[0][y][15].type <= BlockType::Air14,
+                                cnorth.blocks[15][y][0].type <= BlockType::Air14,
+                                c.blocks[15][y][14].type <= BlockType::Air14
 				);
 		}
 
@@ -110,70 +135,100 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 		// X 0
 
 		for (z = 1; z < 15; z++)
-			if (c.blocks[0][y][z].type != BlockType::Air) {
+			if (c.blocks[0][y][z].type > BlockType::Air) {
 				renderer.renderBloc({(f32)px, (f32)y, (f32)(z + pz)}, c.blocks[0][y][z].type ,
-					c.blocks[0][y+1][z].type == BlockType::Air,
-					c.blocks[0][y-1][z].type == BlockType::Air,
-					cwest.blocks[15][y][z].type == BlockType::Air,
-					c.blocks[1][y][z].type == BlockType::Air,
-					c.blocks[0][y][z+1].type == BlockType::Air,
-					c.blocks[0][y][z-1].type == BlockType::Air
+					c.blocks[0][y+1][z].type <= BlockType::Air,
+					c.blocks[0][y-1][z].type <= BlockType::Air,
+					cwest.blocks[15][y][z].type <= BlockType::Air,
+					c.blocks[1][y][z].type <= BlockType::Air,
+					c.blocks[0][y][z+1].type <= BlockType::Air,
+					c.blocks[0][y][z-1].type <= BlockType::Air,
+                                        c.blocks[0][y+1][z].type <= BlockType::Air14,
+                                        c.blocks[0][y-1][z].type <= BlockType::Air14,
+                                        cwest.blocks[15][y][z].type <= BlockType::Air14,
+                                        c.blocks[1][y][z].type <= BlockType::Air14,
+                                        c.blocks[0][y][z+1].type <= BlockType::Air14,
+                                        c.blocks[0][y][z-1].type <= BlockType::Air14
 					);
 			}
 
 		// X 15
 
 		for (z = 1; z < 15; z++)
-			if (c.blocks[15][y][z].type != BlockType::Air) {
+			if (c.blocks[15][y][z].type > BlockType::Air) {
 				renderer.renderBloc({(f32)(px + 15), (f32)y, (f32)(z + pz)}, c.blocks[15][y][z].type,
-					c.blocks[15][y+1][z].type == BlockType::Air,
-					c.blocks[15][y-1][z].type == BlockType::Air,
-					c.blocks[14][y][z].type == BlockType::Air,
-					cest.blocks[0][y][z].type == BlockType::Air,
-					c.blocks[15][y][z+1].type == BlockType::Air,
-					c.blocks[15][y][z-1].type == BlockType::Air
+					c.blocks[15][y+1][z].type <= BlockType::Air,
+					c.blocks[15][y-1][z].type <= BlockType::Air,
+					c.blocks[14][y][z].type <= BlockType::Air,
+					cest.blocks[0][y][z].type <= BlockType::Air,
+					c.blocks[15][y][z+1].type <= BlockType::Air,
+					c.blocks[15][y][z-1].type <= BlockType::Air,
+                                        c.blocks[15][y+1][z].type <= BlockType::Air14,
+                                        c.blocks[15][y-1][z].type <= BlockType::Air14,
+                                        c.blocks[14][y][z].type <= BlockType::Air14,
+                                        cest.blocks[0][y][z].type <= BlockType::Air14,
+                                        c.blocks[15][y][z+1].type <= BlockType::Air14,
+                                        c.blocks[15][y][z-1].type <= BlockType::Air14
 					);
 			}
 
 		// Z 0
 
 		for (x = 1; x < 15; x++)
-			if (c.blocks[x][y][0].type != BlockType::Air) {
+			if (c.blocks[x][y][0].type > BlockType::Air) {
 				renderer.renderBloc({(f32)(x + px), (f32)y, (f32)pz}, c.blocks[x][y][0].type ,
-					c.blocks[x][y+1][0].type == BlockType::Air,
-					c.blocks[x][y-1][0].type == BlockType::Air,
-					c.blocks[x - 1][y][0].type == BlockType::Air,
-					c.blocks[x + 1][y][0].type == BlockType::Air,
-					c.blocks[x][y][1].type == BlockType::Air,
-					csouth.blocks[x][y][15].type == BlockType::Air
+					c.blocks[x][y+1][0].type <= BlockType::Air,
+					c.blocks[x][y-1][0].type <= BlockType::Air,
+					c.blocks[x - 1][y][0].type <= BlockType::Air,
+					c.blocks[x + 1][y][0].type <= BlockType::Air,
+					c.blocks[x][y][1].type <= BlockType::Air,
+					csouth.blocks[x][y][15].type <= BlockType::Air,
+                                        c.blocks[x][y+1][0].type <= BlockType::Air14,
+                                        c.blocks[x][y-1][0].type <= BlockType::Air14,
+                                        c.blocks[x - 1][y][0].type <= BlockType::Air14,
+                                        c.blocks[x + 1][y][0].type <= BlockType::Air14,
+                                        c.blocks[x][y][1].type <= BlockType::Air14,
+                                        csouth.blocks[x][y][15].type <= BlockType::Air14
 					);
 			}
 
 		// Z 15
 
 		for (x = 1; x < 15; x++)
-			if (c.blocks[x][y][15].type != BlockType::Air) {
+			if (c.blocks[x][y][15].type > BlockType::Air) {
 				renderer.renderBloc({(f32)(x + px), (f32)y, (f32)(15 + pz)}, c.blocks[x][y][15].type ,
-					c.blocks[x][y+1][15].type == BlockType::Air,
-					c.blocks[x][y-1][15].type == BlockType::Air,
-					c.blocks[x - 1][y][15].type == BlockType::Air,
-					c.blocks[x + 1][y][15].type == BlockType::Air,
-					cnorth.blocks[x][y][0].type == BlockType::Air,
-					c.blocks[x][y][14].type == BlockType::Air
+					c.blocks[x][y+1][15].type <= BlockType::Air,
+					c.blocks[x][y-1][15].type <= BlockType::Air,
+					c.blocks[x - 1][y][15].type <= BlockType::Air,
+					c.blocks[x + 1][y][15].type <= BlockType::Air,
+					cnorth.blocks[x][y][0].type <= BlockType::Air,
+					c.blocks[x][y][14].type <= BlockType::Air,
+                                        c.blocks[x][y+1][15].type <= BlockType::Air14,
+                                        c.blocks[x][y-1][15].type <= BlockType::Air14,
+                                        c.blocks[x - 1][y][15].type <= BlockType::Air14,
+                                        c.blocks[x + 1][y][15].type <= BlockType::Air14,
+                                        cnorth.blocks[x][y][0].type <= BlockType::Air14,
+                                        c.blocks[x][y][14].type <= BlockType::Air14
 					);
 			}
 
 
 		for (x = 1; x < 15; x++) {
 			for (z = 1; z < 15; z++) {
-				if (c.blocks[x][y][z].type != BlockType::Air) {
+				if (c.blocks[x][y][z].type > BlockType::Air) {
 					renderer.renderBloc({(f32)(x + px), (f32)y, (f32)(z + pz)}, c.blocks[x][y][z].type  ,
-						c.blocks[x][y+1][z].type == BlockType::Air,
-						c.blocks[x][y-1][z].type == BlockType::Air,
-						c.blocks[x-1][y][z].type == BlockType::Air,
-						c.blocks[x+1][y][z].type == BlockType::Air,
-						c.blocks[x][y][z+1].type == BlockType::Air,
-						c.blocks[x][y][z-1].type == BlockType::Air
+						c.blocks[x][y+1][z].type <= BlockType::Air,
+						c.blocks[x][y-1][z].type <= BlockType::Air,
+						c.blocks[x-1][y][z].type <= BlockType::Air,
+						c.blocks[x+1][y][z].type <= BlockType::Air,
+						c.blocks[x][y][z+1].type <= BlockType::Air,
+						c.blocks[x][y][z-1].type <= BlockType::Air,
+                                                c.blocks[x][y+1][z].type <= BlockType::Air14,
+                                                c.blocks[x][y-1][z].type <= BlockType::Air14,
+                                                c.blocks[x-1][y][z].type <= BlockType::Air14,
+                                                c.blocks[x+1][y][z].type <= BlockType::Air14,
+                                                c.blocks[x][y][z+1].type <= BlockType::Air14,
+                                                c.blocks[x][y][z-1].type <= BlockType::Air14
 						);
 				}
 			}
@@ -309,6 +364,8 @@ int main(int, char **) {
 
 		//Renderer::setupDebugConsole();
 
+        /*
+        ////CURSEUR DEGUEULASSE
         u32 white = 0xFFFFFFFF;
 
         player.renderer.camera.loadOrtho(); // set for 2D drawing
@@ -365,7 +422,7 @@ int main(int, char **) {
         GX_Normal3f32(0, 0, 1);
         GX_Color1u32(white);
         GX_TexCoord2f32(BLOCK_COORD(1), BLOCK_COORD(1)); // Bottom left
-
+        */
         GX_End();
 
 		Renderer::endFrame();

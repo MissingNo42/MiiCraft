@@ -23,7 +23,7 @@ public:
 	static GXRModeObj * rmode;
 
     static GXTexObj texture ATTRIBUTE_ALIGN(32);
-	
+
 	static void setupVideo();
 	static void setupVtxDesc3D();
 	static void setupVtxDesc2D();
@@ -36,8 +36,8 @@ public:
 	static void endFrame();
 	
 	void renderBloc(const guVector &coord, u32 code,
-					bool top, bool bottom, bool left, bool right, bool front, bool back
-					);
+					int top, int bottom, int left, int right, int front, int back,
+                    int topVal, int bottomVal, int leftVal, int rightVal, int frontVal, int backVal);
 
     void drawFocus(Block block, f32 x, f32 y, f32 z);
 };
