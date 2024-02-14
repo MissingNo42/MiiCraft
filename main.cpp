@@ -21,6 +21,7 @@
 #include "src/world/game.h"
 #include "engine/render/bloc.h"
 #include "src/system/saveManager.h"
+#include "player.h"
 
 
 int exiting = 0;
@@ -221,26 +222,6 @@ void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
         }
     }
 }
-Block getFocusedBlock(World& w, Renderer& renderer){
-    BlockType type = BlockType::Air;
-    t_coord pos = t_coord(0,0,0);
-    f32 distance = 0,
-    x = renderer.camera.pos.x + 1,
-    y = renderer.camera.pos.y + 1,
-    z = renderer.camera.pos.z + 1;
-    while(type == BlockType::Air && distance <= 5){
-        x += renderer.camera.look.x/20;
-        y += renderer.camera.look.y/20;
-        z += renderer.camera.look.z/20;
-        distance += 0.05;
-        pos = t_coord((int)floor(x), (int)floor(y), (int)floor(z));
-        type = w.getBlockAt(pos).type;
-    }
-    //printf("pos : %d %d %d\r", pos.x, pos.y, pos.z);
-    if(type != BlockType::Air)
-        renderer.drawFocus(w.getBlockAt(pos), (f32) pos.x, (f32)pos.y, (f32)pos.z);
-    return w.getBlockAt(pos);
-}
 
 int main(int, char **) {
 	PAD_Init();
@@ -249,12 +230,12 @@ int main(int, char **) {
 	Renderer::setupVideo();
 	Renderer::setupVtxDesc3D();
 	Renderer::setupMisc();
-	
 
 	//Light light;
 	//GX_InvalidateTexAll();
-	Renderer renderer;
-	
+    Player player(8, 40, 8);
+
+
 	TPL_OpenTPLFromMemory(&TPLfile, (void *)texture_data, texture_sz);
 	TPL_GetTexture(&TPLfile, 0, &texture);
     GX_InitTexObjLOD(&texture, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
@@ -277,6 +258,9 @@ int main(int, char **) {
     //pour rediriger stdout dans dolphin
     SYS_STDIO_Report(true);
 
+    Wiimote wiimote;
+
+
     t_coord pos(0,0,0);
     World& w = Game::getInstance()->getWorld();
     renderer.camera.pos.y = 40;
@@ -287,6 +271,10 @@ int main(int, char **) {
 //    f32 Gravity = 0.0;
 
     while (!exiting) {
+
+        pos.x = player.renderer.camera.pos.x - 1;
+        pos.y = player.renderer.camera.pos.y;
+        pos.z = player.renderer.camera.pos.z;
 //        if (Gravity < 0.49)
 //            Gravity += 0.01;
 
@@ -328,7 +316,11 @@ int main(int, char **) {
 
 		renderer.camera.update(false);
 
+        renderWorld(w, player.renderer, w.to_chunk_pos(pos));
 
+        wiimote.update(player, w);
+
+        player.renderer.camera.update(false);
         renderWorld(w, renderer, w.to_chunk_pos(pos));
         Block b = getFocusedBlock(w, renderer);
         //printf("Type de block visé : %s\r", b.toString().c_str());
@@ -336,10 +328,7 @@ int main(int, char **) {
 
 		//renderer.renderBloc({4, 0, 0}, 1);
 		//renderer.renderBloc({7, -1, 0}, 1);
-		
-		
-		
-		
+
 		//Renderer::setupVtxDesc2D();
 		//
 		//Mtx GXmodelView2D, perspective;
