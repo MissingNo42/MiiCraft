@@ -283,12 +283,12 @@ int main(int, char **) {
     renderer.camera.pos.x = 0;
     renderer.camera.pos.z = 0;
 
-    f32 Velocity = 0.0;
-    f32 Gravity = 0.0;
+//    f32 Velocity = 0.0;
+//    f32 Gravity = 0.0;
 
     while (!exiting) {
-        if (Gravity < 0.49)
-            Gravity += 0.01;
+//        if (Gravity < 0.49)
+//            Gravity += 0.01;
 
 
 
@@ -298,20 +298,20 @@ int main(int, char **) {
         pos.z = renderer.camera.pos.z;
 
 
-            //printf("%f %f %f\r",renderer.camera.pos.x, renderer.camera.pos.y, renderer.camera.pos.z);
-            printf("%f %f\r",Velocity, Gravity);
-
-
-        if (w.getBlockAt({(int)floor(renderer.camera.pos.x), (int)floor(renderer.camera.pos.y - Gravity), (int)floor(renderer.camera.pos.z)}).type == BlockType::Air) {
-            renderer.camera.pos.y -= Velocity;
-            Velocity += (abs(Velocity + Gravity) >= 0.5) ? 0 : Gravity;
-        }
-        else{
-            Velocity = 0;
-        }
-        if (Velocity == 0){
-            Gravity = -0.1;
-        }
+//            //printf("%f %f %f\r",renderer.camera.pos.x, renderer.camera.pos.y, renderer.camera.pos.z);
+//            printf("%f %f\r",Velocity, Gravity);
+//
+//
+//        if (w.getBlockAt({(int)floor(renderer.camera.pos.x), (int)floor(renderer.camera.pos.y - Gravity), (int)floor(renderer.camera.pos.z)}).type == BlockType::Air) {
+//            renderer.camera.pos.y -= Velocity;
+//            Velocity += (abs(Velocity + Gravity) >= 0.5) ? 0 : Gravity;
+//        }
+//        else{
+//            Velocity = 0;
+//        }
+//        if (Velocity == 0){
+//            Gravity = -0.1;
+//        }
 
 
 
