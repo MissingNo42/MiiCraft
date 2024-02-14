@@ -3,12 +3,16 @@
 //
 #define deadzone 20
 #define deadzoneTop 80
+
+void getFocusedFace();
+
 #include <cmath>
+#include <algorithm>
 #include "player.h"
 
-Player::Player() : speed(1), focusedBlockPos(0,0,0), targetable(false){}
+Player::Player() : speed(1), focusedBlockPos(0,0,0), previousFocusedBlockPos(0,0,0), targetable(false){}
 
-Player::Player(f32 x, f32 y, f32 z) : speed(1), focusedBlockPos(0,0,0), targetable(false) {
+Player::Player(f32 x, f32 y, f32 z) : speed(1), focusedBlockPos(0,0,0), previousFocusedBlockPos(0,0,0), targetable(false) {
     renderer.camera.pos.x = x;
     renderer.camera.pos.y = y;
     renderer.camera.pos.z = z;
@@ -32,6 +36,7 @@ void Player::getFocusedBlock(World &w) {
     if(type != BlockType::Air) {
         renderer.drawFocus(w.getBlockAt(pos), (f32) pos.x, (f32) pos.y, (f32) pos.z);
         targetable = true;
+        previousFocusedBlockPos = focusedBlockPos;
         focusedBlockPos = pos;
         return;
     }
@@ -183,35 +188,138 @@ void Player::handleRotation(WPADData * wd) {
 }
 
 
-void Player::DestroyBlock(t_coord coord, World& w){
-    w.setBlockAt(coord, BlockType::Air);
+void Player::destroyBlock(World& w){
+    if(!focusedBlockPos.equals(previousFocusedBlockPos))
+        breakingState = 0;
+    if (breakingState < 10) {
+        breakingState++;
+        renderer.renderBloc(coordToGuVector(focusedBlockPos), 1, true, true, true, true, true, true);
+    }
+    else if (breakingState < 20) {
+        breakingState++;
+        renderer.renderBloc(coordToGuVector(focusedBlockPos), 2, true, true, true, true, true, true);
+    }
+    else if (breakingState < 30) {
+        breakingState++;
+        renderer.renderBloc(coordToGuVector(focusedBlockPos), 3, true, true, true, true, true, true);
+    }
+    else if (breakingState < 40) {
+        breakingState++;
+        renderer.renderBloc(coordToGuVector(focusedBlockPos), 5, true, true, true, true, true, true);
+    }
+    else{
+        w.setBlockAt(focusedBlockPos, BlockType::Air);
+        breakingState = 0;
+    }
+}
+
+void Player::placeBlock(World& w) const{
+    BlockType type = BlockType::Air;
+    t_coord pos = t_coord(0,0,0);
+    f32 distance = 0,
+            x = renderer.camera.pos.x + 1,
+            y = renderer.camera.pos.y + 1,
+            z = renderer.camera.pos.z + 1;
+    while(type == BlockType::Air && distance <= 5){
+        x += renderer.camera.look.x/20;
+        y += renderer.camera.look.y/20;
+        z += renderer.camera.look.z/20;
+        distance += 0.05;
+        pos = t_coord((int)floor(x), (int)floor(y), (int)floor(z));
+        type = w.getBlockAt(pos).type;
+    }
+    if(type != BlockType::Air) {
+        int p = getFocusedFace(w);
+        printf("Focused face :%d", p);
+        switch (p) {
+            case 0:
+                pos.x--;
+                w.setBlockAt(pos, BlockType::Bedrock);
+                break;
+            case 1:
+                pos.x++;
+                w.setBlockAt(pos, BlockType::Bedrock);
+                break;
+            case 2:
+                pos.y--;
+                w.setBlockAt(pos, BlockType::Bedrock);
+                break;
+            case 3:
+                pos.y++;
+                w.setBlockAt(pos, BlockType::Bedrock);
+                break;
+            case 4:
+                pos.z--;
+                w.setBlockAt(pos, BlockType::Bedrock);
+                break;
+            case 5:
+                pos.z++;
+                w.setBlockAt(pos, BlockType::Bedrock);
+                break;
+        }
+    }
+}
+
+int Player::getFocusedFace(World& w) const {
+    BlockType type = BlockType::Air;
+    t_coord pos = t_coord(0,0,0);
+    f32 distance = 0,
+            x = renderer.camera.pos.x + 1,
+            y = renderer.camera.pos.y + 1,
+            z = renderer.camera.pos.z + 1;
+    while(type == BlockType::Air && distance <= 5){
+        x += renderer.camera.look.x/20;
+        y += renderer.camera.look.y/20;
+        z += renderer.camera.look.z/20;
+        distance += 0.05;
+        pos = t_coord((int)floor(x), (int)floor(y), (int)floor(z));
+        type = w.getBlockAt(pos).type;
+    }
+
+    if(type != BlockType::Air) {
+
+        f32 deltaX = (f32) std::fabs((x- round(x)));
+        f32 deltaY = (f32) std::fabs((y- round(y)));
+        f32 deltaZ = (f32) std::fabs((z- round(z)));
+        printf("deltaX: %lf, deltaY: %lf, deltaZ: %lf\r", deltaX, deltaY, deltaZ);
+        std::vector<f32> f = {deltaX, deltaY,deltaZ};
+        auto min = std::min_element(std::begin(f), std::end(f));
+        if (*min == f[0]) {
+            printf("cam.x: %lf, block.x: %lf\r", renderer.camera.pos.x + 1, x);
+            if (renderer.camera.pos.x + 1 <= round(x)) {
+                return 0;
+            } else {
+                return 1;
+            }
+        }
+        else if(*min == f[1]){
+            printf("cam.y: %lf, block.y: %lf\r", renderer.camera.pos.y + 1, y);
+            if (renderer.camera.pos.y + 1 <= round(y)) {
+                return 2;
+            } else {
+                return 3;
+            }
+        }
+        else{
+            printf("cam.z: %lf, block.z: %lf\r", renderer.camera.pos.z + 1, z);
+            if (renderer.camera.pos.z + 1 <= round(z)) {
+                return 4;
+            } else {
+                return 5;
+            }
+        }
+    }
+    return -1;
 }
 
 void Player::handleAction(World &w, u16 actions) {
     if (actions & WPAD_BUTTON_MINUS && targetable) {
-        if (breakingState < 10) {
-            breakingState++;
-            renderer.renderBloc(coordToGuVector(focusedBlockPos), 1, true, true, true, true, true, true);
-        }
-        else if (breakingState < 20) {
-            breakingState++;
-            renderer.renderBloc(coordToGuVector(focusedBlockPos), 2, true, true, true, true, true, true);
-        }
-        else if (breakingState < 30) {
-            breakingState++;
-            renderer.renderBloc(coordToGuVector(focusedBlockPos), 3, true, true, true, true, true, true);
-        }
-        else if (breakingState < 40) {
-            breakingState++;
-            renderer.renderBloc(coordToGuVector(focusedBlockPos), 5, true, true, true, true, true, true);
-        }
-        else{
-            DestroyBlock(focusedBlockPos, w);
-            breakingState = 0;
-        }
+        destroyBlock(w);
     }
     else
         breakingState = 0;
+    if(actions & WPAD_BUTTON_1 && targetable)
+        placeBlock(w);
 }
 
 t_coord Player::guVectorToCoord(guVector v) {

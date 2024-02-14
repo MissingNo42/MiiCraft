@@ -246,14 +246,10 @@ int main(int, char **) {
 	//GX_InitTexObjFilterMode(&texture, GX_NEAR, GX_NEAR);
 	//GX_SetTevIndTile()
 
-	Wiimote wiimote;
 
 	SYS_SetResetCallback(reload);
 	SYS_SetPowerCallback(shutdown);
 	//SYS_STDIO_Report(true);
-    renderer.camera.pos.z = 5;
-    renderer.camera.pos.x = -0.5;
-    renderer.camera.pos.y = 0.5;
 
     //pour rediriger stdout dans dolphin
     SYS_STDIO_Report(true);
@@ -263,29 +259,17 @@ int main(int, char **) {
 
     t_coord pos(0,0,0);
     World& w = Game::getInstance()->getWorld();
-    renderer.camera.pos.y = 40;
-    renderer.camera.pos.x = 0;
-    renderer.camera.pos.z = 0;
 
 //    f32 Velocity = 0.0;
 //    f32 Gravity = 0.0;
 
     while (!exiting) {
 
-        pos.x = player.renderer.camera.pos.x - 1;
+        pos.x = player.renderer.camera.pos.x;
         pos.y = player.renderer.camera.pos.y;
         pos.z = player.renderer.camera.pos.z;
 //        if (Gravity < 0.49)
 //            Gravity += 0.01;
-
-
-
-
-        pos.x = renderer.camera.pos.x;
-        pos.y = renderer.camera.pos.y;
-        pos.z = renderer.camera.pos.z;
-
-
 //            //printf("%f %f %f\r",renderer.camera.pos.x, renderer.camera.pos.y, renderer.camera.pos.z);
 //            printf("%f %f\r",Velocity, Gravity);
 //
@@ -301,10 +285,6 @@ int main(int, char **) {
 //            Gravity = -0.1;
 //        }
 
-
-
-
-
         //printf("pos : %d %d %d\r", pos.x & 15, pos.y &15, pos.z &15);
         Game::getInstance()->requestChunk(w.to_chunk_pos(pos));
         //printf("%d %d\r", w.to_chunk_pos(pos).x, w.to_chunk_pos(pos).y);
@@ -312,17 +292,12 @@ int main(int, char **) {
 		//renderer.camera.rotateV(-0.10);
 		//renderer.camera.rotateH(0.50);
 		//camera.rotateH(1);
-        wiimote.update(renderer, w);
-
-		renderer.camera.update(false);
 
         renderWorld(w, player.renderer, w.to_chunk_pos(pos));
 
         wiimote.update(player, w);
 
         player.renderer.camera.update(false);
-        renderWorld(w, renderer, w.to_chunk_pos(pos));
-        Block b = getFocusedBlock(w, renderer);
         //printf("Type de block visé : %s\r", b.toString().c_str());
 
 
