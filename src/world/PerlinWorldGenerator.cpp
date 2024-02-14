@@ -195,7 +195,12 @@ void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
                 if(i == 0 && j == 0){
                     continue;
                 }
-                vc->VC_SetBlock({pos.x + i, pos.y + height + h, pos.z + j}, BlockType::Leaves);
+                if ((i == 2 || i == -2) && ( j == 2 || j == -2)) {
+                    if (rand() %2)
+                        vc->VC_SetBlock({pos.x + i, pos.y + height + h, pos.z + j}, BlockType::Leaves);
+                }
+                else
+                    vc->VC_SetBlock({pos.x + i, pos.y + height + h, pos.z + j}, BlockType::Leaves);
             }
         }
     }
@@ -204,7 +209,12 @@ void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
             if(i == 0 && j == 0){
                 continue;
             }
-            vc->VC_SetBlock({pos.x + i, pos.y + 2 + height, pos.z + j}, BlockType::Leaves);
+            if ((i == 1 || i == -1) && ( j == 1 || j == -1)) {
+                if (rand() %2)
+                    vc->VC_SetBlock({pos.x + i, pos.y + 2 + height, pos.z + j}, BlockType::Leaves);
+            }
+            else
+                vc->VC_SetBlock({pos.x + i, pos.y + 2 + height, pos.z + j}, BlockType::Leaves);
         }
     }
 
@@ -213,6 +223,7 @@ void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
     vc->VC_SetBlock({pos.x, pos.y + 3 + height, pos.z+1}, BlockType::Leaves);
     vc->VC_SetBlock({pos.x, pos.y + 3 + height, pos.z-1}, BlockType::Leaves);
     vc->VC_SetBlock({pos.x, pos.y + 3 + height, pos.z}, BlockType::Leaves);
+
 }
 
 BiomeType PerlinWorldGenerator::guessBiome(float ero, float temp, float hum, float cont) {
