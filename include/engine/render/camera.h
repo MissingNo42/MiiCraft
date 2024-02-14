@@ -48,19 +48,6 @@ public:
 	
 	void rotateV(f32 rad);
 
-    static guVector InverseVector(const guVector& v);
-
-    void goLeft(guVector& normalizedLook, int speed, bool collision, World& w);
-
-    void goRight(guVector& normalizedLook, int speed, bool collision, World& w);
-
-    void goForward(guVector& normalizedLook, int speed, bool collision, World& w);
-
-    void goBackward(guVector& normalizedLook, int speed, bool collision, World& w);
-
-    void goUp(int speed, bool collision, World& w);
-
-    void goDown(int speed, bool collision, World& w);
 };
 
 

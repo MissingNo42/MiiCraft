@@ -19,10 +19,16 @@ World::~World() {
 
 t_pos2D World::to_chunk_pos(t_coord& c)
 {
-    if (c.x < 0) {c.x-= VerticalChunk::CHUNK_WIDTH;}
-    if (c.z < 0) {c.z-= VerticalChunk::CHUNK_WIDTH;}
-    return t_pos2D(c.x / VerticalChunk::CHUNK_WIDTH,
-                   c.z / VerticalChunk::CHUNK_WIDTH);
+    t_pos2D res;
+    if (c.x < 0)
+        res.x = -( - (c.x - VerticalChunk::CHUNK_WIDTH +1) / VerticalChunk::CHUNK_WIDTH);
+    else
+        res.x = c.x / VerticalChunk::CHUNK_WIDTH;
+    if (c.z < 0)
+        res.y = -( - (c.z - VerticalChunk::CHUNK_WIDTH +1) / VerticalChunk::CHUNK_WIDTH);
+    else
+        res.y = c.z / VerticalChunk::CHUNK_WIDTH;
+    return res;
 }
 
 Block World::getBlockAt(t_coord coord)  {
@@ -31,7 +37,6 @@ Block World::getBlockAt(t_coord coord)  {
         return {BlockType::Air};
     }
     return loadedChunk[chunk_pos]->VC_GetBlock(coord);
-
 }
 
 void World::setBlockAt(t_coord coord, BlockType block) {
