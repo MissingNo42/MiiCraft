@@ -253,11 +253,12 @@ int main(int, char **) {
     //pour rediriger stdout dans dolphin
     SYS_STDIO_Report(true);
 
+    Wiimote wiimote;
+
 
     t_coord pos(0,0,0);
     World& w = Game::getInstance()->getWorld();
-    t_coord coordBlock(0,0,0);
-    bool targetable = false;
+
     while (!exiting) {
 
         pos.x = player.renderer.camera.pos.x - 1;
@@ -271,16 +272,10 @@ int main(int, char **) {
 
         renderWorld(w, player.renderer, w.to_chunk_pos(pos));
 
-        try{
-            coordBlock = player.getFocusedBlock(w);
-            targetable = true;
-        }
-        catch(std::invalid_argument& ex){
-            targetable = false;
-        }
 
-        if(!player.handleInput(w, coordBlock,wiimote, targetable))
+        if(!wiimote.update(player, w))
             exit(1);
+        player.getFocusedBlock(w);
 
         player.renderer.camera.update(false);
 

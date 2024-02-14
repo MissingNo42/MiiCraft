@@ -6,9 +6,15 @@
 #include <cmath>
 #include "player.h"
 
-Player::Player() {}
+Player::Player() : speed(1), focusedBlockPos(0,0,0), targetable(false){}
 
-t_coord Player::getFocusedBlock(World &w) {
+Player::Player(f32 x, f32 y, f32 z) : speed(1), focusedBlockPos(0,0,0), targetable(false) {
+    renderer.camera.pos.x = x;
+    renderer.camera.pos.y = y;
+    renderer.camera.pos.z = z;
+}
+
+void Player::getFocusedBlock(World &w) {
     BlockType type = BlockType::Air;
     t_coord pos = t_coord(0,0,0);
     f32 distance = 0,
@@ -25,9 +31,10 @@ t_coord Player::getFocusedBlock(World &w) {
     }
     if(type != BlockType::Air) {
         renderer.drawFocus(w.getBlockAt(pos), (f32) pos.x, (f32) pos.y, (f32) pos.z);
-        return pos;
+        targetable = true;
+        focusedBlockPos = pos;
     }
-    throw std::invalid_argument("No blocks are targeted");
+    targetable = false;
 }
 
 guVector Player::InverseVector(const guVector& v){
@@ -127,70 +134,53 @@ void Player::setPos(f32 x, f32 y, f32 z) {
     renderer.camera.pos.z = z;
 }
 
-Player::Player(f32 x, f32 y, f32 z) : speed(1) {
-    renderer.camera.pos.x = x;
-    renderer.camera.pos.y = y;
-    renderer.camera.pos.z = z;
-}
-
-void Player::handleMovement(World& w, t_coord focusedBlockPos, bool targetable,  Wiimote& wiimote, bool collision ) {
+void Player::handleMovement(World& w, u16 directions, bool collision) {
     guVector normalizedLook = renderer.camera.look;
     guVecNormalize(&normalizedLook);
     t_coord coord((int)renderer.camera.pos.x+1, (int)renderer.camera.pos.y, (int)renderer.camera.pos.z+1);
     speed = 1;
 
-    if ( wiimote.directions & WPAD_BUTTON_PLUS)
+    if (directions & WPAD_BUTTON_PLUS)
         speed = 3;
-    if ( wiimote.directions & WPAD_BUTTON_MINUS && targetable)
+    if (directions & WPAD_BUTTON_MINUS && targetable)
         DestroyBlock(focusedBlockPos, w);
-    if ( wiimote.directions & WPAD_BUTTON_LEFT )
+    if (directions & WPAD_BUTTON_LEFT )
         goLeft(normalizedLook, speed, collision, w);
-    if ( wiimote.directions & WPAD_BUTTON_RIGHT )
+    if (directions & WPAD_BUTTON_RIGHT )
         goRight(normalizedLook, speed, collision, w);
-    if ( wiimote.directions & WPAD_BUTTON_UP )
+    if (directions & WPAD_BUTTON_UP )
         goForward(normalizedLook, speed, collision, w);
-    if ( wiimote.directions & WPAD_BUTTON_DOWN )
+    if (directions & WPAD_BUTTON_DOWN )
         goBackward(normalizedLook, speed, collision, w);
-    if ( wiimote.directions & WPAD_BUTTON_A )
+    if (directions & WPAD_BUTTON_A )
         goUp(coord, collision, w);
-    if ( wiimote.directions & WPAD_BUTTON_B)
+    if (directions & WPAD_BUTTON_B)
         goDown(coord, collision, w);
-    wiimote.directions = 0;
 }
 
-void Player::handleRotation(Wiimote& wiimote) {
-    if (wiimote.wd->ir.valid) {
-        if(wiimote.wd->ir.x <  (f32) Renderer::rmode->fbWidth/2 - deadzone)
+void Player::handleRotation(WPADData * wd) {
+    if (wd->ir.valid) {
+        if(wd->ir.x <  (f32) Renderer::rmode->fbWidth/2 - deadzone)
         {
-            f32 angle = wiimote.wd->ir.x / (f32) ((f32) Renderer::rmode->fbWidth/2 - deadzone) * 6;
+            f32 angle = wd->ir.x / (f32) ((f32) Renderer::rmode->fbWidth/2 - deadzone) * 6;
             renderer.camera.rotateH( M_PI /(2 + angle));
         }
-        if(wiimote.wd->ir.x >  (f32) Renderer::rmode->fbWidth/2 + deadzone)
+        if(wd->ir.x >  (f32) Renderer::rmode->fbWidth/2 + deadzone)
         {
-            f32 angle = (wiimote.wd->ir.x - (f32) Renderer::rmode->fbWidth/2 + deadzone) / (f32) ((f32) Renderer::rmode->fbWidth/2 - deadzone) * 6;
+            f32 angle = (wd->ir.x - (f32) Renderer::rmode->fbWidth/2 + deadzone) / (f32) ((f32) Renderer::rmode->fbWidth/2 - deadzone) * 6;
             renderer.camera.rotateH( - (f32) M_PI /(8 - angle));
         }
-        if(wiimote.wd->ir.y <  (f32) Renderer::rmode->xfbHeight/2 - deadzoneTop)
+        if(wd->ir.y <  (f32) Renderer::rmode->xfbHeight/2 - deadzoneTop)
         {
-            f32 angle = wiimote.wd->ir.y / (f32) ((f32) Renderer::rmode->xfbHeight/2 - deadzoneTop) * 6;
+            f32 angle = wd->ir.y / (f32) ((f32) Renderer::rmode->xfbHeight/2 - deadzoneTop) * 6;
             renderer.camera.rotateV( - (f32) M_PI /(2 +angle));
         }
-        if(wiimote.wd->ir.y >  (f32) Renderer::rmode->xfbHeight/2 + deadzone)
+        if(wd->ir.y >  (f32) Renderer::rmode->xfbHeight/2 + deadzone)
         {
-            f32 angle = (wiimote.wd->ir.y - (f32) Renderer::rmode->xfbHeight/2 + deadzone) / ((f32) Renderer::rmode->xfbHeight/2 - deadzone) * 6;
+            f32 angle = (wd->ir.y - (f32) Renderer::rmode->xfbHeight/2 + deadzone) / ((f32) Renderer::rmode->xfbHeight/2 - deadzone) * 6;
             renderer.camera.rotateV( M_PI /(8 - angle));
         }
     }
-    wiimote.wd = nullptr;
-}
-
-bool Player::handleInput(World& w, t_coord focusedBlockPos, Wiimote& wiimote, bool targetable){
-    if(wiimote.update()){
-        handleMovement(w, focusedBlockPos, targetable, wiimote);
-        handleRotation(wiimote);
-        return true;
-    }
-    return false;
 }
 
 

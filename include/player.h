@@ -7,25 +7,25 @@
 
 
 #include "render/renderer.h"
-#include "wiimote.h"
+#include <wiiuse/wpad.h>
 
 class Player {
 private:
     int speed;
 public:
     Renderer renderer;
+    t_coord focusedBlockPos;
+    bool targetable;
     Player(f32 x, f32 y, f32 z);
     Player();
 
-    t_coord getFocusedBlock(World& w);
+    void getFocusedBlock(World& w);
 
     static guVector InverseVector(const guVector& v);
 
-    void handleRotation(Wiimote&);
+    void handleRotation(WPADData *);
 
-    void handleMovement(World& w, t_coord focusedBlockPos, bool targetable,  Wiimote&, bool collision = true );
-
-    bool handleInput(World& w, t_coord focusedBlockPos, Wiimote&, bool targetable);
+    void handleMovement(World& w, u16 directions, bool collision = true);
 
     void goLeft(guVector& normalizedLook, int speed, bool collision, World& w);
 

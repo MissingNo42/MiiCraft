@@ -20,9 +20,7 @@ private:
 
 public:
     Wiimote();
-    bool update(Player player);
-
-    u16 directions;
+    bool update(Player& player, World& w);
 };
 
 

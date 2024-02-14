@@ -7,14 +7,14 @@
 #include "wiimote.h"
 
 
-bool Wiimote::update(Player player) {
+bool Wiimote::update(Player& player, World& w) {
 
     WPAD_ScanPads();
     int wiimote_connection_status = WPAD_Probe(chan, &type);
 
     if (wiimote_connection_status == WPAD_ERR_NONE) {
         WPADData * wd = WPAD_Data(chan);
-        player.handleMovement()
+        player.handleRotation(wd);
     }
     else
         return false;
@@ -23,7 +23,8 @@ bool Wiimote::update(Player player) {
 
     WPAD_Expansion(chan, &data);
 
-    directions = WPAD_ButtonsHeld(chan);
+    u16 directions = WPAD_ButtonsHeld(chan);
+    player.handleMovement(w, directions);
     return true;
 }
 
