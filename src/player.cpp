@@ -31,6 +31,7 @@ void Player::getFocusedBlock(World &w) {
     }
     if(type != BlockType::Air) {
         renderer.drawFocus(w.getBlockAt(pos), (f32) pos.x, (f32) pos.y, (f32) pos.z);
+        printf("Block coord : %d %d %d\r", pos.x, pos.y, pos.z);
         targetable = true;
         focusedBlockPos = pos;
         return;
@@ -111,9 +112,11 @@ void Player::goBackward(guVector& normalizedLook, bool collision, World& w) {
 
 void Player::goUp(t_coord coord, bool collision, World &w) {
     if ( collision ){
-        coord.y += 1;
+        coord.y += 2;
         if (w.getBlockAt(coord).type == BlockType::Air)
             renderer.camera.pos.y += 0.1;
+        else
+            renderer.camera.pos.y = coord.y -1.1;
     }
     else
         renderer.camera.pos.y += 0.1;
@@ -124,6 +127,8 @@ void Player::goDown(t_coord coord, bool collision, World &w) {
         coord.y -= 1;
         if (w.getBlockAt(coord).type == BlockType::Air)
             renderer.camera.pos.y -= 0.1;
+        else
+            renderer.camera.pos.y = (f32) floor (coord.y )+ 1.8;
     }
     else
         renderer.camera.pos.y -= 0.1;

@@ -275,7 +275,7 @@ int main(int, char **) {
 
 
 
-//            //printf("%f %f %f\r",renderer.camera.pos.x, renderer.camera.pos.y, renderer.camera.pos.z);
+        printf("%f %f %f\r",player.renderer.camera.pos.x, player.renderer.camera.pos.y, player.renderer.camera.pos.z);
 //            printf("%f %f\r",Velocity, Gravity);
 //
 //
