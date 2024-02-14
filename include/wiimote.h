@@ -20,7 +20,7 @@ private:
 
 public:
     Wiimote();
-    bool update(Player& player, World& w);
+    void update(Player& player, World& w);
 };
 
 

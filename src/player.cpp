@@ -33,6 +33,7 @@ void Player::getFocusedBlock(World &w) {
         renderer.drawFocus(w.getBlockAt(pos), (f32) pos.x, (f32) pos.y, (f32) pos.z);
         targetable = true;
         focusedBlockPos = pos;
+        return;
     }
     targetable = false;
 }
@@ -46,7 +47,7 @@ guVector Player::InverseVector(const guVector& v){
     return vtemp;
 }
 
-void Player::goLeft(guVector& normalizedLook, int speed, bool collision, World& w) {
+void Player::goLeft(guVector& normalizedLook, bool collision, World& w) {
     guVector move = {0,0,0};
     guVecCross(&normalizedLook, &renderer.camera.up, &move);
     move = InverseVector(move);
@@ -63,7 +64,7 @@ void Player::goLeft(guVector& normalizedLook, int speed, bool collision, World& 
     }
 }
 
-void Player::goRight(guVector& normalizedLook, int speed, bool collision, World& w) {
+void Player::goRight(guVector& normalizedLook, bool collision, World& w) {
     guVector move = {0,0,0};
     guVecCross(&normalizedLook, &renderer.camera.up, &move);
     if (collision) {
@@ -79,7 +80,7 @@ void Player::goRight(guVector& normalizedLook, int speed, bool collision, World&
     }
 }
 
-void Player::goForward(guVector& normalizedLook, int speed, bool collision, World& w) {
+void Player::goForward(guVector& normalizedLook, bool collision, World& w) {
     if (collision) {
         if (w.getBlockAt({(int)ceil(renderer.camera.pos.x + renderer.camera.look.x), (int) renderer.camera.pos.y, (int)ceil(renderer.camera.pos.z+renderer.camera.look.z)}).type == BlockType::Air
             && w.getBlockAt({(int)ceil(renderer.camera.pos.x + renderer.camera.look.x), (int) renderer.camera.pos.y+1, (int)ceil(renderer.camera.pos.z+renderer.camera.look.z)}).type == BlockType::Air){
@@ -93,7 +94,7 @@ void Player::goForward(guVector& normalizedLook, int speed, bool collision, Worl
     }
 }
 
-void Player::goBackward(guVector& normalizedLook, int speed, bool collision, World& w) {
+void Player::goBackward(guVector& normalizedLook, bool collision, World& w) {
     guVector move = InverseVector(normalizedLook);
     if (collision) {
         if (w.getBlockAt({(int)ceil(renderer.camera.pos.x+1 + move.x), (int) renderer.camera.pos.y, (int) ceil(renderer.camera.pos.z+move.z)}).type == BlockType::Air
@@ -142,16 +143,14 @@ void Player::handleMovement(World& w, u16 directions, bool collision) {
 
     if (directions & WPAD_BUTTON_PLUS)
         speed = 3;
-    if (directions & WPAD_BUTTON_MINUS && targetable)
-        DestroyBlock(focusedBlockPos, w);
     if (directions & WPAD_BUTTON_LEFT )
-        goLeft(normalizedLook, speed, collision, w);
+        goLeft(normalizedLook, collision, w);
     if (directions & WPAD_BUTTON_RIGHT )
-        goRight(normalizedLook, speed, collision, w);
+        goRight(normalizedLook, collision, w);
     if (directions & WPAD_BUTTON_UP )
-        goForward(normalizedLook, speed, collision, w);
+        goForward(normalizedLook, collision, w);
     if (directions & WPAD_BUTTON_DOWN )
-        goBackward(normalizedLook, speed, collision, w);
+        goBackward(normalizedLook, collision, w);
     if (directions & WPAD_BUTTON_A )
         goUp(coord, collision, w);
     if (directions & WPAD_BUTTON_B)
@@ -186,6 +185,43 @@ void Player::handleRotation(WPADData * wd) {
 
 void Player::DestroyBlock(t_coord coord, World& w){
     w.setBlockAt(coord, BlockType::Air);
+}
+
+void Player::handleAction(World &w, u16 actions) {
+    if (actions & WPAD_BUTTON_MINUS && targetable) {
+        if (breakingState < 10) {
+            breakingState++;
+            renderer.renderBloc(coordToGuVector(focusedBlockPos), 1, true, true, true, true, true, true);
+        }
+        else if (breakingState < 20) {
+            breakingState++;
+            renderer.renderBloc(coordToGuVector(focusedBlockPos), 2, true, true, true, true, true, true);
+        }
+        else if (breakingState < 30) {
+            breakingState++;
+            renderer.renderBloc(coordToGuVector(focusedBlockPos), 3, true, true, true, true, true, true);
+        }
+        else if (breakingState < 40) {
+            breakingState++;
+            renderer.renderBloc(coordToGuVector(focusedBlockPos), 5, true, true, true, true, true, true);
+        }
+        else{
+            DestroyBlock(focusedBlockPos, w);
+            breakingState = 0;
+        }
+    }
+    else
+        breakingState = 0;
+}
+
+t_coord Player::guVectorToCoord(guVector v) {
+    t_coord coord = t_coord((int)v.x, (int)v.y, (int)v.z);
+    return coord;
+}
+
+guVector Player::coordToGuVector(t_coord coord) {
+    auto v = guVector((f32)coord.x, (f32)coord.y, (f32)coord.z);
+    return v;
 }
 
 

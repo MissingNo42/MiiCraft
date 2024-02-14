@@ -12,6 +12,7 @@
 class Player {
 private:
     int speed;
+    int breakingState;
 public:
     Renderer renderer;
     t_coord focusedBlockPos;
@@ -23,17 +24,23 @@ public:
 
     static guVector InverseVector(const guVector& v);
 
+    static guVector coordToGuVector(t_coord coord);
+
+    static t_coord guVectorToCoord(guVector v);
+
     void handleRotation(WPADData *);
 
     void handleMovement(World& w, u16 directions, bool collision = true);
 
-    void goLeft(guVector& normalizedLook, int speed, bool collision, World& w);
+    void handleAction(World& w, u16 actions);
 
-    void goRight(guVector& normalizedLook, int speed, bool collision, World& w);
+    void goLeft(guVector& normalizedLook, bool collision, World& w);
 
-    void goForward(guVector& normalizedLook, int speed, bool collision, World& w);
+    void goRight(guVector& normalizedLook, bool collision, World& w);
 
-    void goBackward(guVector& normalizedLook, int speed, bool collision, World& w);
+    void goForward(guVector& normalizedLook, bool collision, World& w);
+
+    void goBackward(guVector& normalizedLook, bool collision, World& w);
 
     void goUp(t_coord coord, bool collision, World& w);
 

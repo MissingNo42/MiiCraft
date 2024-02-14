@@ -272,10 +272,7 @@ int main(int, char **) {
 
         renderWorld(w, player.renderer, w.to_chunk_pos(pos));
 
-
-        if(!wiimote.update(player, w))
-            exit(1);
-        player.getFocusedBlock(w);
+        wiimote.update(player, w);
 
         player.renderer.camera.update(false);
 
