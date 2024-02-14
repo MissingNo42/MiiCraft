@@ -283,14 +283,43 @@ int main(int, char **) {
     renderer.camera.pos.x = 0;
     renderer.camera.pos.z = 0;
 
+    f32 Velocity = 0.0;
+    f32 Gravity = 0.0;
 
     while (!exiting) {
+        if (Gravity < 0.49)
+            Gravity += 0.01;
+
+
+
+
         pos.x = renderer.camera.pos.x;
         pos.y = renderer.camera.pos.y;
         pos.z = renderer.camera.pos.z;
-        printf("pos : %d %d %d\r", pos.x & 15, pos.y &15, pos.z &15);
+
+
+            //printf("%f %f %f\r",renderer.camera.pos.x, renderer.camera.pos.y, renderer.camera.pos.z);
+            printf("%f %f\r",Velocity, Gravity);
+
+
+        if (w.getBlockAt({(int)floor(renderer.camera.pos.x), (int)floor(renderer.camera.pos.y - Gravity), (int)floor(renderer.camera.pos.z)}).type == BlockType::Air) {
+            renderer.camera.pos.y -= Velocity;
+            Velocity += (abs(Velocity + Gravity) >= 0.5) ? 0 : Gravity;
+        }
+        else{
+            Velocity = 0;
+        }
+        if (Velocity == 0){
+            Gravity = -0.1;
+        }
+
+
+
+
+
+        //printf("pos : %d %d %d\r", pos.x & 15, pos.y &15, pos.z &15);
         Game::getInstance()->requestChunk(w.to_chunk_pos(pos));
-        printf("%d %d\r", w.to_chunk_pos(pos).x, w.to_chunk_pos(pos).y);
+        //printf("%d %d\r", w.to_chunk_pos(pos).x, w.to_chunk_pos(pos).y);
 
 		//renderer.camera.rotateV(-0.10);
 		//renderer.camera.rotateH(0.50);
@@ -302,7 +331,7 @@ int main(int, char **) {
 
         renderWorld(w, renderer, w.to_chunk_pos(pos));
         Block b = getFocusedBlock(w, renderer);
-        printf("Type de block visé : %s\r", b.toString().c_str());
+        //printf("Type de block visé : %s\r", b.toString().c_str());
 
 
 		//renderer.renderBloc({4, 0, 0}, 1);

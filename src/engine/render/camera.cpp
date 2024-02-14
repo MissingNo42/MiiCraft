@@ -87,8 +87,9 @@ void Camera::goRight(guVector& normalizedLook, int speed, bool collision, World&
 
 void Camera::goForward(guVector& normalizedLook, int speed, bool collision, World& w) {
     if (collision) {
-        if (w.getBlockAt({(int)ceil(pos.x + look.x), (int) pos.y, (int)ceil(pos.z+look.z)}).type == BlockType::Air
-        && w.getBlockAt({(int)ceil(pos.x + look.x), (int) pos.y+1, (int)ceil(pos.z+look.z)}).type == BlockType::Air){
+        //printf("%f\r", pos.y);
+        if (w.getBlockAt({(int)ceil(pos.x + look.x), (int) floor(pos.y), (int)ceil(pos.z+look.z)}).type == BlockType::Air
+        && w.getBlockAt({(int)ceil(pos.x + look.x), (int) floor(pos.y+1), (int)ceil(pos.z+look.z)}).type == BlockType::Air){
             pos.x += normalizedLook.x/10 * (f32) speed;
             pos.z += normalizedLook.z/10 * (f32) speed;
         }
