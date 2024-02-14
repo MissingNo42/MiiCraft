@@ -251,28 +251,21 @@ int main(int, char **) {
 	SYS_SetResetCallback(reload);
 	SYS_SetPowerCallback(shutdown);
 	//SYS_STDIO_Report(true);
-    renderer.camera.pos.z = 5;
-    renderer.camera.pos.x = -0.5;
-    renderer.camera.pos.y = 0.5;
 
     //pour rediriger stdout dans dolphin
     SYS_STDIO_Report(true);
 
-    Wiimote wiimote;
 
 
     t_coord pos(0,0,0);
     World& w = Game::getInstance()->getWorld();
-    renderer.camera.pos.y = 40;
-    renderer.camera.pos.x = 0;
-    renderer.camera.pos.z = 0;
 
 //    f32 Velocity = 0.0;
 //    f32 Gravity = 0.0;
 
     while (!exiting) {
 
-        pos.x = player.renderer.camera.pos.x - 1;
+        pos.x = player.renderer.camera.pos.x;
         pos.y = player.renderer.camera.pos.y;
         pos.z = player.renderer.camera.pos.z;
 //        if (Gravity < 0.49)
@@ -281,24 +274,20 @@ int main(int, char **) {
 
 
 
-        pos.x = renderer.camera.pos.x;
-        pos.y = renderer.camera.pos.y;
-        pos.z = renderer.camera.pos.z;
-
 
 //            //printf("%f %f %f\r",renderer.camera.pos.x, renderer.camera.pos.y, renderer.camera.pos.z);
 //            printf("%f %f\r",Velocity, Gravity);
 //
 //
-//        if (w.getBlockAt({(int)floor(renderer.camera.pos.x), (int)floor(renderer.camera.pos.y - Gravity), (int)floor(renderer.camera.pos.z)}).type == BlockType::Air) {
-//            renderer.camera.pos.y -= Velocity;
+//        if (w.getBlockAt({(int)floor(player.renderer.camera.pos.x), (int)floor(player.renderer.camera.pos.y - Gravity), (int)floor(player.renderer.camera.pos.z)}).type == BlockType::Air) {
+//            player.renderer.camera.pos.y -= Velocity;
 //            Velocity += (abs(Velocity + Gravity) >= 0.5) ? 0 : Gravity;
 //        }
 //        else{
 //            Velocity = 0;
 //        }
 //        if (Velocity == 0){
-//            Gravity = -0.1;
+//            Gravity = -0.5;
 //        }
 
 
@@ -312,17 +301,15 @@ int main(int, char **) {
 		//renderer.camera.rotateV(-0.10);
 		//renderer.camera.rotateH(0.50);
 		//camera.rotateH(1);
-        wiimote.update(renderer, w);
 
-		renderer.camera.update(false);
+
+		player.renderer.camera.update(false);
 
         renderWorld(w, player.renderer, w.to_chunk_pos(pos));
 
         wiimote.update(player, w);
 
-        player.renderer.camera.update(false);
-        renderWorld(w, renderer, w.to_chunk_pos(pos));
-        Block b = getFocusedBlock(w, renderer);
+
         //printf("Type de block visé : %s\r", b.toString().c_str());
 
 
