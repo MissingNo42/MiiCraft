@@ -2,7 +2,7 @@
 // Created by guill on 07/02/2024.
 //
 
-#include "PerlinWorldGenerator.h"
+#include "../../include/world/PerlinWorldGenerator.h"
 
 
 PerlinWorldGenerator::PerlinWorldGenerator() {
@@ -198,7 +198,7 @@ void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
                 }
                 if ((i == 2 || i == -2) && ( j == 2 || j == -2)) {
                     if (rand() %2)
-                        vc->VC_SetBlock({pos.x + i, pos.y + height + h, pos.z + j}, BlockType::Leaves);
+                        vc->VC_SetBlock({pos.x + i, pos.y + height + h, pos.z + j}, BlockType::LeaveOak);
                 }
                 else
                     vc->VC_SetBlock({pos.x + i, pos.y + height + h, pos.z + j}, BlockType::LeaveOak);

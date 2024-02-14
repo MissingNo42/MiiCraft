@@ -189,23 +189,34 @@ void Player::DestroyBlock(t_coord coord, World& w){
 
 void Player::handleAction(World &w, u16 actions) {
     if (actions & WPAD_BUTTON_MINUS && targetable) {
-        if (breakingState < 10) {
-            breakingState++;
-            renderer.renderBloc(coordToGuVector(focusedBlockPos), 1, true, true, true, true, true, true);
+//        if (breakingState < 10) {
+//            breakingState++;
+//            renderer.renderBloc(coordToGuVector(focusedBlockPos), 1, true, true, true, true, true, true);
+//        }
+//        else if (breakingState < 20) {
+//            breakingState++;
+//            renderer.renderBloc(coordToGuVector(focusedBlockPos), 2, true, true, true, true, true, true);
+//        }
+//        else if (breakingState < 30) {
+//            breakingState++;
+//            renderer.renderBloc(coordToGuVector(focusedBlockPos), 3, true, true, true, true, true, true);
+//        }
+//        else if (breakingState < 40) {
+//            breakingState++;
+//            renderer.renderBloc(coordToGuVector(focusedBlockPos), 5, true, true, true, true, true, true);
+//        }
+//        else{
+//            DestroyBlock(focusedBlockPos, w);
+//            breakingState = 0;
+//        }
+        breakingState++;
+        if (breakingState < 50)
+        {
+            BlockType breakBlock = (BlockType)(breakingState / 5 + 96);
+            renderer.renderBloc(coordToGuVector(focusedBlockPos),breakBlock , true, true, true, true, true, true);
         }
-        else if (breakingState < 20) {
-            breakingState++;
-            renderer.renderBloc(coordToGuVector(focusedBlockPos), 2, true, true, true, true, true, true);
-        }
-        else if (breakingState < 30) {
-            breakingState++;
-            renderer.renderBloc(coordToGuVector(focusedBlockPos), 3, true, true, true, true, true, true);
-        }
-        else if (breakingState < 40) {
-            breakingState++;
-            renderer.renderBloc(coordToGuVector(focusedBlockPos), 5, true, true, true, true, true, true);
-        }
-        else{
+        else
+        {
             DestroyBlock(focusedBlockPos, w);
             breakingState = 0;
         }

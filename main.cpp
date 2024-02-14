@@ -18,9 +18,9 @@
 
 #include "texture.c"
 
-#include "src/world/game.h"
-#include "engine/render/bloc.h"
-#include "src/system/saveManager.h"
+#include "include/world/game.h"
+#include "include/engine/render/block.h"
+#include "include/system/saveManager.h"
 #include "player.h"
 
 
@@ -228,8 +228,8 @@ int main(int, char **) {
 	WPAD_Init();
 	
 	Renderer::setupVideo();
-	Renderer::setupVtxDesc3D();
-	Renderer::setupMisc();
+	Renderer::setupVtxDesc();
+	Renderer::setupTexture();
 
 	//Light light;
 	//GX_InvalidateTexAll();
