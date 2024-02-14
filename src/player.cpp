@@ -212,7 +212,7 @@ void Player::handleAction(World &w, u16 actions) {
         breakingState++;
         if (breakingState < 50)
         {
-            BlockType breakBlock = (BlockType)(breakingState / 5 + 96);
+            BlockType breakBlock = (BlockType)(breakingState / 5 + BlockType::BlockBreaking0);
             renderer.renderBloc(coordToGuVector(focusedBlockPos),breakBlock , true, true, true, true, true, true);
         }
         else
