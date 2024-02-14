@@ -190,7 +190,7 @@ void Renderer::endFrame() {
 
 	selectFrameBuffer ^= 1;
 	frameBuffer = frameBuffers[selectFrameBuffer];
-	
+
 
 }
 

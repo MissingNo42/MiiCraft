@@ -47,3 +47,15 @@ void Camera::rotateV(f32 rad) {
 
     VecRotAxis(&look, right, rad);
 }
+
+//void Camera::goUp(int speed, bool collision, World& w) {
+//    if ( collision ){
+//        coord.y += 1;
+//        if (w.getBlockAt(coord).type == BlockType::Air)
+//            renderer.camera.pos.y += 0.1;
+//    }
+//    else
+//        renderer.camera.pos.y += 0.1;
+//}
+
+

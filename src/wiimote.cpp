@@ -1,6 +1,8 @@
 //
 // Created by Romain on 04/02/2024.
 //
+#define deadzone 20
+#define deadzoneTop 80
 
 
 #include <cstdio>
