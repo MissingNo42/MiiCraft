@@ -37,8 +37,8 @@ public:
 	
 	void renderBloc(const guVector &coord, u32 code,
 					int top, int bottom, int left, int right, int front, int back,
-                    int topVal, int bottomVal, int leftVal, int rightVal, int frontVal, int backVal,
-                    int topIndex, int bottomIndex, int leftIndex, int rightIndex, int frontIndex, int backIndex);
+                    int topVal = 0, int bottomVal = 0, int leftVal = 0, int rightVal = 0, int frontVal = 0, int backVal = 0,
+                    int topIndex = 0, int bottomIndex = 0, int leftIndex = 0, int rightIndex = 0, int frontIndex = 0, int backIndex = 0);
 
     void drawFocus(Block block, f32 x, f32 y, f32 z);
 

@@ -172,7 +172,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
                           int topVal, int bottomVal, int leftVal, int rightVal, int frontVal, int backVal,
                           int topIndex, int bottomIndex, int leftIndex, int rightIndex, int frontIndex, int backIndex)
 
-                           {
+    {
 
 
 
@@ -182,7 +182,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
     if(sz == 0) return;
 
 
-    Mtx model, modelview; // Various matrices
+//    Mtx model, modelview; // Various matrices
 
     //guMtxIdentity(model);
 //
@@ -197,8 +197,6 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 	my = coord.y - 1,
 	mz = coord.z - 1;
 
-    int sz = (top + bottom + left + right + front + back) << 2;
-	if (sz == 0) return;
     f32 x, y;
 
     u32 white = 0xffffffff;
