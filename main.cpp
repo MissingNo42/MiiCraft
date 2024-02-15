@@ -223,8 +223,8 @@ void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
 //        }
 //    }
 
-        for (pos.x = posCam.x - 3; pos.x < posCam.x + 4; pos.x++) {
-            for (pos.y = posCam.y - 3; pos.y < posCam.y + 4; pos.y++)
+        for (pos.x = posCam.x - 2; pos.x < posCam.x + 3; pos.x++) {
+            for (pos.y = posCam.y - 2; pos.y < posCam.y + 3; pos.y++)
                 renderChunk(w.getChunkAt(pos), renderer, pos);
         }
 }
