@@ -11,10 +11,16 @@
 #include <vector>
 
 class Player {
+    struct t_item{
+        int quantity;
+        BlockType blockType;
+    };
 private:
     int speed;
     int breakingState;
 public:
+    std::vector<t_item> inventory1;
+    std::vector<t_item> inventory2;
     Renderer renderer;
     t_coord focusedBlockPos;
     t_coord previousFocusedBlockPos;
@@ -36,14 +42,6 @@ public:
 
     void handleAction(World& w, u16 actions);
 
-    void goLeft(guVector& normalizedLook, bool collision, World& w);
-
-    void goRight(guVector& normalizedLook, bool collision, World& w);
-
-    void goForward(guVector& normalizedLook, bool collision, World& w);
-
-    void goBackward(guVector& normalizedLook, bool collision, World& w);
-
     void goUp(t_coord coord, bool collision, World& w);
 
     void goDown(t_coord coord, bool collision, World& w);
@@ -55,6 +53,8 @@ public:
     void placeBlock(World& w) const;
 
     void destroyBlock(World& w);
+
+    void updateMove(guVector normalizedLook, guVector &move, char direction);
 };
 
 

@@ -52,38 +52,6 @@ guVector Player::InverseVector(const guVector& v){
     return vtemp;
 }
 
-void Player::goLeft(guVector& normalizedLook, bool collision, World& w) {
-    guVector move = {0,0,0};
-    guVecCross(&normalizedLook, &renderer.camera.up, &move);
-    move = InverseVector(move);
-    if (collision) {
-        if (w.getBlockAt({(int)ceil(renderer.camera.pos.x + move.x), (int) renderer.camera.pos.y, (int)ceil(renderer.camera.pos.z + move.z)}).type == BlockType::Air
-            && w.getBlockAt({(int)ceil(renderer.camera.pos.x + move.x), (int) renderer.camera.pos.y+1, (int)ceil(renderer.camera.pos.z + move.z)}).type == BlockType::Air){
-            renderer.camera.pos.x += move.x / 10 * (f32) speed;
-            renderer.camera.pos.z += move.z / 10 * (f32) speed;
-        }
-    }
-    else {
-        renderer.camera.pos.x += move.x / 10 * (f32) speed;
-        renderer.camera.pos.z += move.z / 10 * (f32) speed;
-    }
-}
-
-void Player::goRight(guVector& normalizedLook, bool collision, World& w) {
-    guVector move = {0,0,0};
-    guVecCross(&normalizedLook, &renderer.camera.up, &move);
-    if (collision) {
-        if (w.getBlockAt({(int)ceil( renderer.camera.pos.x + move.x), (int) renderer.camera.pos.y, (int)ceil(renderer.camera.pos.z+move.z)}).type == BlockType::Air
-            && w.getBlockAt({(int)ceil( renderer.camera.pos.x + move.x), (int) renderer.camera.pos.y+1, (int)ceil(renderer.camera.pos.z+move.z)}).type == BlockType::Air){
-            renderer.camera.pos.x += move.x / 10 * (f32) speed;
-            renderer.camera.pos.z += move.z / 10 * (f32) speed;
-        }
-    }
-    else {
-        renderer.camera.pos.x += move.x / 10 * (f32) speed;
-        renderer.camera.pos.z += move.z / 10 * (f32) speed;
-    }
-}
 
 void Player::goForward(guVector& normalizedLook, bool collision, World& w) {
     if (collision) {
@@ -96,21 +64,6 @@ void Player::goForward(guVector& normalizedLook, bool collision, World& w) {
     else {
         renderer.camera.pos.x += normalizedLook.x / 10 * (f32) speed;
         renderer.camera.pos.z += normalizedLook.z / 10 * (f32) speed;
-    }
-}
-
-void Player::goBackward(guVector& normalizedLook, bool collision, World& w) {
-    guVector move = InverseVector(normalizedLook);
-    if (collision) {
-        if (w.getBlockAt({(int)ceil(renderer.camera.pos.x+1 + move.x), (int) renderer.camera.pos.y, (int) ceil(renderer.camera.pos.z+move.z)}).type == BlockType::Air
-            && w.getBlockAt({(int)ceil(renderer.camera.pos.x+1 + move.x), (int) renderer.camera.pos.y+1, (int) ceil(renderer.camera.pos.z+move.z)}).type == BlockType::Air){
-            renderer.camera.pos.x += move.x/10 * (f32) speed;
-            renderer.camera.pos.z += move.z/10 * (f32) speed;
-        }
-    }
-    else {
-        renderer.camera.pos.x += move.x/10 * (f32) speed;
-        renderer.camera.pos.z += move.z/10 * (f32) speed;
     }
 }
 
@@ -145,21 +98,35 @@ void Player::handleMovement(World& w, u16 directions, bool collision) {
     guVecNormalize(&normalizedLook);
     t_coord coord((int)renderer.camera.pos.x+1, (int)renderer.camera.pos.y, (int)renderer.camera.pos.z+1);
     speed = 1;
-
+    guVector move = {0,0,0};
     if (directions & WPAD_BUTTON_PLUS)
         speed = 3;
     if (directions & WPAD_BUTTON_LEFT )
-        goLeft(normalizedLook, collision, w);
+        updateMove(normalizedLook, move, 'l');
     if (directions & WPAD_BUTTON_RIGHT )
-        goRight(normalizedLook, collision, w);
+        updateMove(normalizedLook, move, 'r');
     if (directions & WPAD_BUTTON_UP )
-        goForward(normalizedLook, collision, w);
+        updateMove(normalizedLook, move, 'f');
     if (directions & WPAD_BUTTON_DOWN )
-        goBackward(normalizedLook, collision, w);
+        updateMove(normalizedLook, move, 'b');
+
     if (directions & WPAD_BUTTON_A )
         goUp(coord, collision, w);
     if (directions & WPAD_BUTTON_B)
         goDown(coord, collision, w);
+    if(move.x != 0 || move.y!=0 || move.z!=0)
+        c_guVecNormalize(&move);
+    printf("x : %lf, y : %lf, z : %lf\r", move.x, move.y, move.z);
+
+    if (collision) {
+        if (w.getBlockAt({(int) ceil(0.3 + renderer.camera.pos.x + move.x / 5 * (f32)speed), (int) renderer.camera.pos.y,
+                          (int) ceil(0.3 + renderer.camera.pos.z + move.z/ 5 * (f32)speed)}).type == BlockType::Air
+            && w.getBlockAt({(int) ceil(0.3 + renderer.camera.pos.x + move.x/ 5 * (f32)speed), (int) renderer.camera.pos.y + 1,
+                             (int) ceil(0.3 + renderer.camera.pos.z + move.z/ 5 * (f32)speed)}).type == BlockType::Air) {
+            renderer.camera.pos.x += move.x / 5 * (f32)speed;
+            renderer.camera.pos.z += move.z / 5 * (f32)speed;
+        }
+    }
 }
 
 void Player::handleRotation(WPADData * wd) {
@@ -229,9 +196,7 @@ void Player::placeBlock(World& w) const{
         type = w.getBlockAt(pos).type;
     }
     if(type != BlockType::Air) {
-        int p = getFocusedFace(w);
-        printf("Focused face :%d", p);
-        switch (p) {
+        switch (getFocusedFace(w)) {
             case 0:
                 pos.x--;
                 w.setBlockAt(pos, BlockType::Bedrock);
@@ -275,17 +240,15 @@ int Player::getFocusedFace(World& w) const {
         pos = t_coord((int)floor(x), (int)floor(y), (int)floor(z));
         type = w.getBlockAt(pos).type;
     }
-
     if(type != BlockType::Air) {
 
         f32 deltaX = (f32) std::fabs((x- round(x)));
         f32 deltaY = (f32) std::fabs((y- round(y)));
         f32 deltaZ = (f32) std::fabs((z- round(z)));
-        printf("deltaX: %lf, deltaY: %lf, deltaZ: %lf\r", deltaX, deltaY, deltaZ);
+
         std::vector<f32> f = {deltaX, deltaY,deltaZ};
         auto min = std::min_element(std::begin(f), std::end(f));
         if (*min == f[0]) {
-            printf("cam.x: %lf, block.x: %lf\r", renderer.camera.pos.x + 1, x);
             if (renderer.camera.pos.x + 1 <= round(x)) {
                 return 0;
             } else {
@@ -293,7 +256,6 @@ int Player::getFocusedFace(World& w) const {
             }
         }
         else if(*min == f[1]){
-            printf("cam.y: %lf, block.y: %lf\r", renderer.camera.pos.y + 1, y);
             if (renderer.camera.pos.y + 1 <= round(y)) {
                 return 2;
             } else {
@@ -301,7 +263,6 @@ int Player::getFocusedFace(World& w) const {
             }
         }
         else{
-            printf("cam.z: %lf, block.z: %lf\r", renderer.camera.pos.z + 1, z);
             if (renderer.camera.pos.z + 1 <= round(z)) {
                 return 4;
             } else {
@@ -330,6 +291,34 @@ t_coord Player::guVectorToCoord(guVector v) {
 guVector Player::coordToGuVector(t_coord coord) {
     auto v = guVector((f32)coord.x, (f32)coord.y, (f32)coord.z);
     return v;
+}
+
+void Player::updateMove(guVector normalizedLook, guVector& move, char direction) {
+    guVector directionMove = {0,0,0};
+    switch(direction){
+        case 'r':
+            directionMove = {0,0,0};
+            guVecCross(&normalizedLook, &renderer.camera.up, &directionMove);
+            move.x += directionMove.x;
+            move.z += directionMove.z;
+            break;
+        case 'l':
+            directionMove = {0,0,0};
+            guVecCross(&normalizedLook, &renderer.camera.up, &directionMove);
+            directionMove = InverseVector(directionMove);
+            move.x += directionMove.x;
+            move.z += directionMove.z;
+            break;
+        case 'f':
+            move.x += normalizedLook.x;
+            move.z += normalizedLook.z;
+            break;
+        case 'b':
+            directionMove = InverseVector(normalizedLook);
+            move.x += directionMove.x;
+            move.z += directionMove.z;
+            break;
+    }
 }
 
 
