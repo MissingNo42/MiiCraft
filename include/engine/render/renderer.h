@@ -25,7 +25,7 @@ public:
     static GXTexObj texture ATTRIBUTE_ALIGN(32);
 	
 	static void setupVideo();
-	static void setupVtxDesc3D();
+	static void setupVtxDesc();
 	static void setupVtxDesc2D();
 	static void setupTexture();
 	

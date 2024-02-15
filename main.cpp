@@ -183,12 +183,14 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 
 
 void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
-//	t_pos2D pos;
-//	for (pos.x = posCam.x-1; pos.x < posCam.x + 2; pos.x++) {
-//		for (pos.y = posCam.y - 1 ;  pos.y < posCam.y + 2 ; pos.y++) {
-//			renderChunk(w.getChunkAt(pos), renderer, pos);
-//		}
-//	}
+	t_pos2D pos;
+	int dist = 2;
+	for (pos.x = posCam.x - dist; pos.x <= posCam.x + dist; pos.x++) {
+		for (pos.y = posCam.y - dist ;  pos.y <= posCam.y + dist; pos.y++) {
+			renderChunk(w.getChunkAt(pos), renderer, pos);
+		}
+	}
+/*
     t_pos2D pos;
     if (renderer.camera.look.x > 0.5f) {
         for (pos.x = posCam.x + 1; pos.x > posCam.x - 2; pos.x--) {
@@ -219,7 +221,7 @@ void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
             for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
                 renderChunk(w.getChunkAt(pos), renderer, pos);
         }
-    }
+    }*/
 }
 
 int main(int, char **) {
@@ -227,7 +229,7 @@ int main(int, char **) {
 	WPAD_Init();
 	
 	Renderer::setupVideo();
-	Renderer::setupVtxDesc3D();
+	Renderer::setupVtxDesc();
     Renderer::setupTexture();
 
 
@@ -268,7 +270,7 @@ int main(int, char **) {
 
         wiimote.update(player, w);
 
-        player.renderer.camera.update(false);
+        player.renderer.camera.update(true);
 
 
 		//renderer.renderBloc({4, 0, 0}, 1);
@@ -310,7 +312,7 @@ int main(int, char **) {
 		//Renderer::setupDebugConsole();
 
         u32 white = 0xFFFFFFFF;
-
+/*
         player.renderer.camera.loadOrtho(); // set for 2D drawing
         player.renderer.camera.applyTransform2D();
         f32 x,y;
@@ -366,7 +368,7 @@ int main(int, char **) {
         GX_Color1u32(white);
         GX_TexCoord2f32(BLOCK_COORD(1), BLOCK_COORD(1)); // Bottom left
 
-        GX_End();
+        GX_End();*/
 
 		Renderer::endFrame();
 	}
