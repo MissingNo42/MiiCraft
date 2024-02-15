@@ -63,8 +63,8 @@ void Renderer::setupVideo() {
 	GX_SetDispCopyGamma(GX_GM_1_0);
 
     ///FOG
-
-//    GXColor greyBackground = {0x80, 0x80, 0x80, 0xff};
+    /*
+    GXColor greyBackground = {0x80, 0x80, 0x80, 0xff};
 //    GX_SetFog(GX_FOG_PERSP_LIN, 900, 990, 20, 1200, greyBackground);
 
 //    GXFogAdjTbl* fogTable = (GXFogAdjTbl*)memalign(32, 8 * sizeof(GXFogAdjTbl));
@@ -81,6 +81,7 @@ void Renderer::setupVideo() {
 
 	// setup texture coordinate generation
 	// args: texcoord slot 0-7, matrix type, source to generate texture coordinates from, matrix to use
+	*/
 
     ///End Fog
 
@@ -167,8 +168,21 @@ void Renderer::endFrame() {
 
 
 void Renderer::renderBloc(const guVector &coord, u32 code,
-						  bool top, bool bottom, bool left, bool right, bool front, bool back) {
-    //Mtx model, modelview; // Various matrices
+						  int top, int bottom, int left, int right, int front, int back,
+                          int topVal, int bottomVal, int leftVal, int rightVal, int frontVal, int backVal,
+                          int topIndex, int bottomIndex, int leftIndex, int rightIndex, int frontIndex, int backIndex)
+
+                           {
+
+
+
+
+
+    int sz = (top + bottom + left + right + front + back) << 2;
+    if(sz == 0) return;
+
+
+    Mtx model, modelview; // Various matrices
 
     //guMtxIdentity(model);
 //
@@ -176,8 +190,8 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 //
     //guMtxConcat(camera.view3D, model, modelview);
     //GX_LoadPosMtxImm(modelview, GX_PNMTX0);
-	
-	
+
+
 	f32
 	mx = coord.x - 1,
 	my = coord.y - 1,
@@ -188,6 +202,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
     f32 x, y;
 
     u32 white = 0xffffffff;
+    u32 shadow = 0x808080ff;
 
     GX_Begin(GX_QUADS, GX_VTXFMT0, sz); // Start drawing
 
@@ -198,25 +213,42 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 
         GX_Position3f32(mx, my, coord.z);
         GX_Normal1x8(1);
-        GX_Color1u32(white);
+        if(bottomVal){
+            GX_Color1u32(shadowGradient[bottomIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
         GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Bottom right
 
         GX_Position3f32(coord.x, my, coord.z);
         GX_Normal1x8(1);
-        GX_Color1u32(white);
-
+        if(bottomVal){
+            GX_Color1u32(shadowGradient[bottomIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
         GX_TexCoord2f32(x, y + OFFSET); // Bottom left
 
         GX_Position3f32(coord.x, my, mz);
         GX_Normal1x8(1);
-        GX_Color1u32(white);
-
+        if(bottomVal){
+            GX_Color1u32(shadowGradient[bottomIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
         GX_TexCoord2f32(x, y); // Top left
 
         GX_Position3f32(mx, my, mz);
         GX_Normal1x8(1);
-        GX_Color1u32(white);
-
+        if(bottomVal){
+            GX_Color1u32(shadowGradient[bottomIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
         GX_TexCoord2f32(x + OFFSET, y); // Top right
     }
 
@@ -227,26 +259,42 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 
         GX_Position3f32(mx, coord.y, coord.z);
         GX_Normal1x8(4);
-        GX_Color1u32(white);
-
+        if(frontVal){
+            GX_Color1u32(shadowGradient[frontIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
         GX_TexCoord2f32(x, y); // Top left
 
         GX_Position3f32(coord.x, coord.y, coord.z);
         GX_Normal1x8(4);
-        GX_Color1u32(white);
-
+        if(frontVal){
+            GX_Color1u32(shadowGradient[frontIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
         GX_TexCoord2f32(x + OFFSET, y); // Top right
 
         GX_Position3f32(coord.x, my, coord.z);
         GX_Normal1x8(4);
-        GX_Color1u32(white);
-
+        if(frontVal){
+            GX_Color1u32(shadowGradient[frontIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
         GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Bottom right
 
         GX_Position3f32(mx, my, coord.z);
         GX_Normal1x8(4);
-        GX_Color1u32(white);
-
+        if(frontVal){
+            GX_Color1u32(shadowGradient[frontIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
         GX_TexCoord2f32(x, y + OFFSET); // Bottom left
     }
 
@@ -257,25 +305,43 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 
         GX_Position3f32(coord.x, my, mz);
         GX_Normal1x8(5);
-        GX_Color1u32(white);
+        if(backVal){
+            GX_Color1u32(shadowGradient[backIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
 
         GX_TexCoord2f32(x, y + OFFSET); // Bottom left
 
         GX_Position3f32(coord.x, coord.y, mz);
         GX_Normal1x8(5);
-        GX_Color1u32(white);
-
+        if(backVal){
+            GX_Color1u32(shadowGradient[backIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
         GX_TexCoord2f32(x, y); // Top left
 
         GX_Position3f32(mx, coord.y, mz);
         GX_Normal1x8(5);
-        GX_Color1u32(white);
-
+        if(backVal){
+            GX_Color1u32(shadowGradient[backIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
         GX_TexCoord2f32(x + OFFSET, y); // Top right
 
         GX_Position3f32(mx, my, mz);
         GX_Normal1x8(5);
-        GX_Color1u32(white);
+        if(backVal){
+            GX_Color1u32(shadowGradient[backIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
 
         GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Bottom right
 
@@ -288,25 +354,42 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 
         GX_Position3f32(coord.x, my, coord.z);
         GX_Normal1x8(2);
-        GX_Color1u32(white);
-
+        if(rightVal){
+            GX_Color1u32(shadowGradient[rightIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
         GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Bottom left
 
         GX_Position3f32(coord.x, coord.y, coord.z);
         GX_Normal1x8(2);
-        GX_Color1u32(white);
-
+        if(rightVal){
+            GX_Color1u32(shadowGradient[rightIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
         GX_TexCoord2f32(x + OFFSET, y); // Top left
 
         GX_Position3f32(coord.x, coord.y, mz);
         GX_Normal1x8(2);
-        GX_Color1u32(white);
-
+        if(rightVal){
+            GX_Color1u32(shadowGradient[rightIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
         GX_TexCoord2f32(x, y); // Top right
 
         GX_Position3f32(coord.x, my, mz);
         GX_Normal1x8(2);
-        GX_Color1u32(white);
+        if(rightVal){
+            GX_Color1u32(shadowGradient[rightIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
 
         GX_TexCoord2f32(x, y + OFFSET); // Bottom right
     }
@@ -318,26 +401,43 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 
         GX_Position3f32(mx, coord.y, mz);
         GX_Normal1x8(3);
-        GX_Color1u32(white);
+        if(leftVal){
+            GX_Color1u32(shadowGradient[leftIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
 
         GX_TexCoord2f32(x + OFFSET, y); // Bottom left
 
         GX_Position3f32(mx, coord.y, coord.z);
         GX_Normal1x8(3);
-        GX_Color1u32(white);
-
+        if(leftVal){
+            GX_Color1u32(shadowGradient[leftIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
         GX_TexCoord2f32(x, y); // Top left
 
         GX_Position3f32(mx, my, coord.z);
         GX_Normal1x8(3);
-        GX_Color1u32(white);
-
+        if(leftVal){
+            GX_Color1u32(shadowGradient[leftIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
         GX_TexCoord2f32(x, y + OFFSET); // Top right
 
         GX_Position3f32(mx, my, mz);
         GX_Normal1x8(3);
-        GX_Color1u32(white);
-
+        if(leftVal){
+            GX_Color1u32(shadowGradient[leftIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
         GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Bottom right
     }
 
@@ -348,25 +448,44 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 
         GX_Position3f32(coord.x, coord.y, mz);
         GX_Normal1x8(0);
-        GX_Color1u32(white);
-
+        if(topVal){
+            GX_Color1u32(shadowGradient[topIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
         GX_TexCoord2f32(x + OFFSET, y); // Top right
 
         GX_Position3f32(coord.x, coord.y, coord.z);
         GX_Normal1x8(0);
-        GX_Color1u32(white);
+        if(topVal){
+            GX_Color1u32(shadowGradient[topIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
 
         GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Bottom right
 
         GX_Position3f32(mx, coord.y, coord.z);
         GX_Normal1x8(0);
-        GX_Color1u32(white);
+        if(topVal){
+            GX_Color1u32(shadowGradient[topIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
 
         GX_TexCoord2f32(x, y + OFFSET); // Bottom left
 
         GX_Position3f32(mx, coord.y, mz);
         GX_Normal1x8(0);
-        GX_Color1u32(white);
+        if(topVal){
+            GX_Color1u32(shadowGradient[topIndex]);
+        }
+        else {
+            GX_Color1u32(white);
+        }
         GX_TexCoord2f32(x, y); // Top left
     }
 
@@ -382,7 +501,7 @@ void Renderer::drawFocus(Block block, f32 x, f32 y, f32 z) {
 //
     //guMtxConcat(camera.view3D, model, modelview);
     //GX_LoadPosMtxImm(modelview, GX_PNMTX0);
-	
+
 	f32
 	mx = x - 1,
 	my = y - 1,

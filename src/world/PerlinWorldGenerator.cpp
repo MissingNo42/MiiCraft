@@ -2,6 +2,7 @@
 // Created by guill on 07/02/2024.
 //
 
+#include <queue>
 #include "PerlinWorldGenerator.h"
 
 
@@ -107,7 +108,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
     //On construit un arbre à cette position
     buildTree({x, y, z}, vc);
 
-
+    w.initLight(vc);
     w.addChunk(pos, vc);
     w.setNeighboors(pos, vc);
     std::cout << "Chunk generated at " << pos.x << " " << pos.y << " with id : " << vc->id << std::endl;
@@ -118,6 +119,14 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
         }
     }
 
+    //print the whole chunk
+//    for(int i = 0; i < 16; i++){
+//        for(int j = 0; j < 16; j++){
+//            for(int k = 0; k < 128; k++){
+//                printf("Block at %d %d %d : %d\r",i,j,k,vc->VC_GetBlock({i, k, j}).type);
+//            }
+//        }
+//    }
 
 }
 
@@ -225,6 +234,17 @@ void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
     vc->VC_SetBlock({pos.x, pos.y + 3 + height, pos.z}, BlockType::Leaves);
 
 }
+
+
+
+void PerlinWorldGenerator::propagateLightToNeighbor(VerticalChunk* c, const t_coord& neighbor, int CurrentLightValue, std::queue<t_coord>& lightQueue) {
+    if (c->VC_GetBlock(neighbor).type < CurrentLightValue || c->VC_GetBlock(neighbor).type >= 16) {
+        c->VC_SetBlock(neighbor, static_cast<BlockType>(CurrentLightValue));
+        lightQueue.push(neighbor);
+    }
+}
+
+
 
 BiomeType PerlinWorldGenerator::guessBiome(float ero, float temp, float hum, float cont) {
     if      (cont < .6) {return BiomeType::Ocean;}

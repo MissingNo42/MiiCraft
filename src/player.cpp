@@ -23,7 +23,7 @@ void Player::getFocusedBlock(World &w) {
             x = renderer.camera.pos.x + 1,
             y = renderer.camera.pos.y + 1,
             z = renderer.camera.pos.z + 1;
-    while(type == BlockType::Air && distance <= 5){
+    while(type <= BlockType::Air && distance <= 5){
         x += renderer.camera.look.x/20;
         y += renderer.camera.look.y/20;
         z += renderer.camera.look.z/20;
@@ -31,7 +31,7 @@ void Player::getFocusedBlock(World &w) {
         pos = t_coord((int)floor(x), (int)floor(y), (int)floor(z));
         type = w.getBlockAt(pos).type;
     }
-    if(type != BlockType::Air) {
+    if(type > BlockType::Air) {
         renderer.drawFocus(w.getBlockAt(pos), (f32) pos.x, (f32) pos.y, (f32) pos.z);
         targetable = true;
         previousFocusedBlockPos = focusedBlockPos;
@@ -54,7 +54,7 @@ guVector Player::InverseVector(const guVector& v){
 void Player::goUp(t_coord coord, bool collision, World &w, float velocity) {
     if ( collision ){
         coord.y += 2;
-        if (w.getBlockAt(coord).type == BlockType::Air)
+        if (w.getBlockAt(coord).type <= BlockType::Air)
             renderer.camera.pos.y += velocity /10;
         else
             renderer.camera.pos.y = coord.y -1.1;
