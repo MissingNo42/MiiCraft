@@ -7,6 +7,7 @@
 
 #include "verticalChunk.h"
  #include <map>
+#include <queue>
 
 class World{
 
@@ -28,6 +29,8 @@ public:
     void addChunk(t_pos2D pos, VerticalChunk* chunk);
 
     void setNeighboors(t_pos2D coord, VerticalChunk *pChunk);
+
+    void initLight(VerticalChunk* c);
 };
 
 

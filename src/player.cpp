@@ -191,19 +191,19 @@ void Player::handleAction(World &w, u16 actions) {
     if (actions & WPAD_BUTTON_MINUS && targetable) {
         if (breakingState < 10) {
             breakingState++;
-            renderer.renderBloc(coordToGuVector(focusedBlockPos), 17, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0);
+            renderer.renderBloc(coordToGuVector(focusedBlockPos), 17, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         }
         else if (breakingState < 20) {
             breakingState++;
-            renderer.renderBloc(coordToGuVector(focusedBlockPos), 18, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0);
+            renderer.renderBloc(coordToGuVector(focusedBlockPos), 18, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         }
         else if (breakingState < 30) {
             breakingState++;
-            renderer.renderBloc(coordToGuVector(focusedBlockPos), 19, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0);
+            renderer.renderBloc(coordToGuVector(focusedBlockPos), 19, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         }
         else if (breakingState < 40) {
             breakingState++;
-            renderer.renderBloc(coordToGuVector(focusedBlockPos), 20, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0);
+            renderer.renderBloc(coordToGuVector(focusedBlockPos), 20, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         }
         else{
             DestroyBlock(focusedBlockPos, w);

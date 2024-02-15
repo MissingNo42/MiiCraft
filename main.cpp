@@ -69,7 +69,14 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
                                 cwest.blocks[15][y][0].type <= BlockType::Air14,
                                 c.blocks[1][y][0].type <= BlockType::Air14,
                                 c.blocks[0][y][1].type <= BlockType::Air14,
-                                csouth.blocks[0][y][15].type <= BlockType::Air14
+                                csouth.blocks[0][y][15].type <= BlockType::Air14,
+                                            c.blocks[0][y+1][0].type,
+                                            c.blocks[0][y-1][0].type,
+                                            cwest.blocks[15][y][0].type,
+                                            c.blocks[1][y][0].type,
+                                            c.blocks[0][y][1].type,
+                                            csouth.blocks[0][y][15].type
+
 				);
 		}
 
@@ -88,7 +95,13 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
                                 cwest.blocks[15][y][15].type <= BlockType::Air14,
                                 c.blocks[1][y][15].type <= BlockType::Air14,
                                 cnorth.blocks[0][y][0].type <= BlockType::Air14,
-                                c.blocks[0][y][14].type <= BlockType::Air14
+                                c.blocks[0][y][14].type <= BlockType::Air14,
+                                            c.blocks[0][y+1][15].type,
+                                            c.blocks[0][y-1][15].type,
+                                            cwest.blocks[15][y][15].type,
+                                            c.blocks[1][y][15].type,
+                                            cnorth.blocks[0][y][0].type,
+                                            c.blocks[0][y][14].type
 
 				);
 		}
@@ -108,7 +121,13 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
                                 c.blocks[14][y][0].type <= BlockType::Air14,
                                 cest.blocks[0][y][0].type <= BlockType::Air14,
                                 c.blocks[15][y][1].type <= BlockType::Air14,
-                                csouth.blocks[15][y][15].type <= BlockType::Air14
+                                csouth.blocks[15][y][15].type <= BlockType::Air14,
+                                            c.blocks[15][y+1][0].type,
+                                            c.blocks[15][y-1][0].type,
+                                            c.blocks[14][y][0].type,
+                                            cest.blocks[0][y][0].type,
+                                            c.blocks[15][y][1].type,
+                                            csouth.blocks[15][y][15].type
 				);
 		}
 
@@ -127,7 +146,13 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
                                 c.blocks[14][y][15].type <= BlockType::Air14,
                                 cest.blocks[0][y][15].type <= BlockType::Air14,
                                 cnorth.blocks[15][y][0].type <= BlockType::Air14,
-                                c.blocks[15][y][14].type <= BlockType::Air14
+                                c.blocks[15][y][14].type <= BlockType::Air14,
+                                            c.blocks[15][y+1][15].type,
+                                            c.blocks[15][y-1][15].type,
+                                            c.blocks[14][y][15].type,
+                                            cest.blocks[0][y][15].type,
+                                            cnorth.blocks[15][y][0].type,
+                                            c.blocks[15][y][14].type
 				);
 		}
 
@@ -148,7 +173,13 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
                                         cwest.blocks[15][y][z].type <= BlockType::Air14,
                                         c.blocks[1][y][z].type <= BlockType::Air14,
                                         c.blocks[0][y][z+1].type <= BlockType::Air14,
-                                        c.blocks[0][y][z-1].type <= BlockType::Air14
+                                        c.blocks[0][y][z-1].type <= BlockType::Air14,
+                                                    c.blocks[0][y+1][z].type,
+                                                    c.blocks[0][y-1][z].type,
+                                                    cwest.blocks[15][y][z].type,
+                                                    c.blocks[1][y][z].type,
+                                                    c.blocks[0][y][z+1].type,
+                                                    c.blocks[0][y][z-1].type
 					);
 			}
 
@@ -168,7 +199,14 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
                                         c.blocks[14][y][z].type <= BlockType::Air14,
                                         cest.blocks[0][y][z].type <= BlockType::Air14,
                                         c.blocks[15][y][z+1].type <= BlockType::Air14,
-                                        c.blocks[15][y][z-1].type <= BlockType::Air14
+                                        c.blocks[15][y][z-1].type <= BlockType::Air14,
+                                                        c.blocks[15][y+1][z].type,
+                                                    c.blocks[15][y-1][z].type,
+                                                    c.blocks[14][y][z].type,
+                                                    cest.blocks[0][y][z].type,
+                                                    c.blocks[15][y][z+1].type,
+                                                    c.blocks[15][y][z-1].type
+
 					);
 			}
 
@@ -188,7 +226,13 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
                                         c.blocks[x - 1][y][0].type <= BlockType::Air14,
                                         c.blocks[x + 1][y][0].type <= BlockType::Air14,
                                         c.blocks[x][y][1].type <= BlockType::Air14,
-                                        csouth.blocks[x][y][15].type <= BlockType::Air14
+                                        csouth.blocks[x][y][15].type <= BlockType::Air14,
+                                                    c.blocks[x][y+1][0].type,
+                                                    c.blocks[x][y-1][0].type,
+                                                    c.blocks[x - 1][y][0].type,
+                                                    c.blocks[x + 1][y][0].type,
+                                                    c.blocks[x][y][1].type,
+                                                    csouth.blocks[x][y][15].type
 					);
 			}
 
@@ -208,7 +252,13 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
                                         c.blocks[x - 1][y][15].type <= BlockType::Air14,
                                         c.blocks[x + 1][y][15].type <= BlockType::Air14,
                                         cnorth.blocks[x][y][0].type <= BlockType::Air14,
-                                        c.blocks[x][y][14].type <= BlockType::Air14
+                                        c.blocks[x][y][14].type <= BlockType::Air14,
+                                                    c.blocks[x][y+1][15].type,
+                                                    c.blocks[x][y-1][15].type,
+                                                    c.blocks[x - 1][y][15].type,
+                                                    c.blocks[x + 1][y][15].type,
+                                                    cnorth.blocks[x][y][0].type,
+                                                    c.blocks[x][y][14].type
 					);
 			}
 
@@ -228,7 +278,13 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
                                                 c.blocks[x-1][y][z].type <= BlockType::Air14,
                                                 c.blocks[x+1][y][z].type <= BlockType::Air14,
                                                 c.blocks[x][y][z+1].type <= BlockType::Air14,
-                                                c.blocks[x][y][z-1].type <= BlockType::Air14
+                                                c.blocks[x][y][z-1].type <= BlockType::Air14,
+                                                            c.blocks[x][y+1][z].type,
+                                                            c.blocks[x][y-1][z].type,
+                                                            c.blocks[x-1][y][z].type,
+                                                            c.blocks[x+1][y][z].type,
+                                                            c.blocks[x][y][z+1].type,
+                                                            c.blocks[x][y][z-1].type
 						);
 				}
 			}

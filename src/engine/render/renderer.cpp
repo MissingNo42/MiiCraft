@@ -198,7 +198,10 @@ void Renderer::endFrame() {
 
 void Renderer::renderBloc(const guVector &coord, u32 code,
 						  int top, int bottom, int left, int right, int front, int back,
-                          int topVal, int bottomVal, int leftVal, int rightVal, int frontVal, int backVal) {
+                          int topVal, int bottomVal, int leftVal, int rightVal, int frontVal, int backVal,
+                          int topIndex, int bottomIndex, int leftIndex, int rightIndex, int frontIndex, int backIndex)
+
+                           {
 
 
 
@@ -234,7 +237,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(-1.0f, -1.0f, 0.0f);
         GX_Normal3f32(0, -1, 0);
         if(bottomVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[bottomIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -244,7 +247,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(0.0f, -1.0f, 0.0f);
         GX_Normal3f32(0, -1, 0);
         if(bottomVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[bottomIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -255,7 +258,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(0.0f, -1.0f, -1.0f);
         GX_Normal3f32(0, -1, 0);
         if(bottomVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[bottomIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -266,7 +269,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(-1.0f, -1.0f, -1.0f);
         GX_Normal3f32(0, -1, 0);
         if(bottomVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[bottomIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -283,7 +286,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(-1.0f, 0.0f, 0.0f);
         GX_Normal3f32(0, 0, 1);
         if(frontVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[frontIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -294,7 +297,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(0.0f, 0.0f, 0.0f);
         GX_Normal3f32(0, 0, 1);
         if(frontVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[frontIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -305,7 +308,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(0.0f, -1.0f, 0.0f);
         GX_Normal3f32(0, 0, 1);
         if(frontVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[frontIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -316,7 +319,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(-1.0f, -1.0f, 0.0f);
         GX_Normal3f32(0, 0, 1);
         if(frontVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[frontIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -333,7 +336,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(0.0f, -1.0f, -1.0f);
         GX_Normal3f32(0, 0, -1);
         if(backVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[backIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -344,7 +347,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(0.0f, 0.0f, -1.0f);
         GX_Normal3f32(0, 0, -1);
         if(backVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[backIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -354,7 +357,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(-1.0f, 0.0f, -1.0f);
         GX_Normal3f32(0, 0, -1);
         if(backVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[backIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -364,7 +367,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(-1.0f, -1.0f, -1.0f);
         GX_Normal3f32(0, 0, -1);
         if(backVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[backIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -382,7 +385,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(0.0f, -1.0f, 0.0f);
         GX_Normal3f32(1, 0, 0);
         if(rightVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[rightIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -392,7 +395,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(0.0f, 0.0f, 0.0f);
         GX_Normal3f32(1, 0, 0);
         if(rightVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[rightIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -403,7 +406,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(0.0f, 0.0f, -1.0f);
         GX_Normal3f32(1, 0, 0);
         if(rightVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[rightIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -414,7 +417,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(0.0f, -1.0f, -1.0f);
         GX_Normal3f32(1, 0, 0);
         if(rightVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[rightIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -431,7 +434,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(-1.0f, 0.0f, -1.0f);
         GX_Normal3f32(-1, 0, 0);
         if(leftVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[leftIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -442,7 +445,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(-1.0f, 0.0f, 0.0f);
         GX_Normal3f32(-1, 0, 0);
         if(leftVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[leftIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -452,7 +455,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(-1.0f, -1.0f, 0.0f);
         GX_Normal3f32(-1, 0, 0);
         if(leftVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[leftIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -462,7 +465,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(-1.0f, -1.0f, -1.0f);
         GX_Normal3f32(-1, 0, 0);
         if(leftVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[leftIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -478,7 +481,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(0.0f, 0.0f, -1.0f);
         GX_Normal3f32(0, 1, 0);
         if(topVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[topIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -488,7 +491,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(0.0f, 0.0f, 0.0f);
         GX_Normal3f32(0, 1, 0);
         if(topVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[topIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -499,7 +502,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(-1.0f, 0.0f, 0.0f);
         GX_Normal3f32(0, 1, 0);
         if(topVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[topIndex]);
         }
         else {
             GX_Color1u32(white);
@@ -510,7 +513,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         GX_Position3f32(-1.0f, 0.0f, -1.0f);
         GX_Normal3f32(0, 1, 0);
         if(topVal){
-            GX_Color1u32(shadow);
+            GX_Color1u32(shadowGradient[topIndex]);
         }
         else {
             GX_Color1u32(white);
