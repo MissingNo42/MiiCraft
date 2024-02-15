@@ -13,6 +13,9 @@ class Player {
 private:
     int speed;
     int breakingState;
+    float Velocity = 0.0;
+    float Acceleration = 0.0;
+    bool Gravity = true;
 public:
     Renderer renderer;
     t_coord focusedBlockPos;
@@ -42,9 +45,9 @@ public:
 
     void goBackward(guVector& normalizedLook, bool collision, World& w);
 
-    void goUp(t_coord coord, bool collision, World& w);
+    void goUp(t_coord coord, bool collision, World& w, float speed = 1.0f);
 
-    void goDown(t_coord coord, bool collision, World& w);
+    void goDown(t_coord coord, bool collision, World& w, float speed = 1.0f);
 
     void setPos(f32 x, f32 y, f32 z);
 

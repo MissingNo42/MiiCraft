@@ -260,32 +260,23 @@ int main(int, char **) {
     t_coord pos(0,0,0);
     World& w = Game::getInstance()->getWorld();
 
-//    f32 Velocity = 0.0;
-//    f32 Gravity = 0.0;
-
     while (!exiting) {
 
-        pos.x = player.renderer.camera.pos.x;
-        pos.y = player.renderer.camera.pos.y;
-        pos.z = player.renderer.camera.pos.z;
-//        if (Gravity < 0.49)
-//            Gravity += 0.01;
+        pos.x = floor(player.renderer.camera.pos.x);
+        pos.y = floor(player.renderer.camera.pos.y);
+        pos.z = floor(player.renderer.camera.pos.z);
 
 
 
 
 
-        printf("%f %f %f\r",player.renderer.camera.pos.x, player.renderer.camera.pos.y, player.renderer.camera.pos.z);
+        //printf("%f %f %f\r",player.renderer.camera.pos.x, player.renderer.camera.pos.y, player.renderer.camera.pos.z);
 //            printf("%f %f\r",Velocity, Gravity);
 //
 //
-//        if (w.getBlockAt({(int)floor(player.renderer.camera.pos.x), (int)floor(player.renderer.camera.pos.y - Gravity), (int)floor(player.renderer.camera.pos.z)}).type == BlockType::Air) {
-//            player.renderer.camera.pos.y -= Velocity;
-//            Velocity += (abs(Velocity + Gravity) >= 0.5) ? 0 : Gravity;
-//        }
-//        else{
-//            Velocity = 0;
-//        }
+
+
+
 //        if (Velocity == 0){
 //            Gravity = -0.5;
 //        }

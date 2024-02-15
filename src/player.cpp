@@ -110,29 +110,31 @@ void Player::goBackward(guVector& normalizedLook, bool collision, World& w) {
     }
 }
 
-void Player::goUp(t_coord coord, bool collision, World &w) {
+void Player::goUp(t_coord coord, bool collision, World &w, float speed) {
     if ( collision ){
         coord.y += 2;
         if (w.getBlockAt(coord).type == BlockType::Air)
-            renderer.camera.pos.y += 0.1;
+            renderer.camera.pos.y += speed /10;
         else
             renderer.camera.pos.y = coord.y -1.1;
     }
     else
-        renderer.camera.pos.y += 0.1;
+        renderer.camera.pos.y += speed / 10;
 }
 
-void Player::goDown(t_coord coord, bool collision, World &w) {
+
+void Player::goDown(t_coord coord, bool collision, World &w, float speed ) {
     if ( collision ){
         coord.y -= 1;
         if (w.getBlockAt(coord).type == BlockType::Air)
-            renderer.camera.pos.y -= 0.1;
+            renderer.camera.pos.y -= speed;
         else
             renderer.camera.pos.y = (f32) floor (coord.y )+ 1.8;
     }
     else
-        renderer.camera.pos.y -= 0.1;
+        renderer.camera.pos.y -= speed;
 }
+
 
 void Player::setPos(f32 x, f32 y, f32 z) {
     renderer.camera.pos.x = x;
@@ -143,8 +145,27 @@ void Player::setPos(f32 x, f32 y, f32 z) {
 void Player::handleMovement(World& w, u16 directions, bool collision) {
     guVector normalizedLook = renderer.camera.look;
     guVecNormalize(&normalizedLook);
-    t_coord coord((int)renderer.camera.pos.x+1, (int)renderer.camera.pos.y, (int)renderer.camera.pos.z+1);
+    t_coord coord(floor(renderer.camera.pos.x+1), floor(renderer.camera.pos.y), floor(renderer.camera.pos.z+1));
     speed = 1;
+    if (Gravity){
+        if (Acceleration < 0.49)
+            Acceleration += 0.01;
+
+        if (w.getBlockAt({coord.x, (int) floor (coord.y - 0.8), coord.z}).type == BlockType::Air) {
+            Velocity += Acceleration;
+        }
+        else{
+            Velocity = 0;
+        }
+
+        if ( Velocity < 0){
+            goUp(coord, true, w, Velocity);
+        }
+        else if (Velocity > 0){
+            goDown(coord, true, w, Velocity);
+        }
+    }
+
 
     if (directions & WPAD_BUTTON_PLUS)
         speed = 3;
