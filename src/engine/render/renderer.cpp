@@ -105,16 +105,17 @@ void Renderer::setupVtxDesc() {
 	GX_ClearVtxDesc();
 	GX_InvVtxCache();
 	
-	GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
+	GX_SetVtxDesc(GX_VA_POS, GX_INDEX8);
 	GX_SetVtxDesc(GX_VA_NRM, GX_INDEX8);
     GX_SetVtxDesc(GX_VA_CLR0, GX_DIRECT);
     GX_SetVtxDesc(GX_VA_TEX0, GX_DIRECT);
 	
-	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_S8, 0);
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_NRM_XYZ, GX_S8, 0);
     GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
     GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
 
+	GX_SetArray(GX_VA_POS, (void *)Vertices, 3 * sizeof(Vertices[0]));
 	GX_SetArray(GX_VA_NRM, (void *)Normals, 3 * sizeof(Normals[0]));
 
 }
@@ -186,6 +187,16 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 
     int sz = (top + bottom + left + right + front + back) << 2;
 	if (sz == 0) return;
+	
+	 Mtx model, modelview; // Various matrices
+
+    guMtxIdentity(model);
+
+    guMtxTransApply(model, model, coord.x, coord.y, coord.z);
+
+    guMtxConcat(camera.view3D, model, modelview);
+    GX_LoadPosMtxImm(modelview, GX_PNMTX0);
+	
     f32 x, y;
 
     u32 white = 0xffffffff;
@@ -197,24 +208,24 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         x = blocData[code].x[BLOC_FACE_BOTTOM];
         y = blocData[code].y[BLOC_FACE_BOTTOM];
 
-        GX_Position3f32(mx, my, coord.z);
+        GX_Position1x8(1);
         GX_Normal1x8(1);
         GX_Color1u32(white);
         GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Bottom right
 
-        GX_Position3f32(coord.x, my, coord.z);
+        GX_Position1x8(5);
         GX_Normal1x8(1);
         GX_Color1u32(white);
 
         GX_TexCoord2f32(x, y + OFFSET); // Bottom left
 
-        GX_Position3f32(coord.x, my, mz);
+        GX_Position1x8(4);
         GX_Normal1x8(1);
         GX_Color1u32(white);
 
         GX_TexCoord2f32(x, y); // Top left
 
-        GX_Position3f32(mx, my, mz);
+        GX_Position1x8(0);
         GX_Normal1x8(1);
         GX_Color1u32(white);
 
@@ -226,25 +237,25 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         x = blocData[code].x[BLOC_FACE_FRONT];
         y = blocData[code].y[BLOC_FACE_FRONT];
 
-        GX_Position3f32(mx, coord.y, coord.z);
+        GX_Position1x8(3);
         GX_Normal1x8(4);
         GX_Color1u32(white);
 
         GX_TexCoord2f32(x, y); // Top left
 
-        GX_Position3f32(coord.x, coord.y, coord.z);
+        GX_Position1x8(7);
         GX_Normal1x8(4);
         GX_Color1u32(white);
 
         GX_TexCoord2f32(x + OFFSET, y); // Top right
 
-        GX_Position3f32(coord.x, my, coord.z);
+        GX_Position1x8(5);
         GX_Normal1x8(4);
         GX_Color1u32(white);
 
         GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Bottom right
 
-        GX_Position3f32(mx, my, coord.z);
+        GX_Position1x8(1);
         GX_Normal1x8(4);
         GX_Color1u32(white);
 
@@ -256,25 +267,25 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         x = blocData[code].x[BLOC_FACE_BACK];
         y = blocData[code].y[BLOC_FACE_BACK];
 
-        GX_Position3f32(coord.x, my, mz);
+        GX_Position1x8(4);
         GX_Normal1x8(5);
         GX_Color1u32(white);
 
         GX_TexCoord2f32(x, y + OFFSET); // Bottom left
 
-        GX_Position3f32(coord.x, coord.y, mz);
+        GX_Position1x8(6);
         GX_Normal1x8(5);
         GX_Color1u32(white);
 
         GX_TexCoord2f32(x, y); // Top left
 
-        GX_Position3f32(mx, coord.y, mz);
+        GX_Position1x8(2);
         GX_Normal1x8(5);
         GX_Color1u32(white);
 
         GX_TexCoord2f32(x + OFFSET, y); // Top right
 
-        GX_Position3f32(mx, my, mz);
+        GX_Position1x8(0);
         GX_Normal1x8(5);
         GX_Color1u32(white);
 
@@ -287,25 +298,25 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         x = blocData[code].x[BLOC_FACE_RIGHT];
         y = blocData[code].y[BLOC_FACE_RIGHT];
 
-        GX_Position3f32(coord.x, my, coord.z);
+        GX_Position1x8(5);
         GX_Normal1x8(2);
         GX_Color1u32(white);
 
         GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Bottom left
 
-        GX_Position3f32(coord.x, coord.y, coord.z);
+        GX_Position1x8(7);
         GX_Normal1x8(2);
         GX_Color1u32(white);
 
         GX_TexCoord2f32(x + OFFSET, y); // Top left
 
-        GX_Position3f32(coord.x, coord.y, mz);
+        GX_Position1x8(6);
         GX_Normal1x8(2);
         GX_Color1u32(white);
 
         GX_TexCoord2f32(x, y); // Top right
 
-        GX_Position3f32(coord.x, my, mz);
+        GX_Position1x8(4);
         GX_Normal1x8(2);
         GX_Color1u32(white);
 
@@ -317,25 +328,25 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         x = blocData[code].x[BLOC_FACE_LEFT];
         y = blocData[code].y[BLOC_FACE_LEFT];
 
-        GX_Position3f32(mx, coord.y, mz);
+        GX_Position1x8(2);
         GX_Normal1x8(3);
         GX_Color1u32(white);
 
         GX_TexCoord2f32(x + OFFSET, y); // Bottom left
 
-        GX_Position3f32(mx, coord.y, coord.z);
+        GX_Position1x8(3);
         GX_Normal1x8(3);
         GX_Color1u32(white);
 
         GX_TexCoord2f32(x, y); // Top left
 
-        GX_Position3f32(mx, my, coord.z);
+        GX_Position1x8(1);
         GX_Normal1x8(3);
         GX_Color1u32(white);
 
         GX_TexCoord2f32(x, y + OFFSET); // Top right
 
-        GX_Position3f32(mx, my, mz);
+        GX_Position1x8(0);
         GX_Normal1x8(3);
         GX_Color1u32(white);
 
@@ -347,25 +358,25 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         x = blocData[code].x[BLOC_FACE_TOP];
         y = blocData[code].y[BLOC_FACE_TOP];
 
-        GX_Position3f32(coord.x, coord.y, mz);
+        GX_Position1x8(6);
         GX_Normal1x8(0);
         GX_Color1u32(white);
 
         GX_TexCoord2f32(x + OFFSET, y); // Top right
 
-        GX_Position3f32(coord.x, coord.y, coord.z);
+        GX_Position1x8(7);
         GX_Normal1x8(0);
         GX_Color1u32(white);
 
         GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Bottom right
 
-        GX_Position3f32(mx, coord.y, coord.z);
+        GX_Position1x8(3);
         GX_Normal1x8(0);
         GX_Color1u32(white);
 
         GX_TexCoord2f32(x, y + OFFSET); // Bottom left
 
-        GX_Position3f32(mx, coord.y, mz);
+        GX_Position1x8(2);
         GX_Normal1x8(0);
         GX_Color1u32(white);
         GX_TexCoord2f32(x, y); // Top left
@@ -375,6 +386,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 }
 
 void Renderer::drawFocus(Block block, f32 x, f32 y, f32 z) {
+	/*
     Mtx model, modelview; // Various matrices
 
     //guMtxIdentity(model);
@@ -395,7 +407,7 @@ void Renderer::drawFocus(Block block, f32 x, f32 y, f32 z) {
 
     GX_Begin(GX_LINESTRIP, GX_VTXFMT0, 26);
 
-        GX_Position3f32(mx, my, mz);
+        GX_Position1x8(7);
         GX_Normal1x8(1);
     GX_Color1u32(black);
         GX_TexCoord2f32(0, OFFSET); // Top right
@@ -448,7 +460,7 @@ void Renderer::drawFocus(Block block, f32 x, f32 y, f32 z) {
 
     GX_TexCoord2f32(0, OFFSET); // Top left
 
-        GX_Position3f32(mx, my, mz);
+        GX_Position1x8(7);
         GX_Normal1x8(5);
     GX_Color1u32(black);
 
@@ -502,7 +514,7 @@ void Renderer::drawFocus(Block block, f32 x, f32 y, f32 z) {
 
     GX_TexCoord2f32(0, OFFSET); // Bottom left
 
-        GX_Position3f32(mx, my, mz);
+        GX_Position1x8(7);
         GX_Normal1x8(3);
     GX_Color1u32(black);
 
@@ -552,6 +564,7 @@ void Renderer::drawFocus(Block block, f32 x, f32 y, f32 z) {
 
     GX_End();
     GX_SetLineWidth(1.0f, GX_VTXFMT0);
+	*/
 }
 /*
 void Renderer::miningAnimation(int state, f32 x, f32 y, f32 z) {
@@ -567,7 +580,7 @@ void Renderer::miningAnimation(int state, f32 x, f32 y, f32 z) {
     GX_Begin(GX_QUADS, GX_VTXFMT0, 24); // Start drawing
 
     // Bottom face
-        GX_Position3f32(mx, my, mz);
+        GX_Position1x8(7);
         GX_Normal1x8(1);
         GX_TexCoord2f32(x + (f32) state * OFFSET, y + (f32) state * OFFSET); // Top right
 
@@ -601,7 +614,7 @@ void Renderer::miningAnimation(int state, f32 x, f32 y, f32 z) {
 
     // Back face
 
-        GX_Position3f32(mx, my, mz);
+        GX_Position1x8(7);
         GX_Normal1x8(5);
         GX_TexCoord2f32(x + OFFSET, y); // Bottom right
 
@@ -637,7 +650,7 @@ void Renderer::miningAnimation(int state, f32 x, f32 y, f32 z) {
 
     // Left face
 
-        GX_Position3f32(mx, my, mz);
+        GX_Position1x8(7);
         GX_Normal1x8(3);
         GX_TexCoord2f32(x, y); // Bottom right
 

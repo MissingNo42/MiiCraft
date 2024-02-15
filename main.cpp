@@ -184,7 +184,7 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 
 void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
 	t_pos2D pos;
-	int dist = 2;
+	int dist = 4;
 	for (pos.x = posCam.x - dist; pos.x <= posCam.x + dist; pos.x++) {
 		for (pos.y = posCam.y - dist ;  pos.y <= posCam.y + dist; pos.y++) {
 			renderChunk(w.getChunkAt(pos), renderer, pos);

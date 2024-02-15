@@ -10,6 +10,7 @@
 
 // TODO test perf between u8 and f32
 extern const s8 Normals[] ATTRIBUTE_ALIGN(32);
+extern const s8 Vertices[] ATTRIBUTE_ALIGN(32);
 
 class ChunkCache {
 
