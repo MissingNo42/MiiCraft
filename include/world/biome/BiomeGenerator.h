@@ -35,10 +35,10 @@ APPLY_BLOCK(BlockType::Bedrock);
 chunk->VC_SetBlock(pos, BLOCK_TYPE);
 
 
-const int bottomLevel = 20; // absolu
-const int seaLevel = 20; // relatif a bottomLevel
-const int continentLevel = 15; // relatif a seaLevel
-const int peakAmplitude = 20;
+const float bottomLevel = 20; // absolu
+const float seaLevel = 20; // relatif a bottomLevel
+const float continentLevel = 5; // relatif a seaLevel
+const float peakAmplitude = 30. / 2.;
 
 class BiomeGenerator {
 private:
@@ -64,8 +64,8 @@ public:
             pos.y = i;
             if (i < 5) { APPLY_BLOCK( rand() %2 ? Bedrock : Stone);}
             else if (i < height /1.2) { APPLY_BLOCK(BlockType::Air);}
-            else if (i < height) { APPLY_BLOCK(BlockType::Air);}
-            else if (i == height) {
+            else if (i < height - 1) { APPLY_BLOCK(BlockType::Air);}
+            else if (i == height || i == height - 1) {
 //                APPLY_BLOCK(BlockType::Sand);
                 switch (biome) {
                     case Ocean:
@@ -118,7 +118,7 @@ public:
         }
         if (biome == BiomeType::Ocean)
         {
-            for(i=i; i<= seaLevel + bottomLevel; i++)
+            for(i=i; i<= seaLevel; i++)
             {
                 pos.y = i;
                 APPLY_BLOCK(Water);

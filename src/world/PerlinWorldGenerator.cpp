@@ -129,18 +129,19 @@ void PerlinWorldGenerator::initNoise() {
     noiseErosion.SetFrequency(.022 / 16.f);
     noiseErosion.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2S); //Peut-être mettre en non S
     //Temperature
-    noiseTemperature.SetFrequency(.02);
+    noiseTemperature.SetFrequency(.002);
     noiseTemperature.SetNoiseType(FastNoiseLite::NoiseType_ValueCubic);
     //Humidity
     noiseHumidity.SetFrequency(.01);
     noiseHumidity.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     //Altitude (main)
-    noiseAltitude.SetFrequency(0.025f / 16.f);
+    noiseAltitude.SetFrequency(0.055f);
     noiseAltitude.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     noiseAltitude.SetFractalType(FastNoiseLite::FractalType_FBm);
-    noiseAltitude.SetFractalOctaves(3);
-    noiseAltitude.SetFractalLacunarity(5.75);
-    noiseAltitude.SetFractalGain(0.5);
+    noiseAltitude.SetFractalOctaves(2);
+    noiseAltitude.SetFractalLacunarity(6);
+    noiseAltitude.SetFractalGain(0.15);
+    noiseAltitude.SetFractalWeightedStrength(5.25);
 }
 
 void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
@@ -190,7 +191,7 @@ void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
 
 BiomeType PerlinWorldGenerator::guessBiome(float ero, float temp, float hum, float cont, int height) {
     if      (cont < 1.2 && height < seaLevel + bottomLevel)     {return BiomeType::Ocean;}
-    else if (cont < .8  && height < seaLevel + bottomLevel + 4) {return BiomeType::Beach;}
+    else if (height < seaLevel + bottomLevel + 4) {return BiomeType::Beach;}
     else
     {// CONTINENT
         return BiomeType::Plain;
@@ -198,4 +199,10 @@ BiomeType PerlinWorldGenerator::guessBiome(float ero, float temp, float hum, flo
 //        else// if (temp > .5)
 //        {return BiomeType::Plain;}
     }
+//    if (ero < -.3)
+//    {return BiomeType::Desert;}
+//    else if (ero < -.3)
+//    {return BiomeType::Desert;}
+//    else if (ero < -.3)
+//    {return BiomeType::Desert;}
 }

@@ -32,7 +32,6 @@ add_executable(Miicraft main.cpp
         src/system/saveManager.cpp
         src/system/Random.cpp
         src/player.cpp
-        include/player.h
 )
 
 add_executable(MiicraftTest Debug.cpp
