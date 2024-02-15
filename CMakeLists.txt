@@ -35,6 +35,8 @@ add_executable(Miicraft main.cpp
         src/system/Random.cpp
         src/player.cpp
         include/player.h
+        src/engine/render/cache.cpp
+        include/engine/render/cache.h
 )
 
 add_executable(MiicraftTest Debug.cpp

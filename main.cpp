@@ -183,12 +183,14 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 
 
 void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
-//	t_pos2D pos;
-//	for (pos.x = posCam.x-1; pos.x < posCam.x + 2; pos.x++) {
-//		for (pos.y = posCam.y - 1 ;  pos.y < posCam.y + 2 ; pos.y++) {
-//			renderChunk(w.getChunkAt(pos), renderer, pos);
-//		}
-//	}
+	t_pos2D pos;
+	int dist = 2;
+	for (pos.x = posCam.x - dist; pos.x <= posCam.x + dist; pos.x++) {
+		for (pos.y = posCam.y - dist ;  pos.y <= posCam.y + dist; pos.y++) {
+			renderChunk(w.getChunkAt(pos), renderer, pos);
+		}
+	}
+/*
     t_pos2D pos;
     if (renderer.camera.look.x > 0.5f) {
         for (pos.x = posCam.x + 1; pos.x > posCam.x - 2; pos.x--) {
@@ -219,7 +221,7 @@ void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
             for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
                 renderChunk(w.getChunkAt(pos), renderer, pos);
         }
-    }
+    }*/
 }
 
 int main(int, char **) {
@@ -227,7 +229,7 @@ int main(int, char **) {
 	WPAD_Init();
 	
 	Renderer::setupVideo();
-	Renderer::setupVtxDesc3D();
+	Renderer::setupVtxDesc();
     Renderer::setupTexture();
 
 
@@ -251,59 +253,28 @@ int main(int, char **) {
     t_coord pos(0,0,0);
     World& w = Game::getInstance()->getWorld();
 
-//    f32 Velocity = 0.0;
-//    f32 Gravity = 0.0;
-
     while (!exiting) {
 
         player.renderer.camera.loadPerspective();
 
-        pos.x = player.renderer.camera.pos.x;
-        pos.y = player.renderer.camera.pos.y;
-        pos.z = player.renderer.camera.pos.z;
-//        if (Gravity < 0.49)
-//            Gravity += 0.01;
-
-
-
-
-
-//            //printf("%f %f %f\r",renderer.camera.pos.x, renderer.camera.pos.y, renderer.camera.pos.z);
-//            printf("%f %f\r",Velocity, Gravity);
-//
-//
-//        if (w.getBlockAt({(int)floor(player.renderer.camera.pos.x), (int)floor(player.renderer.camera.pos.y - Gravity), (int)floor(player.renderer.camera.pos.z)}).type == BlockType::Air) {
-//            player.renderer.camera.pos.y -= Velocity;
-//            Velocity += (abs(Velocity + Gravity) >= 0.5) ? 0 : Gravity;
-//        }
-//        else{
-//            Velocity = 0;
-//        }
-//        if (Velocity == 0){
-//            Gravity = -0.5;
-//        }
-
-
-
-
+        pos.x = floor(player.renderer.camera.pos.x);
+        pos.y = floor(player.renderer.camera.pos.y);
+        pos.z = floor(player.renderer.camera.pos.z);
 
         //printf("pos : %d %d %d\r", pos.x & 15, pos.y &15, pos.z &15);
+
+
         Game::getInstance()->requestChunk(w.to_chunk_pos(pos));
-        //printf("%d %d\r", w.to_chunk_pos(pos).x, w.to_chunk_pos(pos).y);
 
 		//renderer.camera.rotateV(-0.10);
 		//renderer.camera.rotateH(0.50);
 		//camera.rotateH(1);
 
-
-		player.renderer.camera.update(false);
-
         renderWorld(w, player.renderer, w.to_chunk_pos(pos));
 
         wiimote.update(player, w);
 
-
-        //printf("Type de block visé : %s\r", b.toString().c_str());
+        player.renderer.camera.update(true);
 
 
 		//renderer.renderBloc({4, 0, 0}, 1);
@@ -345,7 +316,7 @@ int main(int, char **) {
 		//Renderer::setupDebugConsole();
 
         u32 white = 0xFFFFFFFF;
-
+/*
         player.renderer.camera.loadOrtho(); // set for 2D drawing
         player.renderer.camera.applyTransform2D();
         f32 x,y;
@@ -401,7 +372,7 @@ int main(int, char **) {
         GX_Color1u32(white);
         GX_TexCoord2f32(BLOCK_COORD(1), BLOCK_COORD(1)); // Bottom left
 
-        GX_End();
+        GX_End();*/
 
 		Renderer::endFrame();
 	}
