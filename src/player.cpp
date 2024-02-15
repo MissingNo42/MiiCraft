@@ -51,43 +51,29 @@ guVector Player::InverseVector(const guVector& v){
 }
 
 
-void Player::goForward(guVector& normalizedLook, bool collision, World& w) {
-    if (collision) {
-        if (w.getBlockAt({(int)ceil(renderer.camera.pos.x + renderer.camera.look.x), (int) renderer.camera.pos.y, (int)ceil(renderer.camera.pos.z+renderer.camera.look.z)}).type == BlockType::Air
-            && w.getBlockAt({(int)ceil(renderer.camera.pos.x + renderer.camera.look.x), (int) renderer.camera.pos.y+1, (int)ceil(renderer.camera.pos.z+renderer.camera.look.z)}).type == BlockType::Air){
-            renderer.camera.pos.x += normalizedLook.x/10 * (f32) speed;
-            renderer.camera.pos.z += normalizedLook.z/10 * (f32) speed;
-        }
-    }
-    else {
-        renderer.camera.pos.x += normalizedLook.x / 10 * (f32) speed;
-        renderer.camera.pos.z += normalizedLook.z / 10 * (f32) speed;
-    }
-}
-
-void Player::goUp(t_coord coord, bool collision, World &w) {
+void Player::goUp(t_coord coord, bool collision, World &w, float velocity) {
     if ( collision ){
         coord.y += 2;
         if (w.getBlockAt(coord).type == BlockType::Air)
-            renderer.camera.pos.y += speed /10;
+            renderer.camera.pos.y += velocity /10;
         else
             renderer.camera.pos.y = coord.y -1.1;
     }
     else
-        renderer.camera.pos.y += speed / 10;
+        renderer.camera.pos.y += velocity / 10;
 }
 
 
-void Player::goDown(t_coord coord, bool collision, World &w, float speed ) {
+void Player::goDown(t_coord coord, bool collision, World &w, float velocity ) {
     if ( collision ){
         coord.y -= 1;
         if (w.getBlockAt(coord).type == BlockType::Air)
-            renderer.camera.pos.y -= speed /10;
+            renderer.camera.pos.y -= velocity /10;
         else
             renderer.camera.pos.y = (f32) floor (coord.y )+ 1.8;
     }
     else
-        renderer.camera.pos.y -= speed /10;
+        renderer.camera.pos.y -= velocity /10;
 }
 
 void Player::Jump() {

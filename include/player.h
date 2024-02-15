@@ -40,9 +40,9 @@ public:
 
     void handleAction(World& w, u16 actions);
 
-    void goUp(t_coord coord, bool collision, World& w);
+    void goUp(t_coord coord, bool collision, World& w, float velocity = 1.0f);
 
-    void goDown(t_coord coord, bool collision, World& w, float speed = 1.0f);
+    void goDown(t_coord coord, bool collision, World& w, float velocity = 1.0f);
 
     void Jump();
 
