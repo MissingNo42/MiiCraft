@@ -16,7 +16,7 @@ private:
     int breakingState;
     float Velocity = 0.0;
     float Acceleration = 0.0;
-    bool gravity = true;
+    bool gravity = false;
     bool isJumping = false;
 public:
     Renderer renderer;

@@ -2,7 +2,7 @@
 // Created by guill on 07/02/2024.
 //
 
-#include "../../include/world/PerlinWorldGenerator.h"
+#include "PerlinWorldGenerator.h"
 
 
 PerlinWorldGenerator::PerlinWorldGenerator() {

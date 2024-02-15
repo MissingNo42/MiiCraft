@@ -233,7 +233,7 @@ int main(int, char **) {
 
 	//Light light;
 	//GX_InvalidateTexAll();
-    Player player(8, 40, 8);
+    Player player(8, 100, 8);
 
 	//GX_InitTexObjFilterMode(&texture, GX_NEAR, GX_NEAR);
 	//GX_SetTevIndTile()
