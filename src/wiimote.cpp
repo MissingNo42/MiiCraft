@@ -24,7 +24,7 @@ void Wiimote::update(Player& player, World& w) {
     WPAD_Expansion(chan, &data);
 
     u16 directions = WPAD_ButtonsHeld(chan);
-    player.handleMovement(w, directions);
+    player.handleMovement(w, directions, false);
     player.getFocusedBlock(w);
     player.handleAction(w, directions);
 }
