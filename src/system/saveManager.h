@@ -27,7 +27,7 @@ public:
     /// \param c chunk a sauvegarder
     void saveChunk(t_pos2D pos, VerticalChunk* c);
     /// retourne si le fichier correspondant au chunk existe
-    bool isChunkSaved(t_pos2D chunkPos);
+//    bool isChunkSaved(t_pos2D chunkPos);
     /// Charge un chunk sans vérifier si il existe
     /// \param chunkPos
     /// \return null si problème de lecture

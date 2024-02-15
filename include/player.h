@@ -6,7 +6,7 @@
 #define MIICRAFTTEST_PLAYER_H
 
 
-#include "render/renderer.h"
+#include "engine/render/renderer.h"
 #include <wiiuse/wpad.h>
 #include <vector>
 

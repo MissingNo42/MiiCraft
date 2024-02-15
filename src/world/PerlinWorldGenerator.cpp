@@ -2,13 +2,19 @@
 // Created by guill on 07/02/2024.
 //
 
-#include "PerlinWorldGenerator.h"
+#include "../../include/world/PerlinWorldGenerator.h"
 
 
 PerlinWorldGenerator::PerlinWorldGenerator() {
     initNoise();
 }
 
+float smoothstep(float edge0, float edge1, float x) {
+    // Scale, bias and saturate x to 0..1 range
+    x = std::clamp((x - edge0) / (edge1 - edge0), 0.0f, 1.0f);
+    // Evaluate polynomial
+    return x * x * (3 - 2 * x);
+}
 
 
 void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
@@ -16,7 +22,8 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
     //Append in a file
 
-    int blockHeights[16][16];
+    u8        heightMap[16][16];
+    BiomeType biomeMap [16][16];
 
     for(int i = 0; i < 16; i ++){
         for(int j = 0; j < 16; j++){
@@ -24,87 +31,42 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
             float block_x = (float) (pos.x * 16 + i);
             float block_y = (float) (pos.y * 16 + j);
 
+
             BiomeType biome;
-
+            int height; // Hauteur en bloc de la colonne de blocs
+            //Propriétés du terrain
             float altitude = noiseAltitude.GetNoise(block_x, block_y) + 1.;
-
             float erosion = noiseErosion.GetNoise(block_x, block_y) + 1.;
-            float temperature = 0;//noiseTemperature.GetNoise(block_x, block_y) + 1.;
-            float humidity = 0;//noiseHumidity.GetNoise(block_x, block_y) + 1.;
-            float continent = 0;//noiseContinental.GetNoise(block_x, block_y) + 1.;
+            float temperature = noiseTemperature.GetNoise(block_x, block_y) + 1.;
+            float humidity = noiseHumidity.GetNoise(block_x, block_y) + 1.;
+            float continent = noiseContinental.GetNoise(block_x, block_y) + 1.;
+            altitude /= 2; // [0, 1]
 
-            biome = guessBiome(erosion, temperature, humidity, continent);
-
-//            double d = noise.GetNoise(block_x / 16.0f, block_y / 16.0f) *100 +25;
-
-            int height = (erosion * altitude * 30.f + 2.);
+            height = (peakAmplitude * erosion) * altitude
+                    + smoothstep(.3, 1.2, continent) * (seaLevel + continentLevel)
+                    + bottomLevel;
+//            height = (erosion * altitude * continent * 15.f + 2.);
             height = std::clamp(height, 0, 127);
 
-            BiomeGenerator::generateDesert(vc, i, j, height);
+//            printf("%d\r", height);
+            biome = guessBiome(erosion, temperature, humidity, continent, height);
+            BiomeGenerator::generateLand(biome, vc, i, j, height);
 
-//            switch (biome) {
-//                case Ocean:
-//                    break;
-////                case Beach:
-////                    generateVoid(vc, block_x, block_y, height);
-////                    break;
-////                case Savanna:
-////                    generateVoid(vc, block_x, block_y, height);
-////                    break;
-////                case Tundra:
-////                    generateVoid(vc, block_x, block_y, height);
-////                    break;
-////                case Desert:
-//////                    generateDesert(vc, block_x, block_y, height);
-////                    generateVide__(vc, block_x, block_y, height);
-////                    break;
-////                case Plain:
-//////                    generatePlain(vc, block_x, block_y, height);
-////                    generateVide__(vc, block_x, block_y, height);
-////                    break;
-////                case WoodedPlain:
-////                    generateVoid(vc, block_x, block_y, height);
-////                    break;
-////                case Hills:
-////                    generateVoid(vc, block_x, block_y, height);
-////                    break;
-////                case WoodedHills:
-////                    generateVoid(vc, block_x, block_y, height);
-////                    break;
-////                case Badlands:
-////                    generateVoid(vc, block_x, block_y, height);
-////                    break;
-////                case WoodedBadlands:
-////                    generateVoid(vc, block_x, block_y, height);
-////                    break;
-////                case Jungle:
-////                    generateVoid(vc, block_x, block_y, height);
-////                    break;
-////                case Mushroom:
-////                    generateVoid(vc, block_x, block_y, height);
-////                    break;
-////                case IcePeak:
-////                    generateVoid(vc, block_x, block_y, height);
-////                    break;
-////                case Taiga:
-////                    generateVoid(vc, block_x, block_y, height);
-////                    break;
-//                default:
-//                    t_coord p(i, 1, j);
-//                    vc->VC_SetBlock(p, BlockType::Bedrock);
-//            }
 
             //On remplit le tableau des hauteurs
-            blockHeights[i][j] = height;
+            biomeMap [i][j] = biome;
+            heightMap[i][j] = height;
         }
     }
+
 
     //On sélectionne une coordonnée aléatoire du tableau des hauteurs
     int x = rand() %12 + 2;
     int z = rand() %12 +2;
-    int y = blockHeights[x][z] + 1;
+    int y = heightMap[x][z] + 1;
 
     //On construit un arbre à cette position
+
     buildTree({x, y, z}, vc);
 
 
@@ -167,25 +129,26 @@ void PerlinWorldGenerator::initNoise() {
     noiseErosion.SetFrequency(.022 / 16.f);
     noiseErosion.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2S); //Peut-être mettre en non S
     //Temperature
-    noiseTemperature.SetFrequency(.02);
+    noiseTemperature.SetFrequency(.002);
     noiseTemperature.SetNoiseType(FastNoiseLite::NoiseType_ValueCubic);
     //Humidity
     noiseHumidity.SetFrequency(.01);
     noiseHumidity.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     //Altitude (main)
-    noiseAltitude.SetFrequency(0.025f / 16.f);
+    noiseAltitude.SetFrequency(0.055f);
     noiseAltitude.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     noiseAltitude.SetFractalType(FastNoiseLite::FractalType_FBm);
-    noiseAltitude.SetFractalOctaves(3);
-    noiseAltitude.SetFractalLacunarity(5.75);
-    noiseAltitude.SetFractalGain(0.5);
+    noiseAltitude.SetFractalOctaves(2);
+    noiseAltitude.SetFractalLacunarity(6);
+    noiseAltitude.SetFractalGain(0.15);
+    noiseAltitude.SetFractalWeightedStrength(5.25);
 }
 
 void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
     int height = rand() % 4 + 1;
     //On construit le tronc :
     for (int y = 0; y < 3+height ; y++) {
-        vc->VC_SetBlock({pos.x, pos.y + y, pos.z}, BlockType::Log);
+        vc->VC_SetBlock({pos.x, pos.y + y, pos.z}, BlockType::WoodOak);
     }
 
     //On construit les feuilles :
@@ -197,10 +160,10 @@ void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
                 }
                 if ((i == 2 || i == -2) && ( j == 2 || j == -2)) {
                     if (rand() %2)
-                        vc->VC_SetBlock({pos.x + i, pos.y + height + h, pos.z + j}, BlockType::Leaves);
+                        vc->VC_SetBlock({pos.x + i, pos.y + height + h, pos.z + j}, BlockType::LeaveOak);
                 }
                 else
-                    vc->VC_SetBlock({pos.x + i, pos.y + height + h, pos.z + j}, BlockType::Leaves);
+                    vc->VC_SetBlock({pos.x + i, pos.y + height + h, pos.z + j}, BlockType::LeaveOak);
             }
         }
     }
@@ -211,28 +174,35 @@ void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
             }
             if ((i == 1 || i == -1) && ( j == 1 || j == -1)) {
                 if (rand() %2)
-                    vc->VC_SetBlock({pos.x + i, pos.y + 2 + height, pos.z + j}, BlockType::Leaves);
+                    vc->VC_SetBlock({pos.x + i, pos.y + 2 + height, pos.z + j}, BlockType::LeaveOak);
             }
             else
-                vc->VC_SetBlock({pos.x + i, pos.y + 2 + height, pos.z + j}, BlockType::Leaves);
+                vc->VC_SetBlock({pos.x + i, pos.y + 2 + height, pos.z + j}, BlockType::LeaveOak);
         }
     }
 
-    vc->VC_SetBlock({pos.x + 1, pos.y + 3 + height, pos.z}, BlockType::Leaves);
-    vc->VC_SetBlock({pos.x - 1, pos.y + 3 + height, pos.z}, BlockType::Leaves);
-    vc->VC_SetBlock({pos.x, pos.y + 3 + height, pos.z+1}, BlockType::Leaves);
-    vc->VC_SetBlock({pos.x, pos.y + 3 + height, pos.z-1}, BlockType::Leaves);
-    vc->VC_SetBlock({pos.x, pos.y + 3 + height, pos.z}, BlockType::Leaves);
+    vc->VC_SetBlock({pos.x + 1, pos.y + 3 + height, pos.z}, BlockType::LeaveOak);
+    vc->VC_SetBlock({pos.x - 1, pos.y + 3 + height, pos.z}, BlockType::LeaveOak);
+    vc->VC_SetBlock({pos.x, pos.y + 3 + height, pos.z+1}, BlockType::LeaveOak);
+    vc->VC_SetBlock({pos.x, pos.y + 3 + height, pos.z-1}, BlockType::LeaveOak);
+    vc->VC_SetBlock({pos.x, pos.y + 3 + height, pos.z}, BlockType::LeaveOak);
 
 }
 
-BiomeType PerlinWorldGenerator::guessBiome(float ero, float temp, float hum, float cont) {
-    if      (cont < .6) {return BiomeType::Ocean;}
-    else if (cont < .5) {return BiomeType::Ocean;}
+BiomeType PerlinWorldGenerator::guessBiome(float ero, float temp, float hum, float cont, int height) {
+    if      (cont < 1.2 && height < seaLevel + bottomLevel)     {return BiomeType::Ocean;}
+    else if (height < seaLevel + bottomLevel + 4) {return BiomeType::Beach;}
     else
     {// CONTINENT
-        if      (temp > 1.5) {return BiomeType::Desert;}
-        else// if (temp > .5)
-        {return BiomeType::Plain;}
+        return BiomeType::Plain;
+//        if      (temp > 1.5) {return BiomeType::Desert;}
+//        else// if (temp > .5)
+//        {return BiomeType::Plain;}
     }
+//    if (ero < -.3)
+//    {return BiomeType::Desert;}
+//    else if (ero < -.3)
+//    {return BiomeType::Desert;}
+//    else if (ero < -.3)
+//    {return BiomeType::Desert;}
 }

@@ -34,9 +34,7 @@ void saveManager::saveChunk(t_pos2D pos, VerticalChunk *c) {
     fclose(file);
 }
 
-bool saveManager::isChunkSaved(t_pos2D chunkPos) {
-    return false;
-}
+
 
 void saveManager::loadChunk(t_pos2D pos, VerticalChunk* c) {
     char filename[30];

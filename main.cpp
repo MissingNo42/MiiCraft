@@ -183,14 +183,12 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 
 
 void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
-	t_pos2D pos;
-	int dist = 2;
-	for (pos.x = posCam.x - dist; pos.x <= posCam.x + dist; pos.x++) {
-		for (pos.y = posCam.y - dist ;  pos.y <= posCam.y + dist; pos.y++) {
-			renderChunk(w.getChunkAt(pos), renderer, pos);
-		}
-	}
-/*
+//	t_pos2D pos;
+//	for (pos.x = posCam.x-1; pos.x < posCam.x + 2; pos.x++) {
+//		for (pos.y = posCam.y - 1 ;  pos.y < posCam.y + 2 ; pos.y++) {
+//			renderChunk(w.getChunkAt(pos), renderer, pos);
+//		}
+//	}
     t_pos2D pos;
     if (renderer.camera.look.x > 0.5f) {
         for (pos.x = posCam.x + 1; pos.x > posCam.x - 2; pos.x--) {
@@ -221,13 +219,13 @@ void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
             for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
                 renderChunk(w.getChunkAt(pos), renderer, pos);
         }
-    }*/
+    }
 }
 
 int main(int, char **) {
 	PAD_Init();
 	WPAD_Init();
-	
+
 	Renderer::setupVideo();
 	Renderer::setupVtxDesc();
     Renderer::setupTexture();
@@ -304,13 +302,13 @@ int main(int, char **) {
 	
 		//GX_End();
 		
-		
-		
+
+
 		//light.update(camera.viewMatrix);
-		
+
 		//testRender();
 		//setupDebugConsole();
-		
+
 		//drawdot(rmode->fbWidth, rmode->xfbHeight, 0, 0, COLOR_YELLOW);
 
 		//Renderer::setupDebugConsole();
