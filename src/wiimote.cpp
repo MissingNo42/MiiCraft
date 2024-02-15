@@ -8,6 +8,10 @@
 #include <cstdio>
 #include "wiimote.h"
 
+Wiimote::Wiimote() {
+    WPAD_SetDataFormat(WPAD_CHAN_ALL, WPAD_FMT_BTNS_ACC_IR);
+    WPAD_SetVRes(WPAD_CHAN_ALL, Renderer::rmode->fbWidth, Renderer::rmode->xfbHeight);
+}
 
 void Wiimote::update(Player& player, World& w) {
 
@@ -23,16 +27,48 @@ void Wiimote::update(Player& player, World& w) {
 
     WPAD_Expansion(chan, &data);
 
-    u16 directions = WPAD_ButtonsHeld(chan);
-    player.handleMovement(w, directions);
+    t_coord coord(floor(player.renderer.camera.pos.x+1), floor(player.renderer.camera.pos.y), floor(player.renderer.camera.pos.z+1));
+    if (player.gravity)
+        player.handleGravity(w, coord);
+
+    u16 actions = WPAD_ButtonsHeld(chan);
+
+    if (actions & WPAD_BUTTON_PLUS)
+        player.sprint = true;
+    else
+        player.sprint = false;
+
+    if(wd->exp.type == WPAD_EXP_NUNCHUK) {
+        joystick_t sticks = wd->exp.nunchuk.js;
+        player.move(w, sticks);
+    }
     player.getFocusedBlock(w);
-    player.handleAction(w, directions);
+
+    if (actions & WPAD_BUTTON_MINUS && player.isTargeting)
+        player.destroyBlock(w);
+    else
+        player.breakingState = 0;
+
+    if(actions & WPAD_BUTTON_1 && player.isTargeting)
+        player.placeBlock(w);
+
+    if (actions & WPAD_BUTTON_A )
+        player.goUp(coord, w);
+    if (actions & WPAD_BUTTON_B)
+        player.goDown(coord, w);
+    if (player.gravity){
+        if (actions & WPAD_BUTTON_A && !player.isJumping){
+            player.Jump();
+        }
+    }
+    else {
+        if (actions & WPAD_BUTTON_A)
+            player.goUp(coord, w);
+        if (actions & WPAD_BUTTON_B)
+            player.goDown(coord, w);
+    }
 }
 
-Wiimote::Wiimote() {
-    WPAD_SetDataFormat(WPAD_CHAN_ALL, WPAD_FMT_BTNS_ACC_IR);
-    WPAD_SetVRes(WPAD_CHAN_ALL, Renderer::rmode->fbWidth, Renderer::rmode->xfbHeight);
-}
 
 void print_wiimote_connection_status(int wiimote_connection_status) {
     switch (wiimote_connection_status) {

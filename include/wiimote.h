@@ -23,6 +23,7 @@ public:
     WPADData * wd;
 
     void update(Player& player, World& w);
+    void handleMovement(Player& player, World& w, f32 stick_x, f32 stick_y);
 };
 
 
