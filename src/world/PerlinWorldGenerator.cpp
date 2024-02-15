@@ -120,14 +120,13 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
     }
 
     //print the whole chunk
-    for(int i = 0; i < 16; i++){
-        for(int j = 0; j < 16; j++){
-            for(int k = 0; k < 128; k++){
-                    printf("Block at %d %d %d : %d\r",i,j,k,vc->VC_GetBlock({i, k, j}).type);
-
-            }
-        }
-    }
+//    for(int i = 0; i < 16; i++){
+//        for(int j = 0; j < 16; j++){
+//            for(int k = 0; k < 128; k++){
+//                printf("Block at %d %d %d : %d\r",i,j,k,vc->VC_GetBlock({i, k, j}).type);
+//            }
+//        }
+//    }
 
 }
 
@@ -226,20 +225,25 @@ void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
 
 void PerlinWorldGenerator::initLight(VerticalChunk* c) {
     std::queue<t_coord> lightQueue;
-    for(int x = 0; x <16; x++){
-        for(int z = 0; z < 16; z++){
-            for(int y = 127; y >= 0; y--) {
-                if(y == 127) {
-                    t_coord p(x, 127, z);
+    for(int y = 127; y >= 0; y--) {
+        for(int x = 0; x <16; x++){
+            for(int z = 0; z < 16; z++){
+
+                t_coord p = {x, y, z};
                     if (c->VC_GetBlock(p).type < 16) {
-                        lightQueue.push(p);
-                        break;
+                        if(y==127){
+                            c->VC_SetBlock(p, static_cast<BlockType>(15));
+                            lightQueue.push(p);
+                        }
+                        else {
+                            c->VC_SetBlock(p, static_cast<BlockType>(0));
+                        }
                     }
-                }
-                else if(c->VC_GetBlock({x, y, z}).type < 16 && c->VC_GetBlock({x, y + 1, z}).type > 0){
-                    c->VC_SetBlock({x, y, z}, static_cast<BlockType>(0));
-                    break;
-                }
+//                }
+//                else if(c->VC_GetBlock({x, y, z}).type < 16 && c->VC_GetBlock({x, y , z}).type >= 0){
+//                    c->VC_SetBlock({x, y, z}, static_cast<BlockType>(0));
+//
+//                }
 
             }
         }
@@ -249,45 +253,70 @@ void PerlinWorldGenerator::initLight(VerticalChunk* c) {
         t_coord p = lightQueue.front();
         lightQueue.pop();
         int CurrentLightValue = c->VC_GetBlock(p).type;
-        if(CurrentLightValue <= 0){
+        if(CurrentLightValue <= 0 || CurrentLightValue > 15){
             continue;
         }
         else
         {
             if(p.x + 1 < 16) {// right neighboor
-                if (c->VC_GetBlock({p.x + 1, p.y, p.z}).type < CurrentLightValue - 1 || c->VC_GetBlock({p.x, p.y - 1, p.z}).type > 16 ) {
-                    c->VC_SetBlock({p.x + 1, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
-                    lightQueue.push({p.x + 1, p.y, p.z});
+                if (c->VC_GetBlock({p.x + 1, p.y, p.z}).type < CurrentLightValue - 1 || c->VC_GetBlock({p.x + 1, p.y, p.z}).type > 15 ) {
+                    c->VC_SetBlock({p.x, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
+                    if(c->VC_GetBlock({p.x + 1, p.y, p.z}).type <= 15){
+                        c->VC_SetBlock({p.x + 1, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
+                        lightQueue.push({p.x + 1, p.y, p.z});
+                    }
+
                 }
             }
             if(p.x - 1 >= 0) {// left neighboor
-                if (c->VC_GetBlock({p.x - 1, p.y, p.z}).type < CurrentLightValue - 1 || c->VC_GetBlock({p.x, p.y - 1, p.z}).type > 16) {
-                    c->VC_SetBlock({p.x - 1, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
-                    lightQueue.push({p.x - 1, p.y, p.z});
+                if (c->VC_GetBlock({p.x - 1, p.y, p.z}).type < CurrentLightValue - 1 || c->VC_GetBlock({p.x - 1, p.y, p.z}).type > 15) {
+                    c->VC_GetBlock({p.x, p.y, p.z}), static_cast<BlockType>(CurrentLightValue - 1);
+                    if(c->VC_GetBlock({p.x - 1, p.y, p.z}).type <= 15){
+                        c->VC_SetBlock({p.x - 1, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
+                        lightQueue.push({p.x - 1, p.y, p.z});
+                    }
+
                 }
             }
             if(p.z + 1 < 16) {// front neighboor
-                if (c->VC_GetBlock({p.x, p.y, p.z + 1}).type < CurrentLightValue - 1 || c->VC_GetBlock({p.x, p.y - 1, p.z}).type > 16 ) {
-                    c->VC_SetBlock({p.x, p.y, p.z + 1}, static_cast<BlockType>(CurrentLightValue - 1));
-                    lightQueue.push({p.x, p.y, p.z + 1});
+                if (c->VC_GetBlock({p.x, p.y, p.z + 1}).type < CurrentLightValue - 1 || c->VC_GetBlock({p.x, p.y, p.z + 1}).type > 15 ) {
+                    c->VC_SetBlock({p.x, p.y, p.z }, static_cast<BlockType>(CurrentLightValue - 1));
+                    if(c->VC_GetBlock({p.x, p.y, p.z + 1}).type <= 15){
+                        c->VC_SetBlock({p.x, p.y, p.z + 1}, static_cast<BlockType>(CurrentLightValue - 1));
+                        lightQueue.push({p.x, p.y, p.z + 1});
+                    }
+
                 }
             }
             if(p.z - 1 >= 0) {// back neighboor
-                if (c->VC_GetBlock({p.x, p.y, p.z - 1}).type < CurrentLightValue - 1 || c->VC_GetBlock({p.x, p.y - 1, p.z}).type > 16 ) {
-                    c->VC_SetBlock({p.x, p.y, p.z - 1}, static_cast<BlockType>(CurrentLightValue - 1));
-                    lightQueue.push({p.x, p.y, p.z - 1});
+                if (c->VC_GetBlock({p.x, p.y, p.z - 1}).type < CurrentLightValue - 1 || c->VC_GetBlock({p.x, p.y, p.z - 1}).type > 15 ) {
+                    c->VC_SetBlock({p.x, p.y, p.z }, static_cast<BlockType>(CurrentLightValue - 1));
+                    if(c->VC_GetBlock({p.x, p.y, p.z - 1}).type <= 15){
+                        c->VC_SetBlock({p.x, p.y, p.z - 1}, static_cast<BlockType>(CurrentLightValue - 1));
+                        lightQueue.push({p.x, p.y, p.z - 1});
+                    }
+
                 }
             }
             if(p.y + 1 < 128) {// top neighboor
-                if (c->VC_GetBlock({p.x, p.y + 1, p.z}).type < CurrentLightValue - 1 || c->VC_GetBlock({p.x, p.y - 1, p.z}).type > 16 ) {
-                    c->VC_SetBlock({p.x, p.y + 1, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
-                    lightQueue.push({p.x, p.y + 1, p.z});
+                if (c->VC_GetBlock({p.x, p.y + 1, p.z}).type < CurrentLightValue - 1 || c->VC_GetBlock({p.x, p.y + 1, p.z}).type > 15 ) {
+                    c->VC_SetBlock({p.x, p.y , p.z} , static_cast<BlockType>(CurrentLightValue - 1));
+                    if(c->VC_GetBlock({p.x, p.y + 1, p.z}).type <= 15){
+                        c->VC_SetBlock({p.x, p.y + 1, p.z} , static_cast<BlockType>(CurrentLightValue - 1));
+                        lightQueue.push({p.x, p.y + 1, p.z});
+
+                    }
+
                 }
             }
             if(p.y - 1 >= 0) {// bottom neighboor
-                if (c->VC_GetBlock({p.x, p.y - 1, p.z}).type < CurrentLightValue - 1 || c->VC_GetBlock({p.x, p.y - 1, p.z}).type > 16) {
-                    c->VC_SetBlock({p.x, p.y - 1, p.z}, static_cast<BlockType>(CurrentLightValue)); //// /!\ No minus 1 for the sun in bottom propagation
-                    lightQueue.push({p.x, p.y - 1, p.z});
+                if (c->VC_GetBlock({p.x, p.y - 1, p.z}).type < CurrentLightValue - 1 || c->VC_GetBlock({p.x, p.y - 1, p.z}).type > 15) {
+                    c->VC_SetBlock({p.x, p.y , p.z} , static_cast<BlockType>(CurrentLightValue));
+                    if(c->VC_GetBlock({p.x, p.y - 1, p.z}).type <= 15){
+                        c->VC_SetBlock({p.x, p.y - 1, p.z} , static_cast<BlockType>(CurrentLightValue));
+                        lightQueue.push({p.x, p.y - 1, p.z});
+                    }
+
                 }
             }
 

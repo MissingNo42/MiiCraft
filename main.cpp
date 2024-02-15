@@ -246,32 +246,32 @@ void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
 //	}
     t_pos2D pos;
     if (renderer.camera.look.x > 0.5f) {
-        for (pos.x = posCam.x + 1; pos.x > posCam.x - 2; pos.x--) {
-            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
+        for (pos.x = posCam.x + 2; pos.x > posCam.x - 3; pos.x--) {
+            for (pos.y = posCam.y - 2; pos.y < posCam.y + 3; pos.y++)
                 renderChunk(w.getChunkAt(pos), renderer, pos);
         }
     }
     else if (renderer.camera.look.x < -0.5f) {
-        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
-            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
+        for (pos.x = posCam.x - 2; pos.x < posCam.x + 3; pos.x++) {
+            for (pos.y = posCam.y - 2; pos.y < posCam.y + 3; pos.y++)
                 renderChunk(w.getChunkAt(pos), renderer, pos);
         }
     }
     else if (renderer.camera.look.z > 0.5f) {
-        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
-            for (pos.y = posCam.y + 1; pos.y > posCam.y - 2; pos.y--)
+        for (pos.x = posCam.x - 2; pos.x < posCam.x + 3; pos.x++) {
+            for (pos.y = posCam.y + 2; pos.y > posCam.y - 3; pos.y--)
                 renderChunk(w.getChunkAt(pos), renderer, pos);
         }
     }
     else if (renderer.camera.look.z < -0.5f) {
-        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
-            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
+        for (pos.x = posCam.x - 2; pos.x < posCam.x + 3; pos.x++) {
+            for (pos.y = posCam.y - 2; pos.y < posCam.y + 3; pos.y++)
                 renderChunk(w.getChunkAt(pos), renderer, pos);
         }
     }
     else{
-        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
-            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
+        for (pos.x = posCam.x - 2; pos.x < posCam.x + 3; pos.x++) {
+            for (pos.y = posCam.y - 2; pos.y < posCam.y + 3; pos.y++)
                 renderChunk(w.getChunkAt(pos), renderer, pos);
         }
     }

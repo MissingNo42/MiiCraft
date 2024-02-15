@@ -9,7 +9,7 @@
 #define SOLIDBLOCK 2
 enum BlockType : u8 {
 
-    Air0 =      0,
+    Air0 =      0, //Darkest value of light
     Air1 =      1,
     Air2 =      2,
     Air3 =      3,
@@ -24,7 +24,7 @@ enum BlockType : u8 {
     Air12 =     12,
     Air13 =     13,
     Air14 =     14,
-    Air =       15,
+    Air15 =       15, Air = 15, //Brightest value of light
     Leaves =    16,
     Dirt =      17,
     Grass =     18,
