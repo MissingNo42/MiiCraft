@@ -127,12 +127,17 @@ void Player::goDown(t_coord coord, bool collision, World &w, float speed ) {
     if ( collision ){
         coord.y -= 1;
         if (w.getBlockAt(coord).type == BlockType::Air)
-            renderer.camera.pos.y -= speed;
+            renderer.camera.pos.y -= speed /10;
         else
             renderer.camera.pos.y = (f32) floor (coord.y )+ 1.8;
     }
     else
-        renderer.camera.pos.y -= speed;
+        renderer.camera.pos.y -= speed /10;
+}
+
+void Player::Jump() {
+    if (Velocity == 0)
+        Acceleration = -0.2;
 }
 
 
@@ -147,21 +152,24 @@ void Player::handleMovement(World& w, u16 directions, bool collision) {
     guVecNormalize(&normalizedLook);
     t_coord coord(floor(renderer.camera.pos.x+1), floor(renderer.camera.pos.y), floor(renderer.camera.pos.z+1));
     speed = 1;
-    if (Gravity){
+    if (gravity){
         if (Acceleration < 0.49)
             Acceleration += 0.01;
 
-        if (w.getBlockAt({coord.x, (int) floor (coord.y - 0.8), coord.z}).type == BlockType::Air) {
+        if (isJumping || w.getBlockAt({coord.x, (int) floor (coord.y - 0.8), coord.z}).type == BlockType::Air) {
             Velocity += Acceleration;
+            printf("%f %f\r", Acceleration, Velocity);
+            if (w.getBlockAt({coord.x, (int) floor (coord.y - 0.8), coord.z}).type == BlockType::Air)
+                isJumping = false;
         }
         else{
             Velocity = 0;
         }
 
         if ( Velocity < 0){
-            goUp(coord, true, w, Velocity);
+            goUp(coord, true, w, -Velocity);
         }
-        else if (Velocity > 0){
+        if (Velocity > 0){
             goDown(coord, true, w, Velocity);
         }
     }
@@ -177,10 +185,19 @@ void Player::handleMovement(World& w, u16 directions, bool collision) {
         goForward(normalizedLook, collision, w);
     if (directions & WPAD_BUTTON_DOWN )
         goBackward(normalizedLook, collision, w);
-    if (directions & WPAD_BUTTON_A )
-        goUp(coord, collision, w);
-    if (directions & WPAD_BUTTON_B)
-        goDown(coord, collision, w);
+    if (gravity){
+        if (directions & WPAD_BUTTON_A && !isJumping){
+            printf("%f %f\r", Acceleration, Velocity);
+            isJumping = true;
+            Jump();
+        }
+    }
+    else {
+        if (directions & WPAD_BUTTON_A)
+            goUp(coord, collision, w);
+        if (directions & WPAD_BUTTON_B)
+            goDown(coord, collision, w);
+    }
 }
 
 void Player::handleRotation(WPADData * wd) {

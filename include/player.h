@@ -15,7 +15,8 @@ private:
     int breakingState;
     float Velocity = 0.0;
     float Acceleration = 0.0;
-    bool Gravity = true;
+    bool gravity = true;
+    bool isJumping = false;
 public:
     Renderer renderer;
     t_coord focusedBlockPos;
@@ -48,6 +49,8 @@ public:
     void goUp(t_coord coord, bool collision, World& w, float speed = 1.0f);
 
     void goDown(t_coord coord, bool collision, World& w, float speed = 1.0f);
+
+    void Jump();
 
     void setPos(f32 x, f32 y, f32 z);
 

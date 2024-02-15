@@ -50,24 +50,24 @@ void Renderer::setupVideo() {
 
     ///FOG
 
-    GXColor greyBackground = {0x80, 0x80, 0x80, 0xff};
-    GX_SetFog(GX_FOG_PERSP_LIN, 900, 990, 20, 1200, greyBackground);
-
-    GXFogAdjTbl* fogTable = (GXFogAdjTbl*)memalign(32, 8 * sizeof(GXFogAdjTbl));
-
-    f32 projmtx[4][4] = {
-            {2.0f / rmode->fbWidth, 0.0f, 0.0f, 0.0f},
-            {0.0f, 2.0f / rmode->efbHeight, 0.0f, 0.0f},
-            {0.0f, 0.0f, 0.0f, 0.0f},
-            {-1.0f, -1.0f, 0.0f, 1.0f}
-    };
-
-    GX_InitFogAdjTable(fogTable, rmode->fbWidth, projmtx);
-    GX_SetFogRangeAdj(true, 500, fogTable);
-
-	// setup texture coordinate generation
-	// args: texcoord slot 0-7, matrix type, source to generate texture coordinates from, matrix to use
-	GX_SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY);
+//    GXColor greyBackground = {0x80, 0x80, 0x80, 0xff};
+//    GX_SetFog(GX_FOG_PERSP_LIN, 900, 990, 20, 1200, greyBackground);
+//
+//    GXFogAdjTbl* fogTable = (GXFogAdjTbl*)memalign(32, 8 * sizeof(GXFogAdjTbl));
+//
+//    f32 projmtx[4][4] = {
+//            {2.0f / rmode->fbWidth, 0.0f, 0.0f, 0.0f},
+//            {0.0f, 2.0f / rmode->efbHeight, 0.0f, 0.0f},
+//            {0.0f, 0.0f, 0.0f, 0.0f},
+//            {-1.0f, -1.0f, 0.0f, 1.0f}
+//    };
+//
+//    GX_InitFogAdjTable(fogTable, rmode->fbWidth, projmtx);
+//    GX_SetFogRangeAdj(true, 500, fogTable);
+//
+//	// setup texture coordinate generation
+//	// args: texcoord slot 0-7, matrix type, source to generate texture coordinates from, matrix to use
+//	GX_SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY);
 }
 
 void Renderer::setupVtxDesc3D() {
@@ -154,17 +154,20 @@ GXColor Renderer::background = {0x80, 0x80, 0x80, 0xff};; // blue = {0x29, 0xae,
 
 void Renderer::renderBloc(const guVector &coord, u32 code,
 						  bool top, bool bottom, bool left, bool right, bool front, bool back) {
-	Mtx model, modelview; // Various matrices
-	
-	guMtxIdentity(model);
-	
-	guMtxTransApply(model, model, coord.x, coord.y, coord.z);
-	
-	guMtxConcat(camera.viewMatrix, model, modelview);
-	GX_LoadPosMtxImm(modelview, GX_PNMTX0);
-	
+
 	int sz = (top + bottom + left + right + front + back) << 2;
-	f32 x, y;
+    if (sz == 0)
+        return;
+    Mtx model, modelview; // Various matrices
+
+    guMtxIdentity(model);
+
+    guMtxTransApply(model, model, coord.x, coord.y, coord.z);
+
+    guMtxConcat(camera.viewMatrix, model, modelview);
+    GX_LoadPosMtxImm(modelview, GX_PNMTX0);
+
+    f32 x, y;
 	
 	GX_Begin(GX_QUADS, GX_VTXFMT0, sz); // Start drawing
 

@@ -191,36 +191,42 @@ void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
 //		}
 //	}
     t_pos2D pos;
-    if (renderer.camera.look.x > 0.5f) {
-        for (pos.x = posCam.x + 1; pos.x > posCam.x - 2; pos.x--) {
-            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
+
+//    if (renderer.camera.look.x > 0.5f) {
+//        for (pos.x = posCam.x + 1; pos.x > posCam.x - 2; pos.x--) {
+//            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
+//                renderChunk(w.getChunkAt(pos), renderer, pos);
+//        }
+//    }
+//    else if (renderer.camera.look.x < -0.5f) {
+//        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
+//            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
+//                renderChunk(w.getChunkAt(pos), renderer, pos);
+//        }
+//    }
+//    else if (renderer.camera.look.z > 0.5f) {
+//        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
+//            for (pos.y = posCam.y + 1; pos.y > posCam.y - 2; pos.y--)
+//                renderChunk(w.getChunkAt(pos), renderer, pos);
+//        }
+//    }
+//    else if (renderer.camera.look.z < -0.5f) {
+//        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
+//            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
+//                renderChunk(w.getChunkAt(pos), renderer, pos);
+//        }
+//    }
+//    else{
+//        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
+//            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
+//                renderChunk(w.getChunkAt(pos), renderer, pos);
+//        }
+//    }
+
+        for (pos.x = posCam.x - 3; pos.x < posCam.x + 4; pos.x++) {
+            for (pos.y = posCam.y - 3; pos.y < posCam.y + 4; pos.y++)
                 renderChunk(w.getChunkAt(pos), renderer, pos);
         }
-    }
-    else if (renderer.camera.look.x < -0.5f) {
-        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
-            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
-                renderChunk(w.getChunkAt(pos), renderer, pos);
-        }
-    }
-    else if (renderer.camera.look.z > 0.5f) {
-        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
-            for (pos.y = posCam.y + 1; pos.y > posCam.y - 2; pos.y--)
-                renderChunk(w.getChunkAt(pos), renderer, pos);
-        }
-    }
-    else if (renderer.camera.look.z < -0.5f) {
-        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
-            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
-                renderChunk(w.getChunkAt(pos), renderer, pos);
-        }
-    }
-    else{
-        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
-            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
-                renderChunk(w.getChunkAt(pos), renderer, pos);
-        }
-    }
 }
 
 int main(int, char **) {
@@ -269,17 +275,6 @@ int main(int, char **) {
 
 
 
-
-        //printf("%f %f %f\r",player.renderer.camera.pos.x, player.renderer.camera.pos.y, player.renderer.camera.pos.z);
-//            printf("%f %f\r",Velocity, Gravity);
-//
-//
-
-
-
-//        if (Velocity == 0){
-//            Gravity = -0.5;
-//        }
 
 
 
