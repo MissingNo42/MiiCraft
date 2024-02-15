@@ -8,6 +8,7 @@
 
 #include "render/renderer.h"
 #include <wiiuse/wpad.h>
+#include <vector>
 
 class Player {
 private:
@@ -20,6 +21,7 @@ private:
 public:
     Renderer renderer;
     t_coord focusedBlockPos;
+    t_coord previousFocusedBlockPos;
     bool targetable;
     Player(f32 x, f32 y, f32 z);
     Player();
@@ -38,15 +40,7 @@ public:
 
     void handleAction(World& w, u16 actions);
 
-    void goLeft(guVector& normalizedLook, bool collision, World& w);
-
-    void goRight(guVector& normalizedLook, bool collision, World& w);
-
-    void goForward(guVector& normalizedLook, bool collision, World& w);
-
-    void goBackward(guVector& normalizedLook, bool collision, World& w);
-
-    void goUp(t_coord coord, bool collision, World& w, float speed = 1.0f);
+    void goUp(t_coord coord, bool collision, World& w);
 
     void goDown(t_coord coord, bool collision, World& w, float speed = 1.0f);
 
@@ -54,7 +48,13 @@ public:
 
     void setPos(f32 x, f32 y, f32 z);
 
-    void DestroyBlock(t_coord coord, World& w);
+    int getFocusedFace(World& w) const;
+
+    void placeBlock(World& w) const;
+
+    void destroyBlock(World& w);
+
+    void updateMove(guVector normalizedLook, guVector &move, char direction);
 };
 
 

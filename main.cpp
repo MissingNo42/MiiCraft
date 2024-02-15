@@ -191,42 +191,36 @@ void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
 //		}
 //	}
     t_pos2D pos;
-
-//    if (renderer.camera.look.x > 0.5f) {
-//        for (pos.x = posCam.x + 1; pos.x > posCam.x - 2; pos.x--) {
-//            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
-//                renderChunk(w.getChunkAt(pos), renderer, pos);
-//        }
-//    }
-//    else if (renderer.camera.look.x < -0.5f) {
-//        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
-//            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
-//                renderChunk(w.getChunkAt(pos), renderer, pos);
-//        }
-//    }
-//    else if (renderer.camera.look.z > 0.5f) {
-//        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
-//            for (pos.y = posCam.y + 1; pos.y > posCam.y - 2; pos.y--)
-//                renderChunk(w.getChunkAt(pos), renderer, pos);
-//        }
-//    }
-//    else if (renderer.camera.look.z < -0.5f) {
-//        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
-//            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
-//                renderChunk(w.getChunkAt(pos), renderer, pos);
-//        }
-//    }
-//    else{
-//        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
-//            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
-//                renderChunk(w.getChunkAt(pos), renderer, pos);
-//        }
-//    }
-
-        for (pos.x = posCam.x - 2; pos.x < posCam.x + 3; pos.x++) {
-            for (pos.y = posCam.y - 2; pos.y < posCam.y + 3; pos.y++)
+    if (renderer.camera.look.x > 0.5f) {
+        for (pos.x = posCam.x + 1; pos.x > posCam.x - 2; pos.x--) {
+            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
                 renderChunk(w.getChunkAt(pos), renderer, pos);
         }
+    }
+    else if (renderer.camera.look.x < -0.5f) {
+        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
+            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
+                renderChunk(w.getChunkAt(pos), renderer, pos);
+        }
+    }
+    else if (renderer.camera.look.z > 0.5f) {
+        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
+            for (pos.y = posCam.y + 1; pos.y > posCam.y - 2; pos.y--)
+                renderChunk(w.getChunkAt(pos), renderer, pos);
+        }
+    }
+    else if (renderer.camera.look.z < -0.5f) {
+        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
+            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
+                renderChunk(w.getChunkAt(pos), renderer, pos);
+        }
+    }
+    else{
+        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
+            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
+                renderChunk(w.getChunkAt(pos), renderer, pos);
+        }
+    }
 }
 
 int main(int, char **) {
@@ -252,7 +246,6 @@ int main(int, char **) {
 	//GX_InitTexObjFilterMode(&texture, GX_NEAR, GX_NEAR);
 	//GX_SetTevIndTile()
 
-	Wiimote wiimote;
 
 	SYS_SetResetCallback(reload);
 	SYS_SetPowerCallback(shutdown);
@@ -261,20 +254,20 @@ int main(int, char **) {
     //pour rediriger stdout dans dolphin
     SYS_STDIO_Report(true);
 
+    Wiimote wiimote;
 
 
     t_coord pos(0,0,0);
     World& w = Game::getInstance()->getWorld();
+
+//    f32 Velocity = 0.0;
+//    f32 Gravity = 0.0;
 
     while (!exiting) {
 
         pos.x = floor(player.renderer.camera.pos.x);
         pos.y = floor(player.renderer.camera.pos.y);
         pos.z = floor(player.renderer.camera.pos.z);
-
-
-
-
 
 
 
@@ -288,14 +281,11 @@ int main(int, char **) {
 		//renderer.camera.rotateH(0.50);
 		//camera.rotateH(1);
 
-
-		player.renderer.camera.update(false);
-
         renderWorld(w, player.renderer, w.to_chunk_pos(pos));
 
         wiimote.update(player, w);
 
-
+        player.renderer.camera.update(false);
         //printf("Type de block visé : %s\r", b.toString().c_str());
 
 
