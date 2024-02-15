@@ -62,8 +62,8 @@ void Renderer::setupVideo() {
 	GX_SetDispCopyGamma(GX_GM_1_0);
 
     ///FOG
-    /*
-    GXColor greyBackground = {0x80, 0x80, 0x80, 0xff};
+
+//    GXColor greyBackground = {0x80, 0x80, 0x80, 0xff};
 //    GX_SetFog(GX_FOG_PERSP_LIN, 900, 990, 20, 1200, greyBackground);
 
 //    GXFogAdjTbl* fogTable = (GXFogAdjTbl*)memalign(32, 8 * sizeof(GXFogAdjTbl));
@@ -80,7 +80,6 @@ void Renderer::setupVideo() {
 
 	// setup texture coordinate generation
 	// args: texcoord slot 0-7, matrix type, source to generate texture coordinates from, matrix to use
-	*/
 
     ///End Fog
 
@@ -190,7 +189,7 @@ void Renderer::endFrame() {
 
 	selectFrameBuffer ^= 1;
 	frameBuffer = frameBuffers[selectFrameBuffer];
-	
+
 
 }
 
@@ -198,6 +197,13 @@ void Renderer::endFrame() {
 
 void Renderer::renderBloc(const guVector &coord, u32 code,
 						  bool top, bool bottom, bool left, bool right, bool front, bool back) {
+
+
+    int sz = (top + bottom + left + right + front + back) << 2;
+    if (sz == 0)
+        return;
+
+    f32 x, y;
     Mtx model, modelview; // Various matrices
 
     guMtxIdentity(model);
@@ -206,10 +212,6 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 
     guMtxConcat(camera.view3D, model, modelview);
     GX_LoadPosMtxImm(modelview, GX_PNMTX0);
-
-    int sz = (top + bottom + left + right + front + back) << 2;
-    f32 x, y;
-
     u32 white = 0xffffffff;
 
     GX_Begin(GX_QUADS, GX_VTXFMT0, sz); // Start drawing

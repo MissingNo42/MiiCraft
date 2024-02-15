@@ -8,6 +8,8 @@
 #include "verticalChunk.h"
  #include <map>
 
+#include <math.h>
+
 class World{
 
 private:

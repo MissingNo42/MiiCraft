@@ -255,9 +255,13 @@ int main(int, char **) {
 
         player.renderer.camera.loadPerspective();
 
-        pos.x = player.renderer.camera.pos.x - 1;
-        pos.y = player.renderer.camera.pos.y;
-        pos.z = player.renderer.camera.pos.z;
+        pos.x = floor(player.renderer.camera.pos.x);
+        pos.y = floor(player.renderer.camera.pos.y);
+        pos.z = floor(player.renderer.camera.pos.z);
+
+        //printf("pos : %d %d %d\r", pos.x & 15, pos.y &15, pos.z &15);
+
+
         Game::getInstance()->requestChunk(w.to_chunk_pos(pos));
 
 		//renderer.camera.rotateV(-0.10);

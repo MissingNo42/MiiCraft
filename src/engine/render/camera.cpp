@@ -47,3 +47,5 @@ void Camera::rotateV(f32 rad) {
 
     VecRotAxis(&look, right, rad);
 }
+
+
