@@ -318,12 +318,14 @@ void Player::move(World &w, joystick_t sticks) {
             offsetZ = - 0.2;
         else
             offsetZ = 0.2;
-
-
-        if (w.getBlockAt({(int) ceil(offsetX + renderer.camera.pos.x + move.x), (int) renderer.camera.pos.y,
-                          (int) ceil(offsetZ + renderer.camera.pos.z + move.z)}).type == BlockType::Air
-            && w.getBlockAt({(int) ceil(offsetX + renderer.camera.pos.x + move.x), (int) renderer.camera.pos.y + 1,
-                             (int) ceil(offsetZ +renderer.camera.pos.z + move.z)}).type == BlockType::Air) {
+        if (w.getBlockAt({(int) floor(offsetX + renderer.camera.pos.x + 1 + move.x), (int) renderer.camera.pos.y,
+                          (int) floor(renderer.camera.pos.z + 1)}).type == BlockType::Air
+            && w.getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) renderer.camera.pos.y,
+                             (int) floor(offsetZ +renderer.camera.pos.z + 1 + move.z)}).type == BlockType::Air
+            && w.getBlockAt({(int) floor(offsetX + renderer.camera.pos.x + 1 + move.x), (int) renderer.camera.pos.y + 1,
+                         (int) floor(renderer.camera.pos.z + 1)}).type == BlockType::Air
+            && w.getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) renderer.camera.pos.y + 1,
+                             (int) floor(offsetZ +renderer.camera.pos.z + 1 + move.z)}).type == BlockType::Air) {
             renderer.camera.pos.x += move.x;
             renderer.camera.pos.z += move.z;
         }
