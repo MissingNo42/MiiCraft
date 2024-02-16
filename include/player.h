@@ -20,7 +20,9 @@ public:
     bool isJumping = false;
     Renderer renderer;
     t_coord focusedBlockPos;
+    BlockType focusedBlockType;
     t_coord previousFocusedBlockPos;
+    guVector focusedBlockLook;
     bool isTargeting;
     bool sprint;
     int breakingState{};

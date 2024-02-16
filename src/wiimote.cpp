@@ -14,34 +14,31 @@ Wiimote::Wiimote() {
 }
 
 void Wiimote::update(Player& player, World& w) {
-    printf("x: %lf, y: %lf, z: %lf\r", player.renderer.camera.pos.x, player.renderer.camera.pos.y, player.renderer.camera.pos.z);
+    //printf("x: %lf, y: %lf, z: %lf\r", player.renderer.camera.pos.x, player.renderer.camera.pos.y, player.renderer.camera.pos.z);
     WPAD_ScanPads();
-    int wiimote_connection_status = WPAD_Probe(chan, &type);
+    int wiimote_connection_status;
 
-    if (wiimote_connection_status == WPAD_ERR_NONE) {
-        wd = WPAD_Data(chan);
-        player.handleRotation(wd);
-    }
-    if(WPAD_ButtonsDown(chan) & WPAD_BUTTON_HOME)
-        exit(1);
+    do {
+        wiimote_connection_status = WPAD_Probe(chan, &type);
+    } while (wiimote_connection_status != WPAD_ERR_NONE);
+
+    wd = WPAD_Data(chan);
+    player.handleRotation(wd);
 
     WPAD_Expansion(chan, &data);
+    if(WPAD_ButtonsDown(chan) & WPAD_BUTTON_HOME)
+        exit(1);
 
     t_coord coord(floor(player.renderer.camera.pos.x+1), floor(player.renderer.camera.pos.y), floor(player.renderer.camera.pos.z+1));
     if (player.gravity)
         player.handleGravity(w, coord);
 
     u16 actions = WPAD_ButtonsHeld(chan);
-
     if (actions & WPAD_BUTTON_PLUS)
         player.sprint = true;
     else
         player.sprint = false;
 
-    if(wd->exp.type == WPAD_EXP_NUNCHUK) {
-        joystick_t sticks = wd->exp.nunchuk.js;
-        player.move(w, sticks);
-    }
     player.getFocusedBlock(w);
 
     if (actions & WPAD_BUTTON_MINUS && player.isTargeting)
@@ -49,7 +46,7 @@ void Wiimote::update(Player& player, World& w) {
     else
         player.breakingState = 0;
 
-    if(actions & WPAD_BUTTON_1 && player.isTargeting)
+    if(actions & WPAD_BUTTON_B && player.isTargeting)
         player.placeBlock(w);
     player.placeDelay++;
 
@@ -63,6 +60,10 @@ void Wiimote::update(Player& player, World& w) {
             player.goUp(coord, w);
         if (actions & WPAD_BUTTON_B)
             player.goDown(coord, w);
+    }
+    if(wd->exp.type == WPAD_EXP_NUNCHUK) {
+        joystick_t sticks = wd->exp.nunchuk.js;
+        player.move(w, sticks);
     }
 }
 
