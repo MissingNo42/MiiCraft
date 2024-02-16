@@ -1180,29 +1180,6 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 						}
 						GX_End();
 					}
-					
-					/*
-					
-					renderer.renderBloc({(f32)(x + px), (f32)y, (f32)(z + pz)}, c.blocks[x][y][z].type  ,
-						c.blocks[x][y+1][z].type <= BlockType::Air,
-						c.blocks[x][y-1][z].type <= BlockType::Air,
-						c.blocks[x-1][y][z].type <= BlockType::Air,
-						c.blocks[x+1][y][z].type <= BlockType::Air,
-						c.blocks[x][y][z+1].type <= BlockType::Air,
-						c.blocks[x][y][z-1].type <= BlockType::Air,
-                                                c.blocks[x][y+1][z].type <= BlockType::Air14,
-                                                c.blocks[x][y-1][z].type <= BlockType::Air14,
-                                                c.blocks[x-1][y][z].type <= BlockType::Air14,
-                                                c.blocks[x+1][y][z].type <= BlockType::Air14,
-                                                c.blocks[x][y][z+1].type <= BlockType::Air14,
-                                                c.blocks[x][y][z-1].type <= BlockType::Air14,
-                                                            c.blocks[x][y+1][z].type,
-                                                            c.blocks[x][y-1][z].type,
-                                                            c.blocks[x-1][y][z].type,
-                                                            c.blocks[x+1][y][z].type,
-                                                            c.blocks[x][y][z+1].type,
-                                                            c.blocks[x][y][z-1].type
-						);*/
 				}
 			}
 		}
