@@ -23,7 +23,7 @@ void Player::getFocusedBlock(World &w) {
             x = renderer.camera.pos.x + 1,
             y = renderer.camera.pos.y + 1,
             z = renderer.camera.pos.z + 1;
-    while(type == BlockType::Air && distance <= 5){
+    while(type <= BlockType::Air && distance <= 5){
         x += renderer.camera.look.x/20;
         y += renderer.camera.look.y/20;
         z += renderer.camera.look.z/20;
@@ -31,7 +31,7 @@ void Player::getFocusedBlock(World &w) {
         pos = t_coord((int)floor(x), (int)floor(y), (int)floor(z));
         type = w.getBlockAt(pos).type;
     }
-    if(type != BlockType::Air) {
+    if(type > BlockType::Air) {
         renderer.drawFocus(w.getBlockAt(pos), (f32) pos.x, (f32) pos.y, (f32) pos.z);
         isTargeting = true;
         previousFocusedBlockPos = focusedBlockPos;
@@ -54,7 +54,7 @@ guVector Player::InverseVector(const guVector& v){
 void Player::goUp(t_coord coord, World &w, float velocity, bool collision) {
     if ( collision ){
         coord.y += 2;
-        if (w.getBlockAt(coord).type == BlockType::Air)
+        if (w.getBlockAt(coord).type <= BlockType::Air)
             renderer.camera.pos.y += velocity /10;
         else
             renderer.camera.pos.y = coord.y -1.1;
@@ -67,7 +67,7 @@ void Player::goUp(t_coord coord, World &w, float velocity, bool collision) {
 void Player::goDown(t_coord coord, World &w, float velocity, bool collision ) {
     if ( collision ){
         coord.y -= 1;
-        if (w.getBlockAt(coord).type == BlockType::Air)
+        if (w.getBlockAt(coord).type <= BlockType::Air)
             renderer.camera.pos.y -= velocity /10;
         else
             renderer.camera.pos.y = (f32) floor (coord.y )+ 1.6;
@@ -150,7 +150,7 @@ void Player::placeBlock(World& w){
             x = renderer.camera.pos.x + 1,
             y = renderer.camera.pos.y + 1,
             z = renderer.camera.pos.z + 1;
-    while(type == BlockType::Air && distance <= 5){
+    while(type <= BlockType::Air && distance <= 5){
         x += renderer.camera.look.x/20;
         y += renderer.camera.look.y/20;
         z += renderer.camera.look.z/20;
@@ -158,7 +158,7 @@ void Player::placeBlock(World& w){
         pos = t_coord((int)floor(x), (int)floor(y), (int)floor(z));
         type = w.getBlockAt(pos).type;
     }
-    if(type != BlockType::Air) {
+    if(type > BlockType::Air) {
         switch (getFocusedFace(w)) {
             case 0:
                 pos.x--;
@@ -214,7 +214,7 @@ int Player::getFocusedFace(World& w) const {
             x = renderer.camera.pos.x + 1,
             y = renderer.camera.pos.y + 1,
             z = renderer.camera.pos.z + 1;
-    while(type == BlockType::Air && distance <= 5){
+    while(type <= BlockType::Air && distance <= 5){
         x += renderer.camera.look.x/20;
         y += renderer.camera.look.y/20;
         z += renderer.camera.look.z/20;
@@ -222,7 +222,7 @@ int Player::getFocusedFace(World& w) const {
         pos = t_coord((int)floor(x), (int)floor(y), (int)floor(z));
         type = w.getBlockAt(pos).type;
     }
-    if(type != BlockType::Air) {
+    if(type > BlockType::Air) {
         f32 deltaX = (f32) std::fabs((x- round(x)));
         f32 deltaY = (f32) std::fabs((y- round(y)));
         f32 deltaZ = (f32) std::fabs((z- round(z)));
@@ -337,10 +337,10 @@ void Player::handleGravity(World &w, t_coord& coord) {
         if (Acceleration < 0.49)
             Acceleration += 0.01;
 
-        if (isJumping || w.getBlockAt({coord.x, (int) floor (coord.y - 0.8), coord.z}).type == BlockType::Air) {
+        if (isJumping || w.getBlockAt({coord.x, (int) floor (coord.y - 0.8), coord.z}).type <= BlockType::Air) {
             Velocity += Acceleration;
             printf("%f %f\r", Acceleration, Velocity);
-            if (w.getBlockAt({coord.x, (int) floor (coord.y - 0.8), coord.z}).type == BlockType::Air)
+            if (w.getBlockAt({coord.x, (int) floor (coord.y - 0.8), coord.z}).type <= BlockType::Air)
                 isJumping = false;
         }
         else{
