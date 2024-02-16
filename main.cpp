@@ -14,7 +14,7 @@
 
 #include "wiimote.h"
 #include "engine/render/renderer.h"
-
+#include "engine/render/render.h"
 
 
 #include "src/world/game.h"
@@ -39,7 +39,7 @@ TPLFile TPLfile;
 GXTexObj texture;
 
 
-void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
+void renderChunk2(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 	//int f[16][128][16][6];
 
 	int px = pos.x << 4;
@@ -338,6 +338,7 @@ int main(int, char **) {
     t_coord pos(0,0,0);
     World& w = Game::getInstance()->getWorld();
 
+    printf("end init\r");
     while (!exiting) {
 
         player.renderer.camera.loadPerspective();
@@ -355,7 +356,10 @@ int main(int, char **) {
 		//renderer.camera.rotateH(0.50);
 		//camera.rotateH(1);
 
+        printf("before rednerWorld\r");
         renderWorld(w, player.renderer, w.to_chunk_pos(pos));
+
+        printf("after rednerWorld\r");
 
         wiimote.update(player, w);
 
@@ -460,6 +464,7 @@ int main(int, char **) {
         GX_End();*/
 
 		Renderer::endFrame();
+        printf("end frame\r");
 	}
 	
 	if (exiting == 2) SYS_ResetSystem(SYS_SHUTDOWN, 0, 0);
