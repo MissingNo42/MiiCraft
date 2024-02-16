@@ -81,7 +81,7 @@ void Player::goDown(t_coord coord, World &w, float velocity, bool collision ) {
 void Player::Jump() {
     if (Velocity == 0.0 && !isJumping){
         isJumping = true;
-        Velocity = -3.3;
+        Velocity = -2.0;
     }
 }
 
@@ -151,8 +151,8 @@ void Player::placeBlock(World& w){
         switch (getFocusedFace(w)) {
             case 0:
                 pos.x--;
-                printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
-                printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
+                //printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
+                //printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
                 if(pos.x != (int)floor(renderer.camera.pos.x + 1)
                    || (pos.y != (int)floor(renderer.camera.pos.y + 1)
                        && pos.y != (int)floor(renderer.camera.pos.y))
@@ -161,8 +161,8 @@ void Player::placeBlock(World& w){
                 break;
             case 1:
                 pos.x++;
-                printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
-                printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
+                //printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
+                //printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
                 if(pos.x != (int)floor(renderer.camera.pos.x + 1)
                    || (pos.y != (int)floor(renderer.camera.pos.y + 1)
                        && pos.y != (int)floor(renderer.camera.pos.y))
@@ -171,8 +171,8 @@ void Player::placeBlock(World& w){
                 break;
             case 2:
                 pos.y--;
-                printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
-                printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
+                //printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
+                //printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
                 if(pos.x != (int)floor(renderer.camera.pos.x + 1)
                    || (pos.y != (int)floor(renderer.camera.pos.y + 1)
                    && pos.y != (int)floor(renderer.camera.pos.y))
@@ -181,8 +181,8 @@ void Player::placeBlock(World& w){
                 break;
             case 3:
                 pos.y++;
-                printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
-                printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
+                //printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
+                //printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
                 if(pos.x != (int)floor(renderer.camera.pos.x + 1)
                    || (pos.y != (int)floor(renderer.camera.pos.y + 1)
                        && pos.y != (int)floor(renderer.camera.pos.y))
@@ -191,8 +191,8 @@ void Player::placeBlock(World& w){
                 break;
             case 4:
                 pos.z--;
-                printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
-                printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
+                //printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
+                //printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
                 if(pos.x != (int)floor(renderer.camera.pos.x + 1)
                    || (pos.y != (int)floor(renderer.camera.pos.y + 1)
                        && pos.y != (int)floor(renderer.camera.pos.y))
@@ -201,8 +201,8 @@ void Player::placeBlock(World& w){
                 break;
             case 5:
                 pos.z++;
-                printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
-                printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
+                //printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
+                //printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
                 if(pos.x != (int)floor(renderer.camera.pos.x + 1)
                    || (pos.y != (int)floor(renderer.camera.pos.y + 1)
                        && pos.y != (int)floor(renderer.camera.pos.y))
@@ -311,13 +311,13 @@ void Player::move(World &w, joystick_t sticks) {
             offsetZ = - 0.3;
         else
             offsetZ = 0.3;
-        if (w.getBlockAt({(int) floor(offsetX + renderer.camera.pos.x + 1 + move.x), (int) renderer.camera.pos.y,
+        if (w.getBlockAt({(int) floor(offsetX + renderer.camera.pos.x + 1 + move.x), (int) (renderer.camera.pos.y- 0.5),
                           (int) floor(renderer.camera.pos.z + 1)}).type <= BlockType::Air
-            && w.getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) renderer.camera.pos.y,
+            && w.getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) (renderer.camera.pos.y - 0.5),
                              (int) floor(offsetZ +renderer.camera.pos.z + 1 + move.z)}).type <= BlockType::Air
-            && w.getBlockAt({(int) floor(offsetX + renderer.camera.pos.x + 1 + move.x), (int) renderer.camera.pos.y + 1,
+            && w.getBlockAt({(int) floor(offsetX + renderer.camera.pos.x + 1 + move.x), (int) (renderer.camera.pos.y + 0.5),
                          (int) floor(renderer.camera.pos.z + 1)}).type <= BlockType::Air
-            && w.getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) renderer.camera.pos.y + 1,
+            && w.getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) (renderer.camera.pos.y + 0.5),
                              (int) floor(offsetZ +renderer.camera.pos.z + 1 + move.z)}).type <= BlockType::Air) {
             renderer.camera.pos.x += move.x;
             renderer.camera.pos.z += move.z;
@@ -325,30 +325,33 @@ void Player::move(World &w, joystick_t sticks) {
     }
 }
 
-void Player::handleGravity(World &w, t_coord& coord) {
-    if (gravity){
+void Player::handleGravity(World &world, t_coord& coord) {
+    if (!gravity)
+        return;
 
-        if (isJumping || w.getBlockAt({coord.x, (int) floor (coord.y - 0.8), coord.z}).type <= BlockType::Air) {
-            Velocity += Acceleration;
-            printf("%f %f\r", Acceleration, Velocity);
-            if (w.getBlockAt({coord.x, (int) floor (coord.y - 0.8), coord.z}).type <= BlockType::Air)
-                isJumping = false;
-        }
-        else{
-            Velocity = 0;
-        }
+    Block blockBelow = world.getBlockAt({coord.x, (int)floor(coord.y - 0.8), coord.z});
 
-        if ( Velocity < 0){
-            goUp(coord,w, -Velocity);
-        }
-        else if (Velocity > 0){
-            goDown(coord, w, Velocity);
-        }
-        else if (!isJumping) {
-            goDown(coord, w, 0);
-        }
+    if (isJumping || blockBelow.type <= BlockType::Air) {
+        Velocity += Acceleration;
+        //printf("%f %f\r", Acceleration, Velocity);
+        if (blockBelow.type > BlockType::Air && Velocity > 0)
+            isJumping = false;
+    } else {
+        Velocity = 0;
+        goDown(coord, world, 0);
+    }
+
+
+
+    if (Velocity < 0) {
+        goUp(coord, world, -Velocity);
+    } else if (Velocity > 0) {
+        goDown(coord, world, Velocity);
     }
 }
+
+
+
 
 
 
