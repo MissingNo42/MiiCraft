@@ -14,8 +14,8 @@ class Player {
 private:
     float Velocity = 0.0;
     float Acceleration = 0.0;
-    int placeDelay;
 public:
+    int placeDelay;
     bool gravity = true;
     bool isJumping = false;
     Renderer renderer;

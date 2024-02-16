@@ -142,7 +142,7 @@ void Player::destroyBlock(World& w){
 }
 
 void Player::placeBlock(World& w){
-    if(++placeDelay < 10)
+    if(placeDelay < 10)
         return;
     BlockType type = BlockType::Air;
     t_coord pos = t_coord(0,0,0);
@@ -309,10 +309,21 @@ void Player::move(World &w, joystick_t sticks) {
     }
 
     if (true) {
-        if (w.getBlockAt({(int) ceil(renderer.camera.pos.x + move.x), (int) renderer.camera.pos.y,
-                          (int) ceil(renderer.camera.pos.z + move.z)}).type == BlockType::Air
-            && w.getBlockAt({(int) ceil(renderer.camera.pos.x + move.x), (int) renderer.camera.pos.y + 1,
-                             (int) ceil(renderer.camera.pos.z + move.z)}).type == BlockType::Air) {
+        f32 offsetX, offsetZ;
+        if(std::signbit(move.x))
+            offsetX = - 0.2;
+        else
+            offsetX = 0.2;
+        if(std::signbit(move.z))
+            offsetZ = - 0.2;
+        else
+            offsetZ = 0.2;
+
+
+        if (w.getBlockAt({(int) ceil(offsetX + renderer.camera.pos.x + move.x), (int) renderer.camera.pos.y,
+                          (int) ceil(offsetZ + renderer.camera.pos.z + move.z)}).type == BlockType::Air
+            && w.getBlockAt({(int) ceil(offsetX + renderer.camera.pos.x + move.x), (int) renderer.camera.pos.y + 1,
+                             (int) ceil(offsetZ +renderer.camera.pos.z + move.z)}).type == BlockType::Air) {
             renderer.camera.pos.x += move.x;
             renderer.camera.pos.z += move.z;
         }

@@ -14,7 +14,7 @@ Wiimote::Wiimote() {
 }
 
 void Wiimote::update(Player& player, World& w) {
-
+    printf("x: %lf, y: %lf, z: %lf\r", player.renderer.camera.pos.x, player.renderer.camera.pos.y, player.renderer.camera.pos.z);
     WPAD_ScanPads();
     int wiimote_connection_status = WPAD_Probe(chan, &type);
 
@@ -51,11 +51,8 @@ void Wiimote::update(Player& player, World& w) {
 
     if(actions & WPAD_BUTTON_1 && player.isTargeting)
         player.placeBlock(w);
+    player.placeDelay++;
 
-    if (actions & WPAD_BUTTON_A )
-        player.goUp(coord, w);
-    if (actions & WPAD_BUTTON_B)
-        player.goDown(coord, w);
     if (player.gravity){
         if (actions & WPAD_BUTTON_A && !player.isJumping){
             player.Jump();
