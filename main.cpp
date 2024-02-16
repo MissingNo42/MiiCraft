@@ -405,7 +405,7 @@ int main(int, char **) {
         player.renderer.camera.loadOrtho(); // set for 2D drawing
         player.renderer.camera.applyTransform2D();
         f32 x,y;
-        x = 0.01, y = 0.01;
+        x = 0.1, y = 0.1;
         GX_Begin(GX_QUADS, GX_VTXFMT0, 8); // Start drawing
 
         GX_Position3f32(-x, y, 0);

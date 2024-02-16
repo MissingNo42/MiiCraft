@@ -121,26 +121,18 @@ void Player::handleRotation(WPADData * wd) {
 void Player::destroyBlock(World& w){
     if(!focusedBlockPos.equals(previousFocusedBlockPos))
         breakingState = 0;
-    if (breakingState < 10) {
-        breakingState++;
-        renderer.renderBloc(coordToGuVector(focusedBlockPos), 1, true, true, true, true, true, true);
+
+    if (breakingState < 50)
+    {
+        BlockType breakBlock = (BlockType)(breakingState / 5 + BlockType::BlockBreaking0);
+        renderer.renderBloc(coordToGuVector(focusedBlockPos),breakBlock , true, true, true, true, true, true);
     }
-    else if (breakingState < 20) {
-        breakingState++;
-        renderer.renderBloc(coordToGuVector(focusedBlockPos), 2, true, true, true, true, true, true);
-    }
-    else if (breakingState < 30) {
-        breakingState++;
-        renderer.renderBloc(coordToGuVector(focusedBlockPos), 3, true, true, true, true, true, true);
-    }
-    else if (breakingState < 40) {
-        breakingState++;
-        renderer.renderBloc(coordToGuVector(focusedBlockPos), 5, true, true, true, true, true, true);
-    }
-    else{
+    else
+    {
         w.setBlockAt(focusedBlockPos, BlockType::Air);
         breakingState = 0;
     }
+    breakingState++;
 }
 
 void Player::placeBlock(World& w){
