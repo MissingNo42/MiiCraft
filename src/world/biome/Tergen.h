@@ -2,8 +2,8 @@
 // Created by Martin on 09/02/2024.
 //
 
-#ifndef MIICRAFTTEST_TERRAINGENERATOR_H
-#define MIICRAFTTEST_TERRAINGENERATOR_H
+#ifndef MIICRAFTTEST_TERGEN_H
+#define MIICRAFTTEST_TERGEN_H
 
 #include "../block.h"
 #include "../verticalChunk.h"
@@ -36,9 +36,15 @@ APPLY_BLOCK(BlockType::Bedrock); \
 pos.y ++;
 
 #define APPLY_BOTTOM \
-for (; pos.y < TerrainGenerator::bottomLevel ; pos.y++) {\
+for (; pos.y < Tergen::bottomLevel ; pos.y++) {\
     if (pos.y < 3) { APPLY_BLOCK( rand() %2 ? Bedrock : Stone);}\
     else { APPLY_BLOCK(BlockType::Stone);} }
+
+#define APPLY_CONTINENT(STONE, SOIL) \
+for (; pos.y < height; ++pos.y) {\
+    if (pos.y < height /1.2) { APPLY_BLOCK(STONE);}\
+    else { APPLY_BLOCK(SOIL);}}      \
+
 
 #define APPLY_SKY \
 for (; pos.y < VerticalChunk::CHUNK_HEIGHT-1; pos.y++){ \
@@ -48,7 +54,7 @@ for (; pos.y < VerticalChunk::CHUNK_HEIGHT-1; pos.y++){ \
 #define APPLY_BLOCK(BLOCK_TYPE) \
 chunk->VC_SetBlock(pos, BLOCK_TYPE);
 
-class TerrainGenerator {
+class Tergen {
 private:
 public:
 
@@ -71,20 +77,61 @@ public:
         APPLY_BEDROCK;
         APPLY_BOTTOM;
 
-        for (; pos.y <= height; ++pos.y) {
-            pos.y = pos.y;
-            if (pos.y < height /1.2) { APPLY_BLOCK(BlockType::Stone);}
-            else if (pos.y < height) { APPLY_BLOCK(BlockType::SandStone);}
-            else if (pos.y == height) { APPLY_BLOCK(BlockType::Sand);}
-        }
-
+        APPLY_CONTINENT(Stone, SandStone);
+        APPLY_BLOCK(Sand);
+        pos.y++;
         APPLY_SKY;
     }
+
+    inline static void generateTundra(VerticalChunk *chunk, int block_x, int block_z, int height){
+        INIT_GENERATOR;
+        APPLY_BEDROCK;
+        APPLY_BOTTOM;
+
+        APPLY_CONTINENT(Stone, Dirt);
+        APPLY_BLOCK(GrassSnow);
+        pos.y++;
+        APPLY_SKY;
+    }
+
+    inline static void generateSavanna(VerticalChunk *chunk, int block_x, int block_z, int height){
+        INIT_GENERATOR;
+        APPLY_BEDROCK;
+        APPLY_BOTTOM;
+
+        APPLY_CONTINENT(Stone, Dirt);
+        APPLY_BLOCK(GrassSavanna);
+        pos.y++;
+        APPLY_SKY;
+    }
+
+    inline static void generatePlain(VerticalChunk *chunk, int block_x, int block_z, int height){
+        INIT_GENERATOR;
+        APPLY_BEDROCK;
+        APPLY_BOTTOM;
+
+        APPLY_CONTINENT(Stone, Dirt);
+        APPLY_BLOCK(GrassTemperate);
+        pos.y++;
+        APPLY_SKY;
+    }
+
+    inline static void generateOcean(VerticalChunk *chunk, int block_x, int block_z, int height){
+        INIT_GENERATOR;
+        APPLY_BEDROCK;
+        APPLY_BOTTOM;
+
+        APPLY_BLOCK(Gravel);
+        for (; pos.y < seaLevel + bottomLevel; ++pos.y) {
+            APPLY_BLOCK(Water);
+        }
+        APPLY_SKY;
+    }
+
 };
-const int seaLevel = 16;
 //void generateVoid( VerticalChunk* chunk, int block_x, int block_z, int height);
 //void generateDesert( VerticalChunk* chunk, int block_x, int block_z, int height);
 //void generatePlain( VerticalChunk* chunk, int block_x, int block_z, int height);
 
 
-#endif //MIICRAFTTEST_TERRAINGENERATOR_H
+#endif //MIICRAFTTEST_TERGEN_H

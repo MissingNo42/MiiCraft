@@ -8,7 +8,7 @@
 
 #include "WorldGenerator.h"
 #include "utils/FastNoiseLite.h"
-#include "biome/TerrainGenerator.h"
+#include "biome/Tergen.h"
 #include "../system/Random.h"
 #include <fstream>
 #include <queue>
