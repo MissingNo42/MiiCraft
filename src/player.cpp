@@ -8,9 +8,9 @@
 #include <algorithm>
 #include "player.h"
 
-Player::Player() : focusedBlockPos(0,0,0), previousFocusedBlockPos(0,0,0), isTargeting(false), sprint(false){}
+Player::Player() : placeDelay(0), focusedBlockPos(0,0,0), previousFocusedBlockPos(0,0,0), isTargeting(false), sprint(false){}
 
-Player::Player(f32 x, f32 y, f32 z) : focusedBlockPos(0,0,0), previousFocusedBlockPos(0,0,0), isTargeting(false), sprint(false) {
+Player::Player(f32 x, f32 y, f32 z) : placeDelay(0), focusedBlockPos(0,0,0), previousFocusedBlockPos(0,0,0), isTargeting(false), sprint(false) {
     renderer.camera.pos.x = x;
     renderer.camera.pos.y = y;
     renderer.camera.pos.z = z;
@@ -23,7 +23,7 @@ void Player::getFocusedBlock(World &w) {
             x = renderer.camera.pos.x + 1,
             y = renderer.camera.pos.y + 1,
             z = renderer.camera.pos.z + 1;
-    while(type == BlockType::Air && distance <= 5){
+    while(type <= BlockType::Air && distance <= 5){
         x += renderer.camera.look.x/100;
         y += renderer.camera.look.y/100;
         z += renderer.camera.look.z/100;
@@ -136,10 +136,13 @@ void Player::destroyBlock(World& w){
 }
 
 void Player::placeBlock(World& w){
-    if(placeDelay < 10)
-        return;
+
+    if(placeDelay < 10){
+        printf("placeDelay: %d\r", placeDelay);
+        return;}
     t_coord pos = focusedBlockPos;
     if(focusedBlockType > BlockType::Air) {
+        printf("Placeeeeeeeeeeee\r");
         switch (getFocusedFace(w)) {
             case 0:
                 pos.x--;
