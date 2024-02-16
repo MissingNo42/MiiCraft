@@ -7,7 +7,7 @@
 #include "engine/render/camera.h"
 #include "engine/render/renderer.h"
 
-Camera::Camera(f32 fov, f32 min, f32 max) {
+Camera::Camera(f32 fov, f32 min, f32 max) : angleY(0){
     f32 ratio = (f32)Renderer::rmode->fbWidth / (f32)Renderer::rmode->xfbHeight;
     guPerspective(perspective, fov, ratio, min, max);
     guOrtho(ortho, 1, -1, -1, 1, 0, 300);
@@ -36,16 +36,20 @@ void Camera::rotateH(f32 rad) {
     guVecCross(&up, &look, &right);
     guVecCross(&look, &right, &rotup);
 
-
     VecRotAxis(&look, rotup, rad);
 }
 
 void Camera::rotateV(f32 rad) {
-    // Calculate the right axis (cross product of look-at and up)
-    guVector right;
-    guVecCross(&up, &look, &right);
+    //printf("angleY + rad: %f\r", angleY + rad);
+    if(angleY + rad < 88 && angleY + rad > -88){
+        // Calculate the right axis (cross product of look-at and up)
+        guVector right;
+        guVecCross(&up, &look, &right);
 
-    VecRotAxis(&look, right, rad);
+        VecRotAxis(&look, right, rad);
+        angleY += rad;
+    }
+
 }
 
 //void Camera::goUp(int speed, bool collision, World& w) {
