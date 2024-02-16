@@ -5,7 +5,7 @@
 #ifndef MIICRAFT_BLOC_H
 #define MIICRAFT_BLOC_H
 
-#define OFFSET 0.0625f
+#define OFFSET 0.03125f
 
 #define BLOC_FACE_TOP 0
 #define BLOC_FACE_BOTTOM 1

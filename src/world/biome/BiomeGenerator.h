@@ -58,7 +58,7 @@ public:
             if (i < 5) { APPLY_BLOCK( rand() %2 ? Bedrock : Stone);}
             else if (i < height /1.2) { APPLY_BLOCK(BlockType::Stone);}
             else if (i < height) { APPLY_BLOCK(BlockType::Dirt);}
-            else if (i == height) { APPLY_BLOCK(BlockType::Grass);}
+            else if (i == height) { APPLY_BLOCK(BlockType::GrassTemperate);}
             else {APPLY_BLOCK(BlockType::Air);}
         }
     }
