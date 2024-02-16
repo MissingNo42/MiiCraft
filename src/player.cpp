@@ -104,7 +104,7 @@ void Player::handleRotation(WPADData * wd) {
             f32 angle = (wd->ir.x - (f32) Renderer::rmode->fbWidth/2 + deadzone) / (f32) ((f32) Renderer::rmode->fbWidth/2 - deadzone) * 6;
             renderer.camera.rotateH( - (f32) M_PI /(8 - angle));
         }
-        if(wd->ir.y <  (f32) Renderer::rmode->xfbHeight/2 - deadzoneTop)
+        if(wd->ir.y <  (f32) Renderer::rmode->xfbHeight/2 - deadzone)
         {
             f32 angle = wd->ir.y / (f32) ((f32) Renderer::rmode->xfbHeight/2 - deadzone) * 6;
             renderer.camera.rotateV( - (f32) M_PI /(2 +angle));

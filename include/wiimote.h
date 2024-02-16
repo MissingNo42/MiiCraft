@@ -21,7 +21,6 @@ private:
 public:
     Wiimote();
     WPADData * wd;
-    bool active;
 
     void update(Player& player, World& w);
 };
