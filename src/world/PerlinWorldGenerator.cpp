@@ -17,6 +17,12 @@ float smoothstep(float edge0, float edge1, float x) {
     return x * x * (3 - 2 * x);
 }
 
+
+float easeInOutCubic(float x) {
+    float tmp = -2.f * x + 2.f;
+    return x < 0.5f ? 4.f * x * x * x : 1.f - tmp * tmp * tmp / 2.f;
+}
+
 void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
     VerticalChunk* vc = new VerticalChunk();
 
@@ -37,20 +43,63 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
             //Propriétés du terrain
             float altitude = noiseAltitude.GetNoise(block_x, block_y) + 1.;
             float erosion = noiseErosion.GetNoise(block_x, block_y) + 1.;
-            float temperature = noiseTemperature.GetNoise(block_x, block_y) + 1.;
+            float shoreLevel = std::clamp((erosion - 1.f) * 1.5f + 1.f, 0.f, 2.f);
+            float temperature = std::clamp(noiseTemperature.GetNoise(block_x, block_y) * 1.75f, -1.f, 1.f) + 1.;
             float humidity = noiseHumidity.GetNoise(block_x, block_y) + 1.;
             float continent = noiseContinental.GetNoise(block_x, block_y) + 1.;
-            altitude /= 2; // [0, 1]
+            altitude = easeInOutCubic(altitude / 2.f);
 
-            height = (BiomeGenerator::peakAmplitude * erosion) * altitude
-                     + smoothstep(.3, 1.2, continent) * (seaLevel + BiomeGenerator::continentLevel)
-                     + BiomeGenerator::bottomLevel;
+            height = (Tergen::peakAmplitude * erosion) * altitude
+                     + smoothstep(.3, 1.2, continent) * (Tergen::seaLevel + Tergen::continentLevel * shoreLevel)
+                     + Tergen::bottomLevel;
 //            height = (erosion * altitude * continent * 15.f + 2.);
             height = std::clamp(height, 0, 127);
 
-//            printf("%d\r", height);
             biome = guessBiome(erosion, temperature, humidity, continent, height);
-            BiomeGenerator::generateDesert(vc, i, j, height);
+            if (biome == BiomeType::Ocean) {Tergen::generateOcean(vc, i, j, height);}
+            else
+            {
+                if (erosion < .5) {Tergen::generateTundra(vc, i, j, height);}
+                else if (erosion < 1.0) {Tergen::generatePlain(vc, i, j, height);}
+                else if (erosion < 1.5) {Tergen::generateDesert(vc, i, j, height);}
+                else if (erosion <= 2.) //ne pas enlever
+                {Tergen::generateSavanna(vc, i, j, height);}
+            }
+//            switch (biome) {
+//                case Ocean:
+//                    Tergen::generateTundra(vc, i, j, height);
+//                    break;
+//                case Beach:
+//                    Tergen::generateDesert(vc, i, j, height);
+//                    break;
+//                case Savanna:
+//                    break;
+//                case Tundra:
+//                    break;
+//                case Desert:
+//                    break;
+//                case Plain:
+//                    Tergen::generatePlain(vc, i, j, height);
+//                    break;
+//                case WoodedPlain:
+//                    break;
+//                case Hills:
+//                    break;
+//                case WoodedHills:
+//                    break;
+//                case Badlands:
+//                    break;
+//                case WoodedBadlands:
+//                    break;
+//                case Jungle:
+//                    break;
+//                case Mushroom:
+//                    break;
+//                case IcePeak:
+//                    break;
+//                case Taiga:
+//                    break;
+//            }
 
 
             //On remplit le tableau des hauteurs
@@ -132,16 +181,16 @@ void PerlinWorldGenerator::initNoise() {
     noiseContinental.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2S);
 
     //Erosion
-    noiseErosion.SetFrequency(.022 / 16.f);
+    noiseErosion.SetFrequency(.004); // On garde
     noiseErosion.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2S); //Peut-être mettre en non S
     //Temperature
-    noiseTemperature.SetFrequency(.02);
+    noiseTemperature.SetFrequency(.02*10);
     noiseTemperature.SetNoiseType(FastNoiseLite::NoiseType_ValueCubic);
     //Humidity
     noiseHumidity.SetFrequency(.01);
     noiseHumidity.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     //Altitude (main)
-    noiseAltitude.SetFrequency(0.025f / 16.f);
+    noiseAltitude.SetFrequency(0.025f / 7.f);
     noiseAltitude.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     noiseAltitude.SetFractalType(FastNoiseLite::FractalType_FBm);
     noiseAltitude.SetFractalOctaves(3);
@@ -206,8 +255,8 @@ void PerlinWorldGenerator::propagateLightToNeighbor(VerticalChunk* c, const t_co
 
 
 BiomeType PerlinWorldGenerator::guessBiome(float ero, float temp, float hum, float cont, int height) {
-    if      (cont < 1.2 && height < seaLevel + BiomeGenerator::bottomLevel)     {return BiomeType::Ocean;}
-    else if (height < seaLevel + BiomeGenerator::bottomLevel + 4) {return BiomeType::Beach;}
+    if      (cont < 1.2 && height < Tergen::seaLevel + Tergen::bottomLevel)     {return BiomeType::Ocean;}
+    else if (height < Tergen::seaLevel + Tergen::bottomLevel + 4) {return BiomeType::Beach;}
     else
     {// CONTINENT
         return BiomeType::Plain;
