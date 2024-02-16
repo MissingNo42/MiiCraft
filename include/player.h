@@ -13,7 +13,7 @@
 class Player {
 private:
     float Velocity = 0.0;
-    float Acceleration = 0.0;
+    float Acceleration = 0.3;
 public:
     int placeDelay;
     bool gravity = true;

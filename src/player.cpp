@@ -31,7 +31,7 @@ void Player::getFocusedBlock(World &w) {
         pos = t_coord((int)floor(x), (int)floor(y), (int)floor(z));
         type = w.getBlockAt(pos).type;
     }
-    if(type != BlockType::Air) {
+    if(type > BlockType::Air) {
         renderer.drawFocus(w.getBlockAt(pos), (f32) pos.x, (f32) pos.y, (f32) pos.z);
         isTargeting = true;
         previousFocusedBlockPos = focusedBlockPos;
@@ -56,7 +56,7 @@ guVector Player::InverseVector(const guVector& v){
 void Player::goUp(t_coord coord, World &w, float velocity, bool collision) {
     if ( collision ){
         coord.y += 2;
-        if (w.getBlockAt(coord).type == BlockType::Air)
+        if (w.getBlockAt(coord).type <= BlockType::Air)
             renderer.camera.pos.y += velocity /10;
         else
             renderer.camera.pos.y = coord.y -1.1;
@@ -69,20 +69,20 @@ void Player::goUp(t_coord coord, World &w, float velocity, bool collision) {
 void Player::goDown(t_coord coord, World &w, float velocity, bool collision ) {
     if ( collision ){
         coord.y -= 1;
-        if (w.getBlockAt(coord).type == BlockType::Air)
+        if (w.getBlockAt(coord).type <= BlockType::Air)
             renderer.camera.pos.y -= velocity /10;
         else
-            renderer.camera.pos.y = (f32) floor (coord.y )+ 1.8;
+            renderer.camera.pos.y = (f32) floor (coord.y )+ 1.6;
     }
     else
         renderer.camera.pos.y -= velocity /10;
 }
 
 void Player::Jump() {
-    //printf("%f %f\r", Acceleration, Velocity);
-    isJumping = true;
-    if (Velocity == 0)
-        Acceleration = -0.2;
+    if (Velocity == 0.0 && !isJumping){
+        isJumping = true;
+        Velocity = -3.3;
+    }
 }
 
 
@@ -147,7 +147,7 @@ void Player::placeBlock(World& w){
     if(placeDelay < 10)
         return;
     t_coord pos = focusedBlockPos;
-    if(focusedBlockType != BlockType::Air) {
+    if(focusedBlockType > BlockType::Air) {
         switch (getFocusedFace(w)) {
             case 0:
                 pos.x--;
@@ -327,13 +327,11 @@ void Player::move(World &w, joystick_t sticks) {
 
 void Player::handleGravity(World &w, t_coord& coord) {
     if (gravity){
-        if (Acceleration < 0.49)
-            Acceleration += 0.01;
 
-        if (isJumping || w.getBlockAt({coord.x, (int) floor (coord.y - 0.8), coord.z}).type == BlockType::Air) {
+        if (isJumping || w.getBlockAt({coord.x, (int) floor (coord.y - 0.8), coord.z}).type <= BlockType::Air) {
             Velocity += Acceleration;
-            //printf("%f %f\r", Acceleration, Velocity);
-            if (w.getBlockAt({coord.x, (int) floor (coord.y - 0.8), coord.z}).type == BlockType::Air)
+            printf("%f %f\r", Acceleration, Velocity);
+            if (w.getBlockAt({coord.x, (int) floor (coord.y - 0.8), coord.z}).type <= BlockType::Air)
                 isJumping = false;
         }
         else{
@@ -343,8 +341,11 @@ void Player::handleGravity(World &w, t_coord& coord) {
         if ( Velocity < 0){
             goUp(coord,w, -Velocity);
         }
-        if (Velocity > 0){
+        else if (Velocity > 0){
             goDown(coord, w, Velocity);
+        }
+        else if (!isJumping) {
+            goDown(coord, w, 0);
         }
     }
 }
