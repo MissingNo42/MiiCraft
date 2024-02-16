@@ -77,10 +77,10 @@ void Player::goDown(t_coord coord, World &w, float velocity, bool collision ) {
 }
 
 void Player::Jump() {
-    printf("%f %f\r", Acceleration, Velocity);
-    isJumping = true;
-    if (Velocity == 0)
-        Acceleration = -0.2;
+    if (Velocity == 0.0 && !isJumping){
+        isJumping = true;
+        Velocity = -3.3;
+    }
 }
 
 
@@ -300,12 +300,12 @@ void Player::move(World &w, joystick_t sticks) {
         c_guVecNormalize(&move);
 
     if(sprint){
-        move.x = move.x * 5.6f / 30;
-        move.z = move.z * 5.6f / 30;
+        move.x = move.x * 5.6f / 60;
+        move.z = move.z * 5.6f / 60;
     }
     else{
-        move.x = move.x * 4.3f / 30;
-        move.z = move.z * 4.3f / 30;
+        move.x = move.x * 4.3f / 60;
+        move.z = move.z * 4.3f / 60;
     }
 
     if (true) {
@@ -318,13 +318,13 @@ void Player::move(World &w, joystick_t sticks) {
             offsetZ = - 0.2;
         else
             offsetZ = 0.2;
-        if (w.getBlockAt({(int) floor(offsetX + renderer.camera.pos.x + 1 + move.x), (int) renderer.camera.pos.y,
+        if (w.getBlockAt({(int) floor(offsetX + renderer.camera.pos.x + 1 + move.x), (int) (renderer.camera.pos.y - 0.5),
                           (int) floor(renderer.camera.pos.z + 1)}).type == BlockType::Air
-            && w.getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) renderer.camera.pos.y,
+            && w.getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) (renderer.camera.pos.y-0.5),
                              (int) floor(offsetZ +renderer.camera.pos.z + 1 + move.z)}).type == BlockType::Air
-            && w.getBlockAt({(int) floor(offsetX + renderer.camera.pos.x + 1 + move.x), (int) renderer.camera.pos.y + 1,
+            && w.getBlockAt({(int) floor(offsetX + renderer.camera.pos.x + 1 + move.x), (int) (renderer.camera.pos.y + 0.5),
                          (int) floor(renderer.camera.pos.z + 1)}).type == BlockType::Air
-            && w.getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) renderer.camera.pos.y + 1,
+            && w.getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) (renderer.camera.pos.y + 0.5),
                              (int) floor(offsetZ +renderer.camera.pos.z + 1 + move.z)}).type == BlockType::Air) {
             renderer.camera.pos.x += move.x;
             renderer.camera.pos.z += move.z;
@@ -334,8 +334,6 @@ void Player::move(World &w, joystick_t sticks) {
 
 void Player::handleGravity(World &w, t_coord& coord) {
     if (gravity){
-        if (Acceleration < 0.49)
-            Acceleration += 0.01;
 
         if (isJumping || w.getBlockAt({coord.x, (int) floor (coord.y - 0.8), coord.z}).type <= BlockType::Air) {
             Velocity += Acceleration;

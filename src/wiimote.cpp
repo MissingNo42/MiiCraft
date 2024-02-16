@@ -54,7 +54,7 @@ void Wiimote::update(Player& player, World& w) {
     player.placeDelay++;
 
     if (player.gravity){
-        if (actions & WPAD_BUTTON_A && !player.isJumping){
+        if (actions & WPAD_BUTTON_A){
             player.Jump();
         }
     }
