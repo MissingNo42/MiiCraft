@@ -67,7 +67,7 @@ void Player::goUp(t_coord coord, bool collision, World &w, float velocity) {
 void Player::goDown(t_coord coord, bool collision, World &w, float velocity ) {
     if ( collision ){
         coord.y -= 1;
-        if (w.getBlockAt(coord).type == BlockType::Air)
+        if (w.getBlockAt(coord).type <= BlockType::Air)
             renderer.camera.pos.y -= velocity /10;
         else
             renderer.camera.pos.y = (f32) floor (coord.y )+ 1.8;
@@ -97,10 +97,10 @@ void Player::handleMovement(World& w, u16 directions, bool collision) {
         if (Acceleration < 0.49)
             Acceleration += 0.01;
 
-        if (isJumping || w.getBlockAt({coord.x, (int) floor (coord.y - 0.8), coord.z}).type == BlockType::Air) {
+        if (isJumping || w.getBlockAt({coord.x, (int) floor (coord.y - 0.8), coord.z}).type <= BlockType::Air) {
             Velocity += Acceleration;
             printf("%f %f\r", Acceleration, Velocity);
-            if (w.getBlockAt({coord.x, (int) floor (coord.y - 0.8), coord.z}).type == BlockType::Air)
+            if (w.getBlockAt({coord.x, (int) floor (coord.y - 0.8), coord.z}).type <= BlockType::Air)
                 isJumping = false;
         }
         else{
@@ -138,9 +138,9 @@ void Player::handleMovement(World& w, u16 directions, bool collision) {
 
     if (collision) {
         if (w.getBlockAt({(int) ceil(0.3 + renderer.camera.pos.x + move.x / 5 * (f32)speed), (int) renderer.camera.pos.y,
-                          (int) ceil(0.3 + renderer.camera.pos.z + move.z/ 5 * (f32)speed)}).type == BlockType::Air
+                          (int) ceil(0.3 + renderer.camera.pos.z + move.z/ 5 * (f32)speed)}).type <= BlockType::Air
             && w.getBlockAt({(int) ceil(0.3 + renderer.camera.pos.x + move.x/ 5 * (f32)speed), (int) renderer.camera.pos.y + 1,
-                             (int) ceil(0.3 + renderer.camera.pos.z + move.z/ 5 * (f32)speed)}).type == BlockType::Air) {
+                             (int) ceil(0.3 + renderer.camera.pos.z + move.z/ 5 * (f32)speed)}).type <= BlockType::Air) {
             renderer.camera.pos.x += move.x / 5 * (f32)speed;
             renderer.camera.pos.z += move.z / 5 * (f32)speed;
         }
