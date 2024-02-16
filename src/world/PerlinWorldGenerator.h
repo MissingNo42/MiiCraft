@@ -35,7 +35,7 @@ public:
     PerlinWorldGenerator();
     void initNoise();
 
-    BiomeType guessBiome(float ero, float temp, float hum, float cont);
+    BiomeType guessBiome(float ero, float temp, float hum, float cont, int height);
     void generateChunk(World&, const t_pos2D) override;
 
     void initLight(VerticalChunk *c);

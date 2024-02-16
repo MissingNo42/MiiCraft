@@ -26,39 +26,56 @@ enum BiomeType{
     Taiga
 };
 
+#define INIT_GENERATOR \
+t_coord pos(block_x, 0, block_z); \
+int i = 0;
+
 #define APPLY_BEDROCK \
 APPLY_BLOCK(BlockType::Bedrock); \
-pos.y = 1; \
+pos.y = i++; \
 APPLY_BLOCK(BlockType::Bedrock);
 
+//#define APPLY_BOTTOM \
+//for (i++; i < BiomeGenerator::bottomLevel ; ++i) {
+//    pos.y = i;
+//    if (i < 3) { APPLY_BLOCK( rand() %2 ? Bedrock : Stone);}
+//    else if (i < height /1.2) { APPLY_BLOCK(BlockType::Stone);}
+//    else if (i < height) { APPLY_BLOCK(BlockType::Dirt);}
+//    else if (i == height) { APPLY_BLOCK(BlockType::Sand);}
+//    else {APPLY_BLOCK(BlockType::Air);}
+//}
 #define APPLY_BLOCK(BLOCK_TYPE) \
 chunk->VC_SetBlock(pos, BLOCK_TYPE);
 
 class BiomeGenerator {
 private:
 public:
-    inline static void generateVoid(VerticalChunk *chunk, int block_x, int block_z, int){
-        t_coord pos(block_x, 0, block_z);
 
+    constexpr static const float bottomLevel = 20; // absolu
+    constexpr static const float seaLevel = 20; // relatif a bottomLevel
+    constexpr static const float continentLevel = 5; // relatif a seaLevel
+    constexpr static const float peakAmplitude = 30. / 2.;
+
+    inline static void generateVoid(VerticalChunk *chunk, int block_x, int block_z, int){
+        INIT_GENERATOR;
         APPLY_BEDROCK;
 
-        for (int i = 1; i < VerticalChunk::CHUNK_HEIGHT; ++i) {
+        for (i = 1; i < VerticalChunk::CHUNK_HEIGHT; ++i) {
             pos.y = i;
             APPLY_BLOCK(BlockType::Air);
         }
     }
 
     inline static void generateDesert(VerticalChunk *chunk, int block_x, int block_z, int height){
-        t_coord pos(block_x, 0, block_z);
-
+        INIT_GENERATOR;
         APPLY_BEDROCK;
 
-        for (int i = 2; i < VerticalChunk::CHUNK_HEIGHT; ++i) {
+        for (i = 2; i < VerticalChunk::CHUNK_HEIGHT; ++i) {
             pos.y = i;
             if (i < 5) { APPLY_BLOCK( rand() %2 ? Bedrock : Stone);}
             else if (i < height /1.2) { APPLY_BLOCK(BlockType::Stone);}
             else if (i < height) { APPLY_BLOCK(BlockType::Dirt);}
-            else if (i == height) { APPLY_BLOCK(BlockType::GrassTemperate);}
+            else if (i == height) { APPLY_BLOCK(BlockType::Sand);}
             else {APPLY_BLOCK(BlockType::Air);}
         }
     }
