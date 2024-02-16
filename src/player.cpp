@@ -70,7 +70,7 @@ void Player::goDown(t_coord coord, World &w, float velocity, bool collision ) {
         if (w.getBlockAt(coord).type == BlockType::Air)
             renderer.camera.pos.y -= velocity /10;
         else
-            renderer.camera.pos.y = (f32) floor (coord.y )+ 1.8;
+            renderer.camera.pos.y = (f32) floor (coord.y )+ 1.6;
     }
     else
         renderer.camera.pos.y -= velocity /10;
@@ -350,8 +350,11 @@ void Player::handleGravity(World &w, t_coord& coord) {
         if ( Velocity < 0){
             goUp(coord,w, -Velocity);
         }
-        if (Velocity > 0){
+        else if (Velocity > 0){
             goDown(coord, w, Velocity);
+        }
+        else if (!isJumping) {
+            goDown(coord, w, 0);
         }
     }
 }
