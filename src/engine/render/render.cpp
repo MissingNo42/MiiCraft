@@ -1,51 +1,86 @@
-//code by WinterMute
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <malloc.h>
-#include <ogcsys.h>
-#include <gccore.h>
-#include <stdarg.h>
-#include <ctype.h>
-#include <math.h>
-#include <wiiuse/wpad.h>
-#include <iostream>
+//
+// Created by Romain on 15/02/2024.
+//
 
-
-#include "wiimote.h"
-#include "engine/render/renderer.h"
-
-
-
-#include "src/world/game.h"
-#include "engine/render/bloc.h"
-#include "src/system/saveManager.h"
-#include "player.h"
 #include "engine/render/render.h"
+#include "world/verticalChunk.h"
+#include "render/renderer.h"
+#include "render/cache.h"
 
+static int LightLevel = 0;
 
-int exiting = 0;
-
-//Calling the function will end the while loop and properly exit the program to the HBChannel.
-void reload(u32, void *) {
-	exiting = 1;
+inline void renderVertex(f32 x, f32 y, f32 z, f32 tx, f32 ty, u32 color, u8 normal) {
+	GX_Position3f32(x, y, z);
+	GX_Normal1x8(normal);
+	GX_Color1u32(color);
+	GX_TexCoord2f32(tx, ty);
 }
 
-//Calling the function will end the while loop and then properly shutdown the system
-void shutdown() {
-	exiting = 2;
+inline void renderFront(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, f32 tx, f32 ty, u8 c1, u8 c2, u8 c3, u8 c4) {
+	renderVertex(mx, y, z, tx, ty, Lights[LightLevel][c1], 4); // A
+	renderVertex(x, y, z, tx + OFFSET, ty, Lights[LightLevel][c2], 4); // D
+	renderVertex(x, my, z, tx + OFFSET, ty + OFFSET, Lights[LightLevel][c3], 4); // H
+	renderVertex(mx, my, z, tx, ty + OFFSET, Lights[LightLevel][c4], 4); // E
 }
 
-TPLFile TPLfile;
-GXTexObj texture;
+inline void renderBack(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, f32 tx, f32 ty, u8 c1, u8 c2, u8 c3, u8 c4) {
+	renderVertex(x, my, mz, tx, ty + OFFSET, Lights[LightLevel][c1], 5); // G
+	renderVertex(x, y, mz, tx, ty, Lights[LightLevel][c2], 5); // C
+	renderVertex(mx, y, mz, tx + OFFSET, ty, Lights[LightLevel][c3], 5); // B
+	renderVertex(mx, my, mz, tx + OFFSET, ty + OFFSET, Lights[LightLevel][c4], 5); // F
+}
 
+inline void renderTop(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, f32 tx, f32 ty, u8 c1, u8 c2, u8 c3, u8 c4) {
+	renderVertex(x, y, mz, tx + OFFSET, ty, Lights[LightLevel][c1], 0); // C
+	renderVertex(x, y, z, tx + OFFSET, ty + OFFSET, Lights[LightLevel][c2], 0); // D
+	renderVertex(mx, y, z, tx, ty + OFFSET, Lights[LightLevel][c3], 0); // A
+	renderVertex(mx, y, mz, tx, ty, Lights[LightLevel][c4], 0); // B
+}
 
-void renderChunk2(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
+inline void renderBottom(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, f32 tx, f32 ty, u8 c1, u8 c2, u8 c3, u8 c4) {
+	renderVertex(mx, my, z, tx + OFFSET, ty + OFFSET, Lights[LightLevel][c1], 1); // E
+	renderVertex(x, my, z, tx, ty + OFFSET, Lights[LightLevel][c2], 1); // H
+	renderVertex(x, my, mz, tx, ty, Lights[LightLevel][c3], 1); // G
+	renderVertex(mx, my, mz, tx + OFFSET, ty, Lights[LightLevel][c4], 1); // F
+}
+
+inline void renderLeft(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, f32 tx, f32 ty, u8 c1, u8 c2, u8 c3, u8 c4) {
+	renderVertex(mx, y, mz, tx + OFFSET, ty, Lights[LightLevel][c1], 3); // B
+	renderVertex(mx, y, z, tx, ty, Lights[LightLevel][c2], 3); // A
+	renderVertex(mx, my, z, tx, ty + OFFSET, Lights[LightLevel][c3], 3); // E
+	renderVertex(mx, my, mz, tx + OFFSET, ty + OFFSET, Lights[LightLevel][c4], 3); // F
+}
+
+inline void renderRight(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, f32 tx, f32 ty, u8 c1, u8 c2, u8 c3, u8 c4) {
+	renderVertex(x, my, z, tx + OFFSET, ty + OFFSET, Lights[LightLevel][c1], 2); // H
+	renderVertex(x, y, z, tx + OFFSET, ty, Lights[LightLevel][c2], 2); // D
+	renderVertex(x, y, mz, tx, ty, Lights[LightLevel][c3], 2); // C
+	renderVertex(x, my, mz, tx, ty + OFFSET, Lights[LightLevel][c4], 2); // G
+}
+
+/**
+ *     B ------ C
+	  /       / |
+	 /       /  |
+	A ------ D  G
+	|   F   |  /
+	|       | /
+	E ------ H
+ * */
+void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 	//int f[16][128][16][6];
 
 	int px = pos.x << 4;
 	int pz = pos.y << 4;
-	int x, y, z;
+	int x, y, z, sz;
+	int mx, my, mz, Mx, My, Mz;
+	
+	bool A, B, C, D, E, F, G, H;
+	bool AB, BC, CD, DA,
+	          EF, FG, GH, HE,
+			  AE, BF, CG, DH;
+	BlockType fT, fB, fL, fR, fF, fK, type;
+	bool tT, tB, tL, tR, tF, tK;
 	
     VerticalChunk& cnorth = *c.neighboors[CHUNK_NORTH];
     VerticalChunk& csouth = *c.neighboors[CHUNK_SOUTH];
@@ -55,10 +90,10 @@ void renderChunk2(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 	for (y = 1; y < 127; y++) { // for each vertical levels (except 1st and last)
 		
 		// X 0 Z 0
+		/*
+		if ((type = c.blocks[0][y][0].type) > BlockType::Air) {
 
-		if (c.blocks[0][y][0].type > BlockType::Air) {
-
-			renderer.renderBloc({(f32)px, (f32)y, (f32)pz}, c.blocks[0][y][0].type ,
+			renderer.renderBloc({(f32)px, (f32)y, (f32)pz}, type,
 				c.blocks[0][y+1][0].type <= BlockType::Air,
 				c.blocks[0][y-1][0].type <= BlockType::Air ,
 				cwest.blocks[15][y][0].type <= BlockType::Air,
@@ -262,11 +297,103 @@ void renderChunk2(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
                                                     c.blocks[x][y][14].type
 					);
 			}
+*/
 
-
+		my = y - 1;
+		My = y + 1;
 		for (x = 1; x < 15; x++) {
 			for (z = 1; z < 15; z++) {
-				if (c.blocks[x][y][z].type > BlockType::Air) {
+				if ((type = c.blocks[x][y][z].type) > BlockType::Air) {
+					mx = x - 1;
+					mz = z - 1;
+					Mx = x + 1;
+					Mz = z + 1;
+					
+					fT = c.blocks[x][My][z].type;
+					fB = c.blocks[x][my][z].type;
+					fL = c.blocks[mx][y][z].type;
+					fR = c.blocks[Mx][y][z].type;
+					fF = c.blocks[x][y][Mz].type;
+					fK = c.blocks[x][y][mz].type;
+					
+					tT = fT <= BlockType::Air;
+					tB = fB <= BlockType::Air;
+					tL = fL <= BlockType::Air;
+					tR = fR <= BlockType::Air;
+					tF = fF <= BlockType::Air;
+					tK = fK <= BlockType::Air;
+					
+					sz = tT + tB + tL + tR + tF + tK;
+					if (sz) {
+						
+						A = c.blocks[mx][My][Mz].type > BlockType::Air;
+						B = c.blocks[mx][My][mz].type > BlockType::Air;
+						C = c.blocks[Mx][My][mz].type > BlockType::Air;
+						D = c.blocks[Mx][My][Mz].type > BlockType::Air;
+						E = c.blocks[mx][my][Mz].type > BlockType::Air;
+						F = c.blocks[mx][my][mz].type > BlockType::Air;
+						G = c.blocks[Mx][my][mz].type > BlockType::Air;
+						H = c.blocks[Mx][my][Mz].type > BlockType::Air;
+						
+						AB = c.blocks[mx][My][z].type > BlockType::Air;
+						BC = c.blocks[x][My][mz].type > BlockType::Air;
+						CD = c.blocks[Mx][My][z].type > BlockType::Air;
+						DA = c.blocks[x][My][Mz].type > BlockType::Air;
+						
+						EF = c.blocks[mx][my][z].type > BlockType::Air;
+						FG = c.blocks[x][my][mz].type > BlockType::Air;
+						GH = c.blocks[Mx][my][z].type > BlockType::Air;
+						HE = c.blocks[x][my][Mz].type > BlockType::Air;
+						
+						AE = c.blocks[mx][y][Mz].type > BlockType::Air;
+						BF = c.blocks[mx][y][mz].type > BlockType::Air;
+						CG = c.blocks[Mx][y][mz].type > BlockType::Air;
+						DH = c.blocks[Mx][y][Mz].type > BlockType::Air;
+						
+						
+                        GX_Begin(GX_QUADS, GX_VTXFMT0, sz << 2); // Start drawing
+						f32 tx, ty;
+						if (tT) {
+							tx = blocData[type].x[BLOC_FACE_TOP];
+							ty = blocData[type].y[BLOC_FACE_TOP];
+							LightLevel = fT;
+							renderTop(   (f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, tx, ty, C + BC + CD, D + CD + DA, A + AB + DA, B + BC + AB); // CDAB
+						}
+						if (tB) {
+							tx = blocData[type].x[BLOC_FACE_BOTTOM];
+							ty = blocData[type].y[BLOC_FACE_BOTTOM];
+							LightLevel = fB;
+							renderBottom((f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, tx, ty, E + EF + HE, H + GH + FG, G + FG + GH, F + FG + EF); // EHGF
+						}
+						if (tL) {
+							tx = blocData[type].x[BLOC_FACE_LEFT];
+							ty = blocData[type].y[BLOC_FACE_LEFT];
+							LightLevel = fL;
+							renderLeft(  (f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, tx, ty, B + AB + BF, A + AB + AE, E + EF + AE, F + BF + EF); // BAEF
+						}
+						if (tR) {
+							tx = blocData[type].x[BLOC_FACE_RIGHT];
+							ty = blocData[type].y[BLOC_FACE_RIGHT];
+							LightLevel = fR;
+							renderRight( (f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, tx, ty, H + DH + GH, D + CD + DH, C + CD + CG, G + CG + GH); // HDCG
+						}
+						if (tF) {
+							tx = blocData[type].x[BLOC_FACE_FRONT];
+							ty = blocData[type].y[BLOC_FACE_FRONT];
+							LightLevel = fF;
+							renderFront( (f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, tx, ty, A + AE + DA, D + DA + DH, H + DH + HE, E + HE + AE); // ADHE
+						}
+						if (tK) {
+							tx = blocData[type].x[BLOC_FACE_BACK];
+							ty = blocData[type].y[BLOC_FACE_BACK];
+							LightLevel = fK;
+							renderBack(  (f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, tx, ty, G + CG + FG, C + BC + CG, B + BC + BF, F + FG + BF); // GCBF
+						}
+						GX_End();
+					}
+					
+					/*
+					
 					renderer.renderBloc({(f32)(x + px), (f32)y, (f32)(z + pz)}, c.blocks[x][y][z].type  ,
 						c.blocks[x][y+1][z].type <= BlockType::Air,
 						c.blocks[x][y-1][z].type <= BlockType::Air,
@@ -286,184 +413,9 @@ void renderChunk2(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
                                                             c.blocks[x+1][y][z].type,
                                                             c.blocks[x][y][z+1].type,
                                                             c.blocks[x][y][z-1].type
-						);
+						);*/
 				}
 			}
 		}
 	}
-}
-
-
-void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
-//	t_pos2D pos;
-//	for (pos.x = posCam.x-1; pos.x < posCam.x + 2; pos.x++) {
-//		for (pos.y = posCam.y - 1 ;  pos.y < posCam.y + 2 ; pos.y++) {
-//			renderChunk(w.getChunkAt(pos), renderer, pos);
-//		}
-//	}
-    t_pos2D pos;
-
-        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
-            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
-                renderChunk(w.getChunkAt(pos), renderer, pos);
-        }
-
-}
-
-int main(int, char **) {
-	PAD_Init();
-	WPAD_Init();
-	
-	Renderer::setupVideo();
-	Renderer::setupVtxDesc();
-    Renderer::setupTexture();
-
-
-	//Light light;
-	//GX_InvalidateTexAll();
-    Player player(8, 40, 8);
-
-	//GX_InitTexObjFilterMode(&texture, GX_NEAR, GX_NEAR);
-	//GX_SetTevIndTile()
-
-	SYS_SetResetCallback(reload);
-	SYS_SetPowerCallback(shutdown);
-	//SYS_STDIO_Report(true);
-
-    //pour rediriger stdout dans dolphin
-    SYS_STDIO_Report(true);
-
-    Wiimote wiimote;
-
-
-    t_coord pos(0,0,0);
-    World& w = Game::getInstance()->getWorld();
-
-    while (!exiting) {
-
-        player.renderer.camera.loadPerspective();
-
-        pos.x = floor(player.renderer.camera.pos.x);
-        pos.y = floor(player.renderer.camera.pos.y);
-        pos.z = floor(player.renderer.camera.pos.z);
-
-        //printf("pos : %d %d %d\r", pos.x & 15, pos.y &15, pos.z &15);
-
-
-        Game::getInstance()->requestChunk(w.to_chunk_pos(pos));
-
-		//renderer.camera.rotateV(-0.10);
-		//renderer.camera.rotateH(0.50);
-		//camera.rotateH(1);
-
-        renderWorld(w, player.renderer, w.to_chunk_pos(pos));
-
-        wiimote.update(player, w);
-
-        player.renderer.camera.update(true);
-
-
-		//renderer.renderBloc({4, 0, 0}, 1);
-		//renderer.renderBloc({7, -1, 0}, 1);
-
-		//Renderer::setupVtxDesc2D();
-		//
-		//Mtx GXmodelView2D, perspective;
-	    //guOrtho(perspective,0,479,0,639,0,300);
-	    //GX_LoadProjectionMtx(perspective, GX_ORTHOGRAPHIC);
-		//guMtxIdentity(GXmodelView2D);
-		//guMtxTransApply (GXmodelView2D, GXmodelView2D, 0.0F, 0.0F, -5.0F);
-		//GX_LoadPosMtxImm(GXmodelView2D,GX_PNMTX0);
-		//GX_Begin(GX_QUADS, GX_VTXFMT0, 4); // Start drawing
-	
-		//GX_Position2f32(0, 0);
-		//GX_TexCoord2f32(OFFSET, OFFSET); // Top right
-		//
-		//GX_Position2f32(100, 0);
-		//GX_TexCoord2f32(0, OFFSET); // Top left
-		//
-		//GX_Position2f32(100, 100);
-		//GX_TexCoord2f32(0, 0); // Bottom left
-		//
-		//GX_Position2f32(0, 100);
-		//GX_TexCoord2f32(OFFSET, 0); // Bottom right
-	
-		//GX_End();
-		
-		
-		
-		//light.update(camera.viewMatrix);
-		
-		//testRender();
-		//setupDebugConsole();
-		
-		//drawdot(rmode->fbWidth, rmode->xfbHeight, 0, 0, COLOR_YELLOW);
-
-		//Renderer::setupDebugConsole();
-
-        u32 white = 0xFFFFFFFF;
-/*
-        player.renderer.camera.loadOrtho(); // set for 2D drawing
-        player.renderer.camera.applyTransform2D();
-        f32 x,y;
-        x = 0.1, y = 0.1;
-        GX_Begin(GX_QUADS, GX_VTXFMT0, 8); // Start drawing
-
-        GX_Position3f32(-x, y, 0);
-        GX_Normal3f32(0, 0, 1);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(0), BLOCK_COORD(1)); // Top left
-
-        GX_Position3f32(x, y, 0);
-        GX_Normal3f32(0, 0, 1);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(1), BLOCK_COORD(0)); // Top right
-
-        GX_Position3f32(x, -y, 0);
-        GX_Normal3f32(0, 0, 1);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(0), BLOCK_COORD(1)); // Bottom right
-
-        GX_Position3f32(-x, -y, 0);
-        GX_Normal3f32(0, 0, 1);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(1), BLOCK_COORD(1)); // Bottom left
-
-        f32 a = 0, b = 0;
-        auto wd = wiimote.wd;
-        if (wd->ir.valid) {
-            a = wd->ir.x / (f32)Renderer::rmode->fbWidth - .5;
-            b = -wd->ir.y / (f32)Renderer::rmode->xfbHeight + .5;
-        }
-        a -= x / 2;
-        b += y / 2;
-
-        GX_Position3f32(-x+a, y+b, 0);
-        GX_Normal3f32(0, 0, 1);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(0), BLOCK_COORD(1)); // Top left
-
-        GX_Position3f32(x+a, y+b, 0);
-        GX_Normal3f32(0, 0, 1);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(1), BLOCK_COORD(0)); // Top right
-
-        GX_Position3f32(x+a, -y+b, 0);
-        GX_Normal3f32(0, 0, 1);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(0), BLOCK_COORD(1)); // Bottom right
-
-        GX_Position3f32(-x+a, -y+b, 0);
-        GX_Normal3f32(0, 0, 1);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(1), BLOCK_COORD(1)); // Bottom left
-
-        GX_End();*/
-
-		Renderer::endFrame();
-	}
-	
-	if (exiting == 2) SYS_ResetSystem(SYS_SHUTDOWN, 0, 0);
-	
-	return 0;
 }

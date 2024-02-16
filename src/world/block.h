@@ -26,6 +26,9 @@ enum BlockType : u8 {
     Air14 =     14,
     Air15 =       15, Air = 15, //Brightest value of light
     Leaves =    16,
+	
+	//SOLID = ,
+	
     Dirt =      17,
     Grass =     18,
     Stone =     19,
