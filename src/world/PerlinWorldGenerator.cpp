@@ -17,6 +17,12 @@ float smoothstep(float edge0, float edge1, float x) {
     return x * x * (3 - 2 * x);
 }
 
+
+float easeInOutCubic(float x) {
+    float tmp = -2.f * x + 2.f;
+    return x < 0.5f ? 4.f * x * x * x : 1.f - tmp * tmp * tmp / 2.f;
+}
+
 void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
     VerticalChunk* vc = new VerticalChunk();
 
@@ -41,16 +47,15 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
             float temperature = std::clamp(noiseTemperature.GetNoise(block_x, block_y) * 1.75f, -1.f, 1.f) + 1.;
             float humidity = noiseHumidity.GetNoise(block_x, block_y) + 1.;
             float continent = noiseContinental.GetNoise(block_x, block_y) + 1.;
-            altitude /= 2; // [0, 1]
+            altitude = easeInOutCubic(altitude / 2.f);
 
-            height = 0// (Tergen::peakAmplitude * erosion) * altitude
+            height = (Tergen::peakAmplitude * erosion) * altitude
                      + smoothstep(.3, 1.2, continent) * (Tergen::seaLevel + Tergen::continentLevel * shoreLevel)
                      + Tergen::bottomLevel;
 //            height = (erosion * altitude * continent * 15.f + 2.);
             height = std::clamp(height, 0, 127);
 
             biome = guessBiome(erosion, temperature, humidity, continent, height);
-            erosion = temperature;
             if (biome == BiomeType::Ocean) {Tergen::generateOcean(vc, i, j, height);}
             else
             {
@@ -59,7 +64,6 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
                 else if (erosion < 1.5) {Tergen::generateDesert(vc, i, j, height);}
                 else if (erosion <= 2.) //ne pas enlever
                 {Tergen::generateSavanna(vc, i, j, height);}
-
             }
 //            switch (biome) {
 //                case Ocean:
@@ -186,7 +190,7 @@ void PerlinWorldGenerator::initNoise() {
     noiseHumidity.SetFrequency(.01);
     noiseHumidity.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     //Altitude (main)
-    noiseAltitude.SetFrequency(0.025f / 16.f);
+    noiseAltitude.SetFrequency(0.025f / 7.f);
     noiseAltitude.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     noiseAltitude.SetFractalType(FastNoiseLite::FractalType_FBm);
     noiseAltitude.SetFractalOctaves(3);

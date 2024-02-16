@@ -61,7 +61,7 @@ public:
     constexpr static const float bottomLevel = 20; // absolu
     constexpr static const float seaLevel = 20; // relatif a bottomLevel
     constexpr static const float continentLevel = 5; // relatif a seaLevel
-    constexpr static const float peakAmplitude = 30. / 2.;
+    constexpr static const float peakAmplitude = 25.;
 
     inline static void generateVoid(VerticalChunk *chunk, int block_x, int block_z, int){
         INIT_GENERATOR;
@@ -78,7 +78,7 @@ public:
         APPLY_BOTTOM;
 
         APPLY_CONTINENT(Stone, SandStone);
-        APPLY_BLOCK(Sand);
+        APPLY_BLOCK(BlockType::GrassDark);
         pos.y++;
         APPLY_SKY;
     }
