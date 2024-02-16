@@ -6,7 +6,8 @@
 #include <stdexcept>
 
 
-World::World() : loadedChunk() {
+World::World() : loadedChunk(), lightQueue(){
+
 }
 
 World::~World() {
@@ -42,7 +43,8 @@ Block World::getBlockAt(t_coord coord)  {
 
 void World::setBlockAt(t_coord coord, BlockType block) {
     loadedChunk[to_chunk_pos(coord)]->VC_SetBlock(coord, block);
-    initLight(loadedChunk[to_chunk_pos(coord)]);
+    initLight(loadedChunk[to_chunk_pos(coord)], lightQueue);
+    propagateLight(loadedChunk[to_chunk_pos(coord)], lightQueue);
 }
 
 VerticalChunk& World::getChunkAt(t_pos2D pos) {
@@ -82,23 +84,19 @@ std::map<t_pos2D, VerticalChunk *>& World::getLoadedChunk() {
 
 
 
+//TODO : REMOVE THIS FUNCTION AND ADAPT IT IN THE WORLD GENERATOR SO THAT WE DONT ITERATE TWICE ON AIR BLOCKS
+void World::initLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
 
-void World::initLight(VerticalChunk* c) {
-    std::queue<t_coord> lightQueue;
-
-
-
-    for(int y = 127; y >= 0; y--) {
-        for(int x = 0; x <16; x++){
-            for(int z = 0; z < 16; z++){
+    for (int y = 127; y >= 0; y--) {
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
 
                 t_coord p = {x, y, z};
                 if (c->VC_GetBlock(p).type < 16) {
-                    if(y==127){
+                    if (y == 127) {
                         c->VC_SetBlock(p, static_cast<BlockType>(15));
                         lightQueue.push(p);
-                    }
-                    else {
+                    } else {
                         c->VC_SetBlock(p, static_cast<BlockType>(0));
                     }
                 }
@@ -111,7 +109,10 @@ void World::initLight(VerticalChunk* c) {
             }
         }
     }
+}
 
+
+void World::propagateLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
     while(!lightQueue.empty()){
         t_coord p = lightQueue.front();
         lightQueue.pop();

@@ -32,7 +32,11 @@ public:
 
     void setNeighboors(t_pos2D coord, VerticalChunk *pChunk);
 
-    void initLight(VerticalChunk* c);
+    void initLight(VerticalChunk* c, std::queue<t_coord>& lightQueue);
+
+    void propagateLight(VerticalChunk *c, std::queue<t_coord>& lightQueue);
+
+    std::queue<t_coord> lightQueue;
 };
 
 

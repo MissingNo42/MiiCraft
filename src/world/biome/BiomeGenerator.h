@@ -66,7 +66,7 @@ public:
         }
     }
 
-    inline static void generateDesert(VerticalChunk *chunk, int block_x, int block_z, int height){
+    inline static void generateDesert(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
         INIT_GENERATOR;
         APPLY_BEDROCK;
 
@@ -76,7 +76,8 @@ public:
             else if (i < height /1.2) { APPLY_BLOCK(BlockType::Stone);}
             else if (i < height) { APPLY_BLOCK(BlockType::Dirt);}
             else if (i == height) { APPLY_BLOCK(BlockType::Sand);}
-            else {APPLY_BLOCK(BlockType::Air);}
+            else if (i==VerticalChunk::CHUNK_HEIGHT-1){APPLY_BLOCK(BlockType::Air); lightQueue.push({block_x, i, block_z});}
+            else { APPLY_BLOCK(BlockType::Air0);}
         }
     }
 };
