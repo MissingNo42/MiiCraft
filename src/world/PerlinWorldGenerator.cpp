@@ -42,15 +42,15 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
             float continent = noiseContinental.GetNoise(block_x, block_y) + 1.;
             altitude /= 2; // [0, 1]
 
-            height = (BiomeGenerator::peakAmplitude * erosion) * altitude
-                     + smoothstep(.3, 1.2, continent) * (seaLevel + BiomeGenerator::continentLevel)
-                     + BiomeGenerator::bottomLevel;
+            height = (TerrainGenerator::peakAmplitude * erosion) * altitude
+                     + smoothstep(.3, 1.2, continent) * (seaLevel + TerrainGenerator::continentLevel)
+                     + TerrainGenerator::bottomLevel;
 //            height = (erosion * altitude * continent * 15.f + 2.);
             height = std::clamp(height, 0, 127);
 
 //            printf("%d\r", height);
             biome = guessBiome(erosion, temperature, humidity, continent, height);
-            BiomeGenerator::generateDesert(vc, i, j, height);
+            TerrainGenerator::generateDesert(vc, i, j, height);
 
 
             //On remplit le tableau des hauteurs
@@ -206,8 +206,8 @@ void PerlinWorldGenerator::propagateLightToNeighbor(VerticalChunk* c, const t_co
 
 
 BiomeType PerlinWorldGenerator::guessBiome(float ero, float temp, float hum, float cont, int height) {
-    if      (cont < 1.2 && height < seaLevel + BiomeGenerator::bottomLevel)     {return BiomeType::Ocean;}
-    else if (height < seaLevel + BiomeGenerator::bottomLevel + 4) {return BiomeType::Beach;}
+    if      (cont < 1.2 && height < seaLevel + TerrainGenerator::bottomLevel)     {return BiomeType::Ocean;}
+    else if (height < seaLevel + TerrainGenerator::bottomLevel + 4) {return BiomeType::Beach;}
     else
     {// CONTINENT
         return BiomeType::Plain;

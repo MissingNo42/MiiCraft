@@ -2,8 +2,8 @@
 // Created by Martin on 09/02/2024.
 //
 
-#ifndef MIICRAFTTEST_BIOMEGENERATOR_H
-#define MIICRAFTTEST_BIOMEGENERATOR_H
+#ifndef MIICRAFTTEST_TERRAINGENERATOR_H
+#define MIICRAFTTEST_TERRAINGENERATOR_H
 
 #include "../block.h"
 #include "../verticalChunk.h"
@@ -27,27 +27,28 @@ enum BiomeType{
 };
 
 #define INIT_GENERATOR \
-t_coord pos(block_x, 0, block_z); \
-int i = 0;
+t_coord pos(block_x, 0, block_z);
 
 #define APPLY_BEDROCK \
 APPLY_BLOCK(BlockType::Bedrock); \
-pos.y = i++; \
-APPLY_BLOCK(BlockType::Bedrock);
+pos.y ++; \
+APPLY_BLOCK(BlockType::Bedrock); \
+pos.y ++;
 
-//#define APPLY_BOTTOM \
-//for (i++; i < BiomeGenerator::bottomLevel ; ++i) {
-//    pos.y = i;
-//    if (i < 3) { APPLY_BLOCK( rand() %2 ? Bedrock : Stone);}
-//    else if (i < height /1.2) { APPLY_BLOCK(BlockType::Stone);}
-//    else if (i < height) { APPLY_BLOCK(BlockType::Dirt);}
-//    else if (i == height) { APPLY_BLOCK(BlockType::Sand);}
-//    else {APPLY_BLOCK(BlockType::Air);}
-//}
+#define APPLY_BOTTOM \
+for (; pos.y < TerrainGenerator::bottomLevel ; pos.y++) {\
+    if (pos.y < 3) { APPLY_BLOCK( rand() %2 ? Bedrock : Stone);}\
+    else { APPLY_BLOCK(BlockType::Stone);} }
+
+#define APPLY_SKY \
+for (; pos.y < VerticalChunk::CHUNK_HEIGHT-1; pos.y++){ \
+    APPLY_BLOCK(BlockType::Air0);\
+} APPLY_BLOCK(BlockType::Air);
+
 #define APPLY_BLOCK(BLOCK_TYPE) \
 chunk->VC_SetBlock(pos, BLOCK_TYPE);
 
-class BiomeGenerator {
+class TerrainGenerator {
 private:
 public:
 
@@ -60,8 +61,7 @@ public:
         INIT_GENERATOR;
         APPLY_BEDROCK;
 
-        for (i = 1; i < VerticalChunk::CHUNK_HEIGHT; ++i) {
-            pos.y = i;
+        for (; pos.y < VerticalChunk::CHUNK_HEIGHT; ++pos.y) {
             APPLY_BLOCK(BlockType::Air);
         }
     }
@@ -69,15 +69,16 @@ public:
     inline static void generateDesert(VerticalChunk *chunk, int block_x, int block_z, int height){
         INIT_GENERATOR;
         APPLY_BEDROCK;
+        APPLY_BOTTOM;
 
-        for (i = 2; i < VerticalChunk::CHUNK_HEIGHT; ++i) {
-            pos.y = i;
-            if (i < 5) { APPLY_BLOCK( rand() %2 ? Bedrock : Stone);}
-            else if (i < height /1.2) { APPLY_BLOCK(BlockType::Stone);}
-            else if (i < height) { APPLY_BLOCK(BlockType::Dirt);}
-            else if (i == height) { APPLY_BLOCK(BlockType::Sand);}
-            else {APPLY_BLOCK(BlockType::Air);}
+        for (; pos.y <= height; ++pos.y) {
+            pos.y = pos.y;
+            if (pos.y < height /1.2) { APPLY_BLOCK(BlockType::Stone);}
+            else if (pos.y < height) { APPLY_BLOCK(BlockType::SandStone);}
+            else if (pos.y == height) { APPLY_BLOCK(BlockType::Sand);}
         }
+
+        APPLY_SKY;
     }
 };
 const int seaLevel = 16;
@@ -86,4 +87,4 @@ const int seaLevel = 16;
 //void generatePlain( VerticalChunk* chunk, int block_x, int block_z, int height);
 
 
-#endif //MIICRAFTTEST_BIOMEGENERATOR_H
+#endif //MIICRAFTTEST_TERRAINGENERATOR_H
