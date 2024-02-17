@@ -45,17 +45,17 @@ inline void renderBottom(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, f32 tx, f3
 }
 
 inline void renderLeft(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, f32 tx, f32 ty, u8 c1, u8 c2, u8 c3, u8 c4) {
-    renderVertex(mx, y, mz, tx + OFFSET, ty, Lights[LightLevel][c1], 3); // B
-    renderVertex(mx, y, z, tx, ty, Lights[LightLevel][c2], 3); // A
-    renderVertex(mx, my, z, tx, ty + OFFSET, Lights[LightLevel][c3], 3); // E
-    renderVertex(mx, my, mz, tx + OFFSET, ty + OFFSET, Lights[LightLevel][c4], 3); // F
+    renderVertex(mx, y, mz, tx, ty, Lights[LightLevel][c1], 3); // B
+    renderVertex(mx, y, z, tx + OFFSET, ty, Lights[LightLevel][c2], 3); // A
+    renderVertex(mx, my, z, tx + OFFSET, ty + OFFSET, Lights[LightLevel][c3], 3); // E
+    renderVertex(mx, my, mz, tx, ty + OFFSET, Lights[LightLevel][c4], 3); // F
 }
 
 inline void renderRight(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, f32 tx, f32 ty, u8 c1, u8 c2, u8 c3, u8 c4) {
-    renderVertex(x, my, z, tx + OFFSET, ty + OFFSET, Lights[LightLevel][c1], 2); // H
-    renderVertex(x, y, z, tx + OFFSET, ty, Lights[LightLevel][c2], 2); // D
-    renderVertex(x, y, mz, tx, ty, Lights[LightLevel][c3], 2); // C
-    renderVertex(x, my, mz, tx, ty + OFFSET, Lights[LightLevel][c4], 2); // G
+    renderVertex(x, my, z, tx, ty + OFFSET, Lights[LightLevel][c1], 2); // H
+    renderVertex(x, y, z, tx, ty, Lights[LightLevel][c2], 2); // D
+    renderVertex(x, y, mz, tx + OFFSET, ty, Lights[LightLevel][c3], 2); // C
+    renderVertex(x, my, mz, tx + OFFSET, ty + OFFSET, Lights[LightLevel][c4], 2); // G
 }
 
 /**

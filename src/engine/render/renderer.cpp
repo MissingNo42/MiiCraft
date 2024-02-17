@@ -358,7 +358,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         else {
             GX_Color1u32(white);
         }
-        GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Bottom left
+        GX_TexCoord2f32(x, y + OFFSET); // Bottom left
 
         GX_Position3f32(coord.x, coord.y, coord.z);
         GX_Normal1x8(2);
@@ -368,7 +368,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         else {
             GX_Color1u32(white);
         }
-        GX_TexCoord2f32(x + OFFSET, y); // Top left
+        GX_TexCoord2f32(x, y); // Top left
 
         GX_Position3f32(coord.x, coord.y, mz);
         GX_Normal1x8(2);
@@ -378,7 +378,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         else {
             GX_Color1u32(white);
         }
-        GX_TexCoord2f32(x, y); // Top right
+        GX_TexCoord2f32(x + OFFSET, y); // Top right
 
         GX_Position3f32(coord.x, my, mz);
         GX_Normal1x8(2);
@@ -389,7 +389,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
             GX_Color1u32(white);
         }
 
-        GX_TexCoord2f32(x, y + OFFSET); // Bottom right
+        GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Bottom right
     }
 
     // Left face
@@ -406,7 +406,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
             GX_Color1u32(white);
         }
 
-        GX_TexCoord2f32(x + OFFSET, y); // Bottom left
+        GX_TexCoord2f32(x, y); // Bottom left
 
         GX_Position3f32(mx, coord.y, coord.z);
         GX_Normal1x8(3);
@@ -416,7 +416,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         else {
             GX_Color1u32(white);
         }
-        GX_TexCoord2f32(x, y); // Top left
+        GX_TexCoord2f32(x + OFFSET, y); // Top left
 
         GX_Position3f32(mx, my, coord.z);
         GX_Normal1x8(3);
@@ -426,7 +426,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         else {
             GX_Color1u32(white);
         }
-        GX_TexCoord2f32(x, y + OFFSET); // Top right
+        GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Top right
 
         GX_Position3f32(mx, my, mz);
         GX_Normal1x8(3);
@@ -436,7 +436,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
         else {
             GX_Color1u32(white);
         }
-        GX_TexCoord2f32(x + OFFSET, y + OFFSET); // Bottom right
+        GX_TexCoord2f32(x, y + OFFSET); // Bottom right
     }
 
     // Top face
