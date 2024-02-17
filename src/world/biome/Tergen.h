@@ -49,7 +49,8 @@ for (; pos.y < height; ++pos.y) {\
 #define APPLY_SKY \
 for (; pos.y < VerticalChunk::CHUNK_HEIGHT-1; pos.y++){ \
     APPLY_BLOCK(BlockType::Air0);\
-} APPLY_BLOCK(BlockType::Air);
+} APPLY_BLOCK(BlockType::Air);                          \
+lightQueue.push(pos);
 
 #define APPLY_BLOCK(BLOCK_TYPE) \
 chunk->VC_SetBlock(pos, BLOCK_TYPE);
@@ -63,7 +64,7 @@ public:
     constexpr static const float continentLevel = 5; // relatif a seaLevel
     constexpr static const float peakAmplitude = 25.;
 
-    inline static void generateVoid(VerticalChunk *chunk, int block_x, int block_z, int){
+    inline static void generateVoid(VerticalChunk *chunk, int block_x, int block_z, int, std::queue<t_coord>&){
         INIT_GENERATOR;
         APPLY_BEDROCK;
 
@@ -72,7 +73,7 @@ public:
         }
     }
 
-    inline static void generateDesert(VerticalChunk *chunk, int block_x, int block_z, int height){
+    inline static void generateDesert(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -83,7 +84,7 @@ public:
         APPLY_SKY;
     }
 
-    inline static void generateTundra(VerticalChunk *chunk, int block_x, int block_z, int height){
+    inline static void generateTundra(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -94,7 +95,7 @@ public:
         APPLY_SKY;
     }
 
-    inline static void generateSavanna(VerticalChunk *chunk, int block_x, int block_z, int height){
+    inline static void generateSavanna(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -105,7 +106,7 @@ public:
         APPLY_SKY;
     }
 
-    inline static void generatePlain(VerticalChunk *chunk, int block_x, int block_z, int height){
+    inline static void generatePlain(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -116,7 +117,7 @@ public:
         APPLY_SKY;
     }
 
-    inline static void generateOcean(VerticalChunk *chunk, int block_x, int block_z, int height){
+    inline static void generateOcean(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;

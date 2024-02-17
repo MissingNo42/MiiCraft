@@ -57,14 +57,14 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
 //            printf("%d\r", height);
             biome = guessBiome(erosion, temperature, humidity, continent, height);
-            if (biome == BiomeType::Ocean) {Tergen::generateOcean(vc, i, j, height);}
+            if (biome == BiomeType::Ocean) {Tergen::generateOcean(vc, i, j, height, w.lightQueue);}
             else
             {
-                if (erosion < .5) {Tergen::generateTundra(vc, i, j, height);}
-                else if (erosion < 1.0) {Tergen::generatePlain(vc, i, j, height);}
-                else if (erosion < 1.5) {Tergen::generateDesert(vc, i, j, height);}
+                if (erosion < .5) {Tergen::generateTundra(vc, i, j, height, w.lightQueue);}
+                else if (erosion < 1.0) {Tergen::generatePlain(vc, i, j, height,w.lightQueue);}
+                else if (erosion < 1.5) {Tergen::generateDesert(vc, i, j, height, w.lightQueue);}
                 else if (erosion <= 2.) //ne pas enlever
-                {Tergen::generateSavanna(vc, i, j, height);}
+                {Tergen::generateSavanna(vc, i, j, height,w.lightQueue);}
             }
 //            switch (biome) {
 //                case Ocean:
