@@ -22,7 +22,7 @@ struct t_pos2D{
 
 #define CHUNK_NORTH 1
 #define CHUNK_SOUTH 3
-#define CHUNK_EST 0
+#define CHUNK_EAST 0
 #define CHUNK_WEST 2
 
 class VerticalChunk {

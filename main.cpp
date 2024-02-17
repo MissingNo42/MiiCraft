@@ -48,7 +48,7 @@ void renderChunk2(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 	
     VerticalChunk& cnorth = *c.neighboors[CHUNK_NORTH];
     VerticalChunk& csouth = *c.neighboors[CHUNK_SOUTH];
-    VerticalChunk& cest = *c.neighboors[CHUNK_EST];
+    VerticalChunk& cest = *c.neighboors[CHUNK_EAST];
     VerticalChunk& cwest = *c.neighboors[CHUNK_WEST];
 
 	for (y = 1; y < 127; y++) { // for each vertical levels (except 1st and last)
@@ -347,23 +347,18 @@ int main(int, char **) {
         pos.y = floor(player.renderer.camera.pos.y);
         pos.z = floor(player.renderer.camera.pos.z);
 
-        //printf("pos : %d %d %d\r", pos.x & 15, pos.y &15, pos.z &15);
+        printf("pos : %d %d %d\r", pos.x & 15, pos.y &15, pos.z &15);
+        printf(">lk : %.2f %.2f %.2f\r", player.renderer.camera.look.x,
+			   player.renderer.camera.look.y, player.renderer.camera.look.z);
 
-
-        Game::getInstance()->requestChunk(w.to_chunk_pos(pos));
-
-		//renderer.camera.rotateV(-0.10);
-		//renderer.camera.rotateH(0.50);
-		//camera.rotateH(1);
-
-        printf("before rednerWorld\r");
-        renderWorld(w, player.renderer, w.to_chunk_pos(pos));
-
-        printf("after rednerWorld\r");
 
         wiimote.update(player, w);
 
         player.renderer.camera.update(true);
+		
+        Game::getInstance()->requestChunk(w.to_chunk_pos(pos));
+
+        renderWorld(w, player.renderer, w.to_chunk_pos(pos));
 
 
 		//renderer.renderBloc({4, 0, 0}, 1);
@@ -405,63 +400,116 @@ int main(int, char **) {
 		//Renderer::setupDebugConsole();
 
         u32 white = 0xFFFFFFFF;
-/*
+
         player.renderer.camera.loadOrtho(); // set for 2D drawing
         player.renderer.camera.applyTransform2D();
-        f32 x,y;
-        x = 0.1, y = 0.1;
+        f32 x,y, a, b;
+        x = 0.05, y = 0.05;
+		
+		
+        GX_Begin(GX_QUADS, GX_VTXFMT0, 8); // Start drawing
+		
+		a = .8, b = .8;
+        GX_Position3f32(-x+a, y+b, 0);
+        GX_Normal1x8(4);
+        GX_Color1u32(0xff0000ff);
+        GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(9)); // Top left
+
+        GX_Position3f32(x+a, y+b, 0);
+        GX_Normal1x8(4);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(BLOCK_COORD(4), BLOCK_COORD(9)); // Top right
+
+        GX_Position3f32(x+a, -y+b, 0);
+        GX_Normal1x8(4);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(BLOCK_COORD(4), BLOCK_COORD(10)); // Bottom right
+
+        GX_Position3f32(-x+a, -y+b, 0);
+        GX_Normal1x8(4);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(10)); // Bottom left
+		
+		a = .6, b = .8;
+        GX_Position3f32(-x+a, y+b, 0);
+        GX_Normal1x8(4);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(9)); // Top left
+
+        GX_Position3f32(x+a, y+b, 0);
+        GX_Normal1x8(4);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(BLOCK_COORD(4), BLOCK_COORD(9)); // Top right
+
+        GX_Position3f32(x+a, -y+b, 0);
+        GX_Normal1x8(4);
+        GX_Color1u32(0xff0000ff);
+        GX_TexCoord2f32(BLOCK_COORD(4), BLOCK_COORD(10)); // Bottom right
+
+        GX_Position3f32(-x+a, -y+b, 0);
+        GX_Normal1x8(4);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(10)); // Bottom left
+		GX_End();
+		
+		
+		
+		
+		
+		
+		
         GX_Begin(GX_QUADS, GX_VTXFMT0, 8); // Start drawing
 
         GX_Position3f32(-x, y, 0);
-        GX_Normal3f32(0, 0, 1);
+        GX_Normal1x8(4);
         GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(0), BLOCK_COORD(1)); // Top left
+        GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(15)); // Top left
 
         GX_Position3f32(x, y, 0);
-        GX_Normal3f32(0, 0, 1);
+        GX_Normal1x8(4);
         GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(1), BLOCK_COORD(0)); // Top right
+        GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(16)); // Top right
 
         GX_Position3f32(x, -y, 0);
-        GX_Normal3f32(0, 0, 1);
+        GX_Normal1x8(4);
         GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(0), BLOCK_COORD(1)); // Bottom right
+        GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(16)); // Bottom right
 
         GX_Position3f32(-x, -y, 0);
-        GX_Normal3f32(0, 0, 1);
+        GX_Normal1x8(4);
         GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(1), BLOCK_COORD(1)); // Bottom left
+        GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(16)); // Bottom left
 
-        f32 a = 0, b = 0;
+        a = 0, b = 0;
         auto wd = wiimote.wd;
         if (wd->ir.valid) {
-            a = wd->ir.x / (f32)Renderer::rmode->fbWidth - .5;
-            b = -wd->ir.y / (f32)Renderer::rmode->xfbHeight + .5;
+            a = 2 * wd->ir.x / (f32)Renderer::rmode->fbWidth - 1;
+            b = -2 * wd->ir.y / (f32)Renderer::rmode->xfbHeight + 1;
         }
         a -= x / 2;
         b += y / 2;
 
         GX_Position3f32(-x+a, y+b, 0);
-        GX_Normal3f32(0, 0, 1);
+        GX_Normal1x8(4);
         GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(0), BLOCK_COORD(1)); // Top left
+        GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(15)); // Top left
 
         GX_Position3f32(x+a, y+b, 0);
-        GX_Normal3f32(0, 0, 1);
+        GX_Normal1x8(4);
         GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(1), BLOCK_COORD(0)); // Top right
+        GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(15)); // Top right
 
         GX_Position3f32(x+a, -y+b, 0);
-        GX_Normal3f32(0, 0, 1);
+        GX_Normal1x8(4);
         GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(0), BLOCK_COORD(1)); // Bottom right
+        GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(16)); // Bottom right
 
         GX_Position3f32(-x+a, -y+b, 0);
-        GX_Normal3f32(0, 0, 1);
+        GX_Normal1x8(4);
         GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(1), BLOCK_COORD(1)); // Bottom left
+        GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(16)); // Bottom left
 
-        GX_End();*/
+        GX_End();
 
 		Renderer::endFrame();
         printf("end frame\r");

@@ -11,6 +11,7 @@
 #define BLOC_FACE_BACK 5
 
 BlocData blocData[] {
+	
         {
             //Air
             .x = { 0, 0, 0, 0, 0, 0 },
