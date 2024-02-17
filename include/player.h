@@ -12,17 +12,20 @@
 
 class Player {
 private:
-    int speed;
-    int breakingState;
     float Velocity = 0.0;
-    float Acceleration = 0.0;
-    bool gravity = false;
-    bool isJumping = false;
+    float Acceleration = 0.12;
 public:
+    int placeDelay;
+    bool gravity = true;
+    bool isJumping = false;
     Renderer renderer;
     t_coord focusedBlockPos;
+    BlockType focusedBlockType;
     t_coord previousFocusedBlockPos;
-    bool targetable;
+    guVector focusedBlockLook;
+    bool isTargeting;
+    bool sprint;
+    int breakingState{};
     Player(f32 x, f32 y, f32 z);
     Player();
 
@@ -36,13 +39,11 @@ public:
 
     void handleRotation(WPADData *);
 
-    void handleMovement(World& w, u16 directions, bool collision = true);
+    void handleGravity(World& w, t_coord& coord);
 
-    void handleAction(World& w, u16 actions);
+    void goUp(t_coord coord, World& w, float velocity = 1.0f, bool collision = true);
 
-    void goUp(t_coord coord, bool collision, World& w, float velocity = 1.0f);
-
-    void goDown(t_coord coord, bool collision, World& w, float velocity = 1.0f);
+    void goDown(t_coord coord, World& w, float velocity = 1.0f, bool collision = true);
 
     void Jump();
 
@@ -50,11 +51,11 @@ public:
 
     int getFocusedFace(World& w) const;
 
-    void placeBlock(World& w) const;
+    void placeBlock(World& w);
 
     void destroyBlock(World& w);
 
-    void updateMove(guVector normalizedLook, guVector &move, char direction);
+    void move(World& w, joystick_t sticks);
 };
 
 

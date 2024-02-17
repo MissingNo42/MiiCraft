@@ -55,6 +55,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 //            height = (erosion * altitude * continent * 15.f + 2.);
             height = std::clamp(height, 0, 127);
 
+//            printf("%d\r", height);
             biome = guessBiome(erosion, temperature, humidity, continent, height);
             if (biome == BiomeType::Ocean) {Tergen::generateOcean(vc, i, j, height);}
             else
@@ -116,8 +117,9 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
     //On construit un arbre à cette position
     buildTree({x, y, z}, vc);
 
-    w.initLight(vc);
+//    w.initLight(vc);
     w.addChunk(pos, vc);
+    w.propagateLight(vc,w.lightQueue);
     w.setNeighboors(pos, vc);
     std::cout << "Chunk generated at " << pos.x << " " << pos.y << " with id : " << vc->id << std::endl;
     std::cout << " with neighboors : " << std::endl;
@@ -243,14 +245,6 @@ void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
 
 }
 
-
-
-void PerlinWorldGenerator::propagateLightToNeighbor(VerticalChunk* c, const t_coord& neighbor, int CurrentLightValue, std::queue<t_coord>& lightQueue) {
-    if (c->VC_GetBlock(neighbor).type < CurrentLightValue || c->VC_GetBlock(neighbor).type >= 16) {
-        c->VC_SetBlock(neighbor, static_cast<BlockType>(CurrentLightValue));
-        lightQueue.push(neighbor);
-    }
-}
 
 
 

@@ -11,7 +11,7 @@
 #include  "world/world.h"
 #include "utils/matrix.h"
 class Camera {
-
+    f32 angleY;
 public:
     Mtx44 view3D, perspective, ortho, view2D, view2Dsquare;
     guVector up = {0.0F, 1.0F, 0.0F};
