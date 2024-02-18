@@ -57,14 +57,14 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
 //            printf("%d\r", height);
             biome = guessBiome(erosion, temperature, humidity, continent, height);
-            if (biome == BiomeType::Ocean) {Tergen::generateOcean(vc, i, j, height, w.lightQueue);}
+            if (biome == BiomeType::Ocean) {Tergen::generateOcean(vc, i, j, height, vc->lightQueue);}
             else
             {
-                if (erosion < .5) {Tergen::generateTundra(vc, i, j, height, w.lightQueue);}
-                else if (erosion < 1.0) {Tergen::generatePlain(vc, i, j, height,w.lightQueue);}
-                else if (erosion < 1.5) {Tergen::generateDesert(vc, i, j, height, w.lightQueue);}
+                if (erosion < .5) {Tergen::generateTundra(vc, i, j, height, vc->lightQueue);}
+                else if (erosion < 1.0) {Tergen::generatePlain(vc, i, j, height,vc->lightQueue);}
+                else if (erosion < 1.5) {Tergen::generateDesert(vc, i, j, height, vc->lightQueue);}
                 else if (erosion <= 2.) //ne pas enlever
-                {Tergen::generateSavanna(vc, i, j, height,w.lightQueue);}
+                {Tergen::generateSavanna(vc, i, j, height,vc->lightQueue);}
             }
 //            switch (biome) {
 //                case Ocean:
@@ -119,7 +119,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
 //    w.initLight(vc);
     w.addChunk(pos, vc);
-    w.propagateLight(vc,w.lightQueue);
+    w.propagateLight(vc,vc->lightQueue);
     w.setNeighboors(pos, vc);
     std::cout << "Chunk generated at " << pos.x << " " << pos.y << " with id : " << vc->id << std::endl;
     std::cout << " with neighboors : " << std::endl;

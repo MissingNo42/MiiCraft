@@ -6,7 +6,7 @@
 #include <stdexcept>
 
 
-World::World() : loadedChunk(), lightQueue(){
+World::World() : loadedChunk() {
 
 }
 
@@ -43,8 +43,12 @@ Block World::getBlockAt(t_coord coord)  {
 
 void World::setBlockAt(t_coord coord, BlockType block) {
     loadedChunk[to_chunk_pos(coord)]->VC_SetBlock(coord, block);
-    initLight(loadedChunk[to_chunk_pos(coord)], lightQueue);
-    propagateLight(loadedChunk[to_chunk_pos(coord)], lightQueue);
+
+    initLight(loadedChunk[to_chunk_pos(coord)], loadedChunk[to_chunk_pos(coord)]->lightQueue);
+
+    propagateLight(loadedChunk[to_chunk_pos(coord)], loadedChunk[to_chunk_pos(coord)]->lightQueue);
+
+
 }
 
 VerticalChunk& World::getChunkAt(t_pos2D pos) {
@@ -86,7 +90,6 @@ std::map<t_pos2D, VerticalChunk *>& World::getLoadedChunk() {
 
 //TODO : REMOVE THIS FUNCTION AND ADAPT IT IN THE WORLD GENERATOR SO THAT WE DONT ITERATE TWICE ON AIR BLOCKS
 void World::initLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
-
     for (int y = 127; y >= 0; y--) {
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
@@ -99,6 +102,49 @@ void World::initLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
                     } else {
                         c->VC_SetBlock(p, static_cast<BlockType>(0));
                     }
+
+                if(x == 15){
+                    auto newChunk = c->VC_GetNeighboor(CHUNK_EAST);
+                    if(newChunk  != VerticalChunk::emptyChunk){
+                        int LightLvl = newChunk->VC_GetBlock({0, y, z}).type;
+                        if (LightLvl< 15) {
+                            c->VC_SetBlock(p, static_cast<BlockType>( LightLvl - 1 < 0 ? 0 : LightLvl - 1));
+                            lightQueue.push(p);
+                        }
+                    }
+                }
+                if(x == 0) {
+                    auto newChunk = c->VC_GetNeighboor(CHUNK_WEST);
+                    if (newChunk != VerticalChunk::emptyChunk) {
+                        int LightLvl = newChunk->VC_GetBlock({15, y, z}).type;
+                        if ( LightLvl  < 15) {
+                            c->VC_SetBlock(p, static_cast<BlockType>(LightLvl - 1 < 0 ? 0 : LightLvl - 1));
+                            lightQueue.push(p);
+                        }
+                    }
+                }
+                if(z == 15) {
+                    auto newChunk = c->VC_GetNeighboor(CHUNK_NORTH);
+                    if (newChunk != VerticalChunk::emptyChunk) {
+                        int LightLvl = newChunk->VC_GetBlock({x, y, 0}).type;
+                        if ( LightLvl < 15) {
+                            c->VC_SetBlock(p, static_cast<BlockType>(LightLvl - 1 < 0 ? 0 : LightLvl - 1 ));
+                            lightQueue.push(p);
+                        }
+                    }
+                }
+                if(z == 0) {
+                    auto newChunk = c->VC_GetNeighboor(CHUNK_SOUTH);
+                    if (newChunk != VerticalChunk::emptyChunk) {
+                        int LightLvl = newChunk->VC_GetBlock({x, y, 15}).type;
+                        if ( LightLvl  < 15) {
+                            c->VC_SetBlock(p, static_cast<BlockType>(LightLvl - 1 < 0 ? 0 : LightLvl - 1));
+                            lightQueue.push(p);
+                        }
+                    }
+                }
+
+
                 }
 //                }
 //                else if(c->VC_GetBlock({x, y, z}).type < 16 && c->VC_GetBlock({x, y , z}).type >= 0){
@@ -132,14 +178,40 @@ void World::propagateLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
 
                 }
             }
+            if(p.x+1>=16){
+                auto newChunk = c->VC_GetNeighboor(CHUNK_EAST);
+                if(newChunk  != VerticalChunk::emptyChunk){
+                    if (newChunk->VC_GetBlock({0, p.y, p.z}).type < CurrentLightValue - 1 || newChunk->VC_GetBlock({0, p.y, p.z}).type > 15 ) {
+                        c->VC_SetBlock({p.x, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
+                        if(newChunk->VC_GetBlock({0, p.y, p.z}).type <= 15){
+                            newChunk->VC_SetBlock({0, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
+                            newChunk->lightQueue.push({0 , p.y, p.z});
+                            propagateLight(newChunk, newChunk->lightQueue);
+                        }
+                    }
+                }
+            }
             if(p.x - 1 >= 0) {// left neighboor
                 if (c->VC_GetBlock({p.x - 1, p.y, p.z}).type < CurrentLightValue - 1 || c->VC_GetBlock({p.x - 1, p.y, p.z}).type > 15) {
-                    c->VC_GetBlock({p.x, p.y, p.z}), static_cast<BlockType>(CurrentLightValue - 1);
+                    c->VC_SetBlock({p.x, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
                     if(c->VC_GetBlock({p.x - 1, p.y, p.z}).type <= 15){
                         c->VC_SetBlock({p.x - 1, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
                         lightQueue.push({p.x - 1, p.y, p.z});
                     }
 
+                }
+            }
+            if(p.x-1<0){
+                auto newChunk = c->VC_GetNeighboor(CHUNK_WEST);
+                if(newChunk  !=  VerticalChunk::emptyChunk){
+                    if (newChunk->VC_GetBlock({15, p.y, p.z}).type < CurrentLightValue - 1 || newChunk->VC_GetBlock({15, p.y, p.z}).type > 15 ) {
+                        c->VC_SetBlock({p.x, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
+                        if(newChunk->VC_GetBlock({15, p.y, p.z}).type <= 15){
+                            newChunk->VC_SetBlock({15, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
+                            newChunk->lightQueue.push({15 , p.y, p.z});
+                            propagateLight(newChunk, newChunk->lightQueue);
+                        }
+                    }
                 }
             }
             if(p.z + 1 < 16) {// front neighboor
@@ -152,6 +224,19 @@ void World::propagateLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
 
                 }
             }
+            if(p.z+1>=16){
+                auto newChunk = c->VC_GetNeighboor(CHUNK_NORTH);
+                if(newChunk  !=  VerticalChunk::emptyChunk){
+                    if (newChunk->VC_GetBlock({p.x, p.y, 0}).type < CurrentLightValue - 1 || newChunk->VC_GetBlock({p.x, p.y, 0}).type > 15 ) {
+                        c->VC_SetBlock({p.x, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
+                        if(newChunk->VC_GetBlock({p.x, p.y, 0}).type <= 15){
+                            newChunk->VC_SetBlock({p.x, p.y, 0}, static_cast<BlockType>(CurrentLightValue - 1));
+                            newChunk->lightQueue.push({p.x , p.y, 0});
+                            propagateLight(newChunk, newChunk->lightQueue);
+                        }
+                    }
+                }
+            }
             if(p.z - 1 >= 0) {// back neighboor
                 if (c->VC_GetBlock({p.x, p.y, p.z - 1}).type < CurrentLightValue - 1 || c->VC_GetBlock({p.x, p.y, p.z - 1}).type > 15 ) {
                     c->VC_SetBlock({p.x, p.y, p.z }, static_cast<BlockType>(CurrentLightValue - 1));
@@ -160,6 +245,19 @@ void World::propagateLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
                         lightQueue.push({p.x, p.y, p.z - 1});
                     }
 
+                }
+            }
+            if(p.z-1<0){
+                auto newChunk = c->VC_GetNeighboor(CHUNK_SOUTH);
+                if(newChunk  !=  VerticalChunk::emptyChunk){
+                     if (newChunk->VC_GetBlock({p.x, p.y, 15}).type < CurrentLightValue - 1 || newChunk->VC_GetBlock({p.x, p.y, 15}).type > 15 ) {
+                         c->VC_SetBlock({p.x, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
+                        if(newChunk->VC_GetBlock({p.x, p.y, 15}).type <= 15){
+                            newChunk->VC_SetBlock({p.x, p.y, 15}, static_cast<BlockType>(CurrentLightValue - 1));
+                            newChunk->lightQueue.push({p.x , p.y, 15});
+                            propagateLight(newChunk, newChunk->lightQueue);
+                        }
+                    }
                 }
             }
             if(p.y + 1 < 128) {// top neighboor

@@ -36,7 +36,6 @@ public:
 
     void propagateLight(VerticalChunk *c, std::queue<t_coord>& lightQueue);
 
-    std::queue<t_coord> lightQueue;
 };
 
 
