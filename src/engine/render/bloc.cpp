@@ -92,8 +92,72 @@ BlocData blocData[] {
                 .x = { 0, 0, 0, 0, 0, 0 },
                 .y = { 0, 0, 0, 0, 0, 0 }
         },
+		
+		/// Semi-Transparent Blocks
+		
+        // //Leave
+        {
+                // LeaveAcacia
+                .x = BLOCK_COORDS(5, 5, 5, 5, 5, 5),
+                .y = BLOCK_COORDS(0, 0, 0, 0, 0, 0)
+        },
+        {
+                // LeaveOak
+                .x = BLOCK_COORDS(5, 5, 5, 5, 5, 5),
+                .y = BLOCK_COORDS(1, 1, 1, 1, 1, 1)
+        },
+        {
+                // LeaveJungle
+                .x = BLOCK_COORDS(5, 5, 5, 5, 5, 5),
+                .y = BLOCK_COORDS(2, 2, 2, 2, 2, 2)
+        },
+        {
+                // LeaveSpruce
+                .x = BLOCK_COORDS(5, 5, 5, 5, 5, 5),
+                .y = BLOCK_COORDS(3, 3, 3, 3, 3, 3)
+        },
+        {
+                // LeaveDark
+                .x = BLOCK_COORDS(5, 5, 5, 5, 5, 5),
+                .y = BLOCK_COORDS(4, 4, 4, 4, 4, 4)
+        },
+        {
+                // LeaveBirch
+                .x = BLOCK_COORDS(5, 5, 5, 5, 5, 5),
+                .y = BLOCK_COORDS(5, 5, 5, 5, 5, 5)
+        },
+        {
+                // LeaveSakura
+                .x = BLOCK_COORDS(5, 5, 5, 5, 5, 5),
+                .y = BLOCK_COORDS(6, 6, 6, 6, 6, 6)
+        },
+        {
+                // LeaveSnow
+                .x = BLOCK_COORDS(3, 5, 5, 5, 5, 5),
+                .y = BLOCK_COORDS(9, 3, 9, 9, 9, 9)
+        },
 
-// //Mineral
+		/// Transparent Blocks
+	
+        {
+                // Glass
+                .x = BLOCK_COORDS(14, 14, 14, 14, 14, 14),
+                .y = BLOCK_COORDS(0, 0, 0, 0, 0, 0)
+        },
+        {
+                // ClearIce
+                .x = BLOCK_COORDS(15, 15, 15, 15, 15, 15),
+                .y = BLOCK_COORDS(2, 2, 2, 2, 2, 2)
+        },
+        {
+                // Water
+                .x = BLOCK_COORDS(15, 15, 15, 15, 15, 15),
+                .y = BLOCK_COORDS(3, 3, 3, 3, 3, 3)
+        },
+		
+	/// Opaque Blocks
+
+	//Mineral
         {
                 // Bedrock
 
@@ -571,69 +635,7 @@ BlocData blocData[] {
                 .y = BLOCK_COORDS(0, 0, 1, 1, 1, 1)
         },
 
-//========================================
-        // TRANSPARENT //
-//========================================
-
-        // //Leave
-        {
-                // LeaveAcacia
-                .x = BLOCK_COORDS(5, 5, 5, 5, 5, 5),
-                .y = BLOCK_COORDS(0, 0, 0, 0, 0, 0)
-        },
-        {
-                // LeaveOak
-                .x = BLOCK_COORDS(5, 5, 5, 5, 5, 5),
-                .y = BLOCK_COORDS(1, 1, 1, 1, 1, 1)
-        },
-        {
-                // LeaveJungle
-                .x = BLOCK_COORDS(5, 5, 5, 5, 5, 5),
-                .y = BLOCK_COORDS(2, 2, 2, 2, 2, 2)
-        },
-        {
-                // LeaveSpruce
-                .x = BLOCK_COORDS(5, 5, 5, 5, 5, 5),
-                .y = BLOCK_COORDS(3, 3, 3, 3, 3, 3)
-        },
-        {
-                // LeaveDark
-                .x = BLOCK_COORDS(5, 5, 5, 5, 5, 5),
-                .y = BLOCK_COORDS(4, 4, 4, 4, 4, 4)
-        },
-        {
-                // LeaveBirch
-                .x = BLOCK_COORDS(5, 5, 5, 5, 5, 5),
-                .y = BLOCK_COORDS(5, 5, 5, 5, 5, 5)
-        },
-        {
-                // LeaveSakura
-                .x = BLOCK_COORDS(5, 5, 5, 5, 5, 5),
-                .y = BLOCK_COORDS(6, 6, 6, 6, 6, 6)
-        },
-        {
-                // LeaveSnow
-                .x = BLOCK_COORDS(3, 5, 5, 5, 5, 5),
-                .y = BLOCK_COORDS(9, 3, 9, 9, 9, 9)
-        },
-
-        {
-                // Glass
-                .x = BLOCK_COORDS(14, 14, 14, 14, 14, 14),
-                .y = BLOCK_COORDS(0, 0, 0, 0, 0, 0)
-        },
-        {
-                // ClearIce
-                .x = BLOCK_COORDS(15, 15, 15, 15, 15, 15),
-                .y = BLOCK_COORDS(2, 2, 2, 2, 2, 2)
-        },
-        {
-                // Water
-                .x = BLOCK_COORDS(15, 15, 15, 15, 15, 15),
-                .y = BLOCK_COORDS(3, 3, 3, 3, 3, 3)
-        },
-
-
+		
         //Block Breaking
         {
                 // BlockBreaking0

@@ -6,9 +6,50 @@
 #define MIICRAFT_BLOCK_H
 #include <iostream>
 #include <gctypes.h>
-#define SOLIDBLOCK 2
+
+/**
+ * @macro isAir
+ * @brief Check if a block is air
+ * */
+#define isAir(x) ((x) <= BlockType::Air)
+
+/**
+ * @macro isIrregular
+ * @brief Check if a block is irregular (not a cube)
+ * */
+#define isIrregular(x) ((x) < BlockType::REGULAR)
+
+/**
+ * @macro isRegular
+ * @brief Check if a block is an regular (a cube)
+ * */
+#define isRegular(x) ((x) >= BlockType::REGULAR)
+
+/**
+ * @enum isTransparent
+ * @brief Check if a block is a transparent cube block
+ * */
+#define isTransparent(x) ((x) >= BlockType::TRANSPARENT && (x) < BlockType::OPAQUE)
+
+/**
+ * @enum isSemiTransparent
+ * @brief Check if a block is a semi-transparent cube block
+ * */
+#define isSemiTransparent(x) ((x) >= BlockType::SEMITRANSPARENT && (x) < BlockType::TRANSPARENT)
+
+/**
+ * @enum isOpaque
+ * @brief Check if a block is an opaque cube block
+ * */
+#define isOpaque(x) ((x) >= BlockType::OPAQUE)
+
+/**
+ * @enum BlockType
+ * @brief Enumerate all the block types
+ * */
 enum BlockType : u8 {
-    //Air
+    /// Air
+	
     Air0 =      0, //Darkest value of light
     Air1 =      1,
     Air2 =      2,
@@ -24,10 +65,40 @@ enum BlockType : u8 {
     Air12 =     12,
     Air13 =     13,
     Air14 =     14,
-    Air15 =     15, Air = 15, //Brightest value of light
+    Air15 =     15, //Brightest value of light
+	Air = 15,
+	
+	/// Irrgular Blocks
+	
+	// Doors, flowers, ...
+	
+	/// Semi-Transparent Blocks
+	
+    //Leave
+    LeaveAcacia,
+	SEMITRANSPARENT = LeaveAcacia,
+	REGULAR = SEMITRANSPARENT,
+    LeaveOak,
+    LeaveJungle,
+    LeaveSpruce,
+    LeaveDark,
+    LeaveBirch,
+    LeaveSakura,
+    LeaveSnow,
+	
+	/// Transparent Blocks
 
+    //Misc
+    Glass,
+	TRANSPARENT = Glass,
+    ClearIce,
+    Water,
+
+	/// Opaque Blocks
+	
     //Mineral
-    Bedrock,
+	Bedrock,
+    OPAQUE = Bedrock,
     Stone,
     Andesite,
     SandStone,
@@ -137,27 +208,7 @@ enum BlockType : u8 {
 
     //Plant
     Cactus,
-
-    ////=============
-    //   TRANSPARENT
-    ////=============
-
-    //Leave
-    LeaveAcacia,
-    LeaveOak,
-    LeaveJungle,
-    LeaveSpruce,
-    LeaveDark,
-    LeaveBirch,
-    LeaveSakura,
-    LeaveSnow,
-
-    //Misc
-    Glass,
-    ClearIce,
-    Water,
-
-
+	
     //Bloc Breaking
     BlockBreaking0,
     BlockBreaking1,
