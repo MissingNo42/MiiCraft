@@ -47,7 +47,6 @@ void Wiimote::update(Player& player, World& w) {
             player.destroyBlock(w);
         else
             player.breakingState = 0;
-    player.getFocusedBlock(w);
 
 //    if (actions & WPAD_BUTTON_MINUS && player.isTargeting)
 //        player.destroyBlock(w);
@@ -87,7 +86,7 @@ void Wiimote::update(Player& player, World& w) {
     }
 
     if(player.cameraLocked){
-        if(player.getFocusedBlockDistance() > 5.9)
+        if(player.getFocusedBlockDistance() > 7)
             player.cameraLocked = false;
         else {
             player.renderer.camera.look.x = (f32) player.lockedBlockPos.x - player.renderer.camera.pos.x - 0.5f;

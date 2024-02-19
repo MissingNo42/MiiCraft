@@ -39,14 +39,12 @@ bool Player::getFocusedBlock(World &w) {
     }
     if(type > BlockType::Air) {
         renderer.drawFocus(w.getBlockAt(pos), (f32) pos.x, (f32) pos.y, (f32) pos.z);
-        isTargeting = true;
         previousFocusedBlockPos = focusedBlockPos;
         focusedBlockLook = {x,y,z};
         focusedBlockPos = pos;
         focusedBlockType = type;
         return true;
     }
-    isTargeting = false;
     return false;
 }
 
@@ -167,7 +165,7 @@ void Player::destroyBlock(World& w){
     else
     {
         w.setBlockAt(focusedBlockPos, BlockType::Air);
-        if(getFocusedBlock(w))
+        if(focusedBlockPos.equals(lockedBlockPos) && getFocusedBlock(w))
             lockedBlockPos = focusedBlockPos;
         else
             cameraLocked = false;
