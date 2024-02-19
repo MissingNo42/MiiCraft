@@ -69,6 +69,9 @@ void Wiimote::update(Player& player, World& w) {
         if (player.selected_spot < 8)
             player.selected_spot ++;
 
+    if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_DOWN)
+        player.crouching = !player.crouching;
+
     if (player.gravity){
         if (actions & WPAD_BUTTON_A){
             player.Jump();

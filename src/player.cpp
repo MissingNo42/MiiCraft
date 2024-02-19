@@ -327,7 +327,11 @@ void Player::move(World &w, joystick_t sticks) {
     if(move.x != 0 || move.z!=0)
         guVecNormalize(&move);
 
-    if(sprint){
+    if (crouching){
+        move.x = move.x * 2.f / 60;
+        move.z = move.z * 2.f / 60;
+    }
+    else if(sprint){
         move.x = move.x * 5.6f / 60;
         move.z = move.z * 5.6f / 60;
     }
