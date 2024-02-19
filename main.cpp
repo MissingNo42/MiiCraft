@@ -461,22 +461,22 @@ int main(int, char **) {
             GX_Position3f32(-0.4 + i * 0.094, -0.62,0);
             GX_Normal1x8(4);
             GX_Color1u32(white);
-            GX_TexCoord2f32(BLOCK_COORD(0), BLOCK_COORD(15)); // Top left
+            GX_TexCoord2f32(blocData[player.hotbar[i]].x[0], blocData[player.hotbar[i]].y[0]); // Top left
 
             GX_Position3f32(-0.35 + i * 0.094, -0.62,0);
             GX_Normal1x8(4);
             GX_Color1u32(white);
-            GX_TexCoord2f32(BLOCK_COORD(1), BLOCK_COORD(15)); // Top right
+            GX_TexCoord2f32(blocData[player.hotbar[i]].x[0]+OFFSET, blocData[player.hotbar[i]].y[0]); // Top right
 
             GX_Position3f32(-0.35 + i * 0.094, -0.68,0);
             GX_Normal1x8(4);
             GX_Color1u32(white);
-            GX_TexCoord2f32(BLOCK_COORD(1), BLOCK_COORD(16)); // Bottom right
+            GX_TexCoord2f32(blocData[player.hotbar[i]].x[0]+OFFSET, blocData[player.hotbar[i]].y[0]+OFFSET); // Bottom right
 
             GX_Position3f32(-0.4 + i * 0.094, -0.68,0);
             GX_Normal1x8(4);
             GX_Color1u32(white);
-            GX_TexCoord2f32(BLOCK_COORD(0), BLOCK_COORD(16)); // Bottom left
+            GX_TexCoord2f32(blocData[player.hotbar[i]].x[0], blocData[player.hotbar[i]].y[0]+OFFSET); // Bottom left
         }
 
         GX_End();
