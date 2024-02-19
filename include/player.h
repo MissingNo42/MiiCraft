@@ -26,6 +26,8 @@ public:
     bool isTargeting;
     bool sprint;
     int breakingState{};
+    int selected_spot = 0;
+    BlockType hotbar[10] = {BlockType::Stone, BlockType::Dirt, BlockType::GrassTemperate, BlockType::WoodOak, BlockType::LeaveOak, BlockType::Glass, BlockType::Bedrock, BlockType::Glowstone, BlockType::Sand, BlockType::Bedrock};
     Player(f32 x, f32 y, f32 z);
     Player();
 

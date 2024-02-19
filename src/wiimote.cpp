@@ -51,6 +51,13 @@ void Wiimote::update(Player& player, World& w) {
         player.placeBlock(w);
     player.placeDelay++;
 
+    if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_LEFT)
+        if (player.selected_spot > 0)
+            player.selected_spot --;
+    if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_RIGHT)
+        if (player.selected_spot < 9)
+            player.selected_spot ++;
+
     if (player.gravity){
         if (actions & WPAD_BUTTON_A){
             player.Jump();
@@ -62,6 +69,8 @@ void Wiimote::update(Player& player, World& w) {
         if (actions & WPAD_BUTTON_B)
             player.goDown(coord, w);
     }
+
+
     if(wd->exp.type == WPAD_EXP_NUNCHUK) {
         joystick_t sticks = wd->exp.nunchuk.js;
         player.move(w, sticks);
