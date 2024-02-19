@@ -70,7 +70,7 @@ void Wiimote::update(Player& player, World& w) {
             player.selected_spot ++;
 
     if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_DOWN)
-        player.crouching = !player.crouching;
+        player.sneak = !player.sneak;
 
     if (player.gravity){
         if (actions & WPAD_BUTTON_A){

@@ -327,7 +327,7 @@ void Player::move(World &w, joystick_t sticks) {
     if(move.x != 0 || move.z!=0)
         guVecNormalize(&move);
 
-    if (crouching){
+    if (sneak){
         move.x = move.x * 2.f / 60;
         move.z = move.z * 2.f / 60;
     }
@@ -354,25 +354,38 @@ void Player::move(World &w, joystick_t sticks) {
                           (int) floor(renderer.camera.pos.z + 1)}).type <= BlockType::Air
             && w.getBlockAt({(int) floor(offsetX + renderer.camera.pos.x + 1 + move.x), (int) (renderer.camera.pos.y + 0.5),
                          (int) floor(renderer.camera.pos.z + 1)}).type <= BlockType::Air){
-            if(!cameraLocked)
-                renderer.camera.pos.x += move.x;
-            else{
-                renderer.camera.pos.x += move.x;
-                renderer.camera.look.x -= move.x;
+            if (sneak && !isJumping ) {
+                if (w.getBlockAt({(int) floor(renderer.camera.pos.x +1 + move.x), (int)(renderer.camera.pos.y - 1), (int) floor(renderer.camera.pos.z + 1)}).type > BlockType::Air) {
+                    renderer.camera.pos.x += move.x;
+                }
+            }
+            else {
+                if (!cameraLocked)
+                    renderer.camera.pos.x += move.x;
+                else {
+                    renderer.camera.pos.x += move.x;
+                    renderer.camera.look.x -= move.x;
+                }
             }
         }
         if ( w.getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) (renderer.camera.pos.y - 0.5),
                                 (int) floor(offsetZ +renderer.camera.pos.z + 1 + move.z)}).type <= BlockType::Air
             && w.getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) (renderer.camera.pos.y + 0.5),
                              (int) floor(offsetZ +renderer.camera.pos.z + 1 + move.z)}).type <= BlockType::Air) {
-            if(!cameraLocked)
-                renderer.camera.pos.z += move.z;
-
-            else{
-                renderer.camera.pos.z += move.z;
-                renderer.camera.look.z -= move.z;
+            if (sneak && !isJumping ) {
+                if (w.getBlockAt({(int) floor(renderer.camera.pos.x +1), (int)(renderer.camera.pos.y - 1), (int) floor(renderer.camera.pos.z + 1 + move.z)}).type > BlockType::Air) {
+                    renderer.camera.pos.z += move.z;
+                }
             }
+            else {
+                if (!cameraLocked)
+                    renderer.camera.pos.z += move.z;
 
+                else {
+                    renderer.camera.pos.z += move.z;
+                    renderer.camera.look.z -= move.z;
+                }
+            }
         }
     }
 }
