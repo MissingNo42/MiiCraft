@@ -352,20 +352,24 @@ void Player::move(World &w, joystick_t sticks) {
             offsetZ = 0.3;
         if (w.getBlockAt({(int) floor(offsetX + renderer.camera.pos.x + 1 + move.x), (int) (renderer.camera.pos.y- 0.5),
                           (int) floor(renderer.camera.pos.z + 1)}).type <= BlockType::Air
-            && w.getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) (renderer.camera.pos.y - 0.5),
-                             (int) floor(offsetZ +renderer.camera.pos.z + 1 + move.z)}).type <= BlockType::Air
             && w.getBlockAt({(int) floor(offsetX + renderer.camera.pos.x + 1 + move.x), (int) (renderer.camera.pos.y + 0.5),
-                         (int) floor(renderer.camera.pos.z + 1)}).type <= BlockType::Air
-            && w.getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) (renderer.camera.pos.y + 0.5),
-                             (int) floor(offsetZ +renderer.camera.pos.z + 1 + move.z)}).type <= BlockType::Air) {
-            if(!cameraLocked){
+                         (int) floor(renderer.camera.pos.z + 1)}).type <= BlockType::Air){
+            if(!cameraLocked)
                 renderer.camera.pos.x += move.x;
-                renderer.camera.pos.z += move.z;
-            }
             else{
                 renderer.camera.pos.x += move.x;
-                renderer.camera.pos.z += move.z;
                 renderer.camera.look.x -= move.x;
+            }
+        }
+        if ( w.getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) (renderer.camera.pos.y - 0.5),
+                                (int) floor(offsetZ +renderer.camera.pos.z + 1 + move.z)}).type <= BlockType::Air
+            && w.getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) (renderer.camera.pos.y + 0.5),
+                             (int) floor(offsetZ +renderer.camera.pos.z + 1 + move.z)}).type <= BlockType::Air) {
+            if(!cameraLocked)
+                renderer.camera.pos.z += move.z;
+
+            else{
+                renderer.camera.pos.z += move.z;
                 renderer.camera.look.z -= move.z;
             }
 
