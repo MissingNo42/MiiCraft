@@ -41,14 +41,14 @@ void Camera::rotateH(f32 rad) {
 
 void Camera::rotateV(f32 rad) {
     //printf("angleY + rad: %f\r", angleY + rad);
-    if(angleY + rad < 88 && angleY + rad > -88){
+    //if(angleY + rad < 88 && angleY + rad > -88){
         // Calculate the right axis (cross product of look-at and up)
         guVector right;
         guVecCross(&up, &look, &right);
 
         VecRotAxis(&look, right, rad);
-        angleY += rad;
-    }
+        //angleY += rad;
+    //}
 
 }
 

@@ -24,7 +24,8 @@ void Wiimote::update(Player& player, World& w) {
     } while (wiimote_connection_status != WPAD_ERR_NONE);
 
     wd = WPAD_Data(chan);
-    player.handleRotation(wd);
+    if(!player.cameraLocked)
+        player.handleRotation(wd);
 
     WPAD_Expansion(chan, &data);
     if(WPAD_ButtonsDown(chan) & WPAD_BUTTON_HOME)
@@ -40,15 +41,29 @@ void Wiimote::update(Player& player, World& w) {
     else
         player.sprint = false;
 
-    player.getFocusedBlock(w);
+    bool isTargeting = player.getFocusedBlock(w);
+    if(isTargeting){
+        if (actions & WPAD_BUTTON_MINUS)
+            player.destroyBlock(w);
+        else
+            player.breakingState = 0;
 
 //    if (actions & WPAD_BUTTON_MINUS && player.isTargeting)
 //        player.destroyBlock(w);
 //    else
 //        player.breakingState = 0;
 
-    if(actions & WPAD_BUTTON_B && player.isTargeting)
-        player.placeBlock(w);
+        if(actions & WPAD_BUTTON_B)
+            player.placeBlock(w);
+
+        if(WPAD_ButtonsDown(chan) & WPAD_BUTTON_1){
+            if(player.cameraLocked) player.cameraLocked = false;
+            else {
+                player.cameraLocked = true;
+                player.lockedBlockPos = player.focusedBlockPos;
+            }
+        }
+    }
     player.placeDelay++;
 
     if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_LEFT)
@@ -70,6 +85,15 @@ void Wiimote::update(Player& player, World& w) {
             player.goDown(coord, w);
     }
 
+    if(player.cameraLocked){
+        if(player.getFocusedBlockDistance() > 7)
+            player.cameraLocked = false;
+        else {
+            player.renderer.camera.look.x = (f32) player.lockedBlockPos.x - player.renderer.camera.pos.x - 0.5f;
+            player.renderer.camera.look.y =(f32) player.lockedBlockPos.y - player.renderer.camera.pos.y - 0.5f;
+            player.renderer.camera.look.z = (f32) player.lockedBlockPos.z - player.renderer.camera.pos.z - 0.5f;
+        }
+    }
 
     if(wd->exp.type == WPAD_EXP_NUNCHUK) {
         joystick_t sticks = wd->exp.nunchuk.js;
@@ -81,7 +105,7 @@ void Wiimote::update(Player& player, World& w) {
         acc = abs( norme - last_accel);
         printf("%d\r", acc);
         last_accel = norme;
-        if (acc > 5 && player.isTargeting) {
+        if (acc > 5 && isTargeting) {
             player.destroyBlock(w);
             printf("%d\r", player.breakingState);
         }
@@ -95,6 +119,11 @@ void Wiimote::update(Player& player, World& w) {
         }
 
     }
+
+    if(player.cameraLocked)
+        guVecNormalize(&player.renderer.camera.look);
+    //printf(">lk : %f %f %f\r", player.renderer.camera.look.x, player.renderer.camera.look.y, player.renderer.camera.look.z);
+    //printf(">lk : %f %f %f\r", player.renderer.camera.look.x, player.renderer.camera.look.y, player.renderer.camera.look.z);
 }
 
 
@@ -126,5 +155,3 @@ void print_wiimote_buttons(WPADData * wd) {
     if (wd->btns_h & WPAD_BUTTON_DOWN) printf("DOWN ");
     printf("\n");
 }
-
-

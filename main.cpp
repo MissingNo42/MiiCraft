@@ -359,9 +359,7 @@ int main(int, char **) {
         Game::getInstance()->requestChunk(w.to_chunk_pos(pos));
 
         renderWorld(w, player.renderer, w.to_chunk_pos(pos));
-
         wiimote.update(player, w);
-
 
 		//renderer.renderBloc({4, 0, 0}, 1);
 		//renderer.renderBloc({7, -1, 0}, 1);
