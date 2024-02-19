@@ -29,14 +29,12 @@ class VerticalChunk {
 
 private:
     static inline int cpt = 0;
-
-
-
-
+	
 public:
     int id;
-    VerticalChunk* neighboors[4];
+    VerticalChunk* neighboors[4]{};
     Block blocks[16][128][16];
+	u8 recache = 1;
     VerticalChunk();
 
     static VerticalChunk* emptyChunk;

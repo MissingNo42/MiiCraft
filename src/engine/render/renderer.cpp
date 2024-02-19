@@ -106,16 +106,14 @@ void Renderer::setupVtxDesc() {
 	GX_InvVtxCache();
 	
 	GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
-	GX_SetVtxDesc(GX_VA_NRM, GX_INDEX8);
-    GX_SetVtxDesc(GX_VA_CLR0, GX_DIRECT);
+    GX_SetVtxDesc(GX_VA_CLR0, GX_INDEX8);
     GX_SetVtxDesc(GX_VA_TEX0, GX_DIRECT);
 	
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
-	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_NRM_XYZ, GX_S8, 0);
-    GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+    GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_S8, 0);
     GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
 
-	GX_SetArray(GX_VA_NRM, (void *)Normals, 3 * sizeof(Normals[0]));
+	GX_SetArray(GX_VA_CLR0, (void *)Lights, 4);
 
 }
 
@@ -173,11 +171,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
                           int topIndex, int bottomIndex, int leftIndex, int rightIndex, int frontIndex, int backIndex)
 
     {
-
-
-
-
-
+	return;
     int sz = (top + bottom + left + right + front + back) << 2;
     if(sz == 0) return;
 
@@ -492,7 +486,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
 
 void Renderer::drawFocus(Block block, f32 x, f32 y, f32 z) {
     Mtx model, modelview; // Various matrices
-
+	return;
     //guMtxIdentity(model);
 //
     //guMtxTransApply(model, model, x, y, z);

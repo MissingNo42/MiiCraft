@@ -25,8 +25,9 @@ Game::Game() {
 //    gen->generateChunk(w, {-1, 1});
 
 void Game::requestChunk(t_pos2D pos) {
-    for(int x = pos.x -2; x <  pos.x + 3; x++){
-        for(int y = pos.y -2; y < pos.y + 3; y++){
+	const int range = 5;
+    for(int x = pos.x - range; x <=  pos.x + range; x++){
+        for(int y = pos.y - range; y <= pos.y + range; y++){
             t_pos2D p;
             p.x = x;
             p.y = y;

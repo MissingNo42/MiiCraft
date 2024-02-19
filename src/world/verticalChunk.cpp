@@ -21,13 +21,14 @@ bool t_pos2D::operator<(const t_pos2D &p) const {
 VerticalChunk* VerticalChunk::emptyChunk = new VerticalChunk();
 
 VerticalChunk::VerticalChunk() : id(cpt++) {
-    for(int i = 0; i < 4; i++){
-        neighboors[i] = VerticalChunk::emptyChunk;
+    for(auto & neighboor : neighboors){
+        neighboor = VerticalChunk::emptyChunk;
     }
 }
 
 
 void VerticalChunk::VC_SetBlock(t_coord coord, BlockType block) {
+	recache = 1;
     t_coord c = {coord.x & 15, coord.y, coord.z & 15};
     blocks[c.x][c.y][c.z].type = block;
 }

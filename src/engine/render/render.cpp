@@ -5,68 +5,70 @@
 #include "engine/render/render.h"
 #include "world/verticalChunk.h"
 #include "render/renderer.h"
-#include "render/cache.h"
+#include "render/cacheManager.h"
+#include "render/bloc.h"
 
 
-inline void renderVertex(f32 x, f32 y, f32 z, f32 tx, f32 ty, u32 color, u8 normal) {
-    GX_Position3f32(x, y, z);
-    GX_Normal1x8(normal);
-    GX_Color1u32(color);
-    GX_TexCoord2f32(tx, ty);
+inline void renderVertex(f32 x, f32 y, f32 z, f32 tx, f32 ty, u8 color) {
+    //GX_Position3f32(x, y, z);
+    //GX_Normal1x8(normal);
+    //GX_Color1u32(color);
+    //GX_TexCoord2f32(tx, ty);
+	ChunkCache::addVertex(x, y, z, color, tx, ty);
 }
 
 inline void renderFront(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light) {
     f32 tx = blocData[type].x[BLOC_FACE_FRONT];
     f32 ty = blocData[type].y[BLOC_FACE_FRONT];
-    renderVertex(mx, y, z, tx, ty, Lights[light][c1], 4); // A
-    renderVertex(x, y, z, tx + OFFSET, ty, Lights[light][c2], 4); // D
-    renderVertex(x, my, z, tx + OFFSET, ty + OFFSET, Lights[light][c3], 4); // H
-    renderVertex(mx, my, z, tx, ty + OFFSET, Lights[light][c4], 4); // E
+    renderVertex(mx, y, z, tx, ty, (light << 2) + c1); // A
+    renderVertex(x, y, z, tx + OFFSET, ty, (light << 2) + c2); // D
+    renderVertex(x, my, z, tx + OFFSET, ty + OFFSET, (light << 2) + c3); // H
+    renderVertex(mx, my, z, tx, ty + OFFSET, (light << 2) + c4); // E
 }
 
 inline void renderBack(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light) {
     f32 tx = blocData[type].x[BLOC_FACE_BACK];
     f32 ty = blocData[type].y[BLOC_FACE_BACK];
-    renderVertex(x, my, mz, tx, ty + OFFSET, Lights[light][c1], 5); // G
-    renderVertex(x, y, mz, tx, ty, Lights[light][c2], 5); // C
-    renderVertex(mx, y, mz, tx + OFFSET, ty, Lights[light][c3], 5); // B
-    renderVertex(mx, my, mz, tx + OFFSET, ty + OFFSET, Lights[light][c4], 5); // F
+    renderVertex(x, my, mz, tx, ty + OFFSET, (light << 2) + c1); // G
+    renderVertex(x, y, mz, tx, ty, (light << 2) + c2); // C
+    renderVertex(mx, y, mz, tx + OFFSET, ty, (light << 2) + c3); // B
+    renderVertex(mx, my, mz, tx + OFFSET, ty + OFFSET, (light << 2) + c4); // F
 }
 
 inline void renderTop(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light) {
     f32 tx = blocData[type].x[BLOC_FACE_TOP];
     f32 ty = blocData[type].y[BLOC_FACE_TOP];
-    renderVertex(x, y, mz, tx + OFFSET, ty, Lights[light][c1], 0); // C
-    renderVertex(x, y, z, tx + OFFSET, ty + OFFSET, Lights[light][c2], 0); // D
-    renderVertex(mx, y, z, tx, ty + OFFSET, Lights[light][c3], 0); // A
-    renderVertex(mx, y, mz, tx, ty, Lights[light][c4], 0); // B
+    renderVertex(x, y, mz, tx + OFFSET, ty, (light << 2) + c1); // C
+    renderVertex(x, y, z, tx + OFFSET, ty + OFFSET, (light << 2) + c2); // D
+    renderVertex(mx, y, z, tx, ty + OFFSET, (light << 2) + c3); // A
+    renderVertex(mx, y, mz, tx, ty, (light << 2) + c4); // B
 }
 
 inline void renderBottom(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light) {
     f32 tx = blocData[type].x[BLOC_FACE_BOTTOM];
     f32 ty = blocData[type].y[BLOC_FACE_BOTTOM];
-    renderVertex(mx, my, z, tx + OFFSET, ty + OFFSET, Lights[light][c1], 1); // E
-    renderVertex(x, my, z, tx, ty + OFFSET, Lights[light][c2], 1); // H
-    renderVertex(x, my, mz, tx, ty, Lights[light][c3], 1); // G
-    renderVertex(mx, my, mz, tx + OFFSET, ty, Lights[light][c4], 1); // F
+    renderVertex(mx, my, z, tx + OFFSET, ty + OFFSET, (light << 2) + c1); // E
+    renderVertex(x, my, z, tx, ty + OFFSET, (light << 2) + c2); // H
+    renderVertex(x, my, mz, tx, ty, (light << 2) + c3); // G
+    renderVertex(mx, my, mz, tx + OFFSET, ty, (light << 2) + c4); // F
 }
 
 inline void renderLeft(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light) {
     f32 tx = blocData[type].x[BLOC_FACE_LEFT];
     f32 ty = blocData[type].y[BLOC_FACE_LEFT];
-    renderVertex(mx, y, mz, tx, ty, Lights[light][c1], 3); // B
-    renderVertex(mx, y, z, tx + OFFSET, ty, Lights[light][c2], 3); // A
-    renderVertex(mx, my, z, tx + OFFSET, ty + OFFSET, Lights[light][c3], 3); // E
-    renderVertex(mx, my, mz, tx, ty + OFFSET, Lights[light][c4], 3); // F
+    renderVertex(mx, y, mz, tx, ty, (light << 2) + c1); // B
+    renderVertex(mx, y, z, tx + OFFSET, ty, (light << 2) + c2); // A
+    renderVertex(mx, my, z, tx + OFFSET, ty + OFFSET, (light << 2) + c3); // E
+    renderVertex(mx, my, mz, tx, ty + OFFSET, (light << 2) + c4); // F
 }
 
 inline void renderRight(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light) {
     f32 tx = blocData[type].x[BLOC_FACE_RIGHT];
     f32 ty = blocData[type].y[BLOC_FACE_RIGHT];
-    renderVertex(x, my, z, tx, ty + OFFSET, Lights[light][c1], 2); // H
-    renderVertex(x, y, z, tx, ty, Lights[light][c2], 2); // D
-    renderVertex(x, y, mz, tx + OFFSET, ty, Lights[light][c3], 2); // C
-    renderVertex(x, my, mz, tx + OFFSET, ty + OFFSET, Lights[light][c4], 2); // G
+    renderVertex(x, my, z, tx, ty + OFFSET, (light << 2) + c1); // H
+    renderVertex(x, y, z, tx, ty, (light << 2) + c2); // D
+    renderVertex(x, y, mz, tx + OFFSET, ty, (light << 2) + c3); // C
+    renderVertex(x, my, mz, tx + OFFSET, ty + OFFSET, (light << 2) + c4); // G
 }
 
 /**
@@ -671,14 +673,14 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 						}
 
 
-                        GX_Begin(GX_QUADS, GX_VTXFMT0, sz << 2); // Start drawing
+                        //GX_Begin(GX_QUADS, GX_VTXFMT0, sz << 2); // Start drawing
                         if (tT) renderTop   ((f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, type, C + BC + CD, D + CD + DA, A + AB + DA, B + BC + AB, lT); // CDAB
                         if (tB) renderBottom((f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, type, E + EF + HE, H + GH + HE, G + FG + GH, F + FG + EF, lB); // EHGF
                         if (tL) renderLeft  ((f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, type, B + AB + BF, A + AB + AE, E + EF + AE, F + BF + EF, lL); // BAEF
                         if (tR) renderRight ((f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, type, H + DH + GH, D + CD + DH, C + CD + CG, G + CG + GH, lR); // HDCG
                         if (tF) renderFront ((f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, type, A + AE + DA, D + DA + DH, H + DH + HE, E + HE + AE, lF); // ADHE
                         if (tK) renderBack  ((f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, type, G + CG + FG, C + BC + CG, B + BC + BF, F + FG + BF, lK); // GCBF
-                        GX_End();
+                        //GX_End();
                     }
                 }
             }

@@ -48,7 +48,12 @@ void World::setBlockAt(t_coord coord, BlockType block) {
 }
 
 VerticalChunk& World::getChunkAt(t_pos2D pos) {
-    return *loadedChunk.at(pos);
+	try {
+        return *loadedChunk.at(pos);
+	} catch (...) {
+		printf("Get chunk at %d %d FAILED\r", pos.x, pos.y);
+		return *VerticalChunk::emptyChunk;
+	}
 }
 
 void World::addChunk(t_pos2D pos, VerticalChunk* chunk) {
