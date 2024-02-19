@@ -20,16 +20,19 @@ public:
     bool isJumping = false;
     Renderer renderer;
     t_coord focusedBlockPos;
+    t_coord lockedBlockPos;
     BlockType focusedBlockType;
     t_coord previousFocusedBlockPos;
     guVector focusedBlockLook;
-    bool isTargeting;
     bool sprint;
+    bool cameraLocked;
     int breakingState{};
     Player(f32 x, f32 y, f32 z);
     Player();
 
-    void getFocusedBlock(World& w);
+    bool getFocusedBlock(World& w);
+
+    f32 getFocusedBlockDistance() const;
 
     static guVector InverseVector(const guVector& v);
 

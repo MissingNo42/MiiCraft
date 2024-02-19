@@ -347,19 +347,17 @@ int main(int, char **) {
         pos.y = floor(player.renderer.camera.pos.y);
         pos.z = floor(player.renderer.camera.pos.z);
 
-        printf("pos : %d %d %d\r", pos.x & 15, pos.y &15, pos.z &15);
-        printf(">lk : %.2f %.2f %.2f\r", player.renderer.camera.look.x,
-			   player.renderer.camera.look.y, player.renderer.camera.look.z);
+        //printf("pos : %d %d %d\r", pos.x, pos.y , pos.z);
 
 
-        wiimote.update(player, w);
 
         player.renderer.camera.update(true);
 		
         Game::getInstance()->requestChunk(w.to_chunk_pos(pos));
 
+        guVecNormalize(&player.renderer.camera.look);
         renderWorld(w, player.renderer, w.to_chunk_pos(pos));
-
+        wiimote.update(player, w);
 
 		//renderer.renderBloc({4, 0, 0}, 1);
 		//renderer.renderBloc({7, -1, 0}, 1);
@@ -451,11 +449,7 @@ int main(int, char **) {
         GX_Color1u32(white);
         GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(10)); // Bottom left
 		GX_End();
-		
-		
-		
-		
-		
+
 		
 		
         GX_Begin(GX_QUADS, GX_VTXFMT0, 8); // Start drawing
@@ -512,7 +506,7 @@ int main(int, char **) {
         GX_End();
 
 		Renderer::endFrame();
-        printf("end frame\r");
+        //printf("end frame\r");
 	}
 	
 	if (exiting == 2) SYS_ResetSystem(SYS_SHUTDOWN, 0, 0);

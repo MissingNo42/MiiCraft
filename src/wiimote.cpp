@@ -23,7 +23,8 @@ void Wiimote::update(Player& player, World& w) {
     } while (wiimote_connection_status != WPAD_ERR_NONE);
 
     wd = WPAD_Data(chan);
-    player.handleRotation(wd);
+    if(!player.cameraLocked)
+        player.handleRotation(wd);
 
     WPAD_Expansion(chan, &data);
     if(WPAD_ButtonsDown(chan) & WPAD_BUTTON_HOME)
@@ -39,15 +40,23 @@ void Wiimote::update(Player& player, World& w) {
     else
         player.sprint = false;
 
-    player.getFocusedBlock(w);
+    if(player.getFocusedBlock(w)){
+        if (actions & WPAD_BUTTON_MINUS)
+            player.destroyBlock(w);
+        else
+            player.breakingState = 0;
 
-    if (actions & WPAD_BUTTON_MINUS && player.isTargeting)
-        player.destroyBlock(w);
-    else
-        player.breakingState = 0;
+        if(actions & WPAD_BUTTON_B)
+            player.placeBlock(w);
 
-    if(actions & WPAD_BUTTON_B && player.isTargeting)
-        player.placeBlock(w);
+        if(WPAD_ButtonsDown(chan) & WPAD_BUTTON_1){
+            if(player.cameraLocked) player.cameraLocked = false;
+            else {
+                player.cameraLocked = true;
+                player.lockedBlockPos = player.focusedBlockPos;
+            }
+        }
+    }
     player.placeDelay++;
 
     if (player.gravity){
@@ -61,10 +70,28 @@ void Wiimote::update(Player& player, World& w) {
         if (actions & WPAD_BUTTON_B)
             player.goDown(coord, w);
     }
+
+    if(player.cameraLocked){
+        if(player.getFocusedBlockDistance() > 5.9)
+            player.cameraLocked = false;
+        else {
+            player.renderer.camera.look.x = (f32) player.lockedBlockPos.x - player.renderer.camera.pos.x - 0.5f;
+            player.renderer.camera.look.y =(f32) player.lockedBlockPos.y - player.renderer.camera.pos.y - 0.5f;
+            player.renderer.camera.look.z = (f32) player.lockedBlockPos.z - player.renderer.camera.pos.z - 0.5f;
+        }
+    }
+
     if(wd->exp.type == WPAD_EXP_NUNCHUK) {
         joystick_t sticks = wd->exp.nunchuk.js;
+        printf(">lk : %f %f %f\r", player.renderer.camera.look.x, player.renderer.camera.look.y, player.renderer.camera.look.z);
         player.move(w, sticks);
+        //(">lk : %f %f %f\r", player.renderer.camera.look.x, player.renderer.camera.look.y, player.renderer.camera.look.z);
     }
+
+    if(player.cameraLocked)
+        guVecNormalize(&player.renderer.camera.look);
+    //printf(">lk : %f %f %f\r", player.renderer.camera.look.x, player.renderer.camera.look.y, player.renderer.camera.look.z);
+    //printf(">lk : %f %f %f\r", player.renderer.camera.look.x, player.renderer.camera.look.y, player.renderer.camera.look.z);
 }
 
 
