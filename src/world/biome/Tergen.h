@@ -178,12 +178,12 @@ public:
         APPLY_BEDROCK;
         APPLY_BOTTOM;
 
-        APPLY_CONTINENT(Stone, Stone);
-        APPLY_BLOCK(Stone);
+        APPLY_CONTINENT(Stone, Dirt);
+        APPLY_BLOCK(GrassSakura);
         pos.y++;
         APPLY_SKY;
     }
-    inline static void generateFlowerLand(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
+    inline static void generateJungle(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
