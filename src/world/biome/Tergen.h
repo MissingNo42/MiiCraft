@@ -9,7 +9,8 @@
 #include "../verticalChunk.h"
 
 enum BiomeType{
-    Ocean = 0,
+    Void = 0,
+    Ocean,
     Beach,
     Savanna,
     Tundra,
@@ -18,12 +19,14 @@ enum BiomeType{
     WoodedPlain,
     Hills,
     WoodedHills,
+    StonyLand,
     Badlands,
     WoodedBadlands,
     Jungle,
-    Mushroom,
+    DarkForest,
     IcePeak,
-    Taiga
+    Taiga,
+    StonyShore,
 };
 
 #define INIT_GENERATOR \
@@ -59,7 +62,7 @@ class Tergen {
 private:
 public:
 
-    constexpr static const float bottomLevel = 20; // absolu
+    constexpr static const float bottomLevel = 5; // absolu
     constexpr static const float seaLevel = 20; // relatif a bottomLevel
     constexpr static const float continentLevel = 5; // relatif a seaLevel
     constexpr static const float peakAmplitude = 25.;
@@ -79,7 +82,7 @@ public:
         APPLY_BOTTOM;
 
         APPLY_CONTINENT(Stone, SandStone);
-        APPLY_BLOCK(BlockType::GrassDark);
+        APPLY_BLOCK(BlockType::Sand);
         pos.y++;
         APPLY_SKY;
     }
@@ -117,6 +120,80 @@ public:
         APPLY_SKY;
     }
 
+    inline static void generateBadLand(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
+        INIT_GENERATOR;
+        APPLY_BEDROCK;
+        APPLY_BOTTOM;
+
+        APPLY_CONTINENT(Stone, Clay);
+        APPLY_BLOCK(ClayRed);
+        pos.y++;
+        APPLY_SKY;
+    }
+    inline static void generateDarkForest(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
+        INIT_GENERATOR;
+        APPLY_BEDROCK;
+        APPLY_BOTTOM;
+
+        APPLY_CONTINENT(Stone, Dirt);
+        APPLY_BLOCK(GrassDark);
+        pos.y++;
+        APPLY_SKY;
+    }
+    inline static void generateStonyTaiga(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
+        INIT_GENERATOR;
+        APPLY_BEDROCK;
+        APPLY_BOTTOM;
+
+        APPLY_CONTINENT(Stone, Stone);
+        APPLY_BLOCK(Stone);
+        pos.y++;
+        APPLY_SKY;
+    }
+
+    inline static void generateWindSwept(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
+        INIT_GENERATOR;
+        APPLY_BEDROCK;
+        APPLY_BOTTOM;
+
+        APPLY_CONTINENT(Stone, Stone);
+        APPLY_BLOCK(Stone);
+        pos.y++;
+        APPLY_SKY;
+    }
+
+    inline static void generateIcy(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
+        INIT_GENERATOR;
+        APPLY_BEDROCK;
+        APPLY_BOTTOM;
+
+        APPLY_CONTINENT(Andesite, StdIce);
+        APPLY_BLOCK(ClearIce);
+        pos.y++;
+        APPLY_SKY;
+    }
+
+    inline static void generateFlowerLand(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
+        INIT_GENERATOR;
+        APPLY_BEDROCK;
+        APPLY_BOTTOM;
+
+        APPLY_CONTINENT(Stone, Stone);
+        APPLY_BLOCK(Stone);
+        pos.y++;
+        APPLY_SKY;
+    }
+    inline static void generateFlowerLand(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
+        INIT_GENERATOR;
+        APPLY_BEDROCK;
+        APPLY_BOTTOM;
+
+        APPLY_CONTINENT(Stone, Dirt);
+        APPLY_BLOCK(GrassJungle);
+        pos.y++;
+        APPLY_SKY;
+    }
+
     inline static void generateOcean(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
         INIT_GENERATOR;
         APPLY_BEDROCK;
@@ -129,6 +206,16 @@ public:
         APPLY_SKY;
     }
 
+    inline static void generateBeach(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
+        INIT_GENERATOR;
+        APPLY_BEDROCK;
+        APPLY_BOTTOM;
+
+        APPLY_CONTINENT(Stone, Sand);
+        APPLY_BLOCK(BlockType::Sand);
+        pos.y++;
+        APPLY_SKY;
+    }
 };
 //void generateVoid( VerticalChunk* chunk, int block_x, int block_z, int height);
 //void generateDesert( VerticalChunk* chunk, int block_x, int block_z, int height);
