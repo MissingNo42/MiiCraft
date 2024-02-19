@@ -43,10 +43,15 @@ void Wiimote::update(Player& player, World& w) {
 
     bool isTargeting = player.getFocusedBlock(w);
     if(isTargeting){
-//        if (actions & WPAD_BUTTON_MINUS)
-//            player.destroyBlock(w);
-//        else
-//            player.breakingState = 0;
+        if (actions & WPAD_BUTTON_MINUS)
+            player.destroyBlock(w);
+        else
+            player.breakingState = 0;
+
+//    if (actions & WPAD_BUTTON_MINUS && player.isTargeting)
+//        player.destroyBlock(w);
+//    else
+//        player.breakingState = 0;
 
         if(actions & WPAD_BUTTON_B)
             player.placeBlock(w);
