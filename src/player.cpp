@@ -190,7 +190,7 @@ void Player::placeBlock(World& w){
                    || (pos.y != (int)floor(renderer.camera.pos.y + 1)
                        && pos.y != (int)floor(renderer.camera.pos.y))
                     || pos.z != (int)floor(renderer.camera.pos.z + 1))
-                    w.setBlockAt(pos, BlockType::Bedrock);
+                    w.setBlockAt(pos, hotbar[selected_spot]);
                 break;
             case 1:
                 pos.x++;
@@ -200,7 +200,7 @@ void Player::placeBlock(World& w){
                    || (pos.y != (int)floor(renderer.camera.pos.y + 1)
                        && pos.y != (int)floor(renderer.camera.pos.y))
                    || pos.z != (int)floor(renderer.camera.pos.z + 1))
-                    w.setBlockAt(pos, BlockType::Bedrock);
+                    w.setBlockAt(pos, hotbar[selected_spot]);
                 break;
             case 2:
                 pos.y--;
@@ -210,7 +210,7 @@ void Player::placeBlock(World& w){
                    || (pos.y != (int)floor(renderer.camera.pos.y + 1)
                    && pos.y != (int)floor(renderer.camera.pos.y))
                    || pos.z != (int)floor(renderer.camera.pos.z + 1))
-                    w.setBlockAt(pos, BlockType::Bedrock);
+                    w.setBlockAt(pos, hotbar[selected_spot]);
                 break;
             case 3:
                 pos.y++;
@@ -220,7 +220,7 @@ void Player::placeBlock(World& w){
                    || (pos.y != (int)floor(renderer.camera.pos.y + 1)
                        && pos.y != (int)floor(renderer.camera.pos.y))
                    || pos.z != (int)floor(renderer.camera.pos.z + 1))
-                    w.setBlockAt(pos, BlockType::Bedrock);
+                    w.setBlockAt(pos, hotbar[selected_spot]);
                 break;
             case 4:
                 pos.z--;
@@ -230,7 +230,7 @@ void Player::placeBlock(World& w){
                    || (pos.y != (int)floor(renderer.camera.pos.y + 1)
                        && pos.y != (int)floor(renderer.camera.pos.y))
                    || pos.z != (int)floor(renderer.camera.pos.z + 1))
-                    w.setBlockAt(pos, BlockType::Bedrock);
+                    w.setBlockAt(pos, hotbar[selected_spot]);
                 break;
             case 5:
                 pos.z++;
@@ -240,7 +240,7 @@ void Player::placeBlock(World& w){
                    || (pos.y != (int)floor(renderer.camera.pos.y + 1)
                        && pos.y != (int)floor(renderer.camera.pos.y))
                    || pos.z != (int)floor(renderer.camera.pos.z + 1))
-                    w.setBlockAt(pos, BlockType::Bedrock);
+                    w.setBlockAt(pos, hotbar[selected_spot]);
                 break;
         }
     }

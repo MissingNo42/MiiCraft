@@ -13,10 +13,11 @@ Wiimote::Wiimote() {
     WPAD_SetVRes(WPAD_CHAN_ALL, Renderer::rmode->fbWidth, Renderer::rmode->xfbHeight);
 }
 
+
 void Wiimote::update(Player& player, World& w) {
     //printf("x: %lf, y: %lf, z: %lf\r", player.renderer.camera.pos.x, player.renderer.camera.pos.y, player.renderer.camera.pos.z);
     WPAD_ScanPads();
-    int wiimote_connection_status;
+    int wiimote_connection_status, acc, norme;
 
     do {
         wiimote_connection_status = WPAD_Probe(chan, &type);
@@ -40,11 +41,18 @@ void Wiimote::update(Player& player, World& w) {
     else
         player.sprint = false;
 
-    if(player.getFocusedBlock(w)){
+    bool isTargeting = player.getFocusedBlock(w);
+    if(isTargeting){
         if (actions & WPAD_BUTTON_MINUS)
             player.destroyBlock(w);
         else
             player.breakingState = 0;
+    player.getFocusedBlock(w);
+
+//    if (actions & WPAD_BUTTON_MINUS && player.isTargeting)
+//        player.destroyBlock(w);
+//    else
+//        player.breakingState = 0;
 
         if(actions & WPAD_BUTTON_B)
             player.placeBlock(w);
@@ -58,6 +66,13 @@ void Wiimote::update(Player& player, World& w) {
         }
     }
     player.placeDelay++;
+
+    if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_LEFT)
+        if (player.selected_spot > 0)
+            player.selected_spot --;
+    if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_RIGHT)
+        if (player.selected_spot < 9)
+            player.selected_spot ++;
 
     if (player.gravity){
         if (actions & WPAD_BUTTON_A){
@@ -83,9 +98,27 @@ void Wiimote::update(Player& player, World& w) {
 
     if(wd->exp.type == WPAD_EXP_NUNCHUK) {
         joystick_t sticks = wd->exp.nunchuk.js;
-        printf(">lk : %f %f %f\r", player.renderer.camera.look.x, player.renderer.camera.look.y, player.renderer.camera.look.z);
         player.move(w, sticks);
-        //(">lk : %f %f %f\r", player.renderer.camera.look.x, player.renderer.camera.look.y, player.renderer.camera.look.z);
+        vec3w_t accel = wd->exp.nunchuk.accel;
+
+        norme =sqrt(accel.y * accel.y + accel.x * accel.x + accel.z * accel.z);
+
+        acc = abs( norme - last_accel);
+        printf("%d\r", acc);
+        last_accel = norme;
+        if (acc > 5 && isTargeting) {
+            player.destroyBlock(w);
+            printf("%d\r", player.breakingState);
+        }
+        else {
+            if (frame_cntr < 60)
+                frame_cntr++;
+            else {
+                frame_cntr = 0;
+                player.breakingState = 0;
+            }
+        }
+
     }
 
     if(player.cameraLocked)

@@ -17,12 +17,15 @@ private:
     struct expansion_t data;
     int chan = WPAD_CHAN_0;
     u32 type = 0;
+    int last_accel = 0;
+    int frame_cntr = 0;
 
 public:
     Wiimote();
     WPADData * wd;
 
     void update(Player& player, World& w);
+
 };
 
 
