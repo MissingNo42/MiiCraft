@@ -13,10 +13,11 @@ Wiimote::Wiimote() {
     WPAD_SetVRes(WPAD_CHAN_ALL, Renderer::rmode->fbWidth, Renderer::rmode->xfbHeight);
 }
 
+
 void Wiimote::update(Player& player, World& w) {
     //printf("x: %lf, y: %lf, z: %lf\r", player.renderer.camera.pos.x, player.renderer.camera.pos.y, player.renderer.camera.pos.z);
     WPAD_ScanPads();
-    int wiimote_connection_status;
+    int wiimote_connection_status, acc, norme;
 
     do {
         wiimote_connection_status = WPAD_Probe(chan, &type);
@@ -41,10 +42,10 @@ void Wiimote::update(Player& player, World& w) {
 
     player.getFocusedBlock(w);
 
-    if (actions & WPAD_BUTTON_MINUS && player.isTargeting)
-        player.destroyBlock(w);
-    else
-        player.breakingState = 0;
+//    if (actions & WPAD_BUTTON_MINUS && player.isTargeting)
+//        player.destroyBlock(w);
+//    else
+//        player.breakingState = 0;
 
     if(actions & WPAD_BUTTON_B && player.isTargeting)
         player.placeBlock(w);
@@ -64,6 +65,26 @@ void Wiimote::update(Player& player, World& w) {
     if(wd->exp.type == WPAD_EXP_NUNCHUK) {
         joystick_t sticks = wd->exp.nunchuk.js;
         player.move(w, sticks);
+        vec3w_t accel = wd->exp.nunchuk.accel;
+
+        norme =sqrt(accel.y * accel.y + accel.x * accel.x + accel.z * accel.z);
+
+        acc = abs( norme - last_accel);
+        printf("%d\r", acc);
+        last_accel = norme;
+        if (acc > 5 && player.isTargeting) {
+            player.destroyBlock(w);
+            printf("%d\r", player.breakingState);
+        }
+        else {
+            if (frame_cntr < 60)
+                frame_cntr++;
+            else {
+                frame_cntr = 0;
+                player.breakingState = 0;
+            }
+        }
+
     }
 }
 
@@ -96,3 +117,5 @@ void print_wiimote_buttons(WPADData * wd) {
     if (wd->btns_h & WPAD_BUTTON_DOWN) printf("DOWN ");
     printf("\n");
 }
+
+
