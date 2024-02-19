@@ -338,7 +338,6 @@ int main(int, char **) {
     t_coord pos(0,0,0);
     World& w = Game::getInstance()->getWorld();
 
-    printf("end init\r");
     while (!exiting) {
 
         player.renderer.camera.loadPerspective();
@@ -347,9 +346,6 @@ int main(int, char **) {
         pos.y = floor(player.renderer.camera.pos.y);
         pos.z = floor(player.renderer.camera.pos.z);
 
-        printf("pos : %d %d %d\r", pos.x & 15, pos.y &15, pos.z &15);
-        printf(">lk : %.2f %.2f %.2f\r", player.renderer.camera.look.x,
-			   player.renderer.camera.look.y, player.renderer.camera.look.z);
 
 
         wiimote.update(player, w);
@@ -512,7 +508,7 @@ int main(int, char **) {
         GX_End();
 
 		Renderer::endFrame();
-        printf("end frame\r");
+
 	}
 	
 	if (exiting == 2) SYS_ResetSystem(SYS_SHUTDOWN, 0, 0);

@@ -64,6 +64,7 @@ public:
     VerticalChunk *VC_GetNeighboor(int indice);
 
     std::queue<t_coord> lightQueue;
+    std::queue<t_coord> blockLightQueue;
 
 };
 
