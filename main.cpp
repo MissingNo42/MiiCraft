@@ -405,59 +405,36 @@ int main(int, char **) {
         player.renderer.camera.applyTransform2D();
         f32 x,y, a, b;
         x = 0.05, y = 0.05;
-		
-		
-        GX_Begin(GX_QUADS, GX_VTXFMT0, 8); // Start drawing
-		
-		a = .8, b = .8;
-        GX_Position3f32(-x+a, y+b, 0);
-        GX_Normal1x8(4);
-        GX_Color1u32(0xff0000ff);
-        GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(9)); // Top left
 
-        GX_Position3f32(x+a, y+b, 0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(4), BLOCK_COORD(9)); // Top right
+        // inventory
 
-        GX_Position3f32(x+a, -y+b, 0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(4), BLOCK_COORD(10)); // Bottom right
+        GX_Begin(GX_QUADS, GX_VTXFMT0, 40); // Start drawing
 
-        GX_Position3f32(-x+a, -y+b, 0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(10)); // Bottom left
-		
-		a = .6, b = .8;
-        GX_Position3f32(-x+a, y+b, 0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(9)); // Top left
+        for (int i = 0; i < 10; i++) {
+            GX_Position3f32(-0.5 + i * 0.1, -0.6,0);
+            GX_Normal1x8(4);
+            GX_Color1u32(white);
+            GX_TexCoord2f32(BLOCK_COORD(0), BLOCK_COORD(15)); // Top left
 
-        GX_Position3f32(x+a, y+b, 0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(4), BLOCK_COORD(9)); // Top right
+            GX_Position3f32(-0.4 + i * 0.1, -0.6,0);
+            GX_Normal1x8(4);
+            GX_Color1u32(white);
+            GX_TexCoord2f32(BLOCK_COORD(1), BLOCK_COORD(15)); // Top right
 
-        GX_Position3f32(x+a, -y+b, 0);
-        GX_Normal1x8(4);
-        GX_Color1u32(0xff0000ff);
-        GX_TexCoord2f32(BLOCK_COORD(4), BLOCK_COORD(10)); // Bottom right
+            GX_Position3f32(-0.4 + i * 0.1, -0.7,0);
+            GX_Normal1x8(4);
+            GX_Color1u32(white);
+            GX_TexCoord2f32(BLOCK_COORD(1), BLOCK_COORD(16)); // Bottom right
 
-        GX_Position3f32(-x+a, -y+b, 0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(10)); // Bottom left
-		GX_End();
-		
-		
-		
-		
-		
-		
-		
+            GX_Position3f32(-0.5 + i * 0.1, -0.7,0);
+            GX_Normal1x8(4);
+            GX_Color1u32(white);
+            GX_TexCoord2f32(BLOCK_COORD(0), BLOCK_COORD(16)); // Bottom left
+        }
+
+        GX_End();
+
+
         GX_Begin(GX_QUADS, GX_VTXFMT0, 8); // Start drawing
 
         GX_Position3f32(-x, y, 0);
@@ -468,7 +445,7 @@ int main(int, char **) {
         GX_Position3f32(x, y, 0);
         GX_Normal1x8(4);
         GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(16)); // Top right
+        GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(15)); // Top right
 
         GX_Position3f32(x, -y, 0);
         GX_Normal1x8(4);
