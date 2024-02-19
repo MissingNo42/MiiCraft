@@ -165,10 +165,13 @@ void Player::destroyBlock(World& w){
     else
     {
         w.setBlockAt(focusedBlockPos, BlockType::Air);
-        if(focusedBlockPos.equals(lockedBlockPos) && getFocusedBlock(w))
-            lockedBlockPos = focusedBlockPos;
-        else
-            cameraLocked = false;
+        if (focusedBlockPos.equals(lockedBlockPos)) {
+            if(getFocusedBlock(w)) {
+                lockedBlockPos = focusedBlockPos;
+            }
+            else
+                cameraLocked = false;
+        }
         breakingState = 0;
     }
     breakingState++;

@@ -48,11 +48,6 @@ void Wiimote::update(Player& player, World& w) {
         else
             player.breakingState = 0;
 
-//    if (actions & WPAD_BUTTON_MINUS && player.isTargeting)
-//        player.destroyBlock(w);
-//    else
-//        player.breakingState = 0;
-
         if(actions & WPAD_BUTTON_B)
             player.placeBlock(w);
 
