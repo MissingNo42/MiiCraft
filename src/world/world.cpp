@@ -51,8 +51,8 @@ VerticalChunk& World::getChunkAt(t_pos2D pos) {
 	try {
         return *loadedChunk.at(pos);
 	} catch (...) {
-		printf("Get chunk at %d %d FAILED\r", pos.x, pos.y);
-		return *VerticalChunk::emptyChunk;
+		//printf("Get chunk at %d %d FAILED\r", pos.x, pos.y);
+		return VerticalChunk::emptyChunk;
 	}
 }
 

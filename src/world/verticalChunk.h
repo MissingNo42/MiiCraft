@@ -37,7 +37,7 @@ public:
 	u8 recache = 1;
     VerticalChunk();
 
-    static VerticalChunk* emptyChunk;
+    static VerticalChunk emptyChunk;
 
 
 

@@ -50,7 +50,6 @@ void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
 int main(int, char **) {
     SYS_STDIO_Report(true);
 	
-    printf("init W\r");
 	PAD_Init();
 	WPAD_Init();
 	
@@ -66,8 +65,6 @@ int main(int, char **) {
 	SYS_SetResetCallback(reload);
 	SYS_SetPowerCallback(shutdown);
 	
-
-    printf("end init\r");
     Wiimote wiimote;
 
     //printf("end init\r");
@@ -99,36 +96,36 @@ int main(int, char **) {
         //renderWorld(w, player.renderer, w.to_chunk_pos(pos));
 		
 		ChunkCache::cache(w, player.renderer);
+		
 		printf("rendering\r");
+		
 		ChunkCache::render();
+		
 		printf("rendered\r");
+		
         u32 white = 0xFFFFFFFF;
 
         player.renderer.camera.loadOrtho(); // set for 2D drawing
         player.renderer.camera.applyTransform2D(false);
         f32 x,y, a, b;
         x = 0.05, y = 0.05;
-		/*
+		
         GX_Begin(GX_QUADS, GX_VTXFMT0, 8); // Start drawing
 
         GX_Position3f32(-x, y, 0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
+        GX_Color1x8(WHITE);
         GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(15)); // Top left
 
         GX_Position3f32(x, y, 0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(16)); // Top right
+        GX_Color1x8(WHITE);
+        GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(15)); // Top right
 
         GX_Position3f32(x, -y, 0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
+        GX_Color1x8(WHITE);
         GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(16)); // Bottom right
 
         GX_Position3f32(-x, -y, 0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
+        GX_Color1x8(WHITE);
         GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(16)); // Bottom left
 
         a = 0, b = 0;
@@ -141,26 +138,22 @@ int main(int, char **) {
         b += y / 2;
 
         GX_Position3f32(-x+a, y+b, 0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
+        GX_Color1x8(WHITE);
         GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(15)); // Top left
 
         GX_Position3f32(x+a, y+b, 0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
+        GX_Color1x8(WHITE);
         GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(15)); // Top right
 
         GX_Position3f32(x+a, -y+b, 0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
+        GX_Color1x8(WHITE);
         GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(16)); // Bottom right
 
         GX_Position3f32(-x+a, -y+b, 0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
+        GX_Color1x8(WHITE);
         GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(16)); // Bottom left
-*
-        GX_End();*/
+
+        GX_End();
 
 		Renderer::endFrame();
 	}

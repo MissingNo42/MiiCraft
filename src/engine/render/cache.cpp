@@ -4,16 +4,6 @@
 
 #include "engine/render/cache.h"
 
-const s8 Normals[] ATTRIBUTE_ALIGN(32) = {
-		0, 1, 0,    // 0
-		0, -1, 0,   // 1
-		1, 0, 0,    // 2
-		-1, 0, 0, // 3
-		0, 0, 1, // 4
-		0, 0, -1, // 5
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-};
-
 const u32 Lights[][4] ATTRIBUTE_ALIGN(32) = {
         {0x0e0e0eff, 0x0b0b0bff, 0x080909ff, 0x080909ff},
         {0x131313ff, 0x0f0f0fff, 0x0b0c0cff, 0x0b0c0cff},

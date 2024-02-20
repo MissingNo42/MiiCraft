@@ -18,11 +18,11 @@ bool t_pos2D::operator<(const t_pos2D &p) const {
 }
 
 
-VerticalChunk* VerticalChunk::emptyChunk = new VerticalChunk();
+VerticalChunk VerticalChunk::emptyChunk;
 
 VerticalChunk::VerticalChunk() : id(cpt++) {
     for(auto & neighboor : neighboors){
-        neighboor = VerticalChunk::emptyChunk;
+        neighboor = &VerticalChunk::emptyChunk;
     }
 }
 
