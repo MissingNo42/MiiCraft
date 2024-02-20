@@ -60,7 +60,7 @@ guVector Player::InverseVector(const guVector& v){
 
 void Player::goUp(t_coord coord, World &w, float velocity, bool collision) {
     if ( collision ){
-        coord.y += 2;
+        coord.y += 1.6;
         if (w.getBlockAt(coord).type <= BlockType::Air)
             if(!cameraLocked) {
                 renderer.camera.pos.y += velocity /10;
@@ -72,6 +72,7 @@ void Player::goUp(t_coord coord, World &w, float velocity, bool collision) {
         else{
             //renderer.camera.look.y -= (f32) renderer.camera.pos.y - (f32) coord.y -1.1f;
             renderer.camera.pos.y = (f32) coord.y -1.1f;
+            Velocity = 1.0f;
         }
 
     }
@@ -178,6 +179,8 @@ void Player::destroyBlock(World& w){
 }
 
 void Player::placeBlock(World& w){
+    if (inventory.inventory[3][selected_spot].item.id > BlockType::Blocks)
+        return;
     if(placeDelay < 10){
         return;}
     t_coord pos = focusedBlockPos;
@@ -244,7 +247,7 @@ void Player::placeBlock(World& w){
 
                 break;
         }
-        w.setBlockAt(pos, hotbar[selected_spot]);
+        w.setBlockAt(pos, inventory.inventory[3][selected_spot].item.type);
     }
     placeDelay = 0;
 }

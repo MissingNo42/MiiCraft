@@ -5,9 +5,16 @@
 #ifndef MIICRAFTTEST_CRAFT_H
 #define MIICRAFTTEST_CRAFT_H
 
+#include "item.h"
 
 #include <unordered_set>
-#include "inventory.h"
+
+struct Slot {
+    explicit Slot(int id = 0, int quantity = 0);
+    bool equals(Slot) const;
+    Item item;
+    int quantity;
+};
 
 struct Craft {
     Craft();
@@ -17,6 +24,8 @@ struct Craft {
     Slot recipe[9];
     Slot result;
 };
+
+
 
 
 #endif //MIICRAFTTEST_CRAFT_H

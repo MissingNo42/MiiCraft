@@ -4,7 +4,11 @@
 
 #include "inventory.h"
 
-Inventory::Inventory() : open(false), selectedSlot(0), craftSlots(), inventory(){}
+Inventory::Inventory() : open(false), selectedSlot(0), craftSlots(), inventory(){
+    for(int i = 0; i < 4; i++)
+        for(int j = 0; j < 9; j++)
+            inventory[i][j] = Slot( 17+j+i*9,1);;
+}
 
 Slot::Slot(int id, int quantity) : item(id), quantity(quantity){}
 

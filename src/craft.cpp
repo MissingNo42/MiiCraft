@@ -18,4 +18,6 @@ Craft::Craft() {
     result = Slot();
 }
 
-Craft::craftList =
+bool Slot::equals(Slot slot) const {
+    return slot.item.equals(item) && slot.quantity == quantity;
+}

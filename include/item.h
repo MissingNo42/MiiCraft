@@ -9,8 +9,8 @@
 #include <vector>
 
 class Item {
-    int id;
 public:
+    int id;
     explicit Item(int id = 0);
     static std::vector<Item> itemList;
     [[nodiscard]] bool equals(Item) const;

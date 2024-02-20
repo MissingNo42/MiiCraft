@@ -407,8 +407,7 @@ int main(int, char **) {
         x = 0.05, y = 0.05;
 
         // inventory
-
-        if (player.inventory_open){
+        if (player.inventory.open){
             GX_Begin(GX_QUADS, GX_VTXFMT0, 148); // Start drawing
 
             GX_Position3f32(-0.8,0.65,0);
@@ -435,44 +434,44 @@ int main(int, char **) {
                 GX_Position3f32(-0.682 + (i % 9) * 0.158 ,-0.02 - (i / 9) * 0.142,0);
                 GX_Normal1x8(4);
                 GX_Color1u32(white);
-                GX_TexCoord2f32(BLOCK_COORD(i%9), BLOCK_COORD(i/9)); // Top left
+                GX_TexCoord2f32(blocData[player.inventory.inventory[i/9][i%9].item.type].x[0], blocData[player.inventory.inventory[i/9][i%9].item.type].y[0]); // Top left
 
                 GX_Position3f32(-0.582+ i % 9 * 0.158,-0.02 - (i / 9) * 0.142,0);
                 GX_Normal1x8(4);
                 GX_Color1u32(white);
-                GX_TexCoord2f32(BLOCK_COORD(i%9 + 1), BLOCK_COORD(i/9)); // Top right
+                GX_TexCoord2f32(blocData[player.inventory.inventory[i/9][i%9].item.type].x[0] + OFFSET, blocData[player.inventory.inventory[i/9][i%9].item.type].y[0]); // Top right
 
                 GX_Position3f32(-0.582 + i % 9 * 0.158,-0.12 - (i / 9) * 0.142,0);
                 GX_Normal1x8(4);
                 GX_Color1u32(white);
-                GX_TexCoord2f32(BLOCK_COORD(i%9 + 1), BLOCK_COORD(i/9 +1)); // Bottom right
+                GX_TexCoord2f32(blocData[player.inventory.inventory[i/9][i%9].item.type].x[0] + OFFSET, blocData[player.inventory.inventory[i/9][i%9].item.type].y[0] + OFFSET); // Bottom right
 
                 GX_Position3f32(-0.682 + i % 9 * 0.158,-0.12 - (i / 9) * 0.142,0);
                 GX_Normal1x8(4);
                 GX_Color1u32(white);
-                GX_TexCoord2f32(BLOCK_COORD(i%9), BLOCK_COORD(i/9 +1)); // Bottom left
+                GX_TexCoord2f32(blocData[player.inventory.inventory[i/9][i%9].item.type].x[0],blocData[player.inventory.inventory[i/9][i%9].item.type].y[0] + OFFSET); // Bottom left
             }
 
             for (int i = 0; i < 9; i++){
                 GX_Position3f32(-0.682 + i * 0.158 ,-0.475,0);
                 GX_Normal1x8(4);
                 GX_Color1u32(white);
-                GX_TexCoord2f32(BLOCK_COORD((27 + i)%9), BLOCK_COORD((27+i)/9)); // Top left
+                GX_TexCoord2f32(blocData[player.inventory.inventory[3][i].item.type].x[0], blocData[player.inventory.inventory[3][i].item.type].y[0]); // Top left
 
                 GX_Position3f32(-0.582+ i * 0.158,-0.475 ,0);
                 GX_Normal1x8(4);
                 GX_Color1u32(white);
-                GX_TexCoord2f32(BLOCK_COORD((27 + i)%9 + 1), BLOCK_COORD((27+i)/9)); // Top right
+                GX_TexCoord2f32(blocData[player.inventory.inventory[3][i].item.type].x[0] + OFFSET, blocData[player.inventory.inventory[3][i].item.type].y[0]); // Top right
 
                 GX_Position3f32(-0.582 + i  * 0.158,-0.575 ,0);
                 GX_Normal1x8(4);
                 GX_Color1u32(white);
-                GX_TexCoord2f32(BLOCK_COORD((27 + i)%9 + 1), BLOCK_COORD((27+i)/9 +1)); // Bottom right
+                GX_TexCoord2f32(blocData[player.inventory.inventory[3][i].item.type].x[0] + OFFSET, blocData[player.inventory.inventory[3][i].item.type].y[0] + OFFSET); // Bottom right
 
                 GX_Position3f32(-0.682 + i  * 0.158,-0.575 ,0);
                 GX_Normal1x8(4);
                 GX_Color1u32(white);
-                GX_TexCoord2f32(BLOCK_COORD((27 + i)%9), BLOCK_COORD((27+i)/9 +1)); // Bottom left
+                GX_TexCoord2f32(blocData[player.inventory.inventory[3][i].item.type].x[0], blocData[player.inventory.inventory[3][i].item.type].y[0] + OFFSET); // Bottom left
             }
 
 
@@ -534,24 +533,24 @@ int main(int, char **) {
                 GX_Position3f32(-0.40 + i * 0.094, -0.62, 0);
                 GX_Normal1x8(4);
                 GX_Color1u32(white);
-                GX_TexCoord2f32(blocData[player.hotbar[i]].x[0], blocData[player.hotbar[i]].y[0]); // Top left
+                GX_TexCoord2f32(blocData[player.inventory.inventory[3][i].item.type].x[0], blocData[player.inventory.inventory[3][i].item.type].y[0]); // Top left
 
                 GX_Position3f32(-0.35 + i * 0.094, -0.62, 0);
                 GX_Normal1x8(4);
                 GX_Color1u32(white);
-                GX_TexCoord2f32(blocData[player.hotbar[i]].x[0] + OFFSET, blocData[player.hotbar[i]].y[0]); // Top right
+                GX_TexCoord2f32(blocData[player.inventory.inventory[3][i].item.type].x[0] + OFFSET, blocData[player.inventory.inventory[3][i].item.type].y[0]); // Top right
 
                 GX_Position3f32(-0.35 + i * 0.094, -0.68, 0);
                 GX_Normal1x8(4);
                 GX_Color1u32(white);
-                GX_TexCoord2f32(blocData[player.hotbar[i]].x[0] + OFFSET,
-                                blocData[player.hotbar[i]].y[0] + OFFSET); // Bottom right
+                GX_TexCoord2f32(blocData[player.inventory.inventory[3][i].item.type].x[0] + OFFSET,
+                                blocData[player.inventory.inventory[3][i].item.type].y[0] + OFFSET); // Bottom right
 
                 GX_Position3f32(-0.40 + i * 0.094, -0.68, 0);
                 GX_Normal1x8(4);
                 GX_Color1u32(white);
-                GX_TexCoord2f32(blocData[player.hotbar[i]].x[0],
-                                blocData[player.hotbar[i]].y[0] + OFFSET); // Bottom left
+                GX_TexCoord2f32(blocData[player.inventory.inventory[3][i].item.type].x[0],
+                                blocData[player.inventory.inventory[3][i].item.type].y[0] + OFFSET); // Bottom left
             }
         }
 
