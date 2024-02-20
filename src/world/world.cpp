@@ -470,7 +470,7 @@ void World::handleLightBlock(VerticalChunk *vc){
                 if ((vc->VC_GetBlock({p.x, p.y - 1, p.z}).type < CurrentLightValue - 1 )) {
 //                    vc->VC_SetBlock({p.x, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1  ));
                     if (vc->VC_GetBlock({p.x, p.y - 1, p.z}).type <= 15) {
-                        vc->VC_SetBlock({p.x, p.y - 1, p.z}, static_cast<BlockType>(CurrentLightValue - 1 )); //TODO : check if we need to decrement this
+                        vc->VC_SetBlock({p.x, p.y - 1, p.z}, static_cast<BlockType>(CurrentLightValue )); //TODO : check if we need to decrement this
                         vc->blockLightQueue.push({p.x, p.y - 1, p.z});
                     }
 
