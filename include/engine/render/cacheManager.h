@@ -30,7 +30,7 @@ public:
 	
 	static u8 isCached(u32 id);
 	
-	static void addVertex(f32 x, f32 y, f32 z, u8 c, f32 u, f32 v);
+	static void addVertex(f32 x, f32 y, f32 z, u8 c, f32 u, f32 v, u8 alpha);
 	
 	static void cache(World& world, Renderer& renderer);
 };

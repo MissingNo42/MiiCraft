@@ -49,6 +49,14 @@ void ChunkCache::cache(VerticalChunk& vc, Renderer& renderer, t_pos2D pos) {
 				break;
 			}
 		}
+		for (; i < LIST_NUM; i++) {
+			if (lists[i].id == 0) {
+				current[1] = i;
+				lists[i].reset(RENDER_OPAQUE, vc.id);
+				used++;
+				break;
+			}
+		}
 		if (i == LIST_NUM) return;
 		renderChunk(vc, renderer, pos);
 		if (lists[current[0]].seal()) used--;
@@ -60,13 +68,13 @@ u8 ChunkCache::isCached(u32 id) {
 	return 0;
 }
 
-void ChunkCache::addVertex(f32 x, f32 y, f32 z, u8 c, f32 u, f32 v) {
-	if (lists[current[0]].addVertex(x, y, z, c, u, v)) {
-		lists[current[0]].seal();
+void ChunkCache::addVertex(f32 x, f32 y, f32 z, u8 c, f32 u, f32 v, u8 alpha) {
+	if (lists[current[alpha]].addVertex(x, y, z, c, u, v)) {
+		lists[current[alpha]].seal();
 		for (int i = 0; i < LIST_NUM; i++) {
 			if (lists[i].id == 0) {
-				lists[i].reset(lists[current[0]].type, lists[current[0]].id);
-				current[0] = i;
+				lists[i].reset(lists[current[alpha]].type, lists[current[alpha]].id);
+				current[alpha] = i;
 				used++;
 				return;
 			}

@@ -9,66 +9,66 @@
 #include "render/bloc.h"
 
 
-inline void renderVertex(f32 x, f32 y, f32 z, f32 tx, f32 ty, u8 color) {
+inline void renderVertex(f32 x, f32 y, f32 z, f32 tx, f32 ty, u8 color, u8 alpha) {
     //GX_Position3f32(x, y, z);
     //GX_Normal1x8(normal);
     //GX_Color1u32(color);
     //GX_TexCoord2f32(tx, ty);
-	ChunkCache::addVertex(x, y, z, color, tx, ty);
+	ChunkCache::addVertex(x, y, z, color, tx, ty, alpha);
 }
 
-inline void renderFront(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light) {
+inline void renderFront(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
     f32 tx = blocData[type].x[BLOC_FACE_FRONT];
     f32 ty = blocData[type].y[BLOC_FACE_FRONT];
-    renderVertex(mx, y, z, tx, ty, (light << 2) + c1); // A
-    renderVertex(x, y, z, tx + OFFSET, ty, (light << 2) + c2); // D
-    renderVertex(x, my, z, tx + OFFSET, ty + OFFSET, (light << 2) + c3); // H
-    renderVertex(mx, my, z, tx, ty + OFFSET, (light << 2) + c4); // E
+    renderVertex(mx, y, z, tx, ty, (light << 2) + c1, alpha); // A
+    renderVertex(x, y, z, tx + OFFSET, ty, (light << 2) + c2, alpha); // D
+    renderVertex(x, my, z, tx + OFFSET, ty + OFFSET, (light << 2) + c3, alpha); // H
+    renderVertex(mx, my, z, tx, ty + OFFSET, (light << 2) + c4, alpha); // E
 }
 
-inline void renderBack(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light) {
+inline void renderBack(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
     f32 tx = blocData[type].x[BLOC_FACE_BACK];
     f32 ty = blocData[type].y[BLOC_FACE_BACK];
-    renderVertex(x, my, mz, tx, ty + OFFSET, (light << 2) + c1); // G
-    renderVertex(x, y, mz, tx, ty, (light << 2) + c2); // C
-    renderVertex(mx, y, mz, tx + OFFSET, ty, (light << 2) + c3); // B
-    renderVertex(mx, my, mz, tx + OFFSET, ty + OFFSET, (light << 2) + c4); // F
+    renderVertex(x, my, mz, tx, ty + OFFSET, (light << 2) + c1, alpha); // G
+    renderVertex(x, y, mz, tx, ty, (light << 2) + c2, alpha); // C
+    renderVertex(mx, y, mz, tx + OFFSET, ty, (light << 2) + c3, alpha); // B
+    renderVertex(mx, my, mz, tx + OFFSET, ty + OFFSET, (light << 2) + c4, alpha); // F
 }
 
-inline void renderTop(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light) {
+inline void renderTop(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
     f32 tx = blocData[type].x[BLOC_FACE_TOP];
     f32 ty = blocData[type].y[BLOC_FACE_TOP];
-    renderVertex(x, y, mz, tx + OFFSET, ty, (light << 2) + c1); // C
-    renderVertex(x, y, z, tx + OFFSET, ty + OFFSET, (light << 2) + c2); // D
-    renderVertex(mx, y, z, tx, ty + OFFSET, (light << 2) + c3); // A
-    renderVertex(mx, y, mz, tx, ty, (light << 2) + c4); // B
+    renderVertex(x, y, mz, tx + OFFSET, ty, (light << 2) + c1, alpha); // C
+    renderVertex(x, y, z, tx + OFFSET, ty + OFFSET, (light << 2) + c2, alpha); // D
+    renderVertex(mx, y, z, tx, ty + OFFSET, (light << 2) + c3, alpha); // A
+    renderVertex(mx, y, mz, tx, ty, (light << 2) + c4, alpha); // B
 }
 
-inline void renderBottom(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light) {
+inline void renderBottom(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
     f32 tx = blocData[type].x[BLOC_FACE_BOTTOM];
     f32 ty = blocData[type].y[BLOC_FACE_BOTTOM];
-    renderVertex(mx, my, z, tx + OFFSET, ty + OFFSET, (light << 2) + c1); // E
-    renderVertex(x, my, z, tx, ty + OFFSET, (light << 2) + c2); // H
-    renderVertex(x, my, mz, tx, ty, (light << 2) + c3); // G
-    renderVertex(mx, my, mz, tx + OFFSET, ty, (light << 2) + c4); // F
+    renderVertex(mx, my, z, tx + OFFSET, ty + OFFSET, (light << 2) + c1, alpha); // E
+    renderVertex(x, my, z, tx, ty + OFFSET, (light << 2) + c2, alpha); // H
+    renderVertex(x, my, mz, tx, ty, (light << 2) + c3, alpha); // G
+    renderVertex(mx, my, mz, tx + OFFSET, ty, (light << 2) + c4, alpha); // F
 }
 
-inline void renderLeft(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light) {
+inline void renderLeft(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
     f32 tx = blocData[type].x[BLOC_FACE_LEFT];
     f32 ty = blocData[type].y[BLOC_FACE_LEFT];
-    renderVertex(mx, y, mz, tx, ty, (light << 2) + c1); // B
-    renderVertex(mx, y, z, tx + OFFSET, ty, (light << 2) + c2); // A
-    renderVertex(mx, my, z, tx + OFFSET, ty + OFFSET, (light << 2) + c3); // E
-    renderVertex(mx, my, mz, tx, ty + OFFSET, (light << 2) + c4); // F
+    renderVertex(mx, y, mz, tx, ty, (light << 2) + c1, alpha); // B
+    renderVertex(mx, y, z, tx + OFFSET, ty, (light << 2) + c2, alpha); // A
+    renderVertex(mx, my, z, tx + OFFSET, ty + OFFSET, (light << 2) + c3, alpha); // E
+    renderVertex(mx, my, mz, tx, ty + OFFSET, (light << 2) + c4, alpha); // F
 }
 
-inline void renderRight(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light) {
+inline void renderRight(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
     f32 tx = blocData[type].x[BLOC_FACE_RIGHT];
     f32 ty = blocData[type].y[BLOC_FACE_RIGHT];
-    renderVertex(x, my, z, tx, ty + OFFSET, (light << 2) + c1); // H
-    renderVertex(x, y, z, tx, ty, (light << 2) + c2); // D
-    renderVertex(x, y, mz, tx + OFFSET, ty, (light << 2) + c3); // C
-    renderVertex(x, my, mz, tx + OFFSET, ty + OFFSET, (light << 2) + c4); // G
+    renderVertex(x, my, z, tx, ty + OFFSET, (light << 2) + c1, alpha); // H
+    renderVertex(x, y, z, tx, ty, (light << 2) + c2, alpha); // D
+    renderVertex(x, y, mz, tx + OFFSET, ty, (light << 2) + c3, alpha); // C
+    renderVertex(x, my, mz, tx + OFFSET, ty + OFFSET, (light << 2) + c4, alpha); // G
 }
 
 /**
@@ -186,12 +186,12 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 
 
                 //GX_Begin(GX_QUADS, GX_VTXFMT0, sz << 2); // Start drawing
-                if (tT) renderTop   ((f32) (0 + px), (f32) y, (f32) (0 + pz), -1 + px, my, -1 + pz, type, C + BC + CD, D + CD + DA, A + AB + DA, B + BC + AB, lT); // CDAB
-                if (tB) renderBottom((f32) (0 + px), (f32) y, (f32) (0 + pz), -1 + px, my, -1 + pz, type,E + EF + HE, H + GH + HE, G + FG + GH, F + FG + EF, lB); // EHGF
-                if (tL) renderLeft  ((f32) (0 + px), (f32) y, (f32) (0 + pz), -1 + px, my, -1 + pz, type,B + AB + BF, A + AB + AE, E + EF + AE, F + BF + EF, lL); // BAEF
-                if (tR) renderRight ((f32) (0 + px), (f32) y, (f32) (0 + pz), -1 + px, my, -1 + pz, type,H + DH + GH, D + CD + DH, C + CD + CG, G + CG + GH, lR); // HDCG
-                if (tF) renderFront ((f32) (0 + px), (f32) y, (f32) (0 + pz), -1 + px, my, -1 + pz, type,A + AE + DA, D + DA + DH, H + DH + HE, E + HE + AE, lF); // ADHE
-                if (tK) renderBack  ((f32) (0 + px), (f32) y, (f32) (0 + pz), -1 + px, my, -1 + pz, type,G + CG + FG, C + BC + CG, B + BC + BF, F + FG + BF, lK); // GCBF
+                if (tT) renderTop   ((f32) (0 + px), (f32) y, (f32) (0 + pz), -1 + px, my, -1 + pz, type, C + BC + CD, D + CD + DA, A + AB + DA, B + BC + AB, lT, isTransparent(type)); // CDAB
+                if (tB) renderBottom((f32) (0 + px), (f32) y, (f32) (0 + pz), -1 + px, my, -1 + pz, type, E + EF + HE, H + GH + HE, G + FG + GH, F + FG + EF, lB, isTransparent(type)); // EHGF
+                if (tL) renderLeft  ((f32) (0 + px), (f32) y, (f32) (0 + pz), -1 + px, my, -1 + pz, type, B + AB + BF, A + AB + AE, E + EF + AE, F + BF + EF, lL, isTransparent(type)); // BAEF
+                if (tR) renderRight ((f32) (0 + px), (f32) y, (f32) (0 + pz), -1 + px, my, -1 + pz, type, H + DH + GH, D + CD + DH, C + CD + CG, G + CG + GH, lR, isTransparent(type)); // HDCG
+                if (tF) renderFront ((f32) (0 + px), (f32) y, (f32) (0 + pz), -1 + px, my, -1 + pz, type, A + AE + DA, D + DA + DH, H + DH + HE, E + HE + AE, lF, isTransparent(type)); // ADHE
+                if (tK) renderBack  ((f32) (0 + px), (f32) y, (f32) (0 + pz), -1 + px, my, -1 + pz, type, G + CG + FG, C + BC + CG, B + BC + BF, F + FG + BF, lK, isTransparent(type)); // GCBF
                 //GX_End();
             }
         }
@@ -270,12 +270,12 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 
                 //GX_Begin(GX_QUADS, GX_VTXFMT0, sz << 2); // Start drawing
                 
-                if (tT) renderTop   ((f32) (0 + px), (f32) y, (f32) (15 + pz), -1 + px, my, 14 + pz, type, C + BC + CD,D + CD + DA, A + AB + DA, B + BC + AB, lT); // CDAB
-                if (tB) renderBottom((f32) (0 + px), (f32) y, (f32) (15 + pz), -1 + px, my, 14 + pz, type, E + EF + HE,H + GH + HE, G + FG + GH, F + FG + EF, lB); // EHGF
-                if (tL) renderLeft  ((f32) (0 + px), (f32) y, (f32) (15 + pz), -1 + px, my, 14 + pz, type, B + AB + BF,A + AB + AE, E + EF + AE, F + BF + EF, lL); // BAEF
-                if (tR) renderRight ((f32) (0 + px), (f32) y, (f32) (15 + pz), -1 + px, my, 14 + pz, type, H + DH + GH,D + CD + DH, C + CD + CG, G + CG + GH, lR); // HDCG
-                if (tF) renderFront ((f32) (0 + px), (f32) y, (f32) (15 + pz), -1 + px, my, 14 + pz, type, A + AE + DA,D + DA + DH, H + DH + HE, E + HE + AE, lF); // ADHE
-                if (tK) renderBack  ((f32) (0 + px), (f32) y, (f32) (15 + pz), -1 + px, my, 14 + pz, type, G + CG + FG,C + BC + CG, B + BC + BF, F + FG + BF, lK); // GCBF
+                if (tT) renderTop   ((f32) (0 + px), (f32) y, (f32) (15 + pz), -1 + px, my, 14 + pz, type, C + BC + CD,D + CD + DA, A + AB + DA, B + BC + AB, lT, isTransparent(type)); // CDAB
+                if (tB) renderBottom((f32) (0 + px), (f32) y, (f32) (15 + pz), -1 + px, my, 14 + pz, type, E + EF + HE,H + GH + HE, G + FG + GH, F + FG + EF, lB, isTransparent(type)); // EHGF
+                if (tL) renderLeft  ((f32) (0 + px), (f32) y, (f32) (15 + pz), -1 + px, my, 14 + pz, type, B + AB + BF,A + AB + AE, E + EF + AE, F + BF + EF, lL, isTransparent(type)); // BAEF
+                if (tR) renderRight ((f32) (0 + px), (f32) y, (f32) (15 + pz), -1 + px, my, 14 + pz, type, H + DH + GH,D + CD + DH, C + CD + CG, G + CG + GH, lR, isTransparent(type)); // HDCG
+                if (tF) renderFront ((f32) (0 + px), (f32) y, (f32) (15 + pz), -1 + px, my, 14 + pz, type, A + AE + DA,D + DA + DH, H + DH + HE, E + HE + AE, lF, isTransparent(type)); // ADHE
+                if (tK) renderBack  ((f32) (0 + px), (f32) y, (f32) (15 + pz), -1 + px, my, 14 + pz, type, G + CG + FG,C + BC + CG, B + BC + BF, F + FG + BF, lK, isTransparent(type)); // GCBF
                 //GX_End();
             }
         }
@@ -356,12 +356,12 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 
                 //GX_Begin(GX_QUADS, GX_VTXFMT0, sz << 2); // Start drawing
                 
-                if (tT) renderTop   ((f32) (15 + px), (f32) y, (f32) (0 + pz), 14 + px, my, -1 + pz, type, C + BC + CD,D + CD + DA, A + AB + DA, B + BC + AB, lT); // CDAB
-                if (tB) renderBottom((f32) (15 + px), (f32) y, (f32) (0 + pz), 14 + px, my, -1 + pz, type, E + EF + HE,H + GH + HE, G + FG + GH, F + FG + EF, lB); // EHGF
-                if (tL) renderLeft  ((f32) (15 + px), (f32) y, (f32) (0 + pz), 14 + px, my, -1 + pz, type, B + AB + BF,A + AB + AE, E + EF + AE, F + BF + EF, lL); // BAEF
-                if (tR) renderRight ((f32) (15 + px), (f32) y, (f32) (0 + pz), 14 + px, my, -1 + pz, type, H + DH + GH,D + CD + DH, C + CD + CG, G + CG + GH, lR); // HDCG
-                if (tF) renderFront ((f32) (15 + px), (f32) y, (f32) (0 + pz), 14 + px, my, -1 + pz, type, A + AE + DA,D + DA + DH, H + DH + HE, E + HE + AE, lF); // ADHE
-                if (tK) renderBack  ((f32) (15 + px), (f32) y, (f32) (0 + pz), 14 + px, my, -1 + pz, type, G + CG + FG,C + BC + CG, B + BC + BF, F + FG + BF, lK); // GCBF
+                if (tT) renderTop   ((f32) (15 + px), (f32) y, (f32) (0 + pz), 14 + px, my, -1 + pz, type, C + BC + CD,D + CD + DA, A + AB + DA, B + BC + AB, lT, isTransparent(type)); // CDAB
+                if (tB) renderBottom((f32) (15 + px), (f32) y, (f32) (0 + pz), 14 + px, my, -1 + pz, type, E + EF + HE,H + GH + HE, G + FG + GH, F + FG + EF, lB, isTransparent(type)); // EHGF
+                if (tL) renderLeft  ((f32) (15 + px), (f32) y, (f32) (0 + pz), 14 + px, my, -1 + pz, type, B + AB + BF,A + AB + AE, E + EF + AE, F + BF + EF, lL, isTransparent(type)); // BAEF
+                if (tR) renderRight ((f32) (15 + px), (f32) y, (f32) (0 + pz), 14 + px, my, -1 + pz, type, H + DH + GH,D + CD + DH, C + CD + CG, G + CG + GH, lR, isTransparent(type)); // HDCG
+                if (tF) renderFront ((f32) (15 + px), (f32) y, (f32) (0 + pz), 14 + px, my, -1 + pz, type, A + AE + DA,D + DA + DH, H + DH + HE, E + HE + AE, lF, isTransparent(type)); // ADHE
+                if (tK) renderBack  ((f32) (15 + px), (f32) y, (f32) (0 + pz), 14 + px, my, -1 + pz, type, G + CG + FG,C + BC + CG, B + BC + BF, F + FG + BF, lK, isTransparent(type)); // GCBF
                 //GX_End();
             }
         }
@@ -441,12 +441,12 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 	
 	
 				//GX_Begin(GX_QUADS, GX_VTXFMT0, sz << 2); // Start drawing
-                if (tT) renderTop   ((f32) (15 + px), (f32) y, (f32) (15 + pz), 14 + px, my, 14 + pz, type, C + BC + CD,D + CD + DA, A + AB + DA, B + BC + AB, lT); // CDAB
-                if (tB) renderBottom((f32) (15 + px), (f32) y, (f32) (15 + pz), 14 + px, my, 14 + pz, type, E + EF + HE,H + GH + HE, G + FG + GH, F + FG + EF, lB); // EHGF
-                if (tL) renderLeft  ((f32) (15 + px), (f32) y, (f32) (15 + pz), 14 + px, my, 14 + pz, type, B + AB + BF,A + AB + AE, E + EF + AE, F + BF + EF, lL); // BAEF
-                if (tR) renderRight ((f32) (15 + px), (f32) y, (f32) (15 + pz), 14 + px, my, 14 + pz, type, H + DH + GH,D + CD + DH, C + CD + CG, G + CG + GH, lR); // HDCG
-                if (tF) renderFront ((f32) (15 + px), (f32) y, (f32) (15 + pz), 14 + px, my, 14 + pz, type, A + AE + DA,D + DA + DH, H + DH + HE, E + HE + AE, lF); // ADHE
-                if (tK) renderBack  ((f32) (15 + px), (f32) y, (f32) (15 + pz), 14 + px, my, 14 + pz, type, G + CG + FG,C + BC + CG, B + BC + BF, F + FG + BF, lK); // GCBF
+                if (tT) renderTop   ((f32) (15 + px), (f32) y, (f32) (15 + pz), 14 + px, my, 14 + pz, type, C + BC + CD,D + CD + DA, A + AB + DA, B + BC + AB, lT, isTransparent(type)); // CDAB
+                if (tB) renderBottom((f32) (15 + px), (f32) y, (f32) (15 + pz), 14 + px, my, 14 + pz, type, E + EF + HE,H + GH + HE, G + FG + GH, F + FG + EF, lB, isTransparent(type)); // EHGF
+                if (tL) renderLeft  ((f32) (15 + px), (f32) y, (f32) (15 + pz), 14 + px, my, 14 + pz, type, B + AB + BF,A + AB + AE, E + EF + AE, F + BF + EF, lL, isTransparent(type)); // BAEF
+                if (tR) renderRight ((f32) (15 + px), (f32) y, (f32) (15 + pz), 14 + px, my, 14 + pz, type, H + DH + GH,D + CD + DH, C + CD + CG, G + CG + GH, lR, isTransparent(type)); // HDCG
+                if (tF) renderFront ((f32) (15 + px), (f32) y, (f32) (15 + pz), 14 + px, my, 14 + pz, type, A + AE + DA,D + DA + DH, H + DH + HE, E + HE + AE, lF, isTransparent(type)); // ADHE
+                if (tK) renderBack  ((f32) (15 + px), (f32) y, (f32) (15 + pz), 14 + px, my, 14 + pz, type, G + CG + FG,C + BC + CG, B + BC + BF, F + FG + BF, lK, isTransparent(type)); // GCBF
                 //GX_End();
             }
         }
@@ -527,12 +527,12 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 
 
                     //GX_Begin(GX_QUADS, GX_VTXFMT0, sz << 2); // Start drawing
-                    if (tT) renderTop   ((f32) (0 + px), (f32) y, (f32) (z + pz), -1 + px, my, mz + pz, type, C + BC + CD,D + CD + DA, A + AB + DA, B + BC + AB, lT); // CDAB
-                    if (tB) renderBottom((f32) (0 + px), (f32) y, (f32) (z + pz), -1 + px, my, mz + pz, type, E + EF + HE,H + GH + HE, G + FG + GH, F + FG + EF, lB); // EHGF
-                    if (tL) renderLeft  ((f32) (0 + px), (f32) y, (f32) (z + pz), -1 + px, my, mz + pz, type, B + AB + BF,A + AB + AE, E + EF + AE, F + BF + EF, lL); // BAEF
-                    if (tR) renderRight ((f32) (0 + px), (f32) y, (f32) (z + pz), -1 + px, my, mz + pz, type, H + DH + GH,D + CD + DH, C + CD + CG, G + CG + GH, lR); // HDCG
-                    if (tF) renderFront ((f32) (0 + px), (f32) y, (f32) (z + pz), -1 + px, my, mz + pz, type, A + AE + DA,D + DA + DH, H + DH + HE, E + HE + AE, lF); // ADHE
-                    if (tK) renderBack  ((f32) (0 + px), (f32) y, (f32) (z + pz), -1 + px, my, mz + pz, type, G + CG + FG,C + BC + CG, B + BC + BF, F + FG + BF, lK); // GCBF
+                    if (tT) renderTop   ((f32) (0 + px), (f32) y, (f32) (z + pz), -1 + px, my, mz + pz, type, C + BC + CD,D + CD + DA, A + AB + DA, B + BC + AB, lT, isTransparent(type)); // CDAB
+                    if (tB) renderBottom((f32) (0 + px), (f32) y, (f32) (z + pz), -1 + px, my, mz + pz, type, E + EF + HE,H + GH + HE, G + FG + GH, F + FG + EF, lB, isTransparent(type)); // EHGF
+                    if (tL) renderLeft  ((f32) (0 + px), (f32) y, (f32) (z + pz), -1 + px, my, mz + pz, type, B + AB + BF,A + AB + AE, E + EF + AE, F + BF + EF, lL, isTransparent(type)); // BAEF
+                    if (tR) renderRight ((f32) (0 + px), (f32) y, (f32) (z + pz), -1 + px, my, mz + pz, type, H + DH + GH,D + CD + DH, C + CD + CG, G + CG + GH, lR, isTransparent(type)); // HDCG
+                    if (tF) renderFront ((f32) (0 + px), (f32) y, (f32) (z + pz), -1 + px, my, mz + pz, type, A + AE + DA,D + DA + DH, H + DH + HE, E + HE + AE, lF, isTransparent(type)); // ADHE
+                    if (tK) renderBack  ((f32) (0 + px), (f32) y, (f32) (z + pz), -1 + px, my, mz + pz, type, G + CG + FG,C + BC + CG, B + BC + BF, F + FG + BF, lK, isTransparent(type)); // GCBF
                     //GX_End();
                 }
             }
@@ -614,12 +614,12 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 					}
 
                     //GX_Begin(GX_QUADS, GX_VTXFMT0, sz << 2); // Start drawing
-                    if (tT) renderTop   ((f32) (15 + px), (f32) y, (f32) (z + pz), 14 + px, my, mz + pz, type, C + BC + CD,D + CD + DA, A + AB + DA, B + BC + AB, lT); // CDAB
-                    if (tB) renderBottom((f32) (15 + px), (f32) y, (f32) (z + pz), 14 + px, my, mz + pz, type, E + EF + HE,H + GH + HE, G + FG + GH, F + FG + EF, lB); // EHGF
-                    if (tL) renderLeft  ((f32) (15 + px), (f32) y, (f32) (z + pz), 14 + px, my, mz + pz, type, B + AB + BF,A + AB + AE, E + EF + AE, F + BF + EF, lL); // BAEF
-                    if (tR) renderRight ((f32) (15 + px), (f32) y, (f32) (z + pz), 14 + px, my, mz + pz, type, H + DH + GH,D + CD + DH, C + CD + CG, G + CG + GH, lR); // HDCG
-                    if (tF) renderFront ((f32) (15 + px), (f32) y, (f32) (z + pz), 14 + px, my, mz + pz, type, A + AE + DA,D + DA + DH, H + DH + HE, E + HE + AE, lF); // ADHE
-                    if (tK) renderBack  ((f32) (15 + px), (f32) y, (f32) (z + pz), 14 + px, my, mz + pz, type, G + CG + FG,C + BC + CG, B + BC + BF, F + FG + BF, lK); // GCBF
+                    if (tT) renderTop   ((f32) (15 + px), (f32) y, (f32) (z + pz), 14 + px, my, mz + pz, type, C + BC + CD,D + CD + DA, A + AB + DA, B + BC + AB, lT, isTransparent(type)); // CDAB
+                    if (tB) renderBottom((f32) (15 + px), (f32) y, (f32) (z + pz), 14 + px, my, mz + pz, type, E + EF + HE,H + GH + HE, G + FG + GH, F + FG + EF, lB, isTransparent(type)); // EHGF
+                    if (tL) renderLeft  ((f32) (15 + px), (f32) y, (f32) (z + pz), 14 + px, my, mz + pz, type, B + AB + BF,A + AB + AE, E + EF + AE, F + BF + EF, lL, isTransparent(type)); // BAEF
+                    if (tR) renderRight ((f32) (15 + px), (f32) y, (f32) (z + pz), 14 + px, my, mz + pz, type, H + DH + GH,D + CD + DH, C + CD + CG, G + CG + GH, lR, isTransparent(type)); // HDCG
+                    if (tF) renderFront ((f32) (15 + px), (f32) y, (f32) (z + pz), 14 + px, my, mz + pz, type, A + AE + DA,D + DA + DH, H + DH + HE, E + HE + AE, lF, isTransparent(type)); // ADHE
+                    if (tK) renderBack  ((f32) (15 + px), (f32) y, (f32) (z + pz), 14 + px, my, mz + pz, type, G + CG + FG,C + BC + CG, B + BC + BF, F + FG + BF, lK, isTransparent(type)); // GCBF
                     //GX_End();
                 }
             }
@@ -702,12 +702,12 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 					}
 					
                     //GX_Begin(GX_QUADS, GX_VTXFMT0, sz << 2); // Start drawing
-                    if (tT) renderTop   ((f32) (x + px), (f32) y, (f32) (0 + pz), mx + px, my, -1 + pz, type, C + BC + CD,D + CD + DA, A + AB + DA, B + BC + AB, lT); // CDAB
-                    if (tB) renderBottom((f32) (x + px), (f32) y, (f32) (0 + pz), mx + px, my, -1 + pz, type, E + EF + HE,H + GH + HE, G + FG + GH, F + FG + EF, lB); // EHGF
-                    if (tL) renderLeft  ((f32) (x + px), (f32) y, (f32) (0 + pz), mx + px, my, -1 + pz, type, B + AB + BF,A + AB + AE, E + EF + AE, F + BF + EF, lL); // BAEF
-                    if (tR) renderRight ((f32) (x + px), (f32) y, (f32) (0 + pz), mx + px, my, -1 + pz, type, H + DH + GH,D + CD + DH, C + CD + CG, G + CG + GH, lR); // HDCG
-                    if (tF) renderFront ((f32) (x + px), (f32) y, (f32) (0 + pz), mx + px, my, -1 + pz, type, A + AE + DA,D + DA + DH, H + DH + HE, E + HE + AE, lF); // ADHE
-                    if (tK) renderBack  ((f32) (x + px), (f32) y, (f32) (0 + pz), mx + px, my, -1 + pz, type, G + CG + FG,C + BC + CG, B + BC + BF, F + FG + BF, lK); // GCBF
+                    if (tT) renderTop   ((f32) (x + px), (f32) y, (f32) (0 + pz), mx + px, my, -1 + pz, type, C + BC + CD,D + CD + DA, A + AB + DA, B + BC + AB, lT, isTransparent(type)); // CDAB
+                    if (tB) renderBottom((f32) (x + px), (f32) y, (f32) (0 + pz), mx + px, my, -1 + pz, type, E + EF + HE,H + GH + HE, G + FG + GH, F + FG + EF, lB, isTransparent(type)); // EHGF
+                    if (tL) renderLeft  ((f32) (x + px), (f32) y, (f32) (0 + pz), mx + px, my, -1 + pz, type, B + AB + BF,A + AB + AE, E + EF + AE, F + BF + EF, lL, isTransparent(type)); // BAEF
+                    if (tR) renderRight ((f32) (x + px), (f32) y, (f32) (0 + pz), mx + px, my, -1 + pz, type, H + DH + GH,D + CD + DH, C + CD + CG, G + CG + GH, lR, isTransparent(type)); // HDCG
+                    if (tF) renderFront ((f32) (x + px), (f32) y, (f32) (0 + pz), mx + px, my, -1 + pz, type, A + AE + DA,D + DA + DH, H + DH + HE, E + HE + AE, lF, isTransparent(type)); // ADHE
+                    if (tK) renderBack  ((f32) (x + px), (f32) y, (f32) (0 + pz), mx + px, my, -1 + pz, type, G + CG + FG,C + BC + CG, B + BC + BF, F + FG + BF, lK, isTransparent(type)); // GCBF
                     //GX_End();
                 }
             }
@@ -787,12 +787,12 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 					}
 					
                     //GX_Begin(GX_QUADS, GX_VTXFMT0, sz << 2); // Start drawing
-                    if (tT) renderTop   ((f32) (x + px), (f32) y, (f32) (15 + pz), mx + px, my, 14 + pz, type, C + BC + CD,D + CD + DA, A + AB + DA, B + BC + AB, lT); // CDAB
-                    if (tB) renderBottom((f32) (x + px), (f32) y, (f32) (15 + pz), mx + px, my, 14 + pz, type, E + EF + HE,H + GH + HE, G + FG + GH, F + FG + EF, lB); // EHGF
-                    if (tL) renderLeft  ((f32) (x + px), (f32) y, (f32) (15 + pz), mx + px, my, 14 + pz, type, B + AB + BF,A + AB + AE, E + EF + AE, F + BF + EF, lL); // BAEF
-                    if (tR) renderRight ((f32) (x + px), (f32) y, (f32) (15 + pz), mx + px, my, 14 + pz, type, H + DH + GH,D + CD + DH, C + CD + CG, G + CG + GH, lR); // HDCG
-                    if (tF) renderFront ((f32) (x + px), (f32) y, (f32) (15 + pz), mx + px, my, 14 + pz, type, A + AE + DA,D + DA + DH, H + DH + HE, E + HE + AE, lF); // ADHE
-                    if (tK) renderBack  ((f32) (x + px), (f32) y, (f32) (15 + pz), mx + px, my, 14 + pz, type, G + CG + FG,C + BC + CG, B + BC + BF, F + FG + BF, lK); // GCBF
+                    if (tT) renderTop   ((f32) (x + px), (f32) y, (f32) (15 + pz), mx + px, my, 14 + pz, type, C + BC + CD,D + CD + DA, A + AB + DA, B + BC + AB, lT, isTransparent(type)); // CDAB
+                    if (tB) renderBottom((f32) (x + px), (f32) y, (f32) (15 + pz), mx + px, my, 14 + pz, type, E + EF + HE,H + GH + HE, G + FG + GH, F + FG + EF, lB, isTransparent(type)); // EHGF
+                    if (tL) renderLeft  ((f32) (x + px), (f32) y, (f32) (15 + pz), mx + px, my, 14 + pz, type, B + AB + BF,A + AB + AE, E + EF + AE, F + BF + EF, lL, isTransparent(type)); // BAEF
+                    if (tR) renderRight ((f32) (x + px), (f32) y, (f32) (15 + pz), mx + px, my, 14 + pz, type, H + DH + GH,D + CD + DH, C + CD + CG, G + CG + GH, lR, isTransparent(type)); // HDCG
+                    if (tF) renderFront ((f32) (x + px), (f32) y, (f32) (15 + pz), mx + px, my, 14 + pz, type, A + AE + DA,D + DA + DH, H + DH + HE, E + HE + AE, lF, isTransparent(type)); // ADHE
+                    if (tK) renderBack  ((f32) (x + px), (f32) y, (f32) (15 + pz), mx + px, my, 14 + pz, type, G + CG + FG,C + BC + CG, B + BC + BF, F + FG + BF, lK, isTransparent(type)); // GCBF
                     //GX_End();
                 }
             }
@@ -876,12 +876,12 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 
 
                         //GX_Begin(GX_QUADS, GX_VTXFMT0, sz << 2); // Start drawing
-                        if (tT) renderTop   ((f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, type, C + BC + CD, D + CD + DA, A + AB + DA, B + BC + AB, lT); // CDAB
-                        if (tB) renderBottom((f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, type, E + EF + HE, H + GH + HE, G + FG + GH, F + FG + EF, lB); // EHGF
-                        if (tL) renderLeft  ((f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, type, B + AB + BF, A + AB + AE, E + EF + AE, F + BF + EF, lL); // BAEF
-                        if (tR) renderRight ((f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, type, H + DH + GH, D + CD + DH, C + CD + CG, G + CG + GH, lR); // HDCG
-                        if (tF) renderFront ((f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, type, A + AE + DA, D + DA + DH, H + DH + HE, E + HE + AE, lF); // ADHE
-                        if (tK) renderBack  ((f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, type, G + CG + FG, C + BC + CG, B + BC + BF, F + FG + BF, lK); // GCBF
+                        if (tT) renderTop   ((f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, type, C + BC + CD, D + CD + DA, A + AB + DA, B + BC + AB, lT, isTransparent(type)); // CDAB
+                        if (tB) renderBottom((f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, type, E + EF + HE, H + GH + HE, G + FG + GH, F + FG + EF, lB, isTransparent(type)); // EHGF
+                        if (tL) renderLeft  ((f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, type, B + AB + BF, A + AB + AE, E + EF + AE, F + BF + EF, lL, isTransparent(type)); // BAEF
+                        if (tR) renderRight ((f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, type, H + DH + GH, D + CD + DH, C + CD + CG, G + CG + GH, lR, isTransparent(type)); // HDCG
+                        if (tF) renderFront ((f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, type, A + AE + DA, D + DA + DH, H + DH + HE, E + HE + AE, lF, isTransparent(type)); // ADHE
+                        if (tK) renderBack  ((f32)(x + px), (f32)y, (f32)(z + pz), mx+px, my, mz+pz, type, G + CG + FG, C + BC + CG, B + BC + BF, F + FG + BF, lK, isTransparent(type)); // GCBF
                         //GX_End();
                     }
                 }

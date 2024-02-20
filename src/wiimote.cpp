@@ -46,8 +46,9 @@ void Wiimote::update(Player& player, World& w) {
     else
         player.breakingState = 0;
 
-    if(actions & WPAD_BUTTON_B && player.isTargeting)
-        player.placeBlock(w);
+    if(actions & WPAD_BUTTON_B && player.isTargeting) {
+	    player.placeBlock(w);
+    }
     player.placeDelay++;
 
     if (player.gravity){
