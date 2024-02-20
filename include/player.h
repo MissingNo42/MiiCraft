@@ -28,6 +28,7 @@ public:
     bool cameraLocked;
     int breakingState{};
     int selected_spot = 0;
+    bool inventory_open = false;
     bool sneak = false;
     BlockType hotbar[9] = {BlockType::Stone, BlockType::Dirt, BlockType::PlankOak, BlockType::WoodOak, BlockType::LeaveOak, BlockType::Glass, BlockType::Bedrock, BlockType::Glowstone, BlockType::Sand};
     Player(f32 x, f32 y, f32 z);

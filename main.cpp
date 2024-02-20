@@ -408,75 +408,151 @@ int main(int, char **) {
 
         // inventory
 
-        GX_Begin(GX_QUADS, GX_VTXFMT0, 44); // Start drawing
+        if (player.inventory_open){
+            GX_Begin(GX_QUADS, GX_VTXFMT0, 148); // Start drawing
 
-        GX_Position3f32(-0.45,-0.6,0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(0)); // Top left
-
-        GX_Position3f32(0.45,-0.6,0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(25), BLOCK_COORD(0)); // Top right
-
-        GX_Position3f32(0.45,-0.7,0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(25), BLOCK_COORD(1)); // Bottom right
-
-        GX_Position3f32(-0.45,-0.7,0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(1)); // Bottom left
-
-
-
-
-
-        GX_Position3f32(-0.43 + 0.094 * player.selected_spot,-0.6,0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(1)); // Top left
-
-        GX_Position3f32(-0.32 + 0.094 * player.selected_spot,-0.6,0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(17), BLOCK_COORD(1)); // Top right
-
-        GX_Position3f32(-0.32 + 0.094 * player.selected_spot,-0.7,0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(17), BLOCK_COORD(2)); // Bottom right
-
-        GX_Position3f32(-0.43 + 0.094 * player.selected_spot,-0.7,0);
-        GX_Normal1x8(4);
-        GX_Color1u32(white);
-        GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(2)); // Bottom left
-
-
-
-
-        for (int i = 0; i < 9; i++) {
-            GX_Position3f32(-0.4 + i * 0.094, -0.62,0);
+            GX_Position3f32(-0.8,0.65,0);
             GX_Normal1x8(4);
             GX_Color1u32(white);
-            GX_TexCoord2f32(blocData[player.hotbar[i]].x[0], blocData[player.hotbar[i]].y[0]); // Top left
+            GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(2)); // Top left
 
-            GX_Position3f32(-0.35 + i * 0.094, -0.62,0);
+            GX_Position3f32(0.8,0.65,0);
             GX_Normal1x8(4);
             GX_Color1u32(white);
-            GX_TexCoord2f32(blocData[player.hotbar[i]].x[0]+OFFSET, blocData[player.hotbar[i]].y[0]); // Top right
+            GX_TexCoord2f32(BLOCK_COORD(27), BLOCK_COORD(2)); // Top right
 
-            GX_Position3f32(-0.35 + i * 0.094, -0.68,0);
+            GX_Position3f32(0.8,-0.65,0);
             GX_Normal1x8(4);
             GX_Color1u32(white);
-            GX_TexCoord2f32(blocData[player.hotbar[i]].x[0]+OFFSET, blocData[player.hotbar[i]].y[0]+OFFSET); // Bottom right
+            GX_TexCoord2f32(BLOCK_COORD(27), BLOCK_COORD(12)); // Bottom right
 
-            GX_Position3f32(-0.4 + i * 0.094, -0.68,0);
+            GX_Position3f32(-0.8,-0.65,0);
             GX_Normal1x8(4);
             GX_Color1u32(white);
-            GX_TexCoord2f32(blocData[player.hotbar[i]].x[0], blocData[player.hotbar[i]].y[0]+OFFSET); // Bottom left
+            GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(12)); // Bottom left
+
+            for ( int i = 0; i <27 ; i++){
+                GX_Position3f32(-0.682 + (i % 9) * 0.158 ,-0.02 - (i / 9) * 0.142,0);
+                GX_Normal1x8(4);
+                GX_Color1u32(white);
+                GX_TexCoord2f32(BLOCK_COORD(i%9), BLOCK_COORD(i/9)); // Top left
+
+                GX_Position3f32(-0.582+ i % 9 * 0.158,-0.02 - (i / 9) * 0.142,0);
+                GX_Normal1x8(4);
+                GX_Color1u32(white);
+                GX_TexCoord2f32(BLOCK_COORD(i%9 + 1), BLOCK_COORD(i/9)); // Top right
+
+                GX_Position3f32(-0.582 + i % 9 * 0.158,-0.12 - (i / 9) * 0.142,0);
+                GX_Normal1x8(4);
+                GX_Color1u32(white);
+                GX_TexCoord2f32(BLOCK_COORD(i%9 + 1), BLOCK_COORD(i/9 +1)); // Bottom right
+
+                GX_Position3f32(-0.682 + i % 9 * 0.158,-0.12 - (i / 9) * 0.142,0);
+                GX_Normal1x8(4);
+                GX_Color1u32(white);
+                GX_TexCoord2f32(BLOCK_COORD(i%9), BLOCK_COORD(i/9 +1)); // Bottom left
+            }
+
+            for (int i = 0; i < 9; i++){
+                GX_Position3f32(-0.682 + i * 0.158 ,-0.475,0);
+                GX_Normal1x8(4);
+                GX_Color1u32(white);
+                GX_TexCoord2f32(BLOCK_COORD((27 + i)%9), BLOCK_COORD((27+i)/9)); // Top left
+
+                GX_Position3f32(-0.582+ i * 0.158,-0.475 ,0);
+                GX_Normal1x8(4);
+                GX_Color1u32(white);
+                GX_TexCoord2f32(BLOCK_COORD((27 + i)%9 + 1), BLOCK_COORD((27+i)/9)); // Top right
+
+                GX_Position3f32(-0.582 + i  * 0.158,-0.575 ,0);
+                GX_Normal1x8(4);
+                GX_Color1u32(white);
+                GX_TexCoord2f32(BLOCK_COORD((27 + i)%9 + 1), BLOCK_COORD((27+i)/9 +1)); // Bottom right
+
+                GX_Position3f32(-0.682 + i  * 0.158,-0.575 ,0);
+                GX_Normal1x8(4);
+                GX_Color1u32(white);
+                GX_TexCoord2f32(BLOCK_COORD((27 + i)%9), BLOCK_COORD((27+i)/9 +1)); // Bottom left
+            }
+
+
+        }
+
+        else {
+
+
+            GX_Begin(GX_QUADS, GX_VTXFMT0, 44); // Start drawing
+
+            GX_Position3f32(-0.47, -0.6, 0);
+            GX_Normal1x8(4);
+            GX_Color1u32(white);
+            GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(0)); // Top left
+
+            GX_Position3f32(0.47, -0.6, 0);
+            GX_Normal1x8(4);
+            GX_Color1u32(white);
+            GX_TexCoord2f32(BLOCK_COORD(25), BLOCK_COORD(0)); // Top right
+
+            GX_Position3f32(0.47, -0.7, 0);
+            GX_Normal1x8(4);
+            GX_Color1u32(white);
+            GX_TexCoord2f32(BLOCK_COORD(25), BLOCK_COORD(1)); // Bottom right
+
+            GX_Position3f32(-0.47, -0.7, 0);
+            GX_Normal1x8(4);
+            GX_Color1u32(white);
+            GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(1)); // Bottom left
+
+
+
+
+
+            GX_Position3f32(-0.43 + 0.094 * player.selected_spot, -0.6, 0);
+            GX_Normal1x8(4);
+            GX_Color1u32(white);
+            GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(1)); // Top left
+
+            GX_Position3f32(-0.32 + 0.094 * player.selected_spot, -0.6, 0);
+            GX_Normal1x8(4);
+            GX_Color1u32(white);
+            GX_TexCoord2f32(BLOCK_COORD(17), BLOCK_COORD(1)); // Top right
+
+            GX_Position3f32(-0.32 + 0.094 * player.selected_spot, -0.7, 0);
+            GX_Normal1x8(4);
+            GX_Color1u32(white);
+            GX_TexCoord2f32(BLOCK_COORD(17), BLOCK_COORD(2)); // Bottom right
+
+            GX_Position3f32(-0.43 + 0.094 * player.selected_spot, -0.7, 0);
+            GX_Normal1x8(4);
+            GX_Color1u32(white);
+            GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(2)); // Bottom left
+
+
+
+
+            for (int i = 0; i < 9; i++) {
+                GX_Position3f32(-0.40 + i * 0.094, -0.62, 0);
+                GX_Normal1x8(4);
+                GX_Color1u32(white);
+                GX_TexCoord2f32(blocData[player.hotbar[i]].x[0], blocData[player.hotbar[i]].y[0]); // Top left
+
+                GX_Position3f32(-0.35 + i * 0.094, -0.62, 0);
+                GX_Normal1x8(4);
+                GX_Color1u32(white);
+                GX_TexCoord2f32(blocData[player.hotbar[i]].x[0] + OFFSET, blocData[player.hotbar[i]].y[0]); // Top right
+
+                GX_Position3f32(-0.35 + i * 0.094, -0.68, 0);
+                GX_Normal1x8(4);
+                GX_Color1u32(white);
+                GX_TexCoord2f32(blocData[player.hotbar[i]].x[0] + OFFSET,
+                                blocData[player.hotbar[i]].y[0] + OFFSET); // Bottom right
+
+                GX_Position3f32(-0.40 + i * 0.094, -0.68, 0);
+                GX_Normal1x8(4);
+                GX_Color1u32(white);
+                GX_TexCoord2f32(blocData[player.hotbar[i]].x[0],
+                                blocData[player.hotbar[i]].y[0] + OFFSET); // Bottom left
+            }
         }
 
         GX_End();

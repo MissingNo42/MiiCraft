@@ -72,6 +72,9 @@ void Wiimote::update(Player& player, World& w) {
     if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_DOWN)
         player.sneak = !player.sneak;
 
+    if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_UP)
+        player.inventory_open = !player.inventory_open;
+
     if (player.gravity){
         if (actions & WPAD_BUTTON_A){
             player.Jump();
