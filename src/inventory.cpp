@@ -6,7 +6,8 @@
 #include "craft.h"
 
 
-Inventory::Inventory() : open(false), selectedSlot(0), craftSlots(), inventory(){
+Inventory::Inventory() : open(false), selectedSlot(0), pickedItem(0, 1), craftSlots(), inventory(),
+                         currentCraft(Craft::craftList[0]) {
     for(int i = 0; i < 4; i++){
         for(int j = 0; j < 9; j++){
             inventory[i][j] = Slot(i * 9 + j, 1);
@@ -14,12 +15,10 @@ Inventory::Inventory() : open(false), selectedSlot(0), craftSlots(), inventory()
     }
 }
 
+Slot::Slot(int index, int quantity):  item(Item::itemList[index]), quantity(quantity){}
+
 bool Slot::equals(Slot s) const {
     return s.item.equals(item) && s.quantity <= quantity;
-}
-
-Slot::Slot(int index, int quantity):  item(Item::itemList[index]), quantity(quantity){
-
 }
 
 void Inventory::pickItem(int slot, bool craftSlot) {

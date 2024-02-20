@@ -13,7 +13,7 @@ class Item {
     int id;
 public:
     explicit Item(int id = 0);
-    static std::vector<Item> itemList const;
+    static std::vector<Item> itemList;
     [[nodiscard]] bool equals(Item) const;
 };
 
