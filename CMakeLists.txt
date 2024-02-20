@@ -37,6 +37,10 @@ add_executable(Miicraft main.cpp
         src/player.cpp
         src/engine/render/cache.cpp
         src/engine/render/render.cpp
+        src/inventory.cpp
+        src/item.cpp
+        src/craft.cpp
+        include/craft.h
 )
 
 add_executable(MiicraftTest Debug.cpp
