@@ -5,15 +5,20 @@
 #ifndef MIICRAFTTEST_CRAFT_H
 #define MIICRAFTTEST_CRAFT_H
 
+#include "item.h"
 
-#include <unordered_set>
-#include "inventory.h"
+struct Slot {
+    explicit Slot(int index = 0, int quantity = 0);
+    bool equals(Slot) const;
+    Item item;
+    int quantity;
+};
+
 
 struct Craft {
     Craft();
-    Craft(Slot*, Slot);
-    static std::vector<Craft> craftList;
-    static int numCrafts;
+    Craft(Slot, Slot, Slot, Slot, Slot, Slot, Slot, Slot, Slot, Slot);
+    static Craft craftList[10];
     Slot recipe[9];
     Slot result;
 };

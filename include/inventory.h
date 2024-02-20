@@ -10,12 +10,6 @@
 #include "item.h"
 #include "craft.h"
 
-struct Slot {
-    explicit Slot(int id = 0, int quantity = 0);
-    Item item;
-    int quantity;
-};
-
 class Inventory {
 private:
 public:

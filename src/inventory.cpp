@@ -3,10 +3,24 @@
 //
 
 #include "inventory.h"
+#include "craft.h"
 
-Inventory::Inventory() : open(false), selectedSlot(0), craftSlots(), inventory(){}
 
-Slot::Slot(int id, int quantity) : item(id), quantity(quantity){}
+Inventory::Inventory() : open(false), selectedSlot(0), craftSlots(), inventory(){
+    for(int i = 0; i < 4; i++){
+        for(int j = 0; j < 9; j++){
+            inventory[i][j] = Slot(i * 9 + j, 1);
+        }
+    }
+}
+
+bool Slot::equals(Slot s) const {
+    return s.item.equals(item) && s.quantity <= quantity;
+}
+
+Slot::Slot(int index, int quantity):  item(Item::itemList[index]), quantity(quantity){
+
+}
 
 void Inventory::pickItem(int slot, bool craftSlot) {
     Slot temp = pickedItem;
@@ -74,7 +88,6 @@ Craft Inventory::getCurrentCraft() {
             return it;
     }
     return Craft::craftList[0];
-
 }
 
 bool Inventory::isOpen() const{

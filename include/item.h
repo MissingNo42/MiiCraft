@@ -7,12 +7,13 @@
 
 
 #include <vector>
+#include "world/block.h"
 
 class Item {
     int id;
 public:
     explicit Item(int id = 0);
-    static std::vector<Item> itemList;
+    static std::vector<Item> itemList const;
     [[nodiscard]] bool equals(Item) const;
 };
 

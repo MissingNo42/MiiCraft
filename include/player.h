@@ -7,6 +7,7 @@
 
 
 #include "render/renderer.h"
+#include "inventory.h"
 #include <wiiuse/wpad.h>
 #include <vector>
 
@@ -28,6 +29,7 @@ public:
     bool cameraLocked;
     int breakingState{};
     int selected_spot = 0;
+    Inventory inventory;
     BlockType hotbar[10] = {BlockType::Stone, BlockType::Dirt, BlockType::GrassTemperate, BlockType::WoodOak, BlockType::LeaveOak, BlockType::Glass, BlockType::Bedrock, BlockType::Glowstone, BlockType::Sand, BlockType::Bedrock};
     Player(f32 x, f32 y, f32 z);
     Player();
