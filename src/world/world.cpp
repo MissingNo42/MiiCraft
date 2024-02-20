@@ -362,8 +362,8 @@ void World::handleLightBlock(VerticalChunk *vc){
         }
         else {
             if (p.x + 1 < 16) {// right neighboor
-                if (vc->VC_GetBlock({p.x + 1, p.y, p.z}).type < CurrentLightValue - 1 ||
-                        (vc->VC_GetBlock({p.x + 1, p.y, p.z}).type > 15 && vc->VC_GetBlock({p.x + 1, p.y, p.z}).type != RedstoneLamp) ) {
+                if ((vc->VC_GetBlock({p.x + 1, p.y, p.z}).type < CurrentLightValue - 1 ||
+                        vc->VC_GetBlock({p.x + 1, p.y, p.z}).type > 15) && vc->VC_GetBlock({p.x + 1, p.y, p.z}).type != RedstoneLamp)  {
                     vc->VC_SetBlock({p.x, p.y, p.z}, static_cast<BlockType>(CurrentLightValue));
                     if (vc->VC_GetBlock({p.x + 1, p.y, p.z}).type <= 15 ) {
                         vc->VC_SetBlock({p.x + 1, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
@@ -374,8 +374,8 @@ void World::handleLightBlock(VerticalChunk *vc){
             }
 
             if (p.x - 1 >= 0) {// left neighboor
-                if (vc->VC_GetBlock({p.x - 1, p.y, p.z}).type < CurrentLightValue - 1 ||
-                        (vc->VC_GetBlock({p.x - 1, p.y, p.z}).type > 15 && vc->VC_GetBlock({p.x - 1, p.y, p.z}).type != RedstoneLamp)) {
+                if ((vc->VC_GetBlock({p.x - 1, p.y, p.z}).type < CurrentLightValue - 1 ||
+                        vc->VC_GetBlock({p.x - 1, p.y, p.z}).type > 15) && vc->VC_GetBlock({p.x - 1, p.y, p.z}).type != RedstoneLamp) {
                     vc->VC_SetBlock({p.x, p.y, p.z}, static_cast<BlockType>(CurrentLightValue));
                     if (vc->VC_GetBlock({p.x - 1, p.y, p.z}).type <= 15) {
                         vc->VC_SetBlock({p.x - 1, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
@@ -385,8 +385,8 @@ void World::handleLightBlock(VerticalChunk *vc){
                 }
             }
             if (p.z + 1 < 16) {// front neighboor
-                if (vc->VC_GetBlock({p.x, p.y, p.z + 1}).type < CurrentLightValue - 1 ||
-                        (vc->VC_GetBlock({p.x, p.y, p.z + 1}).type > 15 && vc->VC_GetBlock({p.x, p.y, p.z + 1}).type != RedstoneLamp)) {
+                if ((vc->VC_GetBlock({p.x, p.y, p.z + 1}).type < CurrentLightValue - 1 ||
+                        vc->VC_GetBlock({p.x, p.y, p.z + 1}).type > 15) && vc->VC_GetBlock({p.x, p.y, p.z + 1}).type != RedstoneLamp) {
                     vc->VC_SetBlock({p.x, p.y, p.z}, static_cast<BlockType>(CurrentLightValue));
                     if (vc->VC_GetBlock({p.x, p.y, p.z + 1}).type <= 15) {
                         vc->VC_SetBlock({p.x, p.y, p.z + 1}, static_cast<BlockType>(CurrentLightValue - 1));
@@ -397,8 +397,8 @@ void World::handleLightBlock(VerticalChunk *vc){
             }
 
             if (p.z - 1 >= 0) {// back neighboor
-                if (vc->VC_GetBlock({p.x, p.y, p.z - 1}).type < CurrentLightValue - 1 ||
-                        (vc->VC_GetBlock({p.x, p.y, p.z - 1}).type > 15 && vc->VC_GetBlock({p.x, p.y, p.z - 1}).type != RedstoneLamp)) {
+                if ((vc->VC_GetBlock({p.x, p.y, p.z - 1}).type < CurrentLightValue - 1 ||
+                        vc->VC_GetBlock({p.x, p.y, p.z - 1}).type > 15) && vc->VC_GetBlock({p.x, p.y, p.z - 1}).type != RedstoneLamp) {
                     vc->VC_SetBlock({p.x, p.y, p.z}, static_cast<BlockType>(CurrentLightValue));
                     if (vc->VC_GetBlock({p.x, p.y, p.z - 1}).type <= 15) {
                         vc->VC_SetBlock({p.x, p.y, p.z - 1}, static_cast<BlockType>(CurrentLightValue - 1));
@@ -409,8 +409,8 @@ void World::handleLightBlock(VerticalChunk *vc){
             }
 
             if (p.y + 1 < 128) {// top neighboor
-                if (vc->VC_GetBlock({p.x, p.y + 1, p.z}).type < CurrentLightValue - 1 ||
-                        (vc->VC_GetBlock({p.x, p.y + 1, p.z}).type > 15 && vc->VC_GetBlock({p.x, p.y + 1, p.z}).type != RedstoneLamp)) {
+                if ((vc->VC_GetBlock({p.x, p.y + 1, p.z}).type < CurrentLightValue - 1 ||
+                        vc->VC_GetBlock({p.x, p.y + 1, p.z}).type > 15) && vc->VC_GetBlock({p.x, p.y + 1, p.z}).type != RedstoneLamp) {
                     vc->VC_SetBlock({p.x, p.y, p.z}, static_cast<BlockType>(CurrentLightValue));
                     if (vc->VC_GetBlock({p.x, p.y + 1, p.z}).type <= 15) {
                         vc->VC_SetBlock({p.x, p.y + 1, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
@@ -420,8 +420,8 @@ void World::handleLightBlock(VerticalChunk *vc){
                 }
             }
             if (p.y - 1 >= 0) {// bottom neighboor
-                if (vc->VC_GetBlock({p.x, p.y - 1, p.z}).type < CurrentLightValue - 1 ||
-                        (vc->VC_GetBlock({p.x, p.y - 1, p.z}).type > 15 && vc->VC_GetBlock({p.x, p.y - 1, p.z}).type != RedstoneLamp)) {
+                if ((vc->VC_GetBlock({p.x, p.y - 1, p.z}).type < CurrentLightValue - 1 ||
+                        vc->VC_GetBlock({p.x, p.y - 1, p.z}).type > 15) && vc->VC_GetBlock({p.x, p.y - 1, p.z}).type != RedstoneLamp) {
                     vc->VC_SetBlock({p.x, p.y, p.z}, static_cast<BlockType>(CurrentLightValue  ));
                     if (vc->VC_GetBlock({p.x, p.y - 1, p.z}).type <= 15) {
                         vc->VC_SetBlock({p.x, p.y - 1, p.z}, static_cast<BlockType>(CurrentLightValue )); //TODO : check if we need to decrement this
