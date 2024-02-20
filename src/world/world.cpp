@@ -104,7 +104,7 @@ void World::initLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
                 t_coord p = {x, y, z};
                 if (c->VC_GetBlock(p).type < 16 ) {
                     if (y == 127) {
-                        c->VC_SetBlock(p, static_cast<BlockType>(15));
+                        c->VC_SetBlock(p, static_cast<BlockType>(World::LightLevel));
                         lightQueue.push(p);
                     } else {
                         c->VC_SetBlock(p, static_cast<BlockType>(0));
@@ -478,5 +478,34 @@ void World::handleLightBlock(VerticalChunk *vc){
             }
         }
     }
+}
+
+void World::tickPass() {
+//    dayTime = (dayTime + 1)%3600;
+//    printf("DAYTIME : %d\r", dayTime);
+//    if(dayTime == 0){
+//        LightLevel = 15;
+//        for(auto chunk : loadedChunk){
+//            initLight(chunk.second, chunk.second->lightQueue);
+//            handleLightBlock(chunk.second);
+//            propagateLight(chunk.second, chunk.second->lightQueue);
+//        }
+//    }
+//    if(dayTime < 1800){
+//        LightLevel = 15;
+//    }
+//    if(dayTime == 1800){
+//        //update every chunk
+//        LightLevel = 0;
+//        for(auto chunk : loadedChunk){
+//            initLight(chunk.second, chunk.second->lightQueue);
+//            handleLightBlock(chunk.second);
+//            propagateLight(chunk.second, chunk.second->lightQueue);
+//        }
+//    }
+//     if(dayTime > 1800) {
+//        LightLevel = 0;
+//    }
+
 }
 

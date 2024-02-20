@@ -49,7 +49,7 @@ for (; pos.y < height; ++pos.y) {\
 #define APPLY_SKY \
 for (; pos.y < VerticalChunk::CHUNK_HEIGHT-1; pos.y++){ \
     APPLY_BLOCK(BlockType::Air0);\
-} APPLY_BLOCK(BlockType::Air);                          \
+} APPLY_BLOCK(static_cast<BlockType>(World::LightLevel));                          \
 lightQueue.push(pos);
 
 #define APPLY_BLOCK(BLOCK_TYPE) \

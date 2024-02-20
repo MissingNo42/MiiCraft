@@ -353,7 +353,7 @@ int main(int, char **) {
         player.renderer.camera.update(true);
 		
         Game::getInstance()->requestChunk(w.to_chunk_pos(pos));
-
+        w.tickPass();
         renderWorld(w, player.renderer, w.to_chunk_pos(pos));
 
 

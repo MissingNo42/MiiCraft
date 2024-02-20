@@ -16,6 +16,9 @@ class World{
 private:
     std::map<t_pos2D, VerticalChunk*> loadedChunk;
 
+    static inline int dayTime = 0;
+
+
 public:
     World();
     ~World();
@@ -27,6 +30,10 @@ public:
     void setBlockAt(t_coord coord, BlockType block);
 
     static t_pos2D to_chunk_pos(t_coord& c);
+
+    static inline int LightLevel = 15;
+
+
     VerticalChunk& getChunkAt(t_pos2D pos);
     void addChunk(t_pos2D pos, VerticalChunk* chunk);
 
@@ -41,6 +48,8 @@ public:
     void initLightBlock(VerticalChunk *vc, t_coord coord, BlockType block);
 
     void handleLightBlock(VerticalChunk *vc);
+
+    void tickPass();
 };
 
 
