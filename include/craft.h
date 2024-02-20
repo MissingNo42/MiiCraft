@@ -8,7 +8,7 @@
 #include "item.h"
 
 struct Slot {
-    explicit Slot(int index = 0, int quantity = 0);
+    explicit Slot(BlockType type = BlockType::Air, int quantity = 0);
     bool equals(Slot) const;
     Item item;
     int quantity;

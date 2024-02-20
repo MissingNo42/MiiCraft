@@ -5,10 +5,13 @@
 #include "item.h"
 
 bool Item::equals(Item item) const {
-    return item.id == id;
+    return item.type == type;
 }
 
-Item::Item(int id) : id(id) {}
+
+Item::Item(BlockType type) : type(type){
+
+}
 
 std::vector<Item> Item::itemList = {
         Item(BlockType::Air),
@@ -108,3 +111,4 @@ std::vector<Item> Item::itemList = {
         Item(BlockType::Water)
 
 };
+

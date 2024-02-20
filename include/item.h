@@ -10,9 +10,9 @@
 #include "world/block.h"
 
 class Item {
-    int id;
+    BlockType type;
 public:
-    explicit Item(int id = 0);
+    explicit Item(BlockType type = BlockType::Air);
     static std::vector<Item> itemList;
     [[nodiscard]] bool equals(Item) const;
 };
