@@ -99,8 +99,8 @@ void Player::goDown(t_coord coord, World &w, float velocity, bool collision ) {
             }
 
         else{
-            //renderer.camera.look.y += (f32) renderer.camera.pos.y - (f32) floor (coord.y )+ 1.6f;
-            renderer.camera.pos.y = (f32) floor (coord.y )+ 1.6f;
+            if (sneak) {renderer.camera.pos.y = (f32) floor (coord.y )+ 1.3f;}
+            else {renderer.camera.pos.y = (f32) floor (coord.y )+ 1.6f;}
         }
     }
     else
@@ -350,12 +350,15 @@ void Player::move(World &w, joystick_t sticks) {
             offsetZ = - 0.3;
         else
             offsetZ = 0.3;
-        if (w.getBlockAt({(int) floor(offsetX + renderer.camera.pos.x + 1 + move.x), (int) (renderer.camera.pos.y- 0.5),
-                          (int) floor(renderer.camera.pos.z + 1)}).type <= BlockType::Air
-            && w.getBlockAt({(int) floor(offsetX + renderer.camera.pos.x + 1 + move.x), (int) (renderer.camera.pos.y + 0.5),
-                         (int) floor(renderer.camera.pos.z + 1)}).type <= BlockType::Air){
+        float camX = renderer.camera.pos.x;
+        float camY = sneak ? renderer.camera.pos.y +0.3 :renderer.camera.pos.y;
+        float camZ = renderer.camera.pos.z;
+        if (w.getBlockAt({(int) floor(offsetX + camX + 1 + move.x), (int) (camY- 0.5),
+                          (int) floor(camZ + 1)}).type <= BlockType::Air
+            && w.getBlockAt({(int) floor(offsetX + camX + 1 + move.x), (int) (camY + 0.5),
+                         (int) floor(camZ + 1)}).type <= BlockType::Air){
             if (sneak && !isJumping ) {
-                if (w.getBlockAt({(int) floor(renderer.camera.pos.x +1 + move.x), (int)(renderer.camera.pos.y - 1), (int) floor(renderer.camera.pos.z + 1)}).type > BlockType::Air) {
+                if (w.getBlockAt({(int) floor(camX +1 + move.x), (int)(camY - 1), (int) floor(camZ + 1)}).type > BlockType::Air) {
                     renderer.camera.pos.x += move.x;
                 }
             }
@@ -368,12 +371,12 @@ void Player::move(World &w, joystick_t sticks) {
                 }
             }
         }
-        if ( w.getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) (renderer.camera.pos.y - 0.5),
-                                (int) floor(offsetZ +renderer.camera.pos.z + 1 + move.z)}).type <= BlockType::Air
-            && w.getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) (renderer.camera.pos.y + 0.5),
-                             (int) floor(offsetZ +renderer.camera.pos.z + 1 + move.z)}).type <= BlockType::Air) {
+        if ( w.getBlockAt({(int) floor(camX + 1), (int) (camY - 0.5),
+                                (int) floor(offsetZ +camZ + 1 + move.z)}).type <= BlockType::Air
+            && w.getBlockAt({(int) floor(camX + 1), (int) (camY + 0.5),
+                             (int) floor(offsetZ +camZ + 1 + move.z)}).type <= BlockType::Air) {
             if (sneak && !isJumping ) {
-                if (w.getBlockAt({(int) floor(renderer.camera.pos.x +1), (int)(renderer.camera.pos.y - 1), (int) floor(renderer.camera.pos.z + 1 + move.z)}).type > BlockType::Air) {
+                if (w.getBlockAt({(int) floor(camX +1), (int)(camY - 1), (int) floor(camZ + 1 + move.z)}).type > BlockType::Air) {
                     renderer.camera.pos.z += move.z;
                 }
             }
