@@ -4,13 +4,22 @@
 
 #include "inventory.h"
 
-Inventory::Inventory() : open(false), selectedSlot(0), craftSlots(), inventory(){
-    for(int i = 0; i < 4; i++)
-        for(int j = 0; j < 9; j++)
-            inventory[i][j] = Slot( 17+j+i*9,1);;
+Inventory::Inventory() : open(false), selectedSlot(0), pickedItem(BlockType::Air, 1), craftSlots(), inventory(),
+                         currentCraft(Craft::craftList[0]) {
+    for(int i = 0; i < 4; i++){
+        for(int j = 0; j < 9; j++){
+            inventory[i][j] = Slot(static_cast<BlockType>(BlockType::Air + i * 9 + j), 1);
+        }
+    }
 }
 
-Slot::Slot(int id, int quantity) : item(id), quantity(quantity){}
+bool Slot::equals(Slot s) const {
+    return s.item.equals(item) && s.quantity <= quantity;
+}
+
+Slot::Slot(BlockType type, int quantity) : item(type), quantity(quantity){
+
+}
 
 void Inventory::pickItem(int slot, bool craftSlot) {
     Slot temp = pickedItem;
@@ -78,7 +87,6 @@ Craft Inventory::getCurrentCraft() {
             return it;
     }
     return Craft::craftList[0];
-
 }
 
 bool Inventory::isOpen() const{

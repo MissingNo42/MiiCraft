@@ -7,20 +7,18 @@
 
 #include "item.h"
 
-#include <unordered_set>
-
 struct Slot {
-    explicit Slot(int id = 0, int quantity = 0);
+    explicit Slot(BlockType type = BlockType::Air, int quantity = 0);
     bool equals(Slot) const;
     Item item;
     int quantity;
 };
 
+
 struct Craft {
     Craft();
-    Craft(Slot*, Slot);
-    static std::vector<Craft> craftList;
-    static int numCrafts;
+    Craft(Slot, Slot, Slot, Slot, Slot, Slot, Slot, Slot, Slot, Slot);
+    static Craft craftList[10];
     Slot recipe[9];
     Slot result;
 };
