@@ -120,6 +120,18 @@ public:
         APPLY_SKY;
     }
 
+    inline static void generateForest(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
+        INIT_GENERATOR;
+        APPLY_BEDROCK;
+        APPLY_BOTTOM;
+
+        APPLY_CONTINENT(Stone, Dirt);
+        APPLY_BLOCK(GrassCold);
+        pos.y++;
+        APPLY_SKY;
+    }
+
+
     inline static void generateBadLand(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
         INIT_GENERATOR;
         APPLY_BEDROCK;
@@ -140,13 +152,13 @@ public:
         pos.y++;
         APPLY_SKY;
     }
-    inline static void generateStonyTaiga(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
+    inline static void generateTaiga(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
 
-        APPLY_CONTINENT(Stone, Stone);
-        APPLY_BLOCK(Stone);
+        APPLY_CONTINENT(Stone, Dirt);
+        APPLY_BLOCK(GrassTaiga);
         pos.y++;
         APPLY_SKY;
     }
@@ -213,6 +225,17 @@ public:
 
         APPLY_CONTINENT(Stone, Sand);
         APPLY_BLOCK(BlockType::Sand);
+        pos.y++;
+        APPLY_SKY;
+    }
+
+    inline static void generateStonyShore(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
+        INIT_GENERATOR;
+        APPLY_BEDROCK;
+        APPLY_BOTTOM;
+
+        APPLY_CONTINENT(Stone, Andesite);
+        APPLY_BLOCK(BlockType::Gravel);
         pos.y++;
         APPLY_SKY;
     }

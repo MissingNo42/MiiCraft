@@ -29,9 +29,9 @@ float easeInOutQuint(float x) {
 }
 
 float erosionRepartition(float x) {
-    if (x < 1.f) {return 0.25f * x;}
-    else if (x > 1.5f) { return x * 2.5f - 3.f;}
-    return x -.75f;
+    if (x < .85f) {return 0.3f * x + .05f;}
+    else if (x > 1.64f) { float result = x * 3.5f - 4.4f; return result < 2.f ? result : 2.f ;}
+    return 1.3f * x -.8f;
 }
 
 void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
@@ -83,39 +83,36 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 //                {Tergen::generateSavanna(vc, i, j, height,w.lightQueue);}
 //            }
             switch (biome) {
-                case Ocean:
+                case Ocean: Tergen::generateOcean(vc, i, j, height, w.lightQueue);
                     break;
-                case Beach:
+                case Beach: Tergen::generateBeach(vc, i, j, height, w.lightQueue);
                     break;
-                case Savanna:
+                case Savanna: Tergen::generateSavanna(vc, i, j, height, w.lightQueue);
                     break;
-                case Tundra:
+                case Tundra: Tergen::generateTundra(vc, i, j, height, w.lightQueue);
                     break;
-                case Desert:
+                case Desert: Tergen::generateDesert(vc, i, j, height, w.lightQueue);
                     break;
-                case Plain:
+                case Plain: case Hills: Tergen::generatePlain(vc, i, j, height, w.lightQueue);
                     break;
-                case WoodedPlain:
+                case WoodedPlain: case WoodedHills: Tergen::generateForest(vc, i, j, height, w.lightQueue);
                     break;
-                case Hills:
+
+                case StonyLand: Tergen::generateWindSwept(vc, i, j, height, w.lightQueue);
                     break;
-                case WoodedHills:
+                case Badlands: Tergen::generateBadLand(vc, i, j, height, w.lightQueue);
                     break;
-                case StonyLand:
+                case WoodedBadlands: Tergen::generateBadLand(vc, i, j, height, w.lightQueue);
                     break;
-                case Badlands:
+                case Jungle: Tergen::generateJungle(vc, i, j, height, w.lightQueue);
                     break;
-                case WoodedBadlands:
+                case DarkForest: Tergen::generateDarkForest(vc, i, j, height, w.lightQueue);
                     break;
-                case Jungle:
+                case IcePeak: Tergen::generateIcy(vc, i, j, height, w.lightQueue);
                     break;
-                case DarkForest:
+                case Taiga: Tergen::generateTaiga(vc, i, j, height, w.lightQueue);
                     break;
-                case IcePeak:
-                    break;
-                case Taiga:
-                    break;
-                case StonyShore:
+                case StonyShore: Tergen::generateStonyShore(vc, i, j, height, w.lightQueue);
                     break;
                 case Void:
                     Tergen::generateVoid(vc, i, j, height, w.lightQueue);
