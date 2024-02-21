@@ -506,22 +506,22 @@ int main(int, char **) {
 
 
 
-            GX_Position3f32(-0.43 + 0.094 * player.selected_spot, -0.6, 0);
+            GX_Position3f32(-0.43 + 0.094 * player.inventory.selectedSlot, -0.6, 0);
             GX_Normal1x8(4);
             GX_Color1u32(white);
             GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(1)); // Top left
 
-            GX_Position3f32(-0.32 + 0.094 * player.selected_spot, -0.6, 0);
+            GX_Position3f32(-0.32 + 0.094 * player.inventory.selectedSlot, -0.6, 0);
             GX_Normal1x8(4);
             GX_Color1u32(white);
             GX_TexCoord2f32(BLOCK_COORD(17), BLOCK_COORD(1)); // Top right
 
-            GX_Position3f32(-0.32 + 0.094 * player.selected_spot, -0.7, 0);
+            GX_Position3f32(-0.32 + 0.094 * player.inventory.selectedSlot, -0.7, 0);
             GX_Normal1x8(4);
             GX_Color1u32(white);
             GX_TexCoord2f32(BLOCK_COORD(17), BLOCK_COORD(2)); // Bottom right
 
-            GX_Position3f32(-0.43 + 0.094 * player.selected_spot, -0.7, 0);
+            GX_Position3f32(-0.43 + 0.094 * player.inventory.selectedSlot, -0.7, 0);
             GX_Normal1x8(4);
             GX_Color1u32(white);
             GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(2)); // Bottom left
@@ -608,6 +608,29 @@ int main(int, char **) {
         GX_Color1u32(white);
         GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(16)); // Bottom left
 
+
+
+/*
+        GX_Position3f32(-x+a, y+b, 0);
+        GX_Normal1x8(4);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(blocData[player.inventory.selectedSlot].x[0], blocData[player.inventory.selectedSlot].y[0]); // Top left
+
+        GX_Position3f32(x+a, y+b, 0);
+        GX_Normal1x8(4);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(blocData[player.inventory.selectedSlot].x[0] + OFFSET , blocData[player.inventory.selectedSlot].y[0]); // Top right
+
+        GX_Position3f32(x+a, -y+b, 0);
+        GX_Normal1x8(4);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(blocData[player.inventory.selectedSlot].x[0] + OFFSET, blocData[player.inventory.selectedSlot].y[0] + OFFSET); // Bottom right
+
+        GX_Position3f32(-x+a, -y+b, 0);
+        GX_Normal1x8(4);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(blocData[player.inventory.selectedSlot].x[0], blocData[player.inventory.selectedSlot].y[0] + OFFSET); // Bottom left
+*/
         GX_End();
 
 		Renderer::endFrame();

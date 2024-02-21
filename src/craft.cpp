@@ -4,6 +4,13 @@
 
 #include "craft.h"
 
+bool Slot::equals(Slot s) const {
+    return s.item.equals(item) && s.quantity <= quantity;
+}
+
+Slot::Slot(BlockType type, int quantity) : item(type), quantity(quantity){
+
+}
 
 Craft::Craft() {
     for (auto & i : recipe)
@@ -137,6 +144,3 @@ Craft Craft::craftList[10] = {
               Slot{BlockType::PlankOak, 4}
         ),
 };
-bool Slot::equals(Slot slot) const {
-    return slot.item.equals(item) && slot.quantity == quantity;
-}

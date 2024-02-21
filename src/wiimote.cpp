@@ -24,6 +24,25 @@ void Wiimote::update(Player& player, World& w) {
     } while (wiimote_connection_status != WPAD_ERR_NONE);
 
     wd = WPAD_Data(chan);
+
+    if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_UP)
+        player.inventory.open = !player.inventory.open;
+
+    if (player.inventory.open){
+        f32 x = 2 * wd->ir.x / (f32)Renderer::rmode->fbWidth;
+        f32 y = -2 * wd->ir.y / (f32)Renderer::rmode->xfbHeight;
+        //printf("x: %f, y: %f\r", x, y);
+        if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_A)
+        {
+            int l = - floor((1 +y)/ 0.158) - 1;
+            int c = floor((0.32 + x) / 0.158) - 3;
+            int slot = l * 9 + c -1;
+            //printf(" l : %d , c : %d , slot: %d\r", l, c ,slot);
+            player.inventory.action(slot, false);
+        }
+            //player.inventory.pickItem(player.inventory.selectedSlot, false);
+    }
+    else {
     if(!player.cameraLocked)
         player.handleRotation(wd);
 
@@ -63,17 +82,14 @@ void Wiimote::update(Player& player, World& w) {
     player.placeDelay++;
 
     if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_LEFT)
-        if (player.selected_spot > 0)
-            player.selected_spot --;
+        if (player.inventory.selectedSlot > 0)
+            player.inventory.selectedSlot --;
     if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_RIGHT)
-        if (player.selected_spot < 8)
-            player.selected_spot ++;
+        if (player.inventory.selectedSlot < 8)
+            player.inventory.selectedSlot ++;
 
     if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_DOWN)
         player.sneak = !player.sneak;
-
-    if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_UP)
-        player.inventory.open = !player.inventory.open;
 
     if (player.gravity){
         if (actions & WPAD_BUTTON_A){
@@ -102,16 +118,15 @@ void Wiimote::update(Player& player, World& w) {
         player.move(w, sticks);
         vec3w_t accel = wd->exp.nunchuk.accel;
 
-        norme =sqrt(accel.y * accel.y + accel.x * accel.x + accel.z * accel.z);
+        norme = sqrt(accel.y * accel.y + accel.x * accel.x + accel.z * accel.z);
 
-        acc = abs( norme - last_accel);
-        printf("%d\r", acc);
+        acc = abs(norme - last_accel);
+
         last_accel = norme;
         if (acc > 5 && isTargeting) {
             player.destroyBlock(w);
-            printf("%d\r", player.breakingState);
-        }
-        else {
+
+        } else {
             if (frame_cntr < 60)
                 frame_cntr++;
             else {
@@ -119,7 +134,7 @@ void Wiimote::update(Player& player, World& w) {
                 player.breakingState = 0;
             }
         }
-
+    }
     }
 
     if(player.cameraLocked)

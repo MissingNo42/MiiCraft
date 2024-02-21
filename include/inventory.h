@@ -26,6 +26,7 @@ public:
     void pickItem(int slot, bool craftSlot);
     void dropItem(int slot, bool unique, bool craftSlot);
     Craft getCurrentCraft();
+    void action(int slot, bool craftSlot);
 };
 
 

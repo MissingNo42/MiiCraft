@@ -13,14 +13,6 @@ Inventory::Inventory() : open(false), selectedSlot(0), pickedItem(BlockType::Air
     }
 }
 
-bool Slot::equals(Slot s) const {
-    return s.item.equals(item) && s.quantity <= quantity;
-}
-
-Slot::Slot(BlockType type, int quantity) : item(type), quantity(quantity){
-
-}
-
 void Inventory::pickItem(int slot, bool craftSlot) {
     Slot temp = pickedItem;
     if(!craftSlot){
@@ -91,4 +83,13 @@ Craft Inventory::getCurrentCraft() {
 
 bool Inventory::isOpen() const{
     return open;
+}
+
+void Inventory::action(int slot, bool craftSlot) {
+    if(pickedItem.item.equals(Item::itemList[0])){
+        pickItem(slot, craftSlot);
+    }
+    else{
+        dropItem(slot, false, craftSlot);
+    }
 }
