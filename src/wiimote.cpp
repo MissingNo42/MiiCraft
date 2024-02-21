@@ -27,18 +27,34 @@ void Wiimote::update(Player& player, World& w) {
 
     if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_UP)
         player.inventory.open = !player.inventory.open;
-
+    t_coord coord(floor(player.renderer.camera.pos.x+1), floor(player.renderer.camera.pos.y), floor(player.renderer.camera.pos.z+1));
     if (player.inventory.open){
         f32 x = 2 * wd->ir.x / (f32)Renderer::rmode->fbWidth;
         f32 y = -2 * wd->ir.y / (f32)Renderer::rmode->xfbHeight;
         //printf("x: %f, y: %f\r", x, y);
+        if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_LEFT && player.inventory.currentPage > 0)
+            player.inventory.currentPage--;
+        if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_RIGHT && player.inventory.currentPage < 2)
+            player.inventory.currentPage++;
         if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_A)
         {
-            int l = - floor((1 +y)/ 0.158) - 1;
-            int c = floor((0.32 + x) / 0.158) - 3;
-            int slot = l * 9 + c -1;
-            //printf(" l : %d , c : %d , slot: %d\r", l, c ,slot);
-            player.inventory.action(slot, false);
+            if (x > 0.32 && x < 1.73 && y > -1.62 && y < -1){
+                //player.inventory.action(0, true);
+                int l = -floor((1 + y) / 0.158) - 1;
+                int c = floor((0.32 + x) / 0.158) - 3;
+                int slot = l * 9 + c - 1;
+                //printf(" l : %d , c : %d , slot: %d\r", l, c ,slot);
+                player.inventory.action(slot, false);
+            }
+            else if (x > 1.1 && x < 1.425 && y > -0.8 && y < -0.5){
+                int l = -floor((0.5 + y) / 0.158) - 1;
+                int c = floor((1.1 + x) / 0.158) - 13;
+                int slot = l * 3 + c - 1;
+                printf(" l : %d , c : %d , slot: %d\r", l, c ,slot);
+                player.inventory.action(slot, true);
+            }
+
+
         }
             //player.inventory.pickItem(player.inventory.selectedSlot, false);
     }
@@ -50,9 +66,6 @@ void Wiimote::update(Player& player, World& w) {
     if(WPAD_ButtonsDown(chan) & WPAD_BUTTON_HOME)
         exit(1);
 
-    t_coord coord(floor(player.renderer.camera.pos.x+1), floor(player.renderer.camera.pos.y), floor(player.renderer.camera.pos.z+1));
-    if (player.gravity)
-        player.handleGravity(w, coord);
 
     u16 actions = WPAD_ButtonsHeld(chan);
     if (actions & WPAD_BUTTON_PLUS)
@@ -136,7 +149,8 @@ void Wiimote::update(Player& player, World& w) {
         }
     }
     }
-
+    if (player.gravity)
+        player.handleGravity(w, coord);
     if(player.cameraLocked)
         guVecNormalize(&player.renderer.camera.look);
     //printf(">lk : %f %f %f\r", player.renderer.camera.look.x, player.renderer.camera.look.y, player.renderer.camera.look.z);

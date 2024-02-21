@@ -18,11 +18,11 @@ public:
     int selectedSlot;
     Slot pickedItem{};
     Slot craftSlots[9];
-    Slot inventory[4][9];
+    Slot inventory[3][4][9];
     Craft currentCraft{};
+    int currentPage;
 
     Inventory();
-    bool isOpen() const;
     void pickItem(int slot, bool craftSlot);
     void dropItem(int slot, bool unique, bool craftSlot);
     Craft getCurrentCraft();
