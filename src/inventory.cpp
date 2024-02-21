@@ -6,15 +6,14 @@
 
 Inventory::Inventory() : open(false), selectedSlot(0), pickedItem(BlockType::Air, 1), craftSlots(), inventory(),
                          currentCraft(Craft::craftList[0]), currentPage(0){
-    for (int p = 0; p<3 ; p++) {
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 9; j++) {
-                inventory[p][i][j] = Slot(static_cast<BlockType>(BlockType::Air + p * 27 +i * 9 + j), 1);
-            }
+
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            inventory[i+1][j] = Slot(static_cast<BlockType>(BlockType::Air +i * 9 + j), 1);
         }
-        for (int i = 0; i < 9; i++) {
-            inventory[currentPage][3][i] = Slot(static_cast<BlockType>(BlockType::Air), 1);
-        }
+    }
+    for (int i = 0; i < 9; i++) {
+        inventory[0][i] = Slot(static_cast<BlockType>(BlockType::Air), 1);
     }
     for (auto & craftSlot : craftSlots) {
         craftSlot = Slot(static_cast<BlockType>(BlockType::Air), 1);
@@ -24,8 +23,14 @@ Inventory::Inventory() : open(false), selectedSlot(0), pickedItem(BlockType::Air
 void Inventory::pickItem(int slot, bool craftSlot) {
     Slot temp = pickedItem;
     if(!craftSlot){
-        pickedItem = inventory[currentPage][slot/9][slot%9];
-        inventory[currentPage][slot/9][slot%9] = temp;
+        if(slot < 27) {
+            pickedItem = inventory[1 + currentPage * 3 + slot / 9][slot % 9];
+            inventory[1 + currentPage * 3 + slot / 9][slot % 9] = temp;
+        }
+        else if(slot < 36){
+            pickedItem = inventory[0][slot % 9];
+            inventory[0][slot % 9] = temp;
+        }
     }
     else {
         if(slot < 9 && slot >= 0) {
@@ -48,24 +53,37 @@ void Inventory::pickItem(int slot, bool craftSlot) {
 
 void Inventory::dropItem(int slot, bool unique, bool craftSlot){
     Slot temp;
-    if (craftSlot)
-        temp = craftSlots[slot];
-    else
-        temp = inventory[currentPage][slot / 9][slot % 9];
     if(!craftSlot) {
-        if(unique && inventory[currentPage][slot / 9][slot % 9].item.equals(Item::itemList[0])) {
-            inventory[currentPage][slot / 9][slot % 9].item = pickedItem.item;
-            inventory[currentPage][slot / 9][slot % 9].quantity++;
-            pickedItem.quantity--;
-            if(pickedItem.quantity == 0)
-                pickedItem.item = Item::itemList[0];
+        if (slot < 27) {
+            temp = inventory[1 + currentPage * 3 + slot / 9][slot % 9];
+            if (unique && inventory[1 + currentPage * 3 + slot / 9][slot % 9].item.equals(Item::itemList[0])) {
+                inventory[1 + currentPage * 3 + slot / 9][slot % 9].item = pickedItem.item;
+                inventory[1 + currentPage * 3 + slot / 9][slot % 9].quantity++;
+                pickedItem.quantity--;
+                if (pickedItem.quantity == 0)
+                    pickedItem.item = Item::itemList[0];
+            } else {
+                inventory[1 + currentPage * 3 + slot / 9][slot % 9] = pickedItem;
+                pickedItem = temp;
+            }
         }
-        else{
-            inventory[currentPage][slot / 9][slot % 9] = pickedItem;
-            pickedItem = temp;
+        else if(slot < 36){
+            temp = inventory[0][slot % 9];
+            if(unique && inventory[0][slot % 9].item.equals(Item::itemList[0])){
+                inventory[0][slot % 9].item = pickedItem.item;
+                inventory[0][slot % 9].quantity++;
+                pickedItem.quantity--;
+                if(pickedItem.quantity == 0)
+                    pickedItem.item = Item::itemList[0];
+            }
+            else {
+                inventory[0][slot % 9] = pickedItem;
+                pickedItem = temp;
+            }
         }
     }
     else{
+        temp = craftSlots[slot];
         if(slot <= 4 && slot >= 0) {
             if(unique && craftSlots[slot].item.equals(Item::itemList[0])){
                 craftSlots[slot].item = pickedItem.item;

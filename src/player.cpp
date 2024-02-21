@@ -179,7 +179,7 @@ void Player::destroyBlock(World& w){
 }
 
 void Player::placeBlock(World& w){
-    if (inventory.inventory[inventory.currentPage][3][inventory.selectedSlot].item.type > BlockType::Blocks)
+    if (inventory.inventory[0][inventory.selectedSlot].item.type > BlockType::Blocks)
         return;
     if(placeDelay < 10){
         return;}
@@ -211,7 +211,7 @@ void Player::placeBlock(World& w){
            || (pos.y != (int)floor(renderer.camera.pos.y + 1)
                && pos.y != (int)floor(renderer.camera.pos.y))
            || pos.z != (int)floor(renderer.camera.pos.z + 1))
-        w.setBlockAt(pos, inventory.inventory[inventory.currentPage][3][inventory.selectedSlot].item.type);
+        w.setBlockAt(pos, inventory.inventory[0][inventory.selectedSlot].item.type);
     }
     placeDelay = 0;
 }

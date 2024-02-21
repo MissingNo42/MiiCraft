@@ -18,7 +18,7 @@ public:
     int selectedSlot;
     Slot pickedItem{};
     Slot craftSlots[10];
-    Slot inventory[3][4][9];
+    Slot inventory[10][9];
     Craft currentCraft{};
     int currentPage;
 
