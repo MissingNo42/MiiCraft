@@ -129,6 +129,8 @@ enum BlockType : u8 {
     MagmaBlock2,
     MagmaBlock3,
 
+    Snow,
+
     //Misc 3
     Trinitrotoluene,
     QuartzBlock,

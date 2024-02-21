@@ -43,6 +43,8 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
     u8        heightMap[16][16];
     BiomeType biomeMap [16][16];
+    u16 biomeRepartition[BIOME_COUNT];           for (int i = 0; i < BIOME_COUNT; ++i) {biomeRepartition[i] = 0;}
+    f64       humidityMean = 0;
 
     for(int i = 0; i < 16; i ++){
         for(int j = 0; j < 16; j++){
@@ -124,26 +126,46 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
             //On remplit le tableau des hauteurs
             biomeMap [i][j] = biome;
+            biomeRepartition[biome]++;
             heightMap[i][j] = height;
+            humidityMean += humidity;
         }
     }
 
-    for (int i = 0; i < 10; ++i)
+    if (biomeRepartition[Tundra] >= 128)
     {
+        int proba = (int)((float)biomeRepartition[Tundra] / 256.f * 10.f);
+        if (rand()%200 < proba)
+        {
+            t_coord iglooPos{(pos.x * 16 + 8), heightMap[8][8] - 1, (pos.y * 16 + 8)};
+            StructBuilder::generateIgloo(w, iglooPos);
+        }
+    }
+
+    humidityMean /= 16*16;
+    int treeAttempts = humidityMean * 3;
+    for (int i = 0; i < treeAttempts; ++i)
+    {
+
         //On sélectionne une coordonnée aléatoire du tableau des hauteurs
-        int x = rand() %12 + 2;
-        int z = rand() %12 +2;
+        int x = rand() %10 + 3;
+        int z = rand() %10 + 3;
         int y = heightMap[x][z] + 1;
 
-        //On construit un arbre à cette position
-    //    buildTree({x, y, z}, vc);
 
         t_coord treePos((pos.x * 16 + x), y, (pos.y * 16 + z));
         if (StructBuilder::checkClassicTree(w, treePos))
         {
-            StructBuilder::generateOak(w, treePos);
+            BiomeType biome = biomeMap[x][z];
+            if (biome == Desert || biome == Badlands ||biome == WoodedBadlands)
+            {
+                StructBuilder::generateCactus(w, treePos);
+            }
+            else
+            {
+                StructBuilder::generateStdTree(w, treePos, OakTree);
+            }
         }
-        else {printf("Pas reussi a construire l'arbre %d\r", i);}
 
     }
 

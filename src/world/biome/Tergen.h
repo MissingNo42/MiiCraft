@@ -8,7 +8,10 @@
 #include "../block.h"
 #include "../verticalChunk.h"
 
-enum BiomeType{
+
+const int BIOME_COUNT = 18;
+
+enum BiomeType : u16{
     Void = 0,
     Ocean,
     Beach,

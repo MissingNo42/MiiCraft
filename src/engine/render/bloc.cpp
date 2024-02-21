@@ -542,11 +542,17 @@ BlocData blocData[] {
                 .y = BLOCK_COORDS(9, 9, 9, 9, 9, 9)
         },
 
+        {
+                // Snow
+                .x = BLOCK_COORDS(3, 3, 3, 3, 3, 3),
+                .y = BLOCK_COORDS(9, 9, 9, 9, 9, 9)
+        },
+
         // //Misc 3
         {
                 // Trinitrotoluene
                 .x = BLOCK_COORDS(15, 15, 15, 15, 15, 15),
-                .y = BLOCK_COORDS(10, 10, 10, 10, 10, 10)
+                .y = BLOCK_COORDS(8, 9, 10, 10, 10, 10)
         },
         {
                 // QuartzBlock
