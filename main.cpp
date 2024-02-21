@@ -358,7 +358,8 @@ int main(int, char **) {
 		
 
 
-
+        if (player.creative)
+            player.inventory.resetInventory();
 
         player.renderer.camera.loadOrtho(); // set for 2D drawing
         player.renderer.camera.applyTransform2D();

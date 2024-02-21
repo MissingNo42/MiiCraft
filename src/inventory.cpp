@@ -5,11 +5,11 @@
 #include "inventory.h"
 
 Inventory::Inventory() : open(false), selectedSlot(0), pickedItem(BlockType::Air, 1), craftSlots(), inventory(),
-                         currentCraft(Craft::craftList[0]), currentPage(0){
+                         currentCraft(Craft::craftList[0]), currentPage(0) {
 
     for (int i = 0; i < 9; i++) {
         for (int j = 0; j < 9; j++) {
-            inventory[i+1][j] = Slot(static_cast<BlockType>(BlockType::Air +i * 9 + j), 1);
+            inventory[i+1][j] = Slot(static_cast<BlockType>(BlockType::Air), 1);
         }
     }
     for (int i = 0; i < 9; i++) {
@@ -41,7 +41,7 @@ void Inventory::pickItem(int slot, bool craftSlot) {
         else if(slot == 9 && pickedItem.item.equals(Item::itemList[0])){
             pickedItem = craftSlots[slot];
             for(int i = 0; i < 9; i++){
-                craftSlots[slot].quantity -= currentCraft.recipe[i].quantity;
+                craftSlots[i].quantity -= currentCraft.recipe[i].quantity;
                 if(craftSlots[i].quantity == 0)
                     craftSlots[i].item = Item::itemList[0];
             }
@@ -122,5 +122,13 @@ void Inventory::action(int slot, bool craftSlot) {
     }
     else{
         dropItem(slot, false, craftSlot);
+    }
+}
+
+void Inventory::resetInventory() {
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            inventory[i+1][j] = Slot(static_cast<BlockType>(BlockType::Air +i * 9 + j), 1);
+        }
     }
 }

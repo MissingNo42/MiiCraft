@@ -30,6 +30,7 @@ public:
     int breakingState{};
     bool sneak = false;
     Inventory inventory;
+    bool creative ;
     BlockType hotbar[9] = {BlockType::Stone, BlockType::Dirt, BlockType::PlankOak, BlockType::WoodOak, BlockType::LeaveOak, BlockType::Glass, BlockType::Bedrock, BlockType::Glowstone, BlockType::Sand};
     Player(f32 x, f32 y, f32 z);
     Player();

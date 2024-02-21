@@ -8,9 +8,9 @@
 #include <algorithm>
 #include "player.h"
 
-Player::Player() : placeDelay(0), focusedBlockPos(0,0,0), lockedBlockPos(0,0,0), previousFocusedBlockPos(0,0,0),  sprint(false), cameraLocked(false){}
+Player::Player() : placeDelay(0), focusedBlockPos(0,0,0), lockedBlockPos(0,0,0), previousFocusedBlockPos(0,0,0),  sprint(false), cameraLocked(false), creative(true){}
 
-Player::Player(f32 x, f32 y, f32 z) : placeDelay(0), focusedBlockPos(0,0,0), lockedBlockPos(0,0,0), previousFocusedBlockPos(0,0,0), sprint(false), cameraLocked(false) {
+Player::Player(f32 x, f32 y, f32 z) : placeDelay(0), focusedBlockPos(0,0,0), lockedBlockPos(0,0,0), previousFocusedBlockPos(0,0,0), sprint(false), cameraLocked(false), creative(true) {
     renderer.camera.pos.x = x;
     renderer.camera.pos.y = y;
     renderer.camera.pos.z = z;
