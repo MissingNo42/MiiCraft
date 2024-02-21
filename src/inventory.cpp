@@ -16,6 +16,9 @@ Inventory::Inventory() : open(false), selectedSlot(0), pickedItem(BlockType::Air
             inventory[currentPage][3][i] = Slot(static_cast<BlockType>(BlockType::Air), 1);
         }
     }
+    for (auto & craftSlot : craftSlots) {
+        craftSlot = Slot(static_cast<BlockType>(BlockType::Air), 1);
+    }
 }
 
 void Inventory::pickItem(int slot, bool craftSlot) {
@@ -25,19 +28,21 @@ void Inventory::pickItem(int slot, bool craftSlot) {
         inventory[currentPage][slot/9][slot%9] = temp;
     }
     else {
-        if(slot < 4 && slot >= 0) {
+        if(slot < 9 && slot >= 0) {
             pickedItem = craftSlots[slot];
             craftSlots[slot] = temp;
             currentCraft = getCurrentCraft();
         }
-        else if(slot == 4 && pickedItem.item.equals(Item::itemList[0])){
+        else if(slot == 9 && pickedItem.item.equals(Item::itemList[0])){
             pickedItem = craftSlots[slot];
-            for(int i = 0; i < 4; i++){
+            for(int i = 0; i < 9; i++){
                 craftSlots[slot].quantity -= currentCraft.recipe[i].quantity;
                 if(craftSlots[i].quantity == 0)
                     craftSlots[i].item = Item::itemList[0];
             }
         }
+        currentCraft = getCurrentCraft();
+        craftSlots[9] = currentCraft.result;
     }
 }
 
@@ -74,6 +79,7 @@ void Inventory::dropItem(int slot, bool unique, bool craftSlot){
                 pickedItem = temp;
             }
             currentCraft = getCurrentCraft();
+            craftSlots[9] = currentCraft.result;
         }
     }
 }
@@ -82,10 +88,12 @@ Craft Inventory::getCurrentCraft() {
     for(auto& it : Craft::craftList){
         bool isMatch = true;
         for(int i = 0; i < 9; i++)
-            if(!it.recipe[i].equals(currentCraft.recipe[i]))
+            if(!it.recipe[i].equals(craftSlots[i]))
                 isMatch = false;
-        if(isMatch)
+        if(isMatch) {
+            printf("Crafted\r");
             return it;
+        }
     }
     return Craft::craftList[0];
 }

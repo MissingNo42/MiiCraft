@@ -38,20 +38,21 @@ void Wiimote::update(Player& player, World& w) {
             player.inventory.currentPage++;
         if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_A)
         {
+            //printf("x: %f, y: %f\r", x, y);
             if (x > 0.32 && x < 1.73 && y > -1.62 && y < -1){
-                //player.inventory.action(0, true);
                 int l = -floor((1 + y) / 0.158) - 1;
                 int c = floor((0.32 + x) / 0.158) - 3;
                 int slot = l * 9 + c - 1;
-                //printf(" l : %d , c : %d , slot: %d\r", l, c ,slot);
                 player.inventory.action(slot, false);
             }
-            else if (x > 1.1 && x < 1.425 && y > -0.8 && y < -0.5){
+            else if (x > 1.11 && x < 1.425 && y > -0.8 && y < -0.5){
                 int l = -floor((0.5 + y) / 0.158) - 1;
                 int c = floor((1.1 + x) / 0.158) - 13;
                 int slot = l * 3 + c - 1;
-                printf(" l : %d , c : %d , slot: %d\r", l, c ,slot);
                 player.inventory.action(slot, true);
+            }
+            else if ( x > 1.6 && x < 1.75 && y > - 0.72 && y < -0.58){
+                player.inventory.action(9, true);
             }
 
 
