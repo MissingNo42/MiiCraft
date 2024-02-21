@@ -37,6 +37,7 @@ add_executable(Miicraft main.cpp
         src/player.cpp
         src/engine/render/cache.cpp
         src/engine/render/render.cpp
+        src/world/biome/StructBuilder.h
 )
 
 add_executable(MiicraftTest Debug.cpp
@@ -50,6 +51,7 @@ add_executable(MiicraftTest Debug.cpp
         src/world/coord.cpp
         src/world/blockTemplate.cpp
         src/system/Random.cpp
+        src/world/biome/StructBuilder.h
 )
 
 

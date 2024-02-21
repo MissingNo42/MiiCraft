@@ -41,10 +41,13 @@ Block World::getBlockAt(t_coord coord)  {
     return loadedChunk[chunk_pos]->VC_GetBlock(coord);
 }
 
-void World::setBlockAt(t_coord coord, BlockType block) {
+void World::setBlockAt(t_coord coord, BlockType block, bool calculLight) {
     loadedChunk[to_chunk_pos(coord)]->VC_SetBlock(coord, block);
-    initLight(loadedChunk[to_chunk_pos(coord)], lightQueue);
-    propagateLight(loadedChunk[to_chunk_pos(coord)], lightQueue);
+    if (calculLight)
+    {
+        initLight(loadedChunk[to_chunk_pos(coord)], lightQueue);
+        propagateLight(loadedChunk[to_chunk_pos(coord)], lightQueue);
+    }
 }
 
 VerticalChunk& World::getChunkAt(t_pos2D pos) {

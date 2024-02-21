@@ -37,6 +37,8 @@ float erosionRepartition(float x) {
 void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
     VerticalChunk* vc = new VerticalChunk();
 
+    w.setNeighboors(pos, vc);
+    w.addChunk(pos, vc);
     //Append in a file
 
     u8        heightMap[16][16];
@@ -126,18 +128,27 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
         }
     }
 
-    //On sélectionne une coordonnée aléatoire du tableau des hauteurs
-    int x = rand() %12 + 2;
-    int z = rand() %12 +2;
-    int y = heightMap[x][z] + 1;
+    for (int i = 0; i < 10; ++i)
+    {
+        //On sélectionne une coordonnée aléatoire du tableau des hauteurs
+        int x = rand() %12 + 2;
+        int z = rand() %12 +2;
+        int y = heightMap[x][z] + 1;
 
-    //On construit un arbre à cette position
-    buildTree({x, y, z}, vc);
+        //On construit un arbre à cette position
+    //    buildTree({x, y, z}, vc);
 
-//    w.initLight(vc);
-    w.addChunk(pos, vc);
+        t_coord treePos((pos.x * 16 + x), y, (pos.y * 16 + z));
+        if (StructBuilder::checkClassicTree(w, treePos))
+        {
+            StructBuilder::generateOak(w, treePos);
+        }
+        else {printf("Pas reussi a construire l'arbre %d\r", i);}
+
+    }
+
+    //    w.initLight(vc);
     w.propagateLight(vc,w.lightQueue);
-    w.setNeighboors(pos, vc);
     std::cout << "Chunk generated at " << pos.x << " " << pos.y << " with id : " << vc->id << std::endl;
     std::cout << " with neighboors : " << std::endl;
     for(int i = 0; i < 4; i++){
