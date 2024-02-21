@@ -8,6 +8,7 @@ bool Slot::equals(Slot s) const {
     return s.item.equals(item) && s.quantity <= quantity;
 }
 
+
 Slot::Slot(BlockType type, int quantity) : item(type), quantity(quantity){
 
 }

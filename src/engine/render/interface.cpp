@@ -175,6 +175,238 @@ void GUI::renderInventory(Player &player) const {
         GX_Color1u32(white);
         GX_TexCoord2f32(blocData[player.inventory.craftSlots[9].item.type].x[0], blocData[player.inventory.craftSlots[9].item.type].y[0] + OFFSET); // Bottom left
         GX_End();
+
+        // chiffres
+        if (player.inventory.craftSlots[9].quantity > 0) {
+            GX_Begin(GX_QUADS, GX_VTXFMT0, 8);
+            GX_Position3f32(0.63, 0.35, 0);
+            GX_Normal1x8(4);
+            GX_Color1u32(white);
+            GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.craftSlots[9].quantity / 10),
+                            BLOCK_COORD(12)); // Top left
+
+            GX_Position3f32(0.68, 0.35, 0);
+            GX_Normal1x8(4);
+            GX_Color1u32(white);
+            GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.craftSlots[9].quantity / 10),
+                            BLOCK_COORD(12)); // Top right
+
+            GX_Position3f32(0.68, 0.3, 0);
+            GX_Normal1x8(4);
+            GX_Color1u32(white);
+            GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.craftSlots[9].quantity / 10),
+                            BLOCK_COORD(13)); // Bottom right
+
+            GX_Position3f32(0.63, 0.3, 0);
+            GX_Normal1x8(4);
+            GX_Color1u32(white);
+            GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.craftSlots[9].quantity / 10),
+                            BLOCK_COORD(13)); // Bottom left
+
+
+
+
+
+            GX_Position3f32(0.68, 0.35, 0);
+            GX_Normal1x8(4);
+            GX_Color1u32(white);
+            GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.craftSlots[9].quantity % 10),
+                            BLOCK_COORD(12)); // Top left
+
+            GX_Position3f32(0.73, 0.35, 0);
+            GX_Normal1x8(4);
+            GX_Color1u32(white);
+            GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.craftSlots[9].quantity % 10),
+                            BLOCK_COORD(12)); // Top right
+
+            GX_Position3f32(0.73, 0.3, 0);
+            GX_Normal1x8(4);
+            GX_Color1u32(white);
+            GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.craftSlots[9].quantity % 10),
+                            BLOCK_COORD(13)); // Bottom right
+
+            GX_Position3f32(0.68, 0.3, 0);
+            GX_Normal1x8(4);
+            GX_Color1u32(white);
+            GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.craftSlots[9].quantity % 10),
+                            BLOCK_COORD(13)); // Bottom left
+            GX_End();
+        }
+
+        for (int i = 0; i < 9; i++){
+            if (player.inventory.craftSlots[i].quantity > 0) {
+                GX_Begin(GX_QUADS, GX_VTXFMT0, 8);
+
+                GX_Position3f32(0.15 + i % 3 * 0.158, 0.44 - i / 3 * 0.148, 0);
+                GX_Normal1x8(4);
+                GX_Color1u32(white);
+                GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.craftSlots[i].quantity / 10),
+                                BLOCK_COORD(12)); // Top left
+
+                GX_Position3f32(0.20 + i % 3 * 0.158, 0.44 - i / 3 * 0.148, 0);
+                GX_Normal1x8(4);
+                GX_Color1u32(white);
+                GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.craftSlots[i].quantity / 10),
+                                BLOCK_COORD(12)); // Top right
+
+                GX_Position3f32(0.20 + i % 3 * 0.158, 0.39 - i / 3 * 0.148, 0);
+                GX_Normal1x8(4);
+                GX_Color1u32(white);
+                GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.craftSlots[i].quantity / 10),
+                                BLOCK_COORD(13)); // Bottom right
+
+                GX_Position3f32(0.15 + i % 3 * 0.158, 0.39 - i / 3 * 0.148, 0);
+                GX_Normal1x8(4);
+                GX_Color1u32(white);
+                GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.craftSlots[i].quantity / 10),
+                                BLOCK_COORD(13)); // Bottom left
+
+                GX_Position3f32(0.20 + i % 3 * 0.158, 0.44- i / 3 * 0.148, 0);
+                GX_Normal1x8(4);
+                GX_Color1u32(white);
+                GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.craftSlots[i].quantity % 10),
+                                BLOCK_COORD(12)); // Top left
+
+                GX_Position3f32(0.25 + i % 3 * 0.158, 0.44 - i / 3 * 0.148, 0);
+                GX_Normal1x8(4);
+                GX_Color1u32(white);
+                GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.craftSlots[i].quantity % 10),
+                                BLOCK_COORD(12)); // Top right
+
+                GX_Position3f32(0.25 + i % 3 * 0.158, 0.39 - i / 3 * 0.148, 0);
+                GX_Normal1x8(4);
+                GX_Color1u32(white);
+                GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.craftSlots[i].quantity % 10),
+                                BLOCK_COORD(13)); // Bottom right
+
+                GX_Position3f32(0.20 + i % 3 * 0.158, 0.39 - i / 3 * 0.148, 0);
+                GX_Normal1x8(4);
+                GX_Color1u32(white);
+                GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.craftSlots[i].quantity % 10),
+                                BLOCK_COORD(13)); // Bottom left
+                GX_End();
+            }
+
+            for (int i = 0; i < 9; i++) {
+                if (player.inventory.inventory[0][i].quantity > 0) {
+                    GX_Begin(GX_QUADS, GX_VTXFMT0, 8);
+                    GX_Position3f32(-0.65 + i * 0.158, -0.525, 0);
+                    GX_Normal1x8(4);
+                    GX_Color1u32(white);
+                    GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.inventory[0][i].quantity/10),
+                                    BLOCK_COORD(12)); // Top left
+
+                    GX_Position3f32(-0.60 + i * 0.158, -0.525, 0);
+                    GX_Normal1x8(4);
+                    GX_Color1u32(white);
+                    GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.inventory[0][i].quantity/10),
+                                    BLOCK_COORD(12)); // Top right
+
+                    GX_Position3f32(-0.60 + i * 0.158, -0.575, 0);
+                    GX_Normal1x8(4);
+                    GX_Color1u32(white);
+                    GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.inventory[0][i].quantity/10),
+                                    BLOCK_COORD(13)); // Bottom right
+
+                    GX_Position3f32(-0.65 + i * 0.158, -0.575, 0);
+                    GX_Normal1x8(4);
+                    GX_Color1u32(white);
+                    GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.inventory[0][i].quantity/10),
+                                    BLOCK_COORD(13)); // Bottom left
+
+
+
+                    GX_Position3f32(-0.60 + i * 0.158, -0.525, 0);
+                    GX_Normal1x8(4);
+                    GX_Color1u32(white);
+                    GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.inventory[0][i].quantity%10),
+                                    BLOCK_COORD(12)); // Top left
+
+                    GX_Position3f32(-0.55 + i * 0.158, -0.525, 0);
+                    GX_Normal1x8(4);
+                    GX_Color1u32(white);
+                    GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.inventory[0][i].quantity%10),
+                                    BLOCK_COORD(12)); // Top right
+
+                    GX_Position3f32(-0.55 + i * 0.158, -0.575, 0);
+                    GX_Normal1x8(4);
+                    GX_Color1u32(white);
+                    GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.inventory[0][i].quantity%10),
+                                    BLOCK_COORD(13)); // Bottom right
+
+                    GX_Position3f32(-0.60 + i * 0.158, -0.575, 0);
+                    GX_Normal1x8(4);
+                    GX_Color1u32(white);
+                    GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.inventory[0][i].quantity%10),
+                                    BLOCK_COORD(13)); // Bottom left
+
+                    GX_End();
+                }
+            }
+
+            for ( int i = 0; i <27 ; i++){
+                if (player.inventory.inventory[1+ player.inventory.currentPage * 3+i/9][i%9].quantity > 0) {
+                    GX_Begin(GX_QUADS, GX_VTXFMT0, 8);
+                    GX_Position3f32(-0.65 + (i % 9) * 0.158, -0.08 - (i / 9) * 0.142, 0);
+                    GX_Normal1x8(4);
+                    GX_Color1u32(white);
+                    GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.inventory[1 + player.inventory.currentPage * 3 +
+                                                                                i / 9][i % 9].quantity / 10),
+                                    BLOCK_COORD(12)); // Top left
+
+                    GX_Position3f32(-0.60 + i % 9 * 0.158, -0.08 - (i / 9) * 0.142, 0);
+                    GX_Normal1x8(4);
+                    GX_Color1u32(white);
+                    GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.inventory[1 + player.inventory.currentPage * 3 +
+                                                                                i / 9][i % 9].quantity / 10),
+                                    BLOCK_COORD(12)); // Top right
+
+                    GX_Position3f32(-0.60 + i % 9 * 0.158, -0.13 - (i / 9) * 0.142, 0);
+                    GX_Normal1x8(4);
+                    GX_Color1u32(white);
+                    GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.inventory[1 + player.inventory.currentPage * 3 +
+                                                                                i / 9][i % 9].quantity / 10),
+                                    BLOCK_COORD(13)); // Bottom right
+
+                    GX_Position3f32(-0.65 + i % 9 * 0.158, -0.13 - (i / 9) * 0.142, 0);
+                    GX_Normal1x8(4);
+                    GX_Color1u32(white);
+                    GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.inventory[1 + player.inventory.currentPage * 3 +
+                                                                                i / 9][i % 9].quantity / 10),
+                                    BLOCK_COORD(13)); // Bottom left
+
+                    GX_Position3f32(-0.60 + i % 9 * 0.158, -0.08 - (i / 9) * 0.142, 0);
+                    GX_Normal1x8(4);
+                    GX_Color1u32(white);
+                    GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.inventory[1 + player.inventory.currentPage * 3 +
+                                                                                i / 9][i % 9].quantity % 10),
+                                    BLOCK_COORD(12)); // Top left
+
+                    GX_Position3f32(-0.55 + i % 9 * 0.158, -0.08 - (i / 9) * 0.142, 0);
+                    GX_Normal1x8(4);
+                    GX_Color1u32(white);
+                    GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.inventory[1 + player.inventory.currentPage * 3 +
+                                                                                i / 9][i % 9].quantity % 10),
+                                    BLOCK_COORD(12)); // Top right
+
+                    GX_Position3f32(-0.55 + i % 9 * 0.158, -0.13 - (i / 9) * 0.142, 0);
+                    GX_Normal1x8(4);
+                    GX_Color1u32(white);
+                    GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.inventory[1 + player.inventory.currentPage * 3 +
+                                                                                i / 9][i % 9].quantity % 10),
+                                    BLOCK_COORD(13)); // Bottom right
+
+                    GX_Position3f32(-0.60 + i % 9 * 0.158, -0.13 - (i / 9) * 0.142, 0);
+                    GX_Normal1x8(4);
+                    GX_Color1u32(white);
+                    GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.inventory[1 + player.inventory.currentPage * 3 +
+                                                                                i / 9][i % 9].quantity % 10),
+                                    BLOCK_COORD(13)); // Bottom left
+
+                    GX_End();
+                }
+            }
+        }
     }
 
     else {
@@ -255,6 +487,7 @@ void GUI::renderInventory(Player &player) const {
     }
 
     GX_End();
+
     if (player.inventory.open && player.inventory.pickedItem.item.type != BlockType::Air) {
         GX_Begin(GX_QUADS, GX_VTXFMT0, 4); // Start drawing
 

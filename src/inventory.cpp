@@ -9,14 +9,14 @@ Inventory::Inventory() : open(false), selectedSlot(0), pickedItem(BlockType::Air
 
     for (int i = 0; i < 9; i++) {
         for (int j = 0; j < 9; j++) {
-            inventory[i+1][j] = Slot(static_cast<BlockType>(BlockType::Air), 1);
+            inventory[i+1][j] = Slot(static_cast<BlockType>(BlockType::Air), 0);
         }
     }
     for (int i = 0; i < 9; i++) {
-        inventory[0][i] = Slot(static_cast<BlockType>(BlockType::Air), 1);
+        inventory[0][i] = Slot(static_cast<BlockType>(BlockType::Air), 0);
     }
     for (auto & craftSlot : craftSlots) {
-        craftSlot = Slot(static_cast<BlockType>(BlockType::Air), 1);
+        craftSlot = Slot(static_cast<BlockType>(BlockType::Air), 0);
     }
 }
 
@@ -63,8 +63,31 @@ void Inventory::dropItem(int slot, bool unique, bool craftSlot){
                 if (pickedItem.quantity == 0)
                     pickedItem.item = Item::itemList[0];
             } else {
+                if (pickedItem.item.equals(inventory[1 + currentPage * 3 + slot / 9][slot % 9].item)) {
+                    if (unique) {
+                        inventory[1 + currentPage * 3 + slot / 9][slot % 9].quantity++;
+                        pickedItem.quantity--;
+                        if (pickedItem.quantity == 0)
+                            pickedItem.item = Item::itemList[0];
+                    }
+                    else {
+                        int stack = inventory[1 + currentPage * 3 + slot / 9][slot % 9].quantity += pickedItem.quantity;
+                        if(stack > 64){
+                            pickedItem.quantity = stack - 64;
+                            inventory[1 + currentPage * 3 + slot / 9][slot % 9].quantity = 64;
+                        }
+                        else{
+                            inventory[1 + currentPage * 3 + slot / 9][slot % 9].quantity += pickedItem.quantity;
+                            pickedItem.quantity = 0;
+                            }
+                        if (pickedItem.quantity == 0)
+                            pickedItem.item = Item::itemList[0];
+                    }
+                }
+                else{
                 inventory[1 + currentPage * 3 + slot / 9][slot % 9] = pickedItem;
                 pickedItem = temp;
+                }
             }
         }
         else if(slot < 36){
@@ -131,4 +154,5 @@ void Inventory::resetInventory() {
             inventory[i+1][j] = Slot(static_cast<BlockType>(BlockType::Air +i * 9 + j), 1);
         }
     }
+    inventory[1][0] = Slot(static_cast<BlockType>(BlockType::Air), 0);
 }
