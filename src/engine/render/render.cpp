@@ -4,8 +4,8 @@
 
 #include "engine/render/render.h"
 #include "world/verticalChunk.h"
-#include "render/renderer.h"
-#include "render/cache.h"
+#include "engine/render/renderer.h"
+#include "engine/render/cache.h"
 
 static int LightLevel = 0;
 

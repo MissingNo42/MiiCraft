@@ -188,65 +188,29 @@ void Player::placeBlock(World& w){
         switch (getFocusedFace(w)) {
             case 0:
                 pos.x--;
-                //printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
-                //printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
-                if(pos.x != (int)floor(renderer.camera.pos.x + 1)
-                   || (pos.y != (int)floor(renderer.camera.pos.y + 1)
-                       && pos.y != (int)floor(renderer.camera.pos.y))
-                    || pos.z != (int)floor(renderer.camera.pos.z + 1))
-                    
                 break;
             case 1:
                 pos.x++;
-                //printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
-                //printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
-                if(pos.x != (int)floor(renderer.camera.pos.x + 1)
-                   || (pos.y != (int)floor(renderer.camera.pos.y + 1)
-                       && pos.y != (int)floor(renderer.camera.pos.y))
-                   || pos.z != (int)floor(renderer.camera.pos.z + 1))
-
                 break;
             case 2:
                 pos.y--;
-                //printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
-                //printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
-                if(pos.x != (int)floor(renderer.camera.pos.x + 1)
-                   || (pos.y != (int)floor(renderer.camera.pos.y + 1)
-                   && pos.y != (int)floor(renderer.camera.pos.y))
-                   || pos.z != (int)floor(renderer.camera.pos.z + 1))
-
                 break;
             case 3:
                 pos.y++;
-                //printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
-                //printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
-                if(pos.x != (int)floor(renderer.camera.pos.x + 1)
-                   || (pos.y != (int)floor(renderer.camera.pos.y + 1)
-                       && pos.y != (int)floor(renderer.camera.pos.y))
-                   || pos.z != (int)floor(renderer.camera.pos.z + 1))
-
                 break;
             case 4:
                 pos.z--;
-                //printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
-                //printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
-                if(pos.x != (int)floor(renderer.camera.pos.x + 1)
-                   || (pos.y != (int)floor(renderer.camera.pos.y + 1)
-                       && pos.y != (int)floor(renderer.camera.pos.y))
-                   || pos.z != (int)floor(renderer.camera.pos.z + 1))
-
                 break;
             case 5:
                 pos.z++;
-                //printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
-                //printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
-                if(pos.x != (int)floor(renderer.camera.pos.x + 1)
-                   || (pos.y != (int)floor(renderer.camera.pos.y + 1)
-                       && pos.y != (int)floor(renderer.camera.pos.y))
-                   || pos.z != (int)floor(renderer.camera.pos.z + 1))
-
                 break;
         }
+        //printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
+        //printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
+        if(pos.x != (int)floor(renderer.camera.pos.x + 1)
+           || (pos.y != (int)floor(renderer.camera.pos.y + 1)
+               && pos.y != (int)floor(renderer.camera.pos.y))
+           || pos.z != (int)floor(renderer.camera.pos.z + 1))
         w.setBlockAt(pos, inventory.inventory[3][inventory.selectedSlot].item.type);
     }
     placeDelay = 0;
