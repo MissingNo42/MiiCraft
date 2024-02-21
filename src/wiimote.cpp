@@ -105,11 +105,11 @@ void Wiimote::update(Player& player, World& w) {
         norme =sqrt(accel.y * accel.y + accel.x * accel.x + accel.z * accel.z);
 
         acc = abs( norme - last_accel);
-        printf("%d\r", acc);
+        //printf("%d\r", acc);
         last_accel = norme;
         if (acc > 5 && isTargeting) {
             player.destroyBlock(w);
-            printf("%d\r", player.breakingState);
+            //printf("%d\r", player.breakingState);
         }
         else {
             if (frame_cntr < 60)

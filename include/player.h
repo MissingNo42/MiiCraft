@@ -56,7 +56,7 @@ public:
 
     void setPos(f32 x, f32 y, f32 z);
 
-    int getFocusedFace(World& w) const;
+    int getFocusedFace() const;
 
     void placeBlock(World& w);
 

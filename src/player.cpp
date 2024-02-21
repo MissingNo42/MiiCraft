@@ -30,10 +30,10 @@ bool Player::getFocusedBlock(World &w) {
             y = renderer.camera.pos.y + 1,
             z = renderer.camera.pos.z + 1;
     while(type <= BlockType::Air && distance <= 5){
-        x += renderer.camera.look.x/100;
-        y += renderer.camera.look.y/100;
-        z += renderer.camera.look.z/100;
-        distance += 0.01;
+        x += renderer.camera.look.x/200;
+        y += renderer.camera.look.y/200;
+        z += renderer.camera.look.z/200;
+        distance += 0.005;
         pos = t_coord((int)floor(x), (int)floor(y), (int)floor(z));
         type = w.getBlockAt(pos).type;
     }
@@ -182,74 +182,50 @@ void Player::placeBlock(World& w){
         return;}
     t_coord pos = focusedBlockPos;
     if(focusedBlockType > BlockType::Air) {
-        switch (getFocusedFace(w)) {
+        f32 offsetX, offsetZ;
+        if(std::signbit(focusedBlockLook.x - renderer.camera.pos.x))
+            offsetX = - 0.3f;
+        else
+            offsetX = 0.3f;
+        if(std::signbit(focusedBlockLook.z - renderer.camera.pos.z))
+            offsetZ = - 0.3f;
+        else
+            offsetZ = 0.3f;
+        switch (getFocusedFace()) {
             case 0:
                 pos.x--;
-                //printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
-                //printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
-                if(pos.x != (int)floor(renderer.camera.pos.x + 1)
-                   || (pos.y != (int)floor(renderer.camera.pos.y + 1)
-                       && pos.y != (int)floor(renderer.camera.pos.y))
-                    || pos.z != (int)floor(renderer.camera.pos.z + 1))
-                    
                 break;
             case 1:
                 pos.x++;
-                //printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
-                //printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
-                if(pos.x != (int)floor(renderer.camera.pos.x + 1)
-                   || (pos.y != (int)floor(renderer.camera.pos.y + 1)
-                       && pos.y != (int)floor(renderer.camera.pos.y))
-                   || pos.z != (int)floor(renderer.camera.pos.z + 1))
-
                 break;
             case 2:
                 pos.y--;
-                //printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
-                //printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
-                if(pos.x != (int)floor(renderer.camera.pos.x + 1)
-                   || (pos.y != (int)floor(renderer.camera.pos.y + 1)
-                   && pos.y != (int)floor(renderer.camera.pos.y))
-                   || pos.z != (int)floor(renderer.camera.pos.z + 1))
-
                 break;
             case 3:
                 pos.y++;
-                //printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
-                //printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
-                if(pos.x != (int)floor(renderer.camera.pos.x + 1)
-                   || (pos.y != (int)floor(renderer.camera.pos.y + 1)
-                       && pos.y != (int)floor(renderer.camera.pos.y))
-                   || pos.z != (int)floor(renderer.camera.pos.z + 1))
-
                 break;
             case 4:
                 pos.z--;
-                //printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
-                //printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
-                if(pos.x != (int)floor(renderer.camera.pos.x + 1)
-                   || (pos.y != (int)floor(renderer.camera.pos.y + 1)
-                       && pos.y != (int)floor(renderer.camera.pos.y))
-                   || pos.z != (int)floor(renderer.camera.pos.z + 1))
-
                 break;
             case 5:
                 pos.z++;
-                //printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
-                //printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
-                if(pos.x != (int)floor(renderer.camera.pos.x + 1)
-                   || (pos.y != (int)floor(renderer.camera.pos.y + 1)
-                       && pos.y != (int)floor(renderer.camera.pos.y))
-                   || pos.z != (int)floor(renderer.camera.pos.z + 1))
-
                 break;
         }
-        w.setBlockAt(pos, hotbar[selected_spot]);
+        //printf("offsetX: %f, offsetZ: %f\r", offsetX, offsetZ);
+        //printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
+        //printf("focusedBlockX: %d, focusedBlockY: %d, focusedBlockZ: %d\r", focusedBlockPos.x, focusedBlockPos.y, focusedBlockPos.z);
+        //printf("playerX: %d, playerY: %d, playerZ: %d\r", (int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1));
+        if(w.getBlockAt(pos).type <=BlockType::Air
+            && (
+                    (pos.x != (int)floor(renderer.camera.pos.x + 1.3) && pos.x != (int)floor(renderer.camera.pos.x + 0.7))
+                    || (pos.y != (int)floor(renderer.camera.pos.y + 1) && pos.y != (int)floor(renderer.camera.pos.y))
+                    || (pos.z != (int)floor(renderer.camera.pos.z + 1.3) && pos.z != (int)floor(renderer.camera.pos.z + 0.7))))
+            w.setBlockAt(pos, hotbar[selected_spot]);
     }
     placeDelay = 0;
 }
 
-int Player::getFocusedFace(World& w) const {
+int Player::getFocusedFace() const {
     if(focusedBlockType != BlockType::Air) {
         f32 deltaX = (f32) std::fabs((focusedBlockLook.x- round(focusedBlockLook.x)));
         f32 deltaY = (f32) std::fabs((focusedBlockLook.y- round(focusedBlockLook.y)));
@@ -354,9 +330,13 @@ void Player::move(World &w, joystick_t sticks) {
         float camY = sneak ? renderer.camera.pos.y +0.3 :renderer.camera.pos.y;
         float camZ = renderer.camera.pos.z;
         if (w.getBlockAt({(int) floor(offsetX + camX + 1 + move.x), (int) (camY- 0.5),
-                          (int) floor(camZ + 1)}).type <= BlockType::Air
-            && w.getBlockAt({(int) floor(offsetX + camX + 1 + move.x), (int) (camY + 0.5),
-                         (int) floor(camZ + 1)}).type <= BlockType::Air){
+                          (int) floor(camZ + 1.3)}).type <= BlockType::Air
+                          && w.getBlockAt({(int) floor(offsetX + camX + 1 + move.x), (int) (camY- 0.5),
+                                           (int) floor(camZ + 0.7)}).type <= BlockType::Air
+                                           && w.getBlockAt({(int) floor(offsetX + camX + 1 + move.x), (int) (camY + 0.5),
+                                                            (int) floor(camZ + 1.3)}).type <= BlockType::Air
+                                              && w.getBlockAt({(int) floor(offsetX + camX + 1 + move.x), (int) (camY + 0.5),
+                                                               (int) floor(camZ + 0.7)}).type <= BlockType::Air){
             if (sneak && !isJumping ) {
                 if (w.getBlockAt({(int) floor(camX +1 + move.x), (int)(camY - 1), (int) floor(camZ + 1)}).type > BlockType::Air) {
                     renderer.camera.pos.x += move.x;
@@ -371,10 +351,14 @@ void Player::move(World &w, joystick_t sticks) {
                 }
             }
         }
-        if ( w.getBlockAt({(int) floor(camX + 1), (int) (camY - 0.5),
+        if ( w.getBlockAt({(int) floor(camX + 1.3), (int) (camY - 0.5),
                                 (int) floor(offsetZ +camZ + 1 + move.z)}).type <= BlockType::Air
-            && w.getBlockAt({(int) floor(camX + 1), (int) (camY + 0.5),
-                             (int) floor(offsetZ +camZ + 1 + move.z)}).type <= BlockType::Air) {
+             && w.getBlockAt({(int) floor(camX + 0.7), (int) (camY - 0.5),
+                              (int) floor(offsetZ +camZ + 1 + move.z)}).type <= BlockType::Air
+            && w.getBlockAt({(int) floor(camX + 1.3), (int) (camY + 0.5),
+                             (int) floor(offsetZ +camZ + 1 + move.z)}).type <= BlockType::Air
+               && w.getBlockAt({(int) floor(camX + 0.7), (int) (camY + 0.5),
+                                (int) floor(offsetZ +camZ + 1 + move.z)}).type <= BlockType::Air) {
             if (sneak && !isJumping ) {
                 if (w.getBlockAt({(int) floor(camX +1), (int)(camY - 1), (int) floor(camZ + 1 + move.z)}).type > BlockType::Air) {
                     renderer.camera.pos.z += move.z;
