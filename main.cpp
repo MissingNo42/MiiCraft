@@ -9,6 +9,8 @@
 #include <ctype.h>
 #include <math.h>
 #include <wiiuse/wpad.h>
+#include <mp3player.h>
+#include <asndlib.h>
 #include <iostream>
 
 
@@ -22,6 +24,8 @@
 #include "src/system/saveManager.h"
 #include "player.h"
 
+
+#include "assets/test.c"
 
 int exiting = 0;
 
@@ -312,8 +316,12 @@ void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
 int main(int, char **) {
 	PAD_Init();
 	WPAD_Init();
-	
-	Renderer::setupVideo();
+
+    ASND_Init();
+    MP3Player_Init();
+
+
+    Renderer::setupVideo();
 	Renderer::setupVtxDesc();
     Renderer::setupTexture();
 
@@ -407,6 +415,8 @@ int main(int, char **) {
         x = 0.05, y = 0.05;
 
         // inventory
+
+        MP3Player_PlayBuffer(test_data, test_sz, NULL);
 
         if (player.inventory_open){
             GX_Begin(GX_QUADS, GX_VTXFMT0, 148); // Start drawing
