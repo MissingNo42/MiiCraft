@@ -5,6 +5,7 @@
 #ifndef MIICRAFTTEST_TERGEN_H
 #define MIICRAFTTEST_TERGEN_H
 
+#include <queue>
 #include "../block.h"
 #include "../verticalChunk.h"
 
@@ -27,7 +28,7 @@ enum BiomeType{
 };
 
 #define INIT_GENERATOR \
-t_coord pos(block_x, 0, block_z);
+BlockCoord pos(block_x, 0, block_z);
 
 #define APPLY_BEDROCK \
 APPLY_BLOCK(BlockType::Bedrock); \
@@ -47,13 +48,13 @@ for (; pos.y < height; ++pos.y) {\
 
 
 #define APPLY_SKY \
-for (; pos.y < VerticalChunk::CHUNK_HEIGHT-1; pos.y++){ \
+for (; pos.y < 128-1; pos.y++){ \
     APPLY_BLOCK(BlockType::Air0);\
 } APPLY_BLOCK(BlockType::Air);                          \
 lightQueue.push(pos);
 
 #define APPLY_BLOCK(BLOCK_TYPE) \
-chunk->VC_SetBlock(pos, BLOCK_TYPE);
+chunk.SetBlock(pos, BLOCK_TYPE);
 
 class Tergen {
 private:
@@ -64,16 +65,16 @@ public:
     constexpr static const float continentLevel = 5; // relatif a seaLevel
     constexpr static const float peakAmplitude = 25.;
 
-    inline static void generateVoid(VerticalChunk *chunk, int block_x, int block_z, int, std::queue<t_coord>&){
+    inline static void generateVoid(VerticalChunk& chunk, int block_x, int block_z, int, std::queue<BlockCoord>&){
         INIT_GENERATOR;
         APPLY_BEDROCK;
 
-        for (; pos.y < VerticalChunk::CHUNK_HEIGHT; ++pos.y) {
+        for (; pos.y < 128; ++pos.y) {
             APPLY_BLOCK(BlockType::Air);
         }
     }
 
-    inline static void generateDesert(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
+    inline static void generateDesert(VerticalChunk& chunk, int block_x, int block_z, int height, std::queue<BlockCoord>& lightQueue){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -84,7 +85,7 @@ public:
         APPLY_SKY;
     }
 
-    inline static void generateTundra(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
+    inline static void generateTundra(VerticalChunk& chunk, int block_x, int block_z, int height, std::queue<BlockCoord>& lightQueue){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -95,7 +96,7 @@ public:
         APPLY_SKY;
     }
 
-    inline static void generateSavanna(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
+    inline static void generateSavanna(VerticalChunk& chunk, int block_x, int block_z, int height, std::queue<BlockCoord>& lightQueue){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -106,7 +107,7 @@ public:
         APPLY_SKY;
     }
 
-    inline static void generatePlain(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
+    inline static void generatePlain(VerticalChunk& chunk, int block_x, int block_z, int height, std::queue<BlockCoord>& lightQueue){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -117,7 +118,7 @@ public:
         APPLY_SKY;
     }
 
-    inline static void generateOcean(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
+    inline static void generateOcean(VerticalChunk& chunk, int block_x, int block_z, int height, std::queue<BlockCoord>& lightQueue){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;

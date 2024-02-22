@@ -76,7 +76,7 @@ struct DisplayList {
 		u8 sz = 32 - ((size * sizeof(VextexCache) + 3) & 31); // 3 = opcode + size
 		if (sz) {
 			u8 * end = (u8 *) (&vertex + size);
-			for (u8 i = 0; i < sz; i++) *end++ = 0;
+			for (u8 i = 0; i < sz; i++) end[i] = 0;
 		}
 		u16 csz = size * sizeof(VextexCache) + 3;
 		if (csz & 31) csz += 32 - (csz & 31);

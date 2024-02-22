@@ -80,11 +80,11 @@ inline void renderRight(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType t
 	|       | /
 	E ------ H
  * */
-void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
+void renderChunk(VerticalChunk& c, Renderer& renderer){
     //int f[16][128][16][6];
 
-    int px = pos.x << 4;
-    int pz = pos.y << 4;
+    int px = c.coord.x << 4;
+    int pz = c.coord.y << 4;
     int x, y, z, sz;
     int mx, my, mz, Mx, My, Mz;
 
@@ -96,15 +96,15 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
     bool tT, tB, tL, tR, tF, tK; // true if the current block's faces must be rendered
 	u8 lT, lB, lL, lR, lF, lK; // light level of the 6 adjacent blocks
 
-    VerticalChunk& cnorth = *c.neighboors[CHUNK_NORTH];
-    VerticalChunk& csouth = *c.neighboors[CHUNK_SOUTH];
-    VerticalChunk& ceast = *c.neighboors[CHUNK_EAST];
-    VerticalChunk& cwest = *c.neighboors[CHUNK_WEST];
+    VerticalChunk& cnorth = World::chunkSlots[c.neighboors[CHUNK_NORTH]];
+    VerticalChunk& csouth = World::chunkSlots[c.neighboors[CHUNK_SOUTH]];
+    VerticalChunk& ceast =  World::chunkSlots[c.neighboors[CHUNK_EAST]];
+    VerticalChunk& cwest =  World::chunkSlots[c.neighboors[CHUNK_WEST]];
 
-    VerticalChunk& cnortheast = *cnorth.neighboors[CHUNK_EAST];
-    VerticalChunk& cnorthwest = *cnorth.neighboors[CHUNK_WEST];
-    VerticalChunk& csoutheast = *csouth.neighboors[CHUNK_EAST];
-    VerticalChunk& csouthwest = *csouth.neighboors[CHUNK_WEST];
+    VerticalChunk& cnortheast = World::chunkSlots[cnorth.neighboors[CHUNK_EAST]];
+    VerticalChunk& cnorthwest = World::chunkSlots[cnorth.neighboors[CHUNK_WEST]];
+    VerticalChunk& csoutheast = World::chunkSlots[csouth.neighboors[CHUNK_EAST]];
+    VerticalChunk& csouthwest = World::chunkSlots[csouth.neighboors[CHUNK_WEST]];
 
     for (y = 1; y < 127; y++) { // for each vertical levels (except 1st and last)
 
@@ -115,14 +115,14 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 	
         // X 0 Z 0
 
-        if ((type = c.blocks[0][y][0].type) > BlockType::Air) {
+        if ((type = c.blocks[0][y][0]) > BlockType::Air) {
 
-            fT = c.blocks[0][My][0].type;
-            fB = c.blocks[0][my][0].type;
-            fL = cwest.blocks[15][y][0].type;
-            fR = c.blocks[1][y][0].type;
-            fF = c.blocks[0][y][1].type;
-            fK = csouth.blocks[0][y][15].type;
+            fT = c.blocks[0][My][0];
+            fB = c.blocks[0][my][0];
+            fL = cwest.blocks[15][y][0];
+            fR = c.blocks[1][y][0];
+            fF = c.blocks[0][y][1];
+            fK = csouth.blocks[0][y][15];
 
             
 				if (isOpaque(type)) {
@@ -157,29 +157,29 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 					lK = isAir(fK) ? fK : BlockType::Air8;
 
 					if (isOpaque(type) || isSemiTransparent(type)) {
-						A = !isAir(cwest.blocks[15][My][1].type);
-						B = !isAir(csouthwest.blocks[15][My][15].type);
-						C = !isAir(csouth.blocks[1][My][15].type);
-						D = !isAir(c.blocks[1][My][1].type);
-						E = !isAir(cwest.blocks[15][my][1].type);
-						F = !isAir(csouthwest.blocks[15][my][15].type);
-						G = !isAir(csouth.blocks[1][my][15].type);
-						H = !isAir(c.blocks[1][my][1].type);
+						A = !isAir(cwest.blocks[15][My][1]);
+						B = !isAir(csouthwest.blocks[15][My][15]);
+						C = !isAir(csouth.blocks[1][My][15]);
+						D = !isAir(c.blocks[1][My][1]);
+						E = !isAir(cwest.blocks[15][my][1]);
+						F = !isAir(csouthwest.blocks[15][my][15]);
+						G = !isAir(csouth.blocks[1][my][15]);
+						H = !isAir(c.blocks[1][my][1]);
 						
-						AB = !isAir(cwest.blocks[15][My][0].type);
-						BC = !isAir(csouth.blocks[0][My][15].type);
-						CD = !isAir(c.blocks[1][My][0].type);
-						DA = !isAir(c.blocks[0][My][1].type);
+						AB = !isAir(cwest.blocks[15][My][0]);
+						BC = !isAir(csouth.blocks[0][My][15]);
+						CD = !isAir(c.blocks[1][My][0]);
+						DA = !isAir(c.blocks[0][My][1]);
 						
-						EF = !isAir(cwest.blocks[15][my][0].type);
-						FG = !isAir(csouth.blocks[0][my][15].type);
-						GH = !isAir(c.blocks[1][my][0].type);
-						HE = !isAir(c.blocks[0][my][1].type);
+						EF = !isAir(cwest.blocks[15][my][0]);
+						FG = !isAir(csouth.blocks[0][my][15]);
+						GH = !isAir(c.blocks[1][my][0]);
+						HE = !isAir(c.blocks[0][my][1]);
 						
-						AE = !isAir(cwest.blocks[15][y][1].type);
-						BF = !isAir(csouthwest.blocks[15][y][15].type);
-						CG = !isAir(csouth.blocks[1][y][15].type);
-						DH = !isAir(c.blocks[1][y][1].type);
+						AE = !isAir(cwest.blocks[15][y][1]);
+						BF = !isAir(csouthwest.blocks[15][y][15]);
+						CG = !isAir(csouth.blocks[1][y][15]);
+						DH = !isAir(c.blocks[1][y][1]);
 					} else if (isTransparent(type)) {
 						A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
 					}
@@ -198,15 +198,15 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 		
         // X 0 Z 15
 		
-        if ((type = c.blocks[0][y][15].type) > BlockType::Air) {
+        if ((type = c.blocks[0][y][15]) > BlockType::Air) {
 
 
-            fT = c.blocks[0][My][15].type;
-            fB = c.blocks[0][my][15].type;
-            fL = cwest.blocks[15][y][15].type;
-            fR = c.blocks[1][y][15].type;
-            fF = cnorth.blocks[0][y][0].type;
-            fK = c.blocks[0][y][14].type;
+            fT = c.blocks[0][My][15];
+            fB = c.blocks[0][my][15];
+            fL = cwest.blocks[15][y][15];
+            fR = c.blocks[1][y][15];
+            fF = cnorth.blocks[0][y][0];
+            fK = c.blocks[0][y][14];
 
             
 				if (isOpaque(type)) {
@@ -241,29 +241,29 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 					lK = isAir(fK) ? fK : BlockType::Air8;
 
 					if (isOpaque(type) || isSemiTransparent(type)) {
-						A = !isAir(cnorthwest.blocks[15][My][0].type);
-						B = !isAir(cwest.blocks[15][My][14].type);
-						C = !isAir(c.blocks[1][My][14].type);
-						D = !isAir(cnorth.blocks[1][My][0].type);
-						E = !isAir(cnorthwest.blocks[15][my][0].type);
-						F = !isAir(cwest.blocks[15][my][14].type);
-						G = !isAir(c.blocks[1][my][14].type);
-						H = !isAir(cnorth.blocks[1][my][0].type);
+						A = !isAir(cnorthwest.blocks[15][My][0]);
+						B = !isAir(cwest.blocks[15][My][14]);
+						C = !isAir(c.blocks[1][My][14]);
+						D = !isAir(cnorth.blocks[1][My][0]);
+						E = !isAir(cnorthwest.blocks[15][my][0]);
+						F = !isAir(cwest.blocks[15][my][14]);
+						G = !isAir(c.blocks[1][my][14]);
+						H = !isAir(cnorth.blocks[1][my][0]);
 						
-						AB = !isAir(cwest.blocks[15][My][15].type);
-						BC = !isAir(c.blocks[0][My][14].type);
-						CD = !isAir(c.blocks[1][My][15].type);
-						DA = !isAir(cnorth.blocks[0][My][0].type);
+						AB = !isAir(cwest.blocks[15][My][15]);
+						BC = !isAir(c.blocks[0][My][14]);
+						CD = !isAir(c.blocks[1][My][15]);
+						DA = !isAir(cnorth.blocks[0][My][0]);
 						
-						EF = !isAir(cwest.blocks[15][my][15].type);
-						FG = !isAir(c.blocks[0][my][14].type);
-						GH = !isAir(c.blocks[1][my][15].type);
-						HE = !isAir(cnorth.blocks[0][my][0].type);
+						EF = !isAir(cwest.blocks[15][my][15]);
+						FG = !isAir(c.blocks[0][my][14]);
+						GH = !isAir(c.blocks[1][my][15]);
+						HE = !isAir(cnorth.blocks[0][my][0]);
 						
-						AE = !isAir(cnorthwest.blocks[15][y][0].type);
-						BF = !isAir(cwest.blocks[15][y][14].type);
-						CG = !isAir(c.blocks[1][y][14].type);
-						DH = !isAir(cnorth.blocks[1][y][0].type);
+						AE = !isAir(cnorthwest.blocks[15][y][0]);
+						BF = !isAir(cwest.blocks[15][y][14]);
+						CG = !isAir(c.blocks[1][y][14]);
+						DH = !isAir(cnorth.blocks[1][y][0]);
 					} else if (isTransparent(type)) {
 						A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
 					}
@@ -283,15 +283,15 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 		
         // X 15 Z 0
 
-        if ((type = c.blocks[15][y][0].type) > BlockType::Air) {
+        if ((type = c.blocks[15][y][0]) > BlockType::Air) {
 
 
-            fT = c.blocks[15][My][0].type;
-            fB = c.blocks[15][my][0].type;
-            fL = c.blocks[14][y][0].type;
-            fR = ceast.blocks[0][y][0].type;
-            fF = c.blocks[15][y][1].type;
-            fK = csouth.blocks[15][y][15].type;
+            fT = c.blocks[15][My][0];
+            fB = c.blocks[15][my][0];
+            fL = c.blocks[14][y][0];
+            fR = ceast.blocks[0][y][0];
+            fF = c.blocks[15][y][1];
+            fK = csouth.blocks[15][y][15];
 
             
 				if (isOpaque(type)) {
@@ -326,29 +326,29 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 					lK = isAir(fK) ? fK : BlockType::Air8;
 
 					if (isOpaque(type) || isSemiTransparent(type)) {
-						A = !isAir(c.blocks[14][My][1].type);
-						B = !isAir(csouth.blocks[14][My][15].type);
-						C = !isAir(csoutheast.blocks[0][My][15].type);
-						D = !isAir(ceast.blocks[0][My][1].type);
-						E = !isAir(c.blocks[14][my][1].type);
-						F = !isAir(csouth.blocks[14][my][15].type);
-						G = !isAir(csoutheast.blocks[0][my][15].type);
-						H = !isAir(ceast.blocks[0][my][1].type);
+						A = !isAir(c.blocks[14][My][1]);
+						B = !isAir(csouth.blocks[14][My][15]);
+						C = !isAir(csoutheast.blocks[0][My][15]);
+						D = !isAir(ceast.blocks[0][My][1]);
+						E = !isAir(c.blocks[14][my][1]);
+						F = !isAir(csouth.blocks[14][my][15]);
+						G = !isAir(csoutheast.blocks[0][my][15]);
+						H = !isAir(ceast.blocks[0][my][1]);
 						
-						AB = !isAir(c.blocks[14][My][0].type);
-						BC = !isAir(csouth.blocks[15][My][15].type);
-						CD = !isAir(ceast.blocks[0][My][0].type);
-						DA = !isAir(c.blocks[15][My][1].type);
+						AB = !isAir(c.blocks[14][My][0]);
+						BC = !isAir(csouth.blocks[15][My][15]);
+						CD = !isAir(ceast.blocks[0][My][0]);
+						DA = !isAir(c.blocks[15][My][1]);
 						
-						EF = !isAir(c.blocks[14][my][0].type);
-						FG = !isAir(csouth.blocks[15][my][15].type);
-						GH = !isAir(ceast.blocks[0][my][0].type);
-						HE = !isAir(c.blocks[15][my][1].type);
+						EF = !isAir(c.blocks[14][my][0]);
+						FG = !isAir(csouth.blocks[15][my][15]);
+						GH = !isAir(ceast.blocks[0][my][0]);
+						HE = !isAir(c.blocks[15][my][1]);
 						
-						AE = !isAir(c.blocks[14][y][1].type);
-						BF = !isAir(csouth.blocks[14][y][15].type);
-						CG = !isAir(csoutheast.blocks[0][y][15].type);
-						DH = !isAir(ceast.blocks[0][y][1].type);
+						AE = !isAir(c.blocks[14][y][1]);
+						BF = !isAir(csouth.blocks[14][y][15]);
+						CG = !isAir(csoutheast.blocks[0][y][15]);
+						DH = !isAir(ceast.blocks[0][y][1]);
 					} else if (isTransparent(type)) {
 						A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
 					}
@@ -369,15 +369,15 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 
         // X 15 Z 15
 
-        if ((type = c.blocks[15][y][15].type) > BlockType::Air) {
+        if ((type = c.blocks[15][y][15]) > BlockType::Air) {
 
 
-            fT = c.blocks[15][My][15].type;
-            fB = c.blocks[15][my][15].type;
-            fL = c.blocks[14][y][15].type;
-            fR = ceast.blocks[0][y][15].type;
-            fF = cnorth.blocks[15][y][0].type;
-            fK = c.blocks[15][y][14].type;
+            fT = c.blocks[15][My][15];
+            fB = c.blocks[15][my][15];
+            fL = c.blocks[14][y][15];
+            fR = ceast.blocks[0][y][15];
+            fF = cnorth.blocks[15][y][0];
+            fK = c.blocks[15][y][14];
 
             
 				if (isOpaque(type)) {
@@ -412,29 +412,29 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 					lK = isAir(fK) ? fK : BlockType::Air8;
 
 					if (isOpaque(type) || isSemiTransparent(type)) {
-						A = !isAir(cnorth.blocks[14][My][0].type);
-						B = !isAir(c.blocks[14][My][14].type);
-						C = !isAir(ceast.blocks[0][My][14].type);
-						D = !isAir(cnortheast.blocks[0][My][0].type);
-						E = !isAir(cnorth.blocks[14][my][0].type);
-						F = !isAir(c.blocks[14][my][14].type);
-						G = !isAir(ceast.blocks[0][my][14].type);
-						H = !isAir(cnortheast.blocks[0][my][0].type);
+						A = !isAir(cnorth.blocks[14][My][0]);
+						B = !isAir(c.blocks[14][My][14]);
+						C = !isAir(ceast.blocks[0][My][14]);
+						D = !isAir(cnortheast.blocks[0][My][0]);
+						E = !isAir(cnorth.blocks[14][my][0]);
+						F = !isAir(c.blocks[14][my][14]);
+						G = !isAir(ceast.blocks[0][my][14]);
+						H = !isAir(cnortheast.blocks[0][my][0]);
 						
-						AB = !isAir(c.blocks[14][My][15].type);
-						BC = !isAir(c.blocks[15][My][14].type);
-						CD = !isAir(ceast.blocks[0][My][15].type);
-						DA = !isAir(cnorth.blocks[15][My][0].type);
+						AB = !isAir(c.blocks[14][My][15]);
+						BC = !isAir(c.blocks[15][My][14]);
+						CD = !isAir(ceast.blocks[0][My][15]);
+						DA = !isAir(cnorth.blocks[15][My][0]);
 						
-						EF = !isAir(c.blocks[14][my][15].type);
-						FG = !isAir(c.blocks[15][my][14].type);
-						GH = !isAir(ceast.blocks[0][my][15].type);
-						HE = !isAir(cnorth.blocks[15][my][0].type);
+						EF = !isAir(c.blocks[14][my][15]);
+						FG = !isAir(c.blocks[15][my][14]);
+						GH = !isAir(ceast.blocks[0][my][15]);
+						HE = !isAir(cnorth.blocks[15][my][0]);
 						
-						AE = !isAir(cnorth.blocks[14][y][0].type);
-						BF = !isAir(c.blocks[14][y][14].type);
-						CG = !isAir(ceast.blocks[0][y][14].type);
-						DH = !isAir(cnortheast.blocks[0][y][0].type);
+						AE = !isAir(cnorth.blocks[14][y][0]);
+						BF = !isAir(c.blocks[14][y][14]);
+						CG = !isAir(ceast.blocks[0][y][14]);
+						DH = !isAir(cnortheast.blocks[0][y][0]);
 					} else if (isTransparent(type)) {
 						A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
 					}
@@ -454,16 +454,16 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
         // X 0
 		
         for(z = 1; z < 15; z++){
-            if ((type = c.blocks[0][y][z].type) > BlockType::Air) {
+            if ((type = c.blocks[0][y][z]) > BlockType::Air) {
                 mz = z - 1;
                 Mz = z + 1;
 
-                fT = c.blocks[0][My][z].type;
-                fB = c.blocks[0][my][z].type;
-                fL = cwest.blocks[15][y][z].type;
-                fR = c.blocks[1][y][z].type;
-                fF = c.blocks[0][y][Mz].type;
-                fK = c.blocks[0][y][mz].type;
+                fT = c.blocks[0][My][z];
+                fB = c.blocks[0][my][z];
+                fL = cwest.blocks[15][y][z];
+                fR = c.blocks[1][y][z];
+                fF = c.blocks[0][y][Mz];
+                fK = c.blocks[0][y][mz];
 
                
 				if (isOpaque(type)) {
@@ -498,29 +498,29 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 					lK = isAir(fK) ? fK : BlockType::Air8;
 
 					if (isOpaque(type) || isSemiTransparent(type)) {
-						A = !isAir(cwest.blocks[15][My][Mz].type);
-						B = !isAir(cwest.blocks[15][My][mz].type);
-						C = !isAir(c.blocks[1][My][mz].type);
-						D = !isAir(c.blocks[1][My][Mz].type);
-						E = !isAir(cwest.blocks[15][my][Mz].type);
-						F = !isAir(cwest.blocks[15][my][mz].type);
-						G = !isAir(c.blocks[1][my][mz].type);
-						H = !isAir(c.blocks[1][my][Mz].type);
+						A = !isAir(cwest.blocks[15][My][Mz]);
+						B = !isAir(cwest.blocks[15][My][mz]);
+						C = !isAir(c.blocks[1][My][mz]);
+						D = !isAir(c.blocks[1][My][Mz]);
+						E = !isAir(cwest.blocks[15][my][Mz]);
+						F = !isAir(cwest.blocks[15][my][mz]);
+						G = !isAir(c.blocks[1][my][mz]);
+						H = !isAir(c.blocks[1][my][Mz]);
 						
-						AB = !isAir(cwest.blocks[15][My][z].type);
-						BC = !isAir(c.blocks[0][My][mz].type);
-						CD = !isAir(c.blocks[1][My][z].type);
-						DA = !isAir(c.blocks[0][My][Mz].type);
+						AB = !isAir(cwest.blocks[15][My][z]);
+						BC = !isAir(c.blocks[0][My][mz]);
+						CD = !isAir(c.blocks[1][My][z]);
+						DA = !isAir(c.blocks[0][My][Mz]);
 						
-						EF = !isAir(cwest.blocks[15][my][z].type);
-						FG = !isAir(c.blocks[0][my][mz].type);
-						GH = !isAir(c.blocks[1][my][z].type);
-						HE = !isAir(c.blocks[0][my][Mz].type);
+						EF = !isAir(cwest.blocks[15][my][z]);
+						FG = !isAir(c.blocks[0][my][mz]);
+						GH = !isAir(c.blocks[1][my][z]);
+						HE = !isAir(c.blocks[0][my][Mz]);
 						
-						AE = !isAir(cwest.blocks[15][y][Mz].type);
-						BF = !isAir(cwest.blocks[15][y][mz].type);
-						CG = !isAir(c.blocks[1][y][mz].type);
-						DH = !isAir(c.blocks[1][y][Mz].type);
+						AE = !isAir(cwest.blocks[15][y][Mz]);
+						BF = !isAir(cwest.blocks[15][y][mz]);
+						CG = !isAir(c.blocks[1][y][mz]);
+						DH = !isAir(c.blocks[1][y][Mz]);
 					} else if (isTransparent(type)) {
 						A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
 					}
@@ -542,16 +542,16 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
         // X 15
 		
         for(z = 1; z < 15; z++){
-            if ((type = c.blocks[15][y][z].type) > BlockType::Air) {
+            if ((type = c.blocks[15][y][z]) > BlockType::Air) {
                 mz = z - 1;
                 Mz = z + 1;
 
-                fT = c.blocks[15][My][z].type;
-                fB = c.blocks[15][my][z].type;
-                fL = c.blocks[14][y][z].type;
-                fR = ceast.blocks[0][y][z].type;
-                fF = c.blocks[15][y][Mz].type;
-                fK = c.blocks[15][y][mz].type;
+                fT = c.blocks[15][My][z];
+                fB = c.blocks[15][my][z];
+                fL = c.blocks[14][y][z];
+                fR = ceast.blocks[0][y][z];
+                fF = c.blocks[15][y][Mz];
+                fK = c.blocks[15][y][mz];
 
                 
 				if (isOpaque(type)) {
@@ -586,29 +586,29 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 					lK = isAir(fK) ? fK : BlockType::Air8;
 
 					if (isOpaque(type) || isSemiTransparent(type)) {
-						A = !isAir(c.blocks[14][My][Mz].type);
-						B = !isAir(c.blocks[14][My][mz].type);
-						C = !isAir(ceast.blocks[0][My][mz].type);
-						D = !isAir(ceast.blocks[0][My][Mz].type);
-						E = !isAir(c.blocks[14][my][Mz].type);
-						F = !isAir(c.blocks[14][my][mz].type);
-						G = !isAir(ceast.blocks[0][my][mz].type);
-						H = !isAir(ceast.blocks[0][my][Mz].type);
+						A = !isAir(c.blocks[14][My][Mz]);
+						B = !isAir(c.blocks[14][My][mz]);
+						C = !isAir(ceast.blocks[0][My][mz]);
+						D = !isAir(ceast.blocks[0][My][Mz]);
+						E = !isAir(c.blocks[14][my][Mz]);
+						F = !isAir(c.blocks[14][my][mz]);
+						G = !isAir(ceast.blocks[0][my][mz]);
+						H = !isAir(ceast.blocks[0][my][Mz]);
 						
-						AB = !isAir(c.blocks[14][My][z].type);
-						BC = !isAir(c.blocks[15][My][mz].type);
-						CD = !isAir(ceast.blocks[0][My][z].type);
-						DA = !isAir(c.blocks[15][My][Mz].type);
+						AB = !isAir(c.blocks[14][My][z]);
+						BC = !isAir(c.blocks[15][My][mz]);
+						CD = !isAir(ceast.blocks[0][My][z]);
+						DA = !isAir(c.blocks[15][My][Mz]);
 						
-						EF = !isAir(c.blocks[14][my][z].type);
-						FG = !isAir(c.blocks[15][my][mz].type);
-						GH = !isAir(ceast.blocks[0][my][z].type);
-						HE = !isAir(c.blocks[15][my][Mz].type);
+						EF = !isAir(c.blocks[14][my][z]);
+						FG = !isAir(c.blocks[15][my][mz]);
+						GH = !isAir(ceast.blocks[0][my][z]);
+						HE = !isAir(c.blocks[15][my][Mz]);
 						
-						AE = !isAir(c.blocks[14][y][Mz].type);
-						BF = !isAir(c.blocks[14][y][mz].type);
-						CG = !isAir(ceast.blocks[0][y][mz].type);
-						DH = !isAir(ceast.blocks[0][y][Mz].type);
+						AE = !isAir(c.blocks[14][y][Mz]);
+						BF = !isAir(c.blocks[14][y][mz]);
+						CG = !isAir(ceast.blocks[0][y][mz]);
+						DH = !isAir(ceast.blocks[0][y][Mz]);
 					} else if (isTransparent(type)) {
 						A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
 					}
@@ -631,15 +631,15 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
         // Z 0
 
         for(x=1; x<15; x++){
-            if ((type = c.blocks[x][y][0].type) > BlockType::Air) {
+            if ((type = c.blocks[x][y][0]) > BlockType::Air) {
                 mx = x - 1;
                 Mx = x + 1;
-                fT = c.blocks[x][My][0].type;
-                fB = c.blocks[x][my][0].type;
-                fL = c.blocks[mx][y][0].type;
-                fR = c.blocks[Mx][y][0].type;
-                fF = c.blocks[x][y][1].type;
-                fK = csouth.blocks[x][y][15].type;
+                fT = c.blocks[x][My][0];
+                fB = c.blocks[x][my][0];
+                fL = c.blocks[mx][y][0];
+                fR = c.blocks[Mx][y][0];
+                fF = c.blocks[x][y][1];
+                fK = csouth.blocks[x][y][15];
 
                
 				if (isOpaque(type)) {
@@ -674,29 +674,29 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 					lK = isAir(fK) ? fK : BlockType::Air8;
 
 					if (isOpaque(type) || isSemiTransparent(type)) {
-						A = !isAir(c.blocks[mx][My][1].type);
-						B = !isAir(csouth.blocks[mx][My][15].type);
-						C = !isAir(csouth.blocks[Mx][My][15].type);
-						D = !isAir(c.blocks[Mx][My][1].type);
-						E = !isAir(c.blocks[mx][my][1].type);
-						F = !isAir(csouth.blocks[mx][my][15].type);
-						G = !isAir(csouth.blocks[Mx][my][15].type);
-						H = !isAir(c.blocks[Mx][my][1].type);
+						A = !isAir(c.blocks[mx][My][1]);
+						B = !isAir(csouth.blocks[mx][My][15]);
+						C = !isAir(csouth.blocks[Mx][My][15]);
+						D = !isAir(c.blocks[Mx][My][1]);
+						E = !isAir(c.blocks[mx][my][1]);
+						F = !isAir(csouth.blocks[mx][my][15]);
+						G = !isAir(csouth.blocks[Mx][my][15]);
+						H = !isAir(c.blocks[Mx][my][1]);
 						
-						AB = !isAir(c.blocks[mx][My][0].type);
-						BC = !isAir(csouth.blocks[x][My][15].type);
-						CD = !isAir(c.blocks[Mx][My][0].type);
-						DA = !isAir(c.blocks[x][My][1].type);
+						AB = !isAir(c.blocks[mx][My][0]);
+						BC = !isAir(csouth.blocks[x][My][15]);
+						CD = !isAir(c.blocks[Mx][My][0]);
+						DA = !isAir(c.blocks[x][My][1]);
 						
-						EF = !isAir(c.blocks[mx][my][0].type);
-						FG = !isAir(csouth.blocks[x][my][15].type);
-						GH = !isAir(c.blocks[Mx][my][0].type);
-						HE = !isAir(c.blocks[x][my][1].type);
+						EF = !isAir(c.blocks[mx][my][0]);
+						FG = !isAir(csouth.blocks[x][my][15]);
+						GH = !isAir(c.blocks[Mx][my][0]);
+						HE = !isAir(c.blocks[x][my][1]);
 						
-						AE = !isAir(c.blocks[mx][y][1].type);
-						BF = !isAir(csouth.blocks[mx][y][15].type);
-						CG = !isAir(csouth.blocks[Mx][y][15].type);
-						DH = !isAir(c.blocks[Mx][y][1].type);
+						AE = !isAir(c.blocks[mx][y][1]);
+						BF = !isAir(csouth.blocks[mx][y][15]);
+						CG = !isAir(csouth.blocks[Mx][y][15]);
+						DH = !isAir(c.blocks[Mx][y][1]);
 					} else if (isTransparent(type)) {
 						A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
 					}
@@ -716,16 +716,16 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 
         // Z 15
         for(x = 1; x < 15; x++){
-            if ((type = c.blocks[x][y][15].type) > BlockType::Air) {
+            if ((type = c.blocks[x][y][15]) > BlockType::Air) {
                 mx = x - 1;
                 Mx = x + 1;
 
-                fT = c.blocks[x][My][15].type;
-                fB = c.blocks[x][my][15].type;
-                fL = c.blocks[mx][y][15].type;
-                fR = c.blocks[Mx][y][15].type;
-                fF = cnorth.blocks[x][y][0].type;
-                fK = c.blocks[x][y][14].type;
+                fT = c.blocks[x][My][15];
+                fB = c.blocks[x][my][15];
+                fL = c.blocks[mx][y][15];
+                fR = c.blocks[Mx][y][15];
+                fF = cnorth.blocks[x][y][0];
+                fK = c.blocks[x][y][14];
 
 				if (isOpaque(type)) {
                     tT = !isOpaque(fT);
@@ -759,29 +759,29 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 					lK = isAir(fK) ? fK : BlockType::Air8;
 
 					if (isOpaque(type) || isSemiTransparent(type)) {
-						A = !isAir(cnorth.blocks[mx][My][0].type);
-						B = !isAir(c.blocks[mx][My][14].type);
-						C = !isAir(c.blocks[Mx][My][14].type);
-						D = !isAir(cnorth.blocks[Mx][My][0].type);
-						E = !isAir(cnorth.blocks[mx][my][0].type);
-						F = !isAir(c.blocks[mx][my][14].type);
-						G = !isAir(c.blocks[Mx][my][14].type);
-						H = !isAir(cnorth.blocks[Mx][my][0].type);
+						A = !isAir(cnorth.blocks[mx][My][0]);
+						B = !isAir(c.blocks[mx][My][14]);
+						C = !isAir(c.blocks[Mx][My][14]);
+						D = !isAir(cnorth.blocks[Mx][My][0]);
+						E = !isAir(cnorth.blocks[mx][my][0]);
+						F = !isAir(c.blocks[mx][my][14]);
+						G = !isAir(c.blocks[Mx][my][14]);
+						H = !isAir(cnorth.blocks[Mx][my][0]);
 						
-						AB = !isAir(c.blocks[mx][My][15].type);
-						BC = !isAir(c.blocks[x][My][14].type);
-						CD = !isAir(c.blocks[Mx][My][15].type);
-						DA = !isAir(cnorth.blocks[x][My][0].type);
+						AB = !isAir(c.blocks[mx][My][15]);
+						BC = !isAir(c.blocks[x][My][14]);
+						CD = !isAir(c.blocks[Mx][My][15]);
+						DA = !isAir(cnorth.blocks[x][My][0]);
 						
-						EF = !isAir(c.blocks[mx][my][15].type);
-						FG = !isAir(c.blocks[x][my][14].type);
-						GH = !isAir(c.blocks[Mx][my][15].type);
-						HE = !isAir(cnorth.blocks[x][my][0].type);
+						EF = !isAir(c.blocks[mx][my][15]);
+						FG = !isAir(c.blocks[x][my][14]);
+						GH = !isAir(c.blocks[Mx][my][15]);
+						HE = !isAir(cnorth.blocks[x][my][0]);
 						
-						AE = !isAir(cnorth.blocks[mx][y][0].type);
-						BF = !isAir(c.blocks[mx][y][14].type);
-						CG = !isAir(c.blocks[Mx][y][14].type);
-						DH = !isAir(cnorth.blocks[Mx][y][0].type);
+						AE = !isAir(cnorth.blocks[mx][y][0]);
+						BF = !isAir(c.blocks[mx][y][14]);
+						CG = !isAir(c.blocks[Mx][y][14]);
+						DH = !isAir(cnorth.blocks[Mx][y][0]);
 					} else if (isTransparent(type)) {
 						A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
 					}
@@ -802,18 +802,18 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 
         for (x = 1; x < 15; x++) {
             for (z = 1; z < 15; z++) {
-                if ((type = c.blocks[x][y][z].type) > BlockType::Air) {
+                if ((type = c.blocks[x][y][z]) > BlockType::Air) {
                     mx = x - 1;
                     mz = z - 1;
                     Mx = x + 1;
                     Mz = z + 1;
 
-                    fT = c.blocks[x][My][z].type;
-                    fB = c.blocks[x][my][z].type;
-                    fL = c.blocks[mx][y][z].type;
-                    fR = c.blocks[Mx][y][z].type;
-                    fF = c.blocks[x][y][Mz].type;
-                    fK = c.blocks[x][y][mz].type;
+                    fT = c.blocks[x][My][z];
+                    fB = c.blocks[x][my][z];
+                    fL = c.blocks[mx][y][z];
+                    fR = c.blocks[Mx][y][z];
+                    fF = c.blocks[x][y][Mz];
+                    fK = c.blocks[x][y][mz];
 					
 					if (isOpaque(type)) {
 	                    tT = !isOpaque(fT);
@@ -847,29 +847,29 @@ void renderChunk(VerticalChunk& c, Renderer& renderer, t_pos2D pos){
 						lK = isAir(fK) ? fK : BlockType::Air8;
 
 						if (isOpaque(type) || isSemiTransparent(type)) {
-							A =  !isAir(c.blocks[mx][My][Mz].type);
-							B =  !isAir(c.blocks[mx][My][mz].type);
-							C =  !isAir(c.blocks[Mx][My][mz].type);
-							D =  !isAir(c.blocks[Mx][My][Mz].type);
-							E =  !isAir(c.blocks[mx][my][Mz].type);
-							F =  !isAir(c.blocks[mx][my][mz].type);
-							G =  !isAir(c.blocks[Mx][my][mz].type);
-							H =  !isAir(c.blocks[Mx][my][Mz].type);
+							A =  !isAir(c.blocks[mx][My][Mz]);
+							B =  !isAir(c.blocks[mx][My][mz]);
+							C =  !isAir(c.blocks[Mx][My][mz]);
+							D =  !isAir(c.blocks[Mx][My][Mz]);
+							E =  !isAir(c.blocks[mx][my][Mz]);
+							F =  !isAir(c.blocks[mx][my][mz]);
+							G =  !isAir(c.blocks[Mx][my][mz]);
+							H =  !isAir(c.blocks[Mx][my][Mz]);
 							
-							AB = !isAir(c.blocks[mx][My][z].type);
-							BC = !isAir(c.blocks[x][My][mz].type);
-							CD = !isAir(c.blocks[Mx][My][z].type);
-							DA = !isAir(c.blocks[x][My][Mz].type);
+							AB = !isAir(c.blocks[mx][My][z]);
+							BC = !isAir(c.blocks[x][My][mz]);
+							CD = !isAir(c.blocks[Mx][My][z]);
+							DA = !isAir(c.blocks[x][My][Mz]);
 							
-							EF = !isAir(c.blocks[mx][my][z].type);
-							FG = !isAir(c.blocks[x][my][mz].type);
-							GH = !isAir(c.blocks[Mx][my][z].type);
-							HE = !isAir(c.blocks[x][my][Mz].type);
+							EF = !isAir(c.blocks[mx][my][z]);
+							FG = !isAir(c.blocks[x][my][mz]);
+							GH = !isAir(c.blocks[Mx][my][z]);
+							HE = !isAir(c.blocks[x][my][Mz]);
 							
-							AE = !isAir(c.blocks[mx][y][Mz].type);
-							BF = !isAir(c.blocks[mx][y][mz].type);
-							CG = !isAir(c.blocks[Mx][y][mz].type);
-							DH = !isAir(c.blocks[Mx][y][Mz].type);
+							AE = !isAir(c.blocks[mx][y][Mz]);
+							BF = !isAir(c.blocks[mx][y][mz]);
+							CG = !isAir(c.blocks[Mx][y][mz]);
+							DH = !isAir(c.blocks[Mx][y][Mz]);
 						} else if (isTransparent(type)) {
 							A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
 						}

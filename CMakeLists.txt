@@ -26,7 +26,6 @@ add_executable(Miicraft main.cpp
         src/matrix/matrix.cpp
         src/engine/render/bloc.cpp
         src/engine/render/camera.cpp
-        src/world/game.cpp
         src/world/WorldGenerator.cpp
         src/world/FlatWorldGenerator.cpp
         src/world/PerlinWorldGenerator.cpp
@@ -44,7 +43,6 @@ add_executable(MiicraftTest Debug.cpp
         src/world/block.cpp
         src/world/verticalChunk.cpp
         src/world/world.cpp
-        src/world/game.cpp
         src/world/WorldGenerator.cpp
         src/world/FlatWorldGenerator.cpp
         src/world/PerlinWorldGenerator.cpp

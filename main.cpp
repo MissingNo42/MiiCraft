@@ -9,8 +9,6 @@
 #include "engine/render/renderer.h"
 #include "engine/render/render.h"
 
-
-#include "src/world/game.h"
 #include "engine/render/bloc.h"
 #include "src/system/saveManager.h"
 #include "player.h"
@@ -30,35 +28,20 @@ void shutdown() {
 }
 
 
-
-void renderWorld(World& w, Renderer& renderer, t_pos2D posCam) {
-//	t_pos2D pos;
-//	for (pos.x = posCam.x-1; pos.x < posCam.x + 2; pos.x++) {
-//		for (pos.y = posCam.y - 1 ;  pos.y < posCam.y + 2 ; pos.y++) {
-//			renderChunk(w.getChunkAt(pos), renderer, pos);
-//		}
-//	}
-    t_pos2D pos;
-
-        for (pos.x = posCam.x - 1; pos.x < posCam.x + 2; pos.x++) {
-            for (pos.y = posCam.y - 1; pos.y < posCam.y + 2; pos.y++)
-                renderChunk(w.getChunkAt(pos), renderer, pos);
-        }
-
-}
-
 int main(int, char **) {
     SYS_STDIO_Report(true);
 	
 	PAD_Init();
 	WPAD_Init();
 	
+	World::Init();
+	
 	Renderer::setupVideo();
 	Renderer::setupVtxDesc();
     Renderer::setupTexture();
 	
 	//GX_InvalidateTexAll();
-    Player player(8, 120, 8);
+    Player player(1, 80, 1);
 
 	//GX_InitTexObjFilterMode(&texture, GX_NEAR, GX_NEAR);
 
@@ -68,11 +51,12 @@ int main(int, char **) {
     Wiimote wiimote;
 
     //printf("end init\r");
-    t_coord pos(0,0,0);
-    World& w = Game::getInstance()->getWorld();
+    BlockCoord pos(0, 0, 0);
 
     printf("end init\r");
 	ChunkCache::reset();
+	
+	
 	
     while (!exiting) {
 
@@ -82,7 +66,7 @@ int main(int, char **) {
         pos.y = floor(player.renderer.camera.pos.y);
         pos.z = floor(player.renderer.camera.pos.z);
 
-        printf("pos : %d %d %d\r", pos.x & 15, pos.y &15, pos.z &15);
+        printf("pos : %d %d %d | %d %d %d\r", pos.x & 15, pos.y &15, pos.z &15, pos.x, pos.y, pos.z);
         printf(">lk : %.2f %.2f %.2f\r", player.renderer.camera.look.x,
 			   player.renderer.camera.look.y, player.renderer.camera.look.z);
 
@@ -91,15 +75,24 @@ int main(int, char **) {
 		u32 mem2 = SYS_GetArena2Size();
 		printf("Memory : MEM1 %d (%d)\tMEM2 %d (%d)\r", mem1, mem1 / sizeof(VerticalChunk), mem2, mem2 / sizeof(VerticalChunk));
 
-        wiimote.update(player, w);
+        wiimote.update(player);
 
         player.renderer.camera.update(true);
 		
-        Game::getInstance()->requestChunk(w.to_chunk_pos(pos));
+        World::requestChunks(pos.toChunkCoord());
+		printf("------------------------\r");
+        World::requestChunks(pos.toChunkCoord());
+		auto& V = World::getChunkAt(pos.toChunkCoord());
+		//V.fillWith(BlockType::Stone);
+		printf(">>>>>>>>>>>>> %d %d %d | %d %d %d %d %d\r", V.id, V.coord.x, V.coord.y,
+			   V.Count(BlockType::Stone), V.Count(BlockType::Air),
+			   V.Count(BlockType::Dirt), V.Count(Bedrock),
+			   V.Count(LeaveOak)
+			   );
 		printf("caching\r");
         //renderWorld(w, player.renderer, w.to_chunk_pos(pos));
 		
-		ChunkCache::cache(w, player.renderer);
+		ChunkCache::cache(player.renderer);
 		
 		printf("rendering\r");
 		

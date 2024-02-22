@@ -484,7 +484,7 @@ void Renderer::renderBloc(const guVector &coord, u32 code,
     GX_End();         // Done drawing quads
 }
 
-void Renderer::drawFocus(Block block, f32 x, f32 y, f32 z) {
+void Renderer::drawFocus(BlockType block, f32 x, f32 y, f32 z) {
     Mtx model, modelview; // Various matrices
 	return;
     //guMtxIdentity(model);

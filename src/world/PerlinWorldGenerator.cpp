@@ -4,6 +4,8 @@
 
 #include <queue>
 #include "PerlinWorldGenerator.h"
+#include "world/biome/Tergen.h"
+#include "world.h"
 
 
 PerlinWorldGenerator::PerlinWorldGenerator() {
@@ -23,9 +25,7 @@ float easeInOutCubic(float x) {
     return x < 0.5f ? 4.f * x * x * x : 1.f - tmp * tmp * tmp / 2.f;
 }
 
-void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
-    VerticalChunk* vc = new VerticalChunk();
-
+void PerlinWorldGenerator::generateChunk(VerticalChunk& vc) {
     //Append in a file
 
     u8        heightMap[16][16];
@@ -34,8 +34,8 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
     for(int i = 0; i < 16; i ++){
         for(int j = 0; j < 16; j++){
 
-            float block_x = (float) (pos.x * 16 + i);
-            float block_y = (float) (pos.y * 16 + j);
+            float block_x = (float) (vc.coord.x * 16 + i);
+            float block_y = (float) (vc.coord.y * 16 + j);
 
 
             BiomeType biome;
@@ -57,14 +57,14 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
 //            printf("%d\r", height);
             biome = guessBiome(erosion, temperature, humidity, continent, height);
-            if (biome == BiomeType::Ocean) {Tergen::generateOcean(vc, i, j, height, w.lightQueue);}
+            if (biome == BiomeType::Ocean) {Tergen::generateOcean(vc, i, j, height, World::lightQueue);}
             else
             {
-                if (erosion < .5) {Tergen::generateTundra(vc, i, j, height, w.lightQueue);}
-                else if (erosion < 1.0) {Tergen::generatePlain(vc, i, j, height,w.lightQueue);}
-                else if (erosion < 1.5) {Tergen::generateDesert(vc, i, j, height, w.lightQueue);}
+                if (erosion < .5) {Tergen::generateTundra(vc, i, j, height,       World::lightQueue);}
+                else if (erosion < 1.0) {Tergen::generatePlain(vc, i, j, height,  World::lightQueue);}
+                else if (erosion < 1.5) {Tergen::generateDesert(vc, i, j, height, World::lightQueue);}
                 else if (erosion <= 2.) //ne pas enlever
-                {Tergen::generateSavanna(vc, i, j, height,w.lightQueue);}
+                {Tergen::generateSavanna(vc, i, j, height,World::lightQueue);}
             }
 //            switch (biome) {
 //                case Ocean:
@@ -118,22 +118,18 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
     buildTree({x, y, z}, vc);
 
 //    w.initLight(vc);
-    w.addChunk(pos, vc);
-    w.propagateLight(vc,w.lightQueue);
-    w.setNeighboors(pos, vc);
-    std::cout << "Chunk generated at " << pos.x << " " << pos.y << " with id : " << vc->id << std::endl;
+    World::propagateLight(vc, World::lightQueue);
+    std::cout << "ChunkCoord generated at " << vc.coord.x << " " << vc.coord.y << " with x : " << vc.coord.x << " y : " << vc.coord.y << std::endl;
     std::cout << " with neighboors : " << std::endl;
     for(int i = 0; i < 4; i++){
-        if(vc->VC_GetNeighboors() != nullptr){
-            std::cout << "Neighboor " << i << " : " << vc->VC_GetNeighboor(i)->id << std::endl;
-        }
+		std::cout << "Neighboor " << i << " : " << vc.GetNeighboor(i) << std::endl;
     }
 
     //print the whole chunk
 //    for(int i = 0; i < 16; i++){
 //        for(int j = 0; j < 16; j++){
 //            for(int k = 0; k < 128; k++){
-//                printf("Block at %d %d %d : %d\r",i,j,k,vc->VC_GetBlock({i, k, j}).type);
+//                printf("Block at %d %d %d : %d\r",i,j,k,vc.GetBlock({i, k, j}).type);
 //            }
 //        }
 //    }
@@ -161,7 +157,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
 void PerlinWorldGenerator::initNoise() {
 //    biomeNoise.SetFrequency(.01);
-//    biomeNoise.SetSeed(Random::getSeed());//  Game::getInstance()->getSeed());
+//    biomeNoise.SetSeed(Random::getSeed());//  Game::getInstance().getSeed());
 //
 //    biomeNoise.SetNoiseType(FastNoiseLite::NoiseType_Cellular);
 //    biomeNoise.SetFractalType(FastNoiseLite::FractalType_None);
@@ -200,11 +196,11 @@ void PerlinWorldGenerator::initNoise() {
     noiseAltitude.SetFractalGain(0.5);
 }
 
-void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
+void PerlinWorldGenerator::buildTree(BlockCoord pos, VerticalChunk& vc) {
     int height = rand() % 4 + 1;
     //On construit le tronc :
     for (int y = 0; y < 3+height ; y++) {
-        vc->VC_SetBlock({pos.x, pos.y + y, pos.z}, BlockType::WoodOak);
+        vc.SetBlock({pos.x, pos.y + y, pos.z}, BlockType::WoodOak);
     }
 
     //On construit les feuilles :
@@ -216,10 +212,10 @@ void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
                 }
                 if ((i == 2 || i == -2) && ( j == 2 || j == -2)) {
                     if (rand() %2)
-                        vc->VC_SetBlock({pos.x + i, pos.y + height + h, pos.z + j}, BlockType::LeaveOak);
+                        vc.SetBlock({pos.x + i, pos.y + height + h, pos.z + j}, BlockType::LeaveOak);
                 }
                 else
-                    vc->VC_SetBlock({pos.x + i, pos.y + height + h, pos.z + j}, BlockType::LeaveOak);
+                    vc.SetBlock({pos.x + i, pos.y + height + h, pos.z + j}, BlockType::LeaveOak);
             }
         }
     }
@@ -230,21 +226,20 @@ void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
             }
             if ((i == 1 || i == -1) && ( j == 1 || j == -1)) {
                 if (rand() %2)
-                    vc->VC_SetBlock({pos.x + i, pos.y + 2 + height, pos.z + j}, BlockType::LeaveOak);
+                    vc.SetBlock({pos.x + i, pos.y + 2 + height, pos.z + j}, BlockType::LeaveOak);
             }
             else
-                vc->VC_SetBlock({pos.x + i, pos.y + 2 + height, pos.z + j}, BlockType::LeaveOak);
+                vc.SetBlock({pos.x + i, pos.y + 2 + height, pos.z + j}, BlockType::LeaveOak);
         }
     }
 
-    vc->VC_SetBlock({pos.x + 1, pos.y + 3 + height, pos.z}, BlockType::LeaveOak);
-    vc->VC_SetBlock({pos.x - 1, pos.y + 3 + height, pos.z}, BlockType::LeaveOak);
-    vc->VC_SetBlock({pos.x, pos.y + 3 + height, pos.z+1}, BlockType::LeaveOak);
-    vc->VC_SetBlock({pos.x, pos.y + 3 + height, pos.z-1}, BlockType::LeaveOak);
-    vc->VC_SetBlock({pos.x, pos.y + 3 + height, pos.z}, BlockType::LeaveOak);
+    vc.SetBlock({pos.x + 1, pos.y + 3 + height, pos.z}, BlockType::LeaveOak);
+    vc.SetBlock({pos.x - 1, pos.y + 3 + height, pos.z}, BlockType::LeaveOak);
+    vc.SetBlock({pos.x, pos.y + 3 + height, pos.z+1}, BlockType::LeaveOak);
+    vc.SetBlock({pos.x, pos.y + 3 + height, pos.z-1}, BlockType::LeaveOak);
+    vc.SetBlock({pos.x, pos.y + 3 + height, pos.z}, BlockType::LeaveOak);
 
 }
-
 
 
 

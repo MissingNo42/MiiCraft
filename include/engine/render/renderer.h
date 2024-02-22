@@ -26,12 +26,7 @@ public:
 
 	static void setupVideo();
 	static void setupVtxDesc();
-	static void setupVtxDesc2D();
 	static void setupTexture();
-	
-	static void setupDebugConsole();
-	
-	static void testRender();
 	
 	static void endFrame();
 	
@@ -40,7 +35,7 @@ public:
                     int topVal = 0, int bottomVal = 0, int leftVal = 0, int rightVal = 0, int frontVal = 0, int backVal = 0,
                     int topIndex = 0, int bottomIndex = 0, int leftIndex = 0, int rightIndex = 0, int frontIndex = 0, int backIndex = 0);
 
-    void drawFocus(Block block, f32 x, f32 y, f32 z);
+    void drawFocus(BlockType block, f32 x, f32 y, f32 z);
 
 
     //Generate a grey color gradient (with 1 the darkest (not black)

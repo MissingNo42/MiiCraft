@@ -6,18 +6,15 @@
 #define WII_PERLINWORLDGENERATOR_H
 
 
-#include "WorldGenerator.h"
 #include "utils/FastNoiseLite.h"
-#include "biome/Tergen.h"
-#include "../system/Random.h"
+#include "verticalChunk.h"
+#include "world/biome/Tergen.h"
+#include "WorldGenerator.h"
 #include <fstream>
 #include <queue>
 
 #include <iostream>
 #include <algorithm>
-
-#define APPLY_BLOCK(BLOCK_TYPE) \
-chunk->VC_SetBlock(pos, BLOCK_TYPE);
 
 
 class PerlinWorldGenerator : public WorldGenerator {
@@ -29,18 +26,15 @@ private:
     FastNoiseLite noiseHumidity;
     FastNoiseLite noiseAltitude;
     FastNoiseLite noiseContinental;
-
-    void buildTree(t_coord pos, VerticalChunk* vc);
+	
+	void buildTree(BlockCoord pos, VerticalChunk& vc);
 public:
     PerlinWorldGenerator();
     void initNoise();
 
     BiomeType guessBiome(float ero, float temp, float hum, float cont, int height);
-    void generateChunk(World&, const t_pos2D) override;
-
-    void initLight(VerticalChunk *c);
-
-
+    void generateChunk(VerticalChunk& vc) override;
+	
 };
 
 

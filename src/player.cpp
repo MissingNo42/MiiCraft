@@ -16,9 +16,9 @@ Player::Player(f32 x, f32 y, f32 z) : placeDelay(0), focusedBlockPos(0,0,0), pre
     renderer.camera.pos.z = z;
 }
 
-void Player::getFocusedBlock(World &w) {
+void Player::getFocusedBlock() {
     BlockType type = BlockType::Air;
-    t_coord pos = t_coord(0,0,0);
+    BlockCoord pos = BlockCoord(0, 0, 0);
     f32 distance = 0,
             x = renderer.camera.pos.x + 1,
             y = renderer.camera.pos.y + 1,
@@ -28,11 +28,11 @@ void Player::getFocusedBlock(World &w) {
         y += renderer.camera.look.y/100;
         z += renderer.camera.look.z/100;
         distance += 0.01;
-        pos = t_coord((int)floor(x), (int)floor(y), (int)floor(z));
-        type = w.getBlockAt(pos).type;
+        pos = BlockCoord((int)floor(x), (int)floor(y), (int)floor(z));
+        type = World::getBlockAt(pos);
     }
     if(type > BlockType::Air) {
-        renderer.drawFocus(w.getBlockAt(pos), (f32) pos.x, (f32) pos.y, (f32) pos.z);
+        renderer.drawFocus(World::getBlockAt(pos), (f32) pos.x, (f32) pos.y, (f32) pos.z);
         isTargeting = true;
         previousFocusedBlockPos = focusedBlockPos;
         focusedBlockLook = {x,y,z};
@@ -53,10 +53,10 @@ guVector Player::InverseVector(const guVector& v){
 }
 
 
-void Player::goUp(t_coord coord, World &w, float velocity, bool collision) {
+void Player::goUp(BlockCoord coord, float velocity, bool collision) {
     if ( collision ){
         coord.y += 2;
-        if (w.getBlockAt(coord).type <= BlockType::Air)
+        if (World::getBlockAt(coord) <= BlockType::Air)
             renderer.camera.pos.y += velocity /10;
         else
             renderer.camera.pos.y = coord.y -1.1;
@@ -66,10 +66,10 @@ void Player::goUp(t_coord coord, World &w, float velocity, bool collision) {
 }
 
 
-void Player::goDown(t_coord coord, World &w, float velocity, bool collision ) {
+void Player::goDown(BlockCoord coord, float velocity, bool collision ) {
     if ( collision ){
         coord.y -= 1;
-        if (w.getBlockAt(coord).type <= BlockType::Air)
+        if (World::getBlockAt(coord) <= BlockType::Air)
             renderer.camera.pos.y -= velocity /10;
         else
             renderer.camera.pos.y = (f32) floor (coord.y )+ 1.6;
@@ -118,8 +118,8 @@ void Player::handleRotation(WPADData * wd) {
 }
 
 
-void Player::destroyBlock(World& w){
-    if(!focusedBlockPos.equals(previousFocusedBlockPos))
+void Player::destroyBlock(){
+    if(!(focusedBlockPos == previousFocusedBlockPos))
         breakingState = 0;
 
     if (breakingState < 50)
@@ -129,21 +129,21 @@ void Player::destroyBlock(World& w){
     }
     else
     {
-        w.setBlockAt(focusedBlockPos, BlockType::Air);
+        World::setBlockAt(focusedBlockPos, BlockType::Air);
         breakingState = 0;
     }
     breakingState++;
 }
 
-void Player::placeBlock(World& w){
+void Player::placeBlock(){
 
     if(placeDelay < 10){
         printf("placeDelay: %d\r", placeDelay);
         return;}
-    t_coord pos = focusedBlockPos;
+    BlockCoord pos = focusedBlockPos;
     if(focusedBlockType > BlockType::Air) {
         printf("Placeeeeeeeeeeee\r");
-        switch (getFocusedFace(w)) {
+        switch (getFocusedFace()) {
             case 0:
                 pos.x--;
                 //printf("newBlockX: %d, newBlockY: %d, newBlockZ: %d\r", pos.x, pos.y, pos.z);
@@ -152,7 +152,7 @@ void Player::placeBlock(World& w){
                    || (pos.y != (int)floor(renderer.camera.pos.y + 1)
                        && pos.y != (int)floor(renderer.camera.pos.y))
                     || pos.z != (int)floor(renderer.camera.pos.z + 1))
-                    w.setBlockAt(pos, BlockType::Bedrock);
+                    World::setBlockAt(pos, BlockType::Bedrock);
                 break;
             case 1:
                 pos.x++;
@@ -162,7 +162,7 @@ void Player::placeBlock(World& w){
                    || (pos.y != (int)floor(renderer.camera.pos.y + 1)
                        && pos.y != (int)floor(renderer.camera.pos.y))
                    || pos.z != (int)floor(renderer.camera.pos.z + 1))
-                    w.setBlockAt(pos, BlockType::Bedrock);
+                    World::setBlockAt(pos, BlockType::Bedrock);
                 break;
             case 2:
                 pos.y--;
@@ -172,7 +172,7 @@ void Player::placeBlock(World& w){
                    || (pos.y != (int)floor(renderer.camera.pos.y + 1)
                    && pos.y != (int)floor(renderer.camera.pos.y))
                    || pos.z != (int)floor(renderer.camera.pos.z + 1))
-                    w.setBlockAt(pos, BlockType::Bedrock);
+                    World::setBlockAt(pos, BlockType::Bedrock);
                 break;
             case 3:
                 pos.y++;
@@ -182,7 +182,7 @@ void Player::placeBlock(World& w){
                    || (pos.y != (int)floor(renderer.camera.pos.y + 1)
                        && pos.y != (int)floor(renderer.camera.pos.y))
                    || pos.z != (int)floor(renderer.camera.pos.z + 1))
-                    w.setBlockAt(pos, BlockType::Bedrock);
+                    World::setBlockAt(pos, BlockType::Bedrock);
                 break;
             case 4:
                 pos.z--;
@@ -192,7 +192,7 @@ void Player::placeBlock(World& w){
                    || (pos.y != (int)floor(renderer.camera.pos.y + 1)
                        && pos.y != (int)floor(renderer.camera.pos.y))
                    || pos.z != (int)floor(renderer.camera.pos.z + 1))
-                    w.setBlockAt(pos, BlockType::Bedrock);
+                    World::setBlockAt(pos, BlockType::Bedrock);
                 break;
             case 5:
                 pos.z++;
@@ -202,14 +202,14 @@ void Player::placeBlock(World& w){
                    || (pos.y != (int)floor(renderer.camera.pos.y + 1)
                        && pos.y != (int)floor(renderer.camera.pos.y))
                    || pos.z != (int)floor(renderer.camera.pos.z + 1))
-                    w.setBlockAt(pos, BlockType::Bedrock);
+                    World::setBlockAt(pos, BlockType::Bedrock);
                 break;
         }
     }
     placeDelay = 0;
 }
 
-int Player::getFocusedFace(World& w) const {
+int Player::getFocusedFace() const {
     if(focusedBlockType != BlockType::Air) {
         f32 deltaX = (f32) std::fabs((focusedBlockLook.x- round(focusedBlockLook.x)));
         f32 deltaY = (f32) std::fabs((focusedBlockLook.y- round(focusedBlockLook.y)));
@@ -242,17 +242,17 @@ int Player::getFocusedFace(World& w) const {
     return -1;
 }
 
-t_coord Player::guVectorToCoord(guVector v) {
-    t_coord coord = t_coord((int)v.x, (int)v.y, (int)v.z);
+BlockCoord Player::guVectorToCoord(guVector v) {
+    BlockCoord coord = BlockCoord((int)v.x, (int)v.y, (int)v.z);
     return coord;
 }
 
-guVector Player::coordToGuVector(t_coord coord) {
+guVector Player::coordToGuVector(BlockCoord coord) {
     auto v = guVector((f32)coord.x, (f32)coord.y, (f32)coord.z);
     return v;
 }
 
-void Player::move(World &w, joystick_t sticks) {
+void Player::move(joystick_t sticks) {
     guVector normalizedLook = renderer.camera.look;
     guVecNormalize(&normalizedLook);
     f32 stick_x = (f32)sticks.pos.x - (f32)sticks.center.x;
@@ -306,42 +306,46 @@ void Player::move(World &w, joystick_t sticks) {
             offsetZ = - 0.3;
         else
             offsetZ = 0.3;
-        if (w.getBlockAt({(int) floor(offsetX + renderer.camera.pos.x + 1 + move.x), (int) (renderer.camera.pos.y- 0.5),
-                          (int) floor(renderer.camera.pos.z + 1)}).type <= BlockType::Air
-            && w.getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) (renderer.camera.pos.y - 0.5),
-                             (int) floor(offsetZ +renderer.camera.pos.z + 1 + move.z)}).type <= BlockType::Air
-            && w.getBlockAt({(int) floor(offsetX + renderer.camera.pos.x + 1 + move.x), (int) (renderer.camera.pos.y + 0.5),
-                         (int) floor(renderer.camera.pos.z + 1)}).type <= BlockType::Air
-            && w.getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) (renderer.camera.pos.y + 0.5),
-                             (int) floor(offsetZ +renderer.camera.pos.z + 1 + move.z)}).type <= BlockType::Air) {
+        if (World::getBlockAt({(int) floor(offsetX + renderer.camera.pos.x + 1 + move.x), (int) (renderer.camera.pos.y- 0.5),
+                          (int) floor(renderer.camera.pos.z + 1)}) <= BlockType::Air
+            && World::getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) (renderer.camera.pos.y - 0.5),
+                             (int) floor(offsetZ +renderer.camera.pos.z + 1 + move.z)}) <= BlockType::Air
+            && World::getBlockAt({(int) floor(offsetX + renderer.camera.pos.x + 1 + move.x), (int) (renderer.camera.pos.y + 0.5),
+                         (int) floor(renderer.camera.pos.z + 1)}) <= BlockType::Air
+            && World::getBlockAt({(int) floor(renderer.camera.pos.x + 1), (int) (renderer.camera.pos.y + 0.5),
+                             (int) floor(offsetZ +renderer.camera.pos.z + 1 + move.z)}) <= BlockType::Air) {
             renderer.camera.pos.x += move.x;
             renderer.camera.pos.z += move.z;
         }
+		else { // TODO REMOVE: TEST
+			renderer.camera.pos.x += move.x;
+            renderer.camera.pos.z += move.z;
+		}
     }
 }
 
-void Player::handleGravity(World &world, t_coord& coord) {
+void Player::handleGravity(BlockCoord& coord) {
     if (!gravity)
         return;
 
-    Block blockBelow = world.getBlockAt({coord.x, (int)floor(coord.y - 0.8), coord.z});
+    BlockType blockBelow = World::getBlockAt({coord.x, (int)floor(coord.y - 0.8), coord.z});
 
-    if (isJumping || blockBelow.type <= BlockType::Air) {
+    if (isJumping || blockBelow <= BlockType::Air) {
         Velocity += Acceleration;
         //printf("%f %f\r", Acceleration, Velocity);
-        if (blockBelow.type > BlockType::Air && Velocity > 0)
+        if (blockBelow > BlockType::Air && Velocity > 0)
             isJumping = false;
     } else {
         Velocity = 0;
-        goDown(coord, world, 0);
+        goDown(coord, 0);
     }
 
 
 
     if (Velocity < 0) {
-        goUp(coord, world, -Velocity);
+        goUp(coord, -Velocity);
     } else if (Velocity > 0) {
-        goDown(coord, world, Velocity);
+        goDown(coord, Velocity);
     }
 }
 

@@ -16,12 +16,12 @@ private:
     float Acceleration = 0.12;
 public:
     int placeDelay;
-    bool gravity = true;
+    bool gravity = false;
     bool isJumping = false;
     Renderer renderer;
-    t_coord focusedBlockPos;
+    BlockCoord focusedBlockPos;
     BlockType focusedBlockType;
-    t_coord previousFocusedBlockPos;
+    BlockCoord previousFocusedBlockPos;
     guVector focusedBlockLook;
     bool isTargeting;
     bool sprint;
@@ -29,33 +29,33 @@ public:
     Player(f32 x, f32 y, f32 z);
     Player();
 
-    void getFocusedBlock(World& w);
+    void getFocusedBlock();
 
     static guVector InverseVector(const guVector& v);
 
-    static guVector coordToGuVector(t_coord coord);
+    static guVector coordToGuVector(BlockCoord coord);
 
-    static t_coord guVectorToCoord(guVector v);
+    static BlockCoord guVectorToCoord(guVector v);
 
     void handleRotation(WPADData *);
 
-    void handleGravity(World& w, t_coord& coord);
+    void handleGravity(BlockCoord& coord);
 
-    void goUp(t_coord coord, World& w, float velocity = 1.0f, bool collision = true);
+    void goUp(BlockCoord coord, float velocity = 1.0f, bool collision = true);
 
-    void goDown(t_coord coord, World& w, float velocity = 1.0f, bool collision = true);
+    void goDown(BlockCoord coord, float velocity = 1.0f, bool collision = true);
 
     void Jump();
 
     void setPos(f32 x, f32 y, f32 z);
 
-    int getFocusedFace(World& w) const;
+    [[nodiscard]] int getFocusedFace() const;
 
-    void placeBlock(World& w);
+    void placeBlock();
 
-    void destroyBlock(World& w);
+    void destroyBlock();
 
-    void move(World& w, joystick_t sticks);
+    void move(joystick_t sticks);
 };
 
 

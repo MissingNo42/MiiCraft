@@ -222,13 +222,6 @@ enum BlockType : u8 {
     BlockBreaking9,
 };
 
-class Block {
-public:
-    BlockType type;
-    Block(BlockType bt);
-    Block();
-    std::string toString() const;
-};
 
 #endif //MIICRAFT_BLOCK_H
 

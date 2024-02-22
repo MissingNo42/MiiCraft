@@ -35,7 +35,12 @@ void ChunkCache::release(u32 id) {
 	}
 }
 
-void ChunkCache::cache(VerticalChunk& vc, Renderer& renderer, t_pos2D pos) {
+void ChunkCache::cache(VerticalChunk& vc, Renderer& renderer) {
+	printf("cache %d: %d %d | %d %d\r", vc.id, vc.coord.x, vc.coord.y,
+		   vc.recache,
+		   vc.dirty
+		   );
+	
 	if (vc.id == 0) return;
 	if (vc.recache) {
 		vc.recache = 0;
@@ -52,14 +57,15 @@ void ChunkCache::cache(VerticalChunk& vc, Renderer& renderer, t_pos2D pos) {
 		for (; i < LIST_NUM; i++) {
 			if (lists[i].id == 0) {
 				current[1] = i;
-				lists[i].reset(RENDER_OPAQUE, vc.id);
+				lists[i].reset(RENDER_TRANSPARENT, vc.id);
 				used++;
 				break;
 			}
 		}
 		if (i == LIST_NUM) return;
-		renderChunk(vc, renderer, pos);
+		renderChunk(vc, renderer);
 		if (lists[current[0]].seal()) used--;
+		if (lists[current[1]].seal()) used--;
 	}
 }
 
@@ -82,18 +88,28 @@ void ChunkCache::addVertex(f32 x, f32 y, f32 z, u8 c, f32 u, f32 v, u8 alpha) {
 	}
 }
 
-void ChunkCache::cache(World& world, Renderer& renderer) {
-	f32 x = renderer.camera.pos.x, y = renderer.camera.pos.y;
-	short cx = (short)((int)x >> 4), cy = (short)((int)y >> 4);
+void ChunkCache::cache(Renderer& renderer) {
+	f32 x = renderer.camera.pos.x, y = renderer.camera.pos.z;
+	short cx = (short)(((int)x) >> 4), cy = (short)(((int)y) >> 4);
+	ChunkCoord pos {cx, cy};
 	
-	VerticalChunk& vc = world.getChunkAt({cx, cy});
-	cache(vc, renderer, {cx, cy}); // cache the current chunk
+	VerticalChunk& vc = World::getChunkAt(pos);
+	printf("cache %d: %d %d (%d %d  |  %.2f %.2f) | %d %d\r", vc.id, vc.coord.x, vc.coord.y, pos.x, pos.y, x, y,
+	   vc.recache,
+	   vc.dirty
+	   );
+	cache(vc, renderer); // cache the current chunk
 	
 	for (int i = -1; i < 2; i++) {  // cache the surrounding chunks
 		for (int j = -1; j < 2; j++) if (i != j) {
-			t_pos2D pos = {(short)(cx + i), (short)(cy + j)};
-			VerticalChunk& vn = world.getChunkAt(pos);
-			cache(vn, renderer, pos);
+			pos.x = (short)(cx + i);
+			pos.y = (short)(cy + j);
+			VerticalChunk& vn = World::getChunkAt(pos);
+			printf("cache %d: %d %d | %d %d\r", vn.id, vn.coord.x, vn.coord.y,
+			   vn.recache,
+			   vn.dirty
+			   );
+			cache(vn, renderer);
 		}
 	}
 	
@@ -101,35 +117,54 @@ void ChunkCache::cache(World& world, Renderer& renderer) {
 		int i;
 		int j = -n;
 		for (i = -n; i <= n; i++) {
-			t_pos2D pos = {(short)(cx + i), (short)(cy + j)};
+			pos.x = (short)(cx + i);
+			pos.y = (short)(cy + j);
 			if (renderer.camera.isChunkVisible(pos.x, pos.y)) {
-				VerticalChunk& vn = world.getChunkAt(pos);
-				cache(vn, renderer, pos);
+				VerticalChunk& vn = World::getChunkAt(pos);
+			printf("cache %d: %d %d | %d %d\r", vn.id, vn.coord.x, vn.coord.y,
+			   vn.recache,
+			   vn.dirty
+			   );
+				cache(vn, renderer);
 			}
 		}
 		j = n;
 		for (i = -n; i <= n; i++) {
-			t_pos2D pos = {(short)(cx + i), (short)(cy + j)};
-			if (renderer.camera.isChunkVisible(pos.x, pos.y))
-			{
-				VerticalChunk &vn = world.getChunkAt(pos);
-				cache(vn, renderer, pos);
+			pos.x = (short)(cx + i);
+			pos.y = (short)(cy + j);
+			if (renderer.camera.isChunkVisible(pos.x, pos.y)) {
+				VerticalChunk &vn = World::getChunkAt(pos);
+			printf("cache %d: %d %d | %d %d\r", vn.id, vn.coord.x, vn.coord.y,
+			   vn.recache,
+			   vn.dirty
+			   );
+				cache(vn, renderer);
 			}
 		}
 		i = -n;
 		for (j = 1 - n; j < n; j++) {
-			t_pos2D pos = {(short)(cx + i), (short)(cy + j)};
+			pos.x = (short)(cx + i);
+			pos.y = (short)(cy + j);
 			if (renderer.camera.isChunkVisible(pos.x, pos.y)) {
-				VerticalChunk &vn = world.getChunkAt(pos);
-				cache(vn, renderer, pos);
+				VerticalChunk &vn = World::getChunkAt(pos);
+			printf("cache %d: %d %d | %d %d\r", vn.id, vn.coord.x, vn.coord.y,
+			   vn.recache,
+			   vn.dirty
+			   );
+				cache(vn, renderer);
 			}
 		}
 		i = n;
 		for (j = 1 - n; j < n; j++) {
-			t_pos2D pos = {(short)(cx + i), (short)(cy + j)};
+			pos.x = (short)(cx + i);
+			pos.y = (short)(cy + j);
 			if (renderer.camera.isChunkVisible(pos.x, pos.y)) {
-				VerticalChunk &vn = world.getChunkAt(pos);
-				cache(vn, renderer, pos);
+				VerticalChunk &vn = World::getChunkAt(pos);
+			printf("cache %d: %d %d | %d %d\r", vn.id, vn.coord.x, vn.coord.y,
+			   vn.recache,
+			   vn.dirty
+			   );
+				cache(vn, renderer);
 			}
 		}
 	}
