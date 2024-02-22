@@ -73,21 +73,22 @@ struct DisplayList {
 		if (sealed) return 0;
 		sealed = 1;
 		// pad the list to 32 bytes with NOP
-		u8 sz = 32 - ((size * sizeof(VextexCache) + 3) & 31); // 3 = opcode + size
-		if (sz) {
-			u8 * end = (u8 *) (&vertex + size);
+		
+		u16 csz = size * sizeof(VextexCache) + 3;
+		u8 sz = 32 - csz & 31; // 3 = opcode + size
+		if (sz && sz < 32) {
+			u8 * end = (u8 *) (vertex + size);
 			for (u8 i = 0; i < sz; i++) end[i] = 0;
 		}
-		u16 csz = size * sizeof(VextexCache) + 3;
-		if (csz & 31) csz += 32 - (csz & 31);
-		DCFlushRange(&opcode, csz);
+		
+		DCFlushRange(&opcode, csz + sz);
 		return 0;
 	}
 	
 	void render() {
-		u16 sz = size * sizeof(VextexCache) + 3;
-		if (sz & 31) sz += 32 - (sz & 31);
-		GX_CallDispList(&opcode, sz);
+		u16 csz = size * sizeof(VextexCache) + 3;
+		u8 sz = 32 - csz & 31; // 3 = opcode + size
+		GX_CallDispList(&opcode, csz + sz);
 	}
 	
 } __attribute__((packed));
