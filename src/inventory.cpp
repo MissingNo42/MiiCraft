@@ -147,7 +147,7 @@ Craft Inventory::getCurrentCraft() {
     for(auto& it : Craft::craftList){
         bool isMatch = true;
         for(int i = 0; i < 9; i++)
-            if(!it.recipe[i].equals(currentCraft.recipe[i]))
+            if(!currentCraft.recipe[i].enoughToCraft(it.recipe[i]))
                 isMatch = false;
         if(isMatch) {
             return it;
@@ -183,11 +183,6 @@ void Inventory::getUniqueRecipe() {
     for(int i = 0; i < 9; i++)
         currentCraft.recipe[i] = craftSlots[i];
     while((!isValidRow || !isValidColumn) && count < 3 ){
-        for(int i = 0; i < 3; i++){
-            for(int j = 0; j < 3;j++){
-                //printf("Recipe[%d] = %s\r", i*3 + j, currentCraft.recipe[i*3 + j].item.ToString());
-            }
-        }
         for(int i = 0; i < 3; i++)
             if(!currentCraft.recipe[i].item.equals(Item::itemList[0]))
                 isValidRow = true;
@@ -207,8 +202,6 @@ void Inventory::getUniqueRecipe() {
                 currentCraft.recipe[6 + i].item = Item::itemList[0];
                 currentCraft.recipe[6 + i].quantity = 0;
             }
-            for(int i = 0; i < 9;i++)
-                printf("Recipe[%d] = %s\r", i, currentCraft.recipe[i].item.ToString());
         }
         if(!isValidColumn) {
             offsetColumn++;
@@ -220,6 +213,9 @@ void Inventory::getUniqueRecipe() {
                 currentCraft.recipe[i * 3 + 2].quantity = 0;
             }
         }
-        count++;
+        if(++count == 3){
+            offsetRow = 0;
+            offsetColumn = 0;
+        }
     }
 }

@@ -4,7 +4,7 @@
 
 #include "craft.h"
 
-bool Slot::equals(Slot s) const {
+bool Slot::enoughToCraft(Slot s) const {
     return s.item.equals(item) && s.quantity <= quantity;
 }
 
