@@ -462,6 +462,7 @@ void GUI::renderInventory(Player &player) const {
 
 
         for (int i = 0; i < 9; i++) {
+            printf("%d\r", player.inventory.inventory[0][i].item.type);
             GX_Position3f32(-0.42 + i * 0.098, -0.62, 0);
             GX_Normal1x8(4);
             GX_Color1u32(white);

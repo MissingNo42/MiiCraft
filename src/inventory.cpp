@@ -71,7 +71,7 @@ void Inventory::dropItem(int slot, bool unique, bool craftSlot){
                             pickedItem.item = Item::itemList[0];
                     }
                     else {
-                        int stack = inventory[1 + currentPage * 3 + slot / 9][slot % 9].quantity += pickedItem.quantity;
+                        int stack = inventory[1 + currentPage * 3 + slot / 9][slot % 9].quantity + pickedItem.quantity;
                         if(stack > 64){
                             pickedItem.quantity = stack - 64;
                             inventory[1 + currentPage * 3 + slot / 9][slot % 9].quantity = 64;
@@ -100,8 +100,23 @@ void Inventory::dropItem(int slot, bool unique, bool craftSlot){
                     pickedItem.item = Item::itemList[0];
             }
             else {
-                inventory[0][slot % 9] = pickedItem;
-                pickedItem = temp;
+                if (pickedItem.item.equals(inventory[0][slot % 9].item)) {
+                    int stack = inventory[0][slot % 9].quantity + pickedItem.quantity;
+
+                    if (stack > 64) {
+                        pickedItem.quantity = stack - 64;
+                        inventory[0][slot % 9].quantity = 64;
+                    } else {
+                        inventory[0][slot % 9].quantity += pickedItem.quantity;
+                        pickedItem.quantity = 0;
+                    }
+                    if (pickedItem.quantity == 0)
+                        pickedItem.item = Item::itemList[0];
+                }
+                else {
+                    inventory[0][slot % 9] = pickedItem;
+                    pickedItem = temp;
+                }
             }
         }
     }
@@ -132,7 +147,6 @@ Craft Inventory::getCurrentCraft() {
             if(!it.recipe[i].equals(craftSlots[i]))
                 isMatch = false;
         if(isMatch) {
-            printf("Crafted\r");
             return it;
         }
     }
