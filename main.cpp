@@ -62,6 +62,8 @@ int main(int, char **) {
 
         player.renderer.camera.loadPerspective();
 
+		player.renderer.renderSky();
+		
         pos.x = floor(player.renderer.camera.pos.x);
         pos.y = floor(player.renderer.camera.pos.y);
         pos.z = floor(player.renderer.camera.pos.z);

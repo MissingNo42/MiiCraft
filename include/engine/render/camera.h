@@ -28,7 +28,7 @@ public:
      * @param min Minimum render distance
      * @param max Maximum render distance
      */
-    explicit Camera(f32 fov = 45, f32 min = .1, f32 max = 128);
+    explicit Camera(f32 fov = 45, f32 min = .1, f32 max = 256);
 
     ~Camera() = default;
 

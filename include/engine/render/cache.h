@@ -13,9 +13,10 @@
 #include "render.h"
 
 #define LIST_SIZE 1036 // op + sz + vtx[LIST_SIZE] = 32 N
-#define LIST_NUM 256
+#define LIST_NUM 350
 
 #define WHITE 64
+#define BLUE 65
 
 extern const u32 Lights[][4] ATTRIBUTE_ALIGN(32);
 

@@ -94,10 +94,6 @@ void ChunkCache::cache(Renderer& renderer) {
 	ChunkCoord pos {cx, cy};
 	
 	VerticalChunk& vc = World::getChunkAt(pos);
-	printf("cache %d: %d %d (%d %d  |  %.2f %.2f) | %d %d\r", vc.id, vc.coord.x, vc.coord.y, pos.x, pos.y, x, y,
-	   vc.recache,
-	   vc.dirty
-	   );
 	cache(vc, renderer); // cache the current chunk
 	
 	for (int i = -1; i < 2; i++) {  // cache the surrounding chunks
@@ -105,10 +101,6 @@ void ChunkCache::cache(Renderer& renderer) {
 			pos.x = (short)(cx + i);
 			pos.y = (short)(cy + j);
 			VerticalChunk& vn = World::getChunkAt(pos);
-			printf("cache %d: %d %d | %d %d\r", vn.id, vn.coord.x, vn.coord.y,
-			   vn.recache,
-			   vn.dirty
-			   );
 			cache(vn, renderer);
 		}
 	}
@@ -121,10 +113,6 @@ void ChunkCache::cache(Renderer& renderer) {
 			pos.y = (short)(cy + j);
 			if (renderer.camera.isChunkVisible(pos.x, pos.y)) {
 				VerticalChunk& vn = World::getChunkAt(pos);
-			printf("cache %d: %d %d | %d %d\r", vn.id, vn.coord.x, vn.coord.y,
-			   vn.recache,
-			   vn.dirty
-			   );
 				cache(vn, renderer);
 			}
 		}
@@ -134,10 +122,6 @@ void ChunkCache::cache(Renderer& renderer) {
 			pos.y = (short)(cy + j);
 			if (renderer.camera.isChunkVisible(pos.x, pos.y)) {
 				VerticalChunk &vn = World::getChunkAt(pos);
-			printf("cache %d: %d %d | %d %d\r", vn.id, vn.coord.x, vn.coord.y,
-			   vn.recache,
-			   vn.dirty
-			   );
 				cache(vn, renderer);
 			}
 		}
@@ -147,10 +131,6 @@ void ChunkCache::cache(Renderer& renderer) {
 			pos.y = (short)(cy + j);
 			if (renderer.camera.isChunkVisible(pos.x, pos.y)) {
 				VerticalChunk &vn = World::getChunkAt(pos);
-			printf("cache %d: %d %d | %d %d\r", vn.id, vn.coord.x, vn.coord.y,
-			   vn.recache,
-			   vn.dirty
-			   );
 				cache(vn, renderer);
 			}
 		}
@@ -160,10 +140,6 @@ void ChunkCache::cache(Renderer& renderer) {
 			pos.y = (short)(cy + j);
 			if (renderer.camera.isChunkVisible(pos.x, pos.y)) {
 				VerticalChunk &vn = World::getChunkAt(pos);
-			printf("cache %d: %d %d | %d %d\r", vn.id, vn.coord.x, vn.coord.y,
-			   vn.recache,
-			   vn.dirty
-			   );
 				cache(vn, renderer);
 			}
 		}

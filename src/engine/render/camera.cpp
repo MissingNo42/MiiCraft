@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <cstdio>
+#include <malloc.h>
 #include "engine/render/camera.h"
 #include "engine/render/renderer.h"
 
@@ -20,6 +21,23 @@ Camera::Camera(f32 fov, f32 min, f32 max) : angleY(0), fovy(fov * M_PI / 180.f),
     guMtxRowCol(view2Dsquare, 1, 1) = ratio;
 
     GX_LoadProjectionMtx(perspective, GX_PERSPECTIVE);
+	
+	/// Fog setup
+	/*
+    GXColor greyBackground = {0xd0, 0xd0, 0xe0, 0xff};
+    GX_SetFog(GX_FOG_PERSP_LIN, 900, 990, 2, 1200, greyBackground);
+
+    GXFogAdjTbl* fogTable = (GXFogAdjTbl*)memalign(32, 8 * sizeof(GXFogAdjTbl));
+
+    f32 projmtx[4][4] = {
+            {2.0f / (f32)Renderer::rmode->fbWidth, 0.0f, 0.0f, 0.0f},
+            {0.0f, 2.0f / (f32)Renderer::rmode->efbHeight, 0.0f, 0.0f},
+            {0.0f, 0.0f, 0.0f, 0.0f},
+            {-1.0f, -1.0f, 0.0f, 1.0f}
+    };
+
+    GX_InitFogAdjTable(fogTable, Renderer::rmode->fbWidth, projmtx);
+    GX_SetFogRangeAdj(true, 500, fogTable);*/
 }
 
 void Camera::update(bool applyTransform) {

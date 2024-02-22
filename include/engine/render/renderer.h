@@ -9,7 +9,7 @@
 #include "camera.h"
 #include "../../../src/world/block.h"
 
-#define DEFAULT_FIFO_SIZE 262144  // (256 * 1024) // TODO : Need to be increased !!!
+#define DEFAULT_FIFO_SIZE 262144  // (256 * 1024)
 
 class Renderer {
 	static void * gp_fifo;
@@ -17,7 +17,7 @@ class Renderer {
 public:
 	Camera camera;
 	
-	static GXColor background; // blue
+	static GXColor background;
 	static void * frameBuffer, *frameBuffers[2];
 	static int selectFrameBuffer;
 	static GXRModeObj * rmode;
@@ -29,6 +29,8 @@ public:
 	static void setupTexture();
 	
 	static void endFrame();
+	
+	void renderSky();
 	
 	void renderBloc(const guVector &coord, u32 code,
 					int top, int bottom, int left, int right, int front, int back,

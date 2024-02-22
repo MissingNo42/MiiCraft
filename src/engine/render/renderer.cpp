@@ -7,7 +7,6 @@
 #include <string.h>
 #include "engine/render/renderer.h"
 #include "engine/render/bloc.h"
-#include "../../world/block.h"
 #include "texture.c"
 #include "render/cache.h"
 
@@ -18,9 +17,8 @@ void * Renderer::gp_fifo = nullptr;
 
 GXTexObj Renderer::texture ATTRIBUTE_ALIGN(32);
 
-
 GXRModeObj * Renderer::rmode;
-GXColor Renderer::background =  {0x29, 0xae, 0xea, 0xff}; // blue = {0x29, 0xae, 0xea, 0xff}; // blue
+GXColor Renderer::background =  {0, 0, 0, 0xff}; // blue = {0x29, 0xae, 0xea, 0xff}; // blue
 
 
 void Renderer::setupVideo() {
@@ -58,32 +56,8 @@ void Renderer::setupVideo() {
 	
 	GX_SetPixelFmt(rmode->aa ? GX_PF_RGB565_Z16 : GX_PF_RGB8_Z24, GX_ZC_LINEAR);
 	
-	//GX_SetCullMode(GX_CULL_FRONT); // TODO: set to GX_CULL_BACK to disable backface culling (INIT as default)
 	GX_CopyDisp(frameBuffer, GX_TRUE);
 	GX_SetDispCopyGamma(GX_GM_1_0);
-
-    ///FOG
-    /*
-    GXColor greyBackground = {0x80, 0x80, 0x80, 0xff};
-//    GX_SetFog(GX_FOG_PERSP_LIN, 900, 990, 20, 1200, greyBackground);
-
-//    GXFogAdjTbl* fogTable = (GXFogAdjTbl*)memalign(32, 8 * sizeof(GXFogAdjTbl));
-//
-//    f32 projmtx[4][4] = {
-//            {2.0f / rmode->fbWidth, 0.0f, 0.0f, 0.0f},
-//            {0.0f, 2.0f / rmode->efbHeight, 0.0f, 0.0f},
-//            {0.0f, 0.0f, 0.0f, 0.0f},
-//            {-1.0f, -1.0f, 0.0f, 1.0f}
-//    };
-//
-//    GX_InitFogAdjTable(fogTable, rmode->fbWidth, projmtx);
-//    GX_SetFogRangeAdj(true, 500, fogTable);
-
-	// setup texture coordinate generation
-	// args: texcoord slot 0-7, matrix type, source to generate texture coordinates from, matrix to use
-	*/
-
-    ///End Fog
 
      GX_SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX3x4, GX_TG_TEX0, GX_IDENTITY);
 
@@ -128,8 +102,6 @@ void Renderer::setupTexture() {
 	
 	GX_InvalidateTexAll();
 
-
-
     TPL_OpenTPLFromMemory(&TPLfile, (void *)texture_data, texture_sz);
     TPL_GetTexture(&TPLfile, 0, &texture);
     GX_InitTexObjLOD(&texture, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
@@ -147,8 +119,6 @@ void Renderer::setupTexture() {
 }
 
 void Renderer::endFrame() {
-	//GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
-	//GX_SetColorUpdate(GX_TRUE);
 	GX_CopyDisp(frameBuffer, GX_TRUE);
 	
 	GX_DrawDone();
@@ -159,10 +129,32 @@ void Renderer::endFrame() {
 
 	selectFrameBuffer ^= 1;
 	frameBuffer = frameBuffers[selectFrameBuffer];
-
-
 }
 
+
+void Renderer::renderSky() {
+	f32 x = camera.max * tan(camera.fovx), y = camera.max * tan(camera.fovy), z = camera.max;
+
+	GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
+
+    GX_Position3f32(-x, y, -z);
+    GX_Color1x8(BLUE);
+    GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(9));
+	
+    GX_Position3f32(x, y, -z);
+    GX_Color1x8(BLUE);
+    GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(9));
+	
+    GX_Position3f32(x, -y, -z);
+    GX_Color1x8(BLUE);
+    GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(9));
+	
+    GX_Position3f32(-x, -y, -z);
+    GX_Color1x8(BLUE);
+    GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(9));
+	
+	GX_End();
+}
 
 
 void Renderer::renderBloc(const guVector &coord, u32 code,
