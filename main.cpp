@@ -9,9 +9,11 @@
 #include <ctype.h>
 #include <math.h>
 #include <wiiuse/wpad.h>
-#include <mp3player.h>
-#include <asndlib.h>
+//#include <mp3player.h>
+#include <aesndlib.h>
 #include <iostream>
+#include <gcmodplay.h>
+
 
 
 #include "wiimote.h"
@@ -26,6 +28,12 @@
 
 
 #include "assets/test.c"
+
+#include "assets/sounds/step1.c"
+
+static MODPlay play;
+
+
 
 int exiting = 0;
 
@@ -317,8 +325,9 @@ int main(int, char **) {
 	PAD_Init();
 	WPAD_Init();
 
-    ASND_Init();
-    MP3Player_Init();
+    AESND_Init();
+
+    //MP3Player_Init();
 
 
     Renderer::setupVideo();
@@ -346,10 +355,20 @@ int main(int, char **) {
     t_coord pos(0,0,0);
     World& w = Game::getInstance()->getWorld();
 
+    MODPlay_Init(&play);
+    MODPlay_SetMOD(&play,step1_data);
+    MODPlay_SetVolume(&play,63,63);
+    MODPlay_TriggerNote(&play, 0, 0, 48000, 63);
+//    MODPlay_Start(&play);
+
+
+
     //printf("end init\r");
     while (!exiting) {
 
         player.renderer.camera.loadPerspective();
+
+
 
         pos.x = floor(player.renderer.camera.pos.x);
         pos.y = floor(player.renderer.camera.pos.y);
@@ -368,6 +387,7 @@ int main(int, char **) {
 
         renderWorld(w, player.renderer, w.to_chunk_pos(pos));
         wiimote.update(player, w);
+
 
 		//renderer.renderBloc({4, 0, 0}, 1);
 		//renderer.renderBloc({7, -1, 0}, 1);
@@ -416,7 +436,7 @@ int main(int, char **) {
 
         // inventory
 
-        MP3Player_PlayBuffer(test_data, test_sz, NULL);
+//        MP3Player_PlayBuffer(test_data, test_sz, NULL);
 
         if (player.inventory_open){
             GX_Begin(GX_QUADS, GX_VTXFMT0, 148); // Start drawing

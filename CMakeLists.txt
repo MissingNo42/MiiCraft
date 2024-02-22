@@ -88,10 +88,9 @@ endfunction()
 #target_link_libraries(Miicraft assets)
 
 #add_compile_options(-lfat)
-target_link_libraries(Miicraft fat)
+target_link_libraries(Miicraft fat  modplay mad bte)
 
-target_link_libraries(Miicraft mad )
+target_link_libraries(Miicraft aesnd asnd)
 
-target_link_libraries(Miicraft asnd)
 
 ogc_create_dol(Miicraft)

@@ -1,6 +1,6 @@
-name = "test"
+name = "sounds/step1"
 
-r = open(f"{name}.mp3", "rb").read()
+r = open(f"{name}.mod", "rb").read()
 
 sz = len(r)
 dt = ", ".join(map(hex, r))
