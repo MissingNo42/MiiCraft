@@ -9,7 +9,7 @@
 
 struct Slot {
     explicit Slot(BlockType type = BlockType::Air, int quantity = 0);
-    bool equals(Slot) const;
+    bool enoughToCraft(Slot) const;
     Item item;
     int quantity;
 };

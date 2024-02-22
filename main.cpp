@@ -345,10 +345,6 @@ int main(int, char **) {
         pos.y = floor(player.renderer.camera.pos.y);
         pos.z = floor(player.renderer.camera.pos.z);
 
-
-
-
-
         player.renderer.camera.update(true);
 		
         Game::getInstance()->requestChunk(w.to_chunk_pos(pos));

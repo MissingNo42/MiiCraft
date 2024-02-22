@@ -40,10 +40,12 @@ void Inventory::pickItem(int slot, bool craftSlot) {
         }
         else if(slot == 9 && pickedItem.item.equals(Item::itemList[0])){
             pickedItem = craftSlots[slot];
-            for(int i = 0; i < 9; i++){
-                craftSlots[i].quantity -= currentCraft.recipe[i].quantity;
-                if(craftSlots[i].quantity == 0)
-                    craftSlots[i].item = Item::itemList[0];
+            for(int i = 0; i < 3 - offsetColumn; i++){
+                for(int j = 0; j < 3 - offsetRow; j++) {
+                    craftSlots[(i + offsetRow)*3 + j + offsetColumn].quantity -= currentCraft.recipe[i*3+j].quantity;
+                    if (craftSlots[(i + offsetRow)*3 + j + offsetColumn].quantity == 0)
+                        craftSlots[(i + offsetRow)*3 + j + offsetColumn].item = Item::itemList[0];
+                }
             }
         }
         currentCraft = getCurrentCraft();
@@ -141,10 +143,11 @@ void Inventory::dropItem(int slot, bool unique, bool craftSlot){
 }
 
 Craft Inventory::getCurrentCraft() {
+    getUniqueRecipe();
     for(auto& it : Craft::craftList){
         bool isMatch = true;
         for(int i = 0; i < 9; i++)
-            if(!it.recipe[i].equals(craftSlots[i]))
+            if(!currentCraft.recipe[i].enoughToCraft(it.recipe[i]))
                 isMatch = false;
         if(isMatch) {
             return it;
@@ -169,4 +172,50 @@ void Inventory::resetInventory() {
         }
     }
     inventory[1][0] = Slot(static_cast<BlockType>(BlockType::Air), 0);
+}
+
+void Inventory::getUniqueRecipe() {
+    bool isValidRow = false;
+    bool isValidColumn = false;
+    int count = 0;
+    offsetRow = 0;
+    offsetColumn = 0;
+    for(int i = 0; i < 9; i++)
+        currentCraft.recipe[i] = craftSlots[i];
+    while((!isValidRow || !isValidColumn) && count < 3 ){
+        for(int i = 0; i < 3; i++)
+            if(!currentCraft.recipe[i].item.equals(Item::itemList[0]))
+                isValidRow = true;
+
+        for(int i = 0; i < 3; i++)
+            if(!currentCraft.recipe[i * 3].item.equals(Item::itemList[0]))
+                isValidColumn = true;
+
+        if(!isValidRow) {
+            offsetRow++;
+            for(int i = 1; i < 3; i++){
+                for(int j = 0; j < 3; j++){
+                    currentCraft.recipe[(i-1) * 3 + j] = currentCraft.recipe[i * 3 + j];
+                }
+            }
+            for(int i = 0; i < 3; i++){
+                currentCraft.recipe[6 + i].item = Item::itemList[0];
+                currentCraft.recipe[6 + i].quantity = 0;
+            }
+        }
+        if(!isValidColumn) {
+            offsetColumn++;
+            for(int i = 1; i < 3; i++)
+                for(int j = 0; j < 3; j++)
+                    currentCraft.recipe[j * 3 + (i-1)] = currentCraft.recipe[j * 3 + i];
+            for(int i = 0; i < 3; i++){
+                currentCraft.recipe[i * 3 + 2].item = Item::itemList[0];
+                currentCraft.recipe[i * 3 + 2].quantity = 0;
+            }
+        }
+        if(++count == 3){
+            offsetRow = 0;
+            offsetColumn = 0;
+        }
+    }
 }

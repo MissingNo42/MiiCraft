@@ -20,6 +20,8 @@ public:
     Slot pickedItem{};
     Slot craftSlots[10];
     Slot inventory[10][9];
+    int offsetRow = 0;
+    int offsetColumn = 0;
     Craft currentCraft{};
     int currentPage;
 
@@ -29,6 +31,8 @@ public:
     void dropItem(int slot, bool unique, bool craftSlot);
     Craft getCurrentCraft();
     void action(int slot, bool craftSlot);
+
+    void getUniqueRecipe();
 };
 
 

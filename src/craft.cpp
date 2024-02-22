@@ -4,7 +4,7 @@
 
 #include "craft.h"
 
-bool Slot::equals(Slot s) const {
+bool Slot::enoughToCraft(Slot s) const {
     return s.item.equals(item) && s.quantity <= quantity;
 }
 
@@ -38,111 +38,28 @@ Craft Craft::craftList[11] = {
 
         // Buches => planches
         Craft(Slot{BlockType::WoodOak, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
+              Slot{BlockType::Air, 0},
+              Slot{BlockType::Air, 0},
+              Slot{BlockType::Air, 0},
+              Slot{BlockType::Air, 0},
+              Slot{BlockType::Air, 0},
+              Slot{BlockType::Air, 0},
+              Slot{BlockType::Air, 0},
+              Slot{BlockType::Air, 0},
               Slot{BlockType::PlankOak, 4}
         ),
 
-        Craft(Slot{BlockType::Air, 1},
-              Slot{BlockType::WoodOak, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::PlankOak, 4}
-        ),
-
-        Craft(Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::WoodOak, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::PlankOak, 4}
-        ),
-
-        Craft(Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::WoodOak, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::PlankOak, 4}
-        ),
-
-        Craft(Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::WoodOak, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::PlankOak, 4}
-        ),
-
-        Craft(Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::WoodOak, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::PlankOak, 4}
-        ),
-
-        Craft(Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::WoodOak, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::PlankOak, 4}
-        ),
-
-        Craft(Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::WoodOak, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::PlankOak, 4}
-        ),
-
-        Craft(Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::Air, 1},
-              Slot{BlockType::WoodOak, 1},
-              Slot{BlockType::PlankOak, 4}
+        // Crafting Table
+        Craft(Slot{BlockType::PlankOak, 1},
+        Slot{BlockType::PlankOak, 1},
+        Slot{BlockType::Air, 0},
+        Slot{BlockType::PlankOak, 1},
+        Slot{BlockType::PlankOak, 1},
+        Slot{BlockType::Air, 0},
+        Slot{BlockType::Air, 0},
+        Slot{BlockType::Air, 0},
+        Slot{BlockType::Air, 0},
+        Slot{BlockType::CraftingTable, 1}
         ),
 
         Craft(Slot{BlockType::Stone,1},
