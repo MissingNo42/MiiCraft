@@ -59,14 +59,15 @@ guVector Player::InverseVector(const guVector& v){
 
 
 void Player::goUp(t_coord coord, World &w, float velocity, bool collision) {
+    f32 size = sneak ? 0.70005 : 0.40005;
     f32 x = renderer.camera.pos.x + 1;
     f32 y = renderer.camera.pos.y + 1;
     f32 z = renderer.camera.pos.z + 1;
     if ( collision ){
-        if (w.getBlockAt({(int)floor(x + 0.3), (int)floor(y + 1 + velocity /10), (int)floor(z + 0.3)}).type <= BlockType::Air
-            && w.getBlockAt({(int)floor(x - 0.3), (int)floor(y + 1 +velocity /10), (int)floor(z + 0.3)}).type <= BlockType::Air
-            && w.getBlockAt({(int)floor(x + 0.3), (int)floor(y + 1 + velocity /10), (int)floor(z - 0.3)}).type <= BlockType::Air
-            && w.getBlockAt({(int)floor(x - 0.3), (int)floor(y + 1 + velocity /10), (int)floor(z - 0.3)}).type <= BlockType::Air)
+        if (w.getBlockAt({(int)floor(x + 0.3), (int)ceil(y + size + velocity /10 - 1), (int)floor(z + 0.3)}).type <= BlockType::Air
+            && w.getBlockAt({(int)floor(x - 0.3), (int)ceil(y + size +velocity /10 - 1), (int)floor(z + 0.3)}).type <= BlockType::Air
+            && w.getBlockAt({(int)floor(x + 0.3), (int)ceil(y + size + velocity /10 - 1), (int)floor(z - 0.3)}).type <= BlockType::Air
+            && w.getBlockAt({(int)floor(x - 0.3), (int)ceil(y + size + velocity /10 - 1), (int)floor(z - 0.3)}).type <= BlockType::Air)
             if(!cameraLocked) {
                 renderer.camera.pos.y += velocity /10;
             }
@@ -75,8 +76,8 @@ void Player::goUp(t_coord coord, World &w, float velocity, bool collision) {
                 renderer.camera.look.y -= velocity /10;
             }
         else{
-            //renderer.camera.look.y -= (f32) renderer.camera.pos.y - (f32) coord.y -1.1f;
-            renderer.camera.pos.y = (f32) floor(y) -0.1f;
+            renderer.camera.pos.y = (f32) ceil(y + 0.40005 + velocity /10 - 1) - 1.1005f;
+            Velocity = 0.6;
         }
 
     }
@@ -92,14 +93,15 @@ void Player::goUp(t_coord coord, World &w, float velocity, bool collision) {
 
 
 void Player::goDown(t_coord coord, World &w, float velocity, bool collision ) {
+    f32 size = sneak ? 1.3 : 1.6;
     f32 x = renderer.camera.pos.x + 1;
     f32 y = renderer.camera.pos.y + 1;
     f32 z = renderer.camera.pos.z + 1;
     if (collision){
-        if (w.getBlockAt({(int)floor(x + 0.3), (int)floor(y - 1.6), (int)floor(z + 0.3)}).type <= BlockType::Air
-        && w.getBlockAt({(int)floor(x - 0.3), (int)floor(y - 1.6), (int)floor(z + 0.3)}).type <= BlockType::Air
-           && w.getBlockAt({(int)floor(x + 0.3), (int)floor(y - 1.6), (int)floor(z - 0.3)}).type <= BlockType::Air
-              && w.getBlockAt({(int)floor(x - 0.3), (int)floor(y - 1.6), (int)floor(z - 0.3)}).type <= BlockType::Air) {
+        if (w.getBlockAt({(int)floor(x + 0.3), (int)floor(y - size - velocity / 10), (int)floor(z + 0.3)}).type <= BlockType::Air
+        && w.getBlockAt({(int)floor(x - 0.3), (int)floor(y - size - velocity / 10), (int)floor(z + 0.3)}).type <= BlockType::Air
+           && w.getBlockAt({(int)floor(x + 0.3), (int)floor(y - size - velocity / 10), (int)floor(z - 0.3)}).type <= BlockType::Air
+              && w.getBlockAt({(int)floor(x - 0.3), (int)floor(y - size - velocity / 10), (int)floor(z - 0.3)}).type <= BlockType::Air) {
             if (!cameraLocked) {
                 renderer.camera.pos.y -= velocity / 10;
             } else {
@@ -108,11 +110,7 @@ void Player::goDown(t_coord coord, World &w, float velocity, bool collision ) {
             }
         }
         else{
-            if (sneak) {renderer.camera.pos.y = (f32) floor (y )+ 0.3f;}
-            else {
-                renderer.camera.pos.y = floor(y);
-                renderer.camera.pos.y += 0.6f;
-            }
+            renderer.camera.pos.y = floor(y - size - velocity / 10) + size + 0.00001f;
         }
     }
     else {
@@ -129,7 +127,7 @@ void Player::goDown(t_coord coord, World &w, float velocity, bool collision ) {
 void Player::Jump() {
     if (Velocity == 0.0 && !isJumping){
         isJumping = true;
-        Velocity = -2.0;
+        Velocity = -1.65;
     }
 }
 
@@ -351,7 +349,10 @@ void Player::move(World &w, joystick_t sticks) {
                                               && w.getBlockAt({(int) floor(offsetX + camX + 1 + move.x), (int) (camY + 0.5),
                                                                (int) floor(camZ + 0.7)}).type <= BlockType::Air){
             if (sneak && !isJumping ) {
-                if (w.getBlockAt({(int) floor(camX +1 + move.x), (int)(camY - 1), (int) floor(camZ + 1)}).type > BlockType::Air) {
+                if (w.getBlockAt({(int) floor(camX +1.3 + move.x), (int)(camY - 1), (int) floor(camZ + 1.3)}).type > BlockType::Air
+                || w.getBlockAt({(int) floor(camX +0.7 + move.x), (int)(camY - 1), (int) floor(camZ + 1.3)}).type > BlockType::Air
+                   || w.getBlockAt({(int) floor(camX +1.3 + move.x), (int)(camY - 1), (int) floor(camZ + 0.7)}).type > BlockType::Air
+                      || w.getBlockAt({(int) floor(camX +0.7 + move.x), (int)(camY - 1), (int) floor(camZ + 0.7)}).type > BlockType::Air) {
                     renderer.camera.pos.x += move.x;
                 }
             }
@@ -373,7 +374,10 @@ void Player::move(World &w, joystick_t sticks) {
                && w.getBlockAt({(int) floor(camX + 0.7), (int) (camY + 0.5),
                                 (int) floor(offsetZ +camZ + 1 + move.z)}).type <= BlockType::Air) {
             if (sneak && !isJumping ) {
-                if (w.getBlockAt({(int) floor(camX +1), (int)(camY - 1), (int) floor(camZ + 1 + move.z)}).type > BlockType::Air) {
+                if (w.getBlockAt({(int) floor(camX +0.7), (int)(camY - 1), (int) floor(camZ + 1.3 + move.z)}).type > BlockType::Air
+                || w.getBlockAt({(int) floor(camX +0.7), (int)(camY - 1), (int) floor(camZ + 0.7 + move.z)}).type > BlockType::Air
+                   || w.getBlockAt({(int) floor(camX +1.3), (int)(camY - 1), (int) floor(camZ + 1.3 + move.z)}).type > BlockType::Air
+                      || w.getBlockAt({(int) floor(camX +1.3), (int)(camY - 1), (int) floor(camZ + 0.7 + move.z)}).type > BlockType::Air) {
                     renderer.camera.pos.z += move.z;
                 }
             }
@@ -398,19 +402,19 @@ void Player::handleGravity(World &w, t_coord& coord) {
     f32 y = renderer.camera.pos.y + 1;
     f32 z = renderer.camera.pos.z + 1;
 
-    bool canGoDown = (w.getBlockAt({(int)floor(x + 0.3), (int)floor(y - 1.8), (int)floor(z + 0.3)}).type <= BlockType::Air
-                      && w.getBlockAt({(int)floor(x - 0.3), (int)floor(y - 1.8), (int)floor(z + 0.3)}).type <= BlockType::Air
-                      && w.getBlockAt({(int)floor(x + 0.3), (int)floor(y - 1.8), (int)floor(z - 0.3)}).type <= BlockType::Air
-                      && w.getBlockAt({(int)floor(x - 0.3), (int)floor(y - 1.8), (int)floor(z - 0.3)}).type <= BlockType::Air);
+    bool canGoDown = (w.getBlockAt({(int)floor(x + 0.3), (int)floor(y - 1.6005), (int)floor(z + 0.3)}).type <= BlockType::Air
+                      && w.getBlockAt({(int)floor(x - 0.3), (int)floor(y - 1.6005), (int)floor(z + 0.3)}).type <= BlockType::Air
+                      && w.getBlockAt({(int)floor(x + 0.3), (int)floor(y - 1.6005), (int)floor(z - 0.3)}).type <= BlockType::Air
+                      && w.getBlockAt({(int)floor(x - 0.3), (int)floor(y - 1.6005), (int)floor(z - 0.3)}).type <= BlockType::Air);
 
     if (isJumping || canGoDown){
         Velocity += Acceleration;
-        printf("%f %f %f\r", floor(x), floor(y - 1.8), floor(z));
+        //printf("%f %f %f\r", floor(x), floor(y - 1.8), floor(z));
         if (!canGoDown && Velocity > 0)
             isJumping = false;
     } else {
         Velocity = 0;
-        printf("%f %f %f\r", floor(x), floor(y - 1.8), floor(z));
+        //printf("%f %f %f\r", floor(x), floor(y - 1.8), floor(z));
         goDown(coord, w, 0);
     }
     if (Velocity < 0) {

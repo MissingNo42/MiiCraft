@@ -398,7 +398,7 @@ int main(int, char **) {
 		//drawdot(rmode->fbWidth, rmode->xfbHeight, 0, 0, COLOR_YELLOW);
 
 		//Renderer::setupDebugConsole();
-        printf("x: %f, y: %f, z: %f\r", player.renderer.camera.pos.x, player.renderer.camera.pos.y, player.renderer.camera.pos.z);
+        printf("Pos joueur : %f, %f, %f\r", player.renderer.camera.pos.x, player.renderer.camera.pos.y, player.renderer.camera.pos.z);
 
 
         u32 white = 0xFFFFFFFF;
