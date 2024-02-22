@@ -16,6 +16,8 @@ public:
     explicit Item(BlockType type = BlockType::Air);
     static std::vector<Item> itemList;
     [[nodiscard]] bool equals(Item) const;
+
+    char* ToString() const;
 };
 
 
