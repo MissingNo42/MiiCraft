@@ -400,14 +400,15 @@ void Player::handleGravity(World &w, t_coord& coord) {
     if (!gravity)
         return;
 
+    f32 size = sneak ? 1.3005 : 1.6005;
     f32 x = renderer.camera.pos.x + 1;
     f32 y = renderer.camera.pos.y + 1;
     f32 z = renderer.camera.pos.z + 1;
 
-    bool canGoDown = (w.getBlockAt({(int)floor(x + 0.3), (int)floor(y - 1.6005), (int)floor(z + 0.3)}).type <= BlockType::Air
-                      && w.getBlockAt({(int)floor(x - 0.3), (int)floor(y - 1.6005), (int)floor(z + 0.3)}).type <= BlockType::Air
-                      && w.getBlockAt({(int)floor(x + 0.3), (int)floor(y - 1.6005), (int)floor(z - 0.3)}).type <= BlockType::Air
-                      && w.getBlockAt({(int)floor(x - 0.3), (int)floor(y - 1.6005), (int)floor(z - 0.3)}).type <= BlockType::Air);
+    bool canGoDown = (w.getBlockAt({(int)floor(x + 0.3), (int)floor(y - size), (int)floor(z + 0.3)}).type <= BlockType::Air
+                      && w.getBlockAt({(int)floor(x - 0.3), (int)floor(y - size), (int)floor(z + 0.3)}).type <= BlockType::Air
+                      && w.getBlockAt({(int)floor(x + 0.3), (int)floor(y - size), (int)floor(z - 0.3)}).type <= BlockType::Air
+                      && w.getBlockAt({(int)floor(x - 0.3), (int)floor(y - size), (int)floor(z - 0.3)}).type <= BlockType::Air);
 
     if (isJumping || canGoDown){
         Velocity += Acceleration;
