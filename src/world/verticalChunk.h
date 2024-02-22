@@ -8,7 +8,7 @@
 #include "coord.h"
 #include "block.h"
 #include <cstdint>
-
+#include <queue>
 
 
 struct t_pos2D{
@@ -62,6 +62,10 @@ public:
     void fillWithBedrock();
 
     VerticalChunk *VC_GetNeighboor(int indice);
+
+    std::queue<t_coord> lightQueue;
+    std::queue<t_coord> blockLightQueue;
+
 };
 
 

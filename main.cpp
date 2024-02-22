@@ -372,6 +372,7 @@ int main(int, char **) {
 
 
 		Renderer::endFrame();
+
 	}
 	
 	if (exiting == 2) SYS_ResetSystem(SYS_SHUTDOWN, 0, 0);
