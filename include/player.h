@@ -6,7 +6,8 @@
 #define MIICRAFTTEST_PLAYER_H
 
 
-#include "render/renderer.h"
+#include "engine/render/renderer.h"
+#include "inventory.h"
 #include <wiiuse/wpad.h>
 #include <vector>
 
@@ -27,9 +28,9 @@ public:
     bool sprint;
     bool cameraLocked;
     int breakingState{};
-    int selected_spot = 0;
-    bool inventory_open = false;
     bool sneak = false;
+    Inventory inventory;
+    bool creative ;
     BlockType hotbar[9] = {BlockType::Stone, BlockType::Dirt, BlockType::PlankOak, BlockType::WoodOak, BlockType::LeaveOak, BlockType::Glass, BlockType::Bedrock, BlockType::Glowstone, BlockType::Sand};
     Player(f32 x, f32 y, f32 z);
     Player();

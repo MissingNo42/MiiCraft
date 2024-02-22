@@ -156,6 +156,7 @@ enum BlockType : u8 {
     Glass,
     ClearIce,
     Water,
+    Blocks = Water,
 
 
     //Bloc Breaking

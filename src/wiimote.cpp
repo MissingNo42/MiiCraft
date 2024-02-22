@@ -24,6 +24,42 @@ void Wiimote::update(Player& player, World& w) {
     } while (wiimote_connection_status != WPAD_ERR_NONE);
 
     wd = WPAD_Data(chan);
+
+    if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_UP)
+        player.inventory.open = !player.inventory.open;
+    t_coord coord(floor(player.renderer.camera.pos.x+1), floor(player.renderer.camera.pos.y), floor(player.renderer.camera.pos.z+1));
+    if (player.inventory.open){
+        f32 x = 2 * wd->ir.x / (f32)Renderer::rmode->fbWidth;
+        f32 y = -2 * wd->ir.y / (f32)Renderer::rmode->xfbHeight;
+        //printf("x: %f, y: %f\r", x, y);
+        if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_LEFT && player.inventory.currentPage > 0)
+            player.inventory.currentPage--;
+        if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_RIGHT && player.inventory.currentPage < 2)
+            player.inventory.currentPage++;
+        if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_A)
+        {
+            //printf("x: %f, y: %f\r", x, y);
+            if (x > 0.32 && x < 1.73 && y > -1.62 && y < -1){
+                int l = -floor((1 + y) / 0.158) - 1;
+                int c = floor((0.32 + x) / 0.158) - 3;
+                int slot = l * 9 + c - 1;
+                player.inventory.action(slot, false);
+            }
+            else if (x > 1.11 && x < 1.425 && y > -0.8 && y < -0.5){
+                int l = -floor((0.5 + y) / 0.158) - 1;
+                int c = floor((1.1 + x) / 0.158) - 13;
+                int slot = l * 3 + c - 1;
+                player.inventory.action(slot, true);
+            }
+            else if ( x > 1.6 && x < 1.75 && y > - 0.72 && y < -0.58){
+                player.inventory.action(9, true);
+            }
+
+
+        }
+            //player.inventory.pickItem(player.inventory.selectedSlot, false);
+    }
+    else {
     if(!player.cameraLocked)
         player.handleRotation(wd);
 
@@ -31,9 +67,6 @@ void Wiimote::update(Player& player, World& w) {
     if(WPAD_ButtonsDown(chan) & WPAD_BUTTON_HOME)
         exit(1);
 
-    t_coord coord(floor(player.renderer.camera.pos.x+1), floor(player.renderer.camera.pos.y), floor(player.renderer.camera.pos.z+1));
-    if (player.gravity)
-        player.handleGravity(w, coord);
 
     u16 actions = WPAD_ButtonsHeld(chan);
     if (actions & WPAD_BUTTON_PLUS)
@@ -63,17 +96,14 @@ void Wiimote::update(Player& player, World& w) {
     player.placeDelay++;
 
     if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_LEFT)
-        if (player.selected_spot > 0)
-            player.selected_spot --;
+        if (player.inventory.selectedSlot > 0)
+            player.inventory.selectedSlot --;
     if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_RIGHT)
-        if (player.selected_spot < 8)
-            player.selected_spot ++;
+        if (player.inventory.selectedSlot < 8)
+            player.inventory.selectedSlot ++;
 
     if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_DOWN)
         player.sneak = !player.sneak;
-
-    if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_UP)
-        player.inventory_open = !player.inventory_open;
 
     if (player.gravity){
         if (actions & WPAD_BUTTON_A){
@@ -102,15 +132,15 @@ void Wiimote::update(Player& player, World& w) {
         player.move(w, sticks);
         vec3w_t accel = wd->exp.nunchuk.accel;
 
-        norme =sqrt(accel.y * accel.y + accel.x * accel.x + accel.z * accel.z);
+        norme = sqrt(accel.y * accel.y + accel.x * accel.x + accel.z * accel.z);
 
-        acc = abs( norme - last_accel);
-        //printf("%d\r", acc);
+        acc = abs(norme - last_accel);
+
         last_accel = norme;
         if (acc > 5 && isTargeting) {
             player.destroyBlock(w);
-        }
-        else {
+
+        } else {
             if (frame_cntr < 60)
                 frame_cntr++;
             else {
@@ -118,9 +148,10 @@ void Wiimote::update(Player& player, World& w) {
                 player.breakingState = 0;
             }
         }
-
     }
-
+    }
+    if (player.gravity)
+        player.handleGravity(w, coord);
     if(player.cameraLocked)
         guVecNormalize(&player.renderer.camera.look);
     //printf(">lk : %f %f %f\r", player.renderer.camera.look.x, player.renderer.camera.look.y, player.renderer.camera.look.z);

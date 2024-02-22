@@ -8,9 +8,9 @@
 #include <algorithm>
 #include "player.h"
 
-Player::Player() : placeDelay(0), focusedBlockPos(0,0,0), lockedBlockPos(0,0,0), previousFocusedBlockPos(0,0,0),  sprint(false), cameraLocked(false){}
+Player::Player() : placeDelay(0), focusedBlockPos(0,0,0), lockedBlockPos(0,0,0), previousFocusedBlockPos(0,0,0),  sprint(false), cameraLocked(false), creative(true){}
 
-Player::Player(f32 x, f32 y, f32 z) : placeDelay(0), focusedBlockPos(0,0,0), lockedBlockPos(0,0,0), previousFocusedBlockPos(0,0,0), sprint(false), cameraLocked(false) {
+Player::Player(f32 x, f32 y, f32 z) : placeDelay(0), focusedBlockPos(0,0,0), lockedBlockPos(0,0,0), previousFocusedBlockPos(0,0,0), sprint(false), cameraLocked(false), creative(true) {
     renderer.camera.pos.x = x;
     renderer.camera.pos.y = y;
     renderer.camera.pos.z = z;
@@ -189,6 +189,8 @@ void Player::destroyBlock(World& w){
 }
 
 void Player::placeBlock(World& w){
+    if (inventory.inventory[0][inventory.selectedSlot].item.type > BlockType::Blocks)
+        return;
     if(placeDelay < 10){
         return;}
     t_coord pos = focusedBlockPos;
@@ -231,7 +233,7 @@ void Player::placeBlock(World& w){
                     (pos.x != (int)floor(renderer.camera.pos.x + 1.3) && pos.x != (int)floor(renderer.camera.pos.x + 0.7))
                     || (pos.y != (int)floor(renderer.camera.pos.y + 1) && pos.y != (int)floor(renderer.camera.pos.y))
                     || (pos.z != (int)floor(renderer.camera.pos.z + 1.3) && pos.z != (int)floor(renderer.camera.pos.z + 0.7))))
-            w.setBlockAt(pos, hotbar[selected_spot]);
+            w.setBlockAt(pos, inventory.inventory[0][inventory.selectedSlot].item.type);
     }
     placeDelay = 0;
 }

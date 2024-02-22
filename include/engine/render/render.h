@@ -6,7 +6,7 @@
 #define MIICRAFTTEST_RENDER_H
 
 // Render inlined macros
-#include "render/bloc.h"
+#include "engine/render/bloc.h"
 #include "world/verticalChunk.h"
 #include "renderer.h"
 
