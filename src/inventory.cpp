@@ -4,7 +4,7 @@
 
 #include "inventory.h"
 
-Inventory::Inventory() : open(false), selectedSlot(0), pickedItem(BlockType::Air, 1), craftSlots(), inventory(),
+Inventory::Inventory() : open(false), craftOpen(true), selectedSlot(0), pickedItem(BlockType::Air, 1), craftSlots(), inventory(),
                          currentCraft(Craft::craftList[0]), currentPage(0) {
 
     for (int i = 0; i < 9; i++) {
@@ -122,7 +122,7 @@ void Inventory::dropItem(int slot, bool unique, bool craftSlot){
     }
     else{
         temp = craftSlots[slot];
-        if(slot <= 4 && slot >= 0) {
+        if(slot <= 8 && slot >= 0) {
             if(unique && craftSlots[slot].item.equals(Item::itemList[0])){
                 craftSlots[slot].item = pickedItem.item;
                 craftSlots[slot].quantity++;

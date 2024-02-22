@@ -32,7 +32,7 @@ Craft::Craft(Slot s1, Slot s2, Slot s3, Slot s4, Slot s5, Slot s6, Slot s7, Slot
     result = r;
 }
 
-Craft Craft::craftList[10] = {
+Craft Craft::craftList[11] = {
         // Craft Vide
         Craft(),
 
@@ -143,5 +143,17 @@ Craft Craft::craftList[10] = {
               Slot{BlockType::Air, 1},
               Slot{BlockType::WoodOak, 1},
               Slot{BlockType::PlankOak, 4}
+        ),
+
+        Craft(Slot{BlockType::Stone,1},
+              Slot{BlockType::Stone,1},
+              Slot{BlockType::Stone,1},
+              Slot{BlockType::Stone,1},
+              Slot{BlockType::Air,1},
+              Slot{BlockType::Stone,1},
+              Slot{BlockType::Stone,1},
+              Slot{BlockType::Stone,1},
+              Slot{BlockType::Stone,1},
+              Slot{BlockType::Furnace,1}
         ),
 };

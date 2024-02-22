@@ -25,8 +25,12 @@ void Wiimote::update(Player& player, World& w) {
 
     wd = WPAD_Data(chan);
 
-    if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_UP)
+    if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_UP){
         player.inventory.open = !player.inventory.open;
+        if (player.inventory.craftOpen == true)
+            player.inventory.craftOpen = false;
+    }
+
     t_coord coord(floor(player.renderer.camera.pos.x+1), floor(player.renderer.camera.pos.y), floor(player.renderer.camera.pos.z+1));
     if (player.inventory.open){
         f32 x = 2 * wd->ir.x / (f32)Renderer::rmode->fbWidth;
@@ -39,23 +43,36 @@ void Wiimote::update(Player& player, World& w) {
         if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_A)
         {
             //printf("x: %f, y: %f\r", x, y);
-            if (x > 0.32 && x < 1.73 && y > -1.62 && y < -1){
-                int l = -floor((1 + y) / 0.158) - 1;
-                int c = floor((0.32 + x) / 0.158) - 3;
-                int slot = l * 9 + c - 1;
-                player.inventory.action(slot, false);
+            if (player.inventory.craftOpen) {
+                if (x > 0.32 && x < 1.73 && y > -1.62 && y < -1) {
+                    int l = -floor((1 + y) / 0.158) - 1;
+                    int c = floor((0.32 + x) / 0.158) - 3;
+                    int slot = l * 9 + c - 1;
+                    player.inventory.action(slot, false);
+                } else if (x > 0.49 && x < 0.975 && y > -0.925 && y < -0.486) {
+                    int l = -floor((0.486 + y) / 0.157) - 1;
+                    int c = floor((0.49 + x) / 0.163) - 5;
+                    int slot = l * 3 + c - 1;
+                    player.inventory.action(slot, true);
+                } else if (x > 1.3 && x < 1.55 && y > -0.81 && y < -0.59) {
+                    player.inventory.action(9, true);
+                }
             }
-            else if (x > 1.11 && x < 1.425 && y > -0.8 && y < -0.5){
-                int l = -floor((0.5 + y) / 0.158) - 1;
-                int c = floor((1.1 + x) / 0.158) - 13;
-                int slot = l * 3 + c - 1;
-                player.inventory.action(slot, true);
+            else {
+                if (x > 0.32 && x < 1.73 && y > -1.62 && y < -1) {
+                    int l = -floor((1 + y) / 0.158) - 1;
+                    int c = floor((0.32 + x) / 0.158) - 3;
+                    int slot = l * 9 + c - 1;
+                    player.inventory.action(slot, false);
+                } else if (x > 1.11 && x < 1.425 && y > -0.8 && y < -0.5) {
+                    int l = -floor((0.5 + y) / 0.158) - 1;
+                    int c = floor((1.1 + x) / 0.158) - 13;
+                    int slot = l * 3 + c - 1;
+                    player.inventory.action(slot, true);
+                } else if (x > 1.6 && x < 1.75 && y > -0.72 && y < -0.58) {
+                    player.inventory.action(9, true);
+                }
             }
-            else if ( x > 1.6 && x < 1.75 && y > - 0.72 && y < -0.58){
-                player.inventory.action(9, true);
-            }
-
-
         }
             //player.inventory.pickItem(player.inventory.selectedSlot, false);
     }
@@ -82,8 +99,21 @@ void Wiimote::update(Player& player, World& w) {
 //            player.breakingState = 0;
 
 
-        if(actions & WPAD_BUTTON_B)
-            player.placeBlock(w);
+        if(actions & WPAD_BUTTON_B){
+            if (player.focusedBlockType == BlockType::CraftingTable){
+                if (player.sneak){
+                    player.placeBlock(w);
+                }
+                else {
+                    player.inventory.craftOpen = true;
+                    player.inventory.open = true;
+                }
+            }
+            else {
+                player.placeBlock(w);
+            }
+        }
+
 
         if(WPAD_ButtonsDown(chan) & WPAD_BUTTON_1){
             if(player.cameraLocked) player.cameraLocked = false;

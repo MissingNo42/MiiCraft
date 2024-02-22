@@ -6,7 +6,7 @@ sz = len(r)
 dt = ", ".join(map(hex, r))
 
 c = f"""
-static const u8 {name}_data[] = ATTRIBUTE_ALIGN(32) {{
+static const u8 {name}_data[]  ATTRIBUTE_ALIGN(32) = {{
     {dt}
 }};
 static const u32 {name}_sz = {sz};

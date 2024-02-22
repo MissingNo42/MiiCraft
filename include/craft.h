@@ -18,7 +18,7 @@ struct Slot {
 struct Craft {
     Craft();
     Craft(Slot, Slot, Slot, Slot, Slot, Slot, Slot, Slot, Slot, Slot);
-    static Craft craftList[10];
+    static Craft craftList[11];
     Slot recipe[9];
     Slot result;
 };

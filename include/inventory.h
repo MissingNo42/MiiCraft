@@ -15,6 +15,7 @@ class Inventory {
 private:
 public:
     bool open;
+    bool craftOpen;
     int selectedSlot;
     Slot pickedItem{};
     Slot craftSlots[10];
