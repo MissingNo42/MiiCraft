@@ -77,22 +77,11 @@ int main(int, char **) {
 		u32 mem2 = SYS_GetArena2Size();
 		printf("Memory : MEM1 %d (%d)\tMEM2 %d (%d)\r", mem1, mem1 / sizeof(VerticalChunk), mem2, mem2 / sizeof(VerticalChunk));
 
-        wiimote.update(player);
-
         player.renderer.camera.update(true);
 		
         World::requestChunks(pos.toChunkCoord());
-		printf("------------------------\r");
-        World::requestChunks(pos.toChunkCoord());
-		auto& V = World::getChunkAt(pos.toChunkCoord());
-		//V.fillWith(BlockType::Stone);
-		printf(">>>>>>>>>>>>> %d %d %d | %d %d %d %d %d\r", V.id, V.coord.x, V.coord.y,
-			   V.Count(BlockType::Stone), V.Count(BlockType::Air),
-			   V.Count(BlockType::Dirt), V.Count(Bedrock),
-			   V.Count(LeaveOak)
-			   );
+		
 		printf("caching\r");
-        //renderWorld(w, player.renderer, w.to_chunk_pos(pos));
 		
 		ChunkCache::cache(player.renderer);
 		
@@ -102,8 +91,8 @@ int main(int, char **) {
 		
 		printf("rendered\r");
 		
-        u32 white = 0xFFFFFFFF;
-
+        wiimote.update(player);
+		
         player.renderer.camera.loadOrtho(); // set for 2D drawing
         player.renderer.camera.applyTransform2D(false);
         f32 x,y, a, b;

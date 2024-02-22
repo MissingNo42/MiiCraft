@@ -17,6 +17,7 @@
 
 #define WHITE 64
 #define BLUE 65
+#define BLACK 66
 
 extern const u32 Lights[][4] ATTRIBUTE_ALIGN(32);
 

@@ -30,14 +30,11 @@ public:
 	
 	static void endFrame();
 	
-	void renderSky();
+	void renderSky() const;
 	
-	void renderBloc(const guVector &coord, u32 code,
-					int top, int bottom, int left, int right, int front, int back,
-                    int topVal = 0, int bottomVal = 0, int leftVal = 0, int rightVal = 0, int frontVal = 0, int backVal = 0,
-                    int topIndex = 0, int bottomIndex = 0, int leftIndex = 0, int rightIndex = 0, int frontIndex = 0, int backIndex = 0);
+	void renderBloc(const guVector &coord, BlockType type, u8 lt = Air, u8 lb = Air, u8 lf = Air, u8 lk = Air, u8 lr = Air, u8 ll = Air);
 
-    void drawFocus(BlockType block, f32 x, f32 y, f32 z);
+    void renderFocus(BlockType block, f32 x, f32 y, f32 z);
 
 
     //Generate a grey color gradient (with 1 the darkest (not black)

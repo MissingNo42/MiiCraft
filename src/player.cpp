@@ -32,7 +32,7 @@ void Player::getFocusedBlock() {
         type = World::getBlockAt(pos);
     }
     if(type > BlockType::Air) {
-        renderer.drawFocus(World::getBlockAt(pos), (f32) pos.x, (f32) pos.y, (f32) pos.z);
+	    renderer.renderFocus(World::getBlockAt(pos), (f32) pos.x, (f32) pos.y, (f32) pos.z);
         isTargeting = true;
         previousFocusedBlockPos = focusedBlockPos;
         focusedBlockLook = {x,y,z};
@@ -125,7 +125,7 @@ void Player::destroyBlock(){
     if (breakingState < 50)
     {
         BlockType breakBlock = (BlockType)(breakingState / 5 + BlockType::BlockBreaking0);
-        renderer.renderBloc(coordToGuVector(focusedBlockPos),breakBlock , true, true, true, true, true, true);
+        renderer.renderBloc(coordToGuVector(focusedBlockPos),breakBlock);
     }
     else
     {
