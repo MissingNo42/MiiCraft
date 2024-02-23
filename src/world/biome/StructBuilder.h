@@ -38,7 +38,7 @@ enum StructType
     SakuraTree,
     JungleTree,
     SpruceTree,
-    SnowySpruceTree,
+    DryOakTree,
     RedMushroomTree,
     BrownMushroomTree,
     CactusTree,
@@ -79,6 +79,7 @@ public:
         BlockType wood; BlockType leave;
         if (treeType == BirchTree) {wood = WoodBirch; leave = LeaveBirch;}
         else if (treeType == SakuraTree) {wood = WoodSakura; leave = LeaveSakura;}
+        else if (treeType == DryOakTree) {wood = WoodOak; leave = LeaveAcacia;}
         else {wood = WoodOak; leave = LeaveOak;}
         //t_coord blockPos(structPos.x, structPos.y, structPos.z);\
         //BlockType checkedBlock;

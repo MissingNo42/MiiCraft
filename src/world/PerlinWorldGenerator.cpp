@@ -42,7 +42,6 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
     //Append in a file
 
     u8        heightMap[16][16];
-    BiomeType biomeMap [16][16];
     u16 biomeRepartition[BIOME_COUNT];           for (int i = 0; i < BIOME_COUNT; ++i) {biomeRepartition[i] = 0;}
     f64       humidityMean = 0;
 
@@ -125,7 +124,6 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
 
             //On remplit le tableau des hauteurs
-            biomeMap [i][j] = biome;
             biomeRepartition[biome]++;
             heightMap[i][j] = height;
             humidityMean += humidity;
@@ -165,19 +163,49 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
         t_coord treePos((pos.x * 16 + x), y, (pos.y * 16 + z));
         if (StructBuilder::checkClassicTree(w, treePos))
         {
-
-            BiomeType biome = biomeMap[x][z];
-            if (biome == Desert || biome == Badlands ||biome == WoodedBadlands)
-            {
-                StructBuilder::generateCactus(w, treePos);
+            u16 b;
+            int treeChoice = rand() % 256;
+            int cumulProba = 0;
+            for (b = 0; b < BIOME_COUNT; ++b) {
+                cumulProba += biomeRepartition[b];
+                if (treeChoice <= cumulProba)
+                {
+                    break;
+                }
             }
-            else if (biome == Taiga)
-            {
-                StructBuilder::generateSpruce(w, treePos);
-            }
-            else if (biome == Savanna)
-            {
-                StructBuilder::generateStdTree(w, treePos);
+            BiomeType biomeTree = (BiomeType)b;
+            switch (biomeTree) {
+                case Void:
+                case Ocean:
+                case Savanna:
+                case Tundra:
+                case Plain:
+                case Hills:
+                case Beach:
+                case IcePeak:
+                case StonyShore:
+                case StonyLand:
+                    break;
+                case Desert:
+                case Badlands:
+                    StructBuilder::generateCactus(w, treePos);
+                    break;
+                case WoodedPlain:
+                case WoodedHills:
+                    StructBuilder::generateStdTree(w, treePos);
+                    break;
+                case WoodedBadlands:
+                    StructBuilder::generateStdTree(w, treePos, DryOakTree);
+                    break;
+                case Jungle:
+                    StructBuilder::generateStdTree(w, treePos, SakuraTree);
+                    break;
+                case DarkForest:
+                    StructBuilder::generateStdTree(w, treePos, BirchTree);
+                    break;
+                case Taiga:
+                    StructBuilder::generateSpruce(w, treePos);
+                    break;
             }
 
         }
