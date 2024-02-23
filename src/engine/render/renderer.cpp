@@ -18,7 +18,7 @@ void * Renderer::gp_fifo = nullptr;
 GXTexObj Renderer::texture ATTRIBUTE_ALIGN(32);
 
 GXRModeObj * Renderer::rmode;
-GXColor Renderer::background =  {0, 0, 0, 0xff}; // blue = {0x29, 0xae, 0xea, 0xff}; // blue
+GXColor Renderer::background = {0x29, 0xae, 0xea, 0xff}; // blue
 
 
 void Renderer::setupVideo() {
@@ -133,7 +133,7 @@ void Renderer::endFrame() {
 
 
 void Renderer::renderSky() const {
-	f32 x = camera.max * tanf(camera.fovx), y = camera.max * tanf(camera.fovy), z = camera.max;
+	f32 x = camera.max * tanf(camera.fovx), y = camera.max * tanf(camera.fovy), z = camera.max - .5;
 
 	GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
 
@@ -157,7 +157,7 @@ void Renderer::renderSky() const {
 }
 
 
-void Renderer::renderBloc(const guVector &coord, BlockType type, u8 lt, u8 lb, u8 lf, u8 lk, u8 lr, u8 ll) {
+void Renderer::renderBlock(const guVector &coord, BlockType type, u8 lt, u8 lb, u8 lf, u8 lk, u8 lr, u8 ll) {
     //Mtx model, modelview; // Various matrices
 
     //guMtxIdentity(model);

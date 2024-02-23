@@ -68,8 +68,9 @@ struct DisplayList {
 	 * */
 	u8 seal() {
 		if (size == 0) {
+			u8 r = id != 0;
 			id = 0; // release the list
-			return 1;
+			return r;
 		}
 		
 		if (sealed) return 0;

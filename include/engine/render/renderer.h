@@ -32,7 +32,7 @@ public:
 	
 	void renderSky() const;
 	
-	void renderBloc(const guVector &coord, BlockType type, u8 lt = Air, u8 lb = Air, u8 lf = Air, u8 lk = Air, u8 lr = Air, u8 ll = Air);
+	void renderBlock(const guVector &coord, BlockType type, u8 lt = Air, u8 lb = Air, u8 lf = Air, u8 lk = Air, u8 lr = Air, u8 ll = Air);
 
     void renderFocus(BlockType block, f32 x, f32 y, f32 z);
 

@@ -125,7 +125,7 @@ void Player::destroyBlock(){
     if (breakingState < 50)
     {
         BlockType breakBlock = (BlockType)(breakingState / 5 + BlockType::BlockBreaking0);
-        renderer.renderBloc(coordToGuVector(focusedBlockPos),breakBlock);
+	    renderer.renderBlock(coordToGuVector(focusedBlockPos), breakBlock);
     }
     else
     {

@@ -7,7 +7,7 @@
 DisplayList ChunkCache::lists[LIST_NUM] ATTRIBUTE_ALIGN(32);
 //DisplayList * ChunkCache::lists;
 u16 ChunkCache::current[2] = { 0, 0 };
-u16 ChunkCache::used = 0;
+s32 ChunkCache::used = 0;
 u8 ChunkCache::full = 0;
 
 void ChunkCache::render() {
@@ -30,7 +30,7 @@ void ChunkCache::reset() {
 
 void ChunkCache::init() {
 	//lists = (DisplayList *)memalign(32, sizeof(DisplayList) * LIST_NUM);
-	printf("Display lists: %p\r", lists);
+	printf("Display lists: %p\r", (void *)lists);
 }
 
 void ChunkCache::release(u32 id) {
@@ -117,7 +117,7 @@ void ChunkCache::cache(Renderer& renderer) {
 		}
 	}
 	
-	const short limit = 6;
+	const short limit = 8;
 	
 	
 	for (short n = 2; n <= limit; n++) {
