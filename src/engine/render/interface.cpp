@@ -140,22 +140,22 @@ void GUI::renderInventory(Player &player) const {
             GX_Position3f32(-0.682 + i * 0.158 ,-0.475,0);
             GX_Normal1x8(4);
             GX_Color1u32(white);
-            GX_TexCoord2f32(blocData[player.inventory.inventory[2][i].item.type].x[2], blocData[player.inventory.inventory[2][i].item.type].y[2]); // Top left
+            GX_TexCoord2f32(blocData[player.inventory.inventory[0][i].item.type].x[2], blocData[player.inventory.inventory[0][i].item.type].y[2]); // Top left
 
             GX_Position3f32(-0.582+ i * 0.158,-0.475 ,0);
             GX_Normal1x8(4);
             GX_Color1u32(white);
-            GX_TexCoord2f32(blocData[player.inventory.inventory[2][i].item.type].x[2] + OFFSET, blocData[player.inventory.inventory[2][i].item.type].y[2]); // Top right
+            GX_TexCoord2f32(blocData[player.inventory.inventory[0][i].item.type].x[2] + OFFSET, blocData[player.inventory.inventory[0][i].item.type].y[2]); // Top right
 
             GX_Position3f32(-0.582 + i  * 0.158,-0.575 ,0);
             GX_Normal1x8(4);
             GX_Color1u32(white);
-            GX_TexCoord2f32(blocData[player.inventory.inventory[2][i].item.type].x[2] + OFFSET, blocData[player.inventory.inventory[2][i].item.type].y[2] + OFFSET); // Bottom right
+            GX_TexCoord2f32(blocData[player.inventory.inventory[0][i].item.type].x[2] + OFFSET, blocData[player.inventory.inventory[0][i].item.type].y[2] + OFFSET); // Bottom right
 
             GX_Position3f32(-0.682 + i  * 0.158,-0.575 ,0);
             GX_Normal1x8(4);
             GX_Color1u32(white);
-            GX_TexCoord2f32(blocData[player.inventory.inventory[2][i].item.type].x[2], blocData[player.inventory.inventory[2][i].item.type].y[2] + OFFSET); // Bottom left
+            GX_TexCoord2f32(blocData[player.inventory.inventory[0][i].item.type].x[2], blocData[player.inventory.inventory[0][i].item.type].y[2] + OFFSET); // Bottom left
         }
         GX_End();
         GX_Begin(GX_QUADS, GX_VTXFMT0, 36);
@@ -496,30 +496,30 @@ void GUI::renderInventory(Player &player) const {
             }
 
             for (int i = 0; i < 9; i++) {
-                if (player.inventory.inventory[2][i].quantity > 0) {
+                if (player.inventory.inventory[0][i].quantity > 0) {
                     GX_Begin(GX_QUADS, GX_VTXFMT0, 8);
                     GX_Position3f32(-0.64 + i * 0.158, -0.535, 0);
                     GX_Normal1x8(4);
                     GX_Color1u32(white);
-                    GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.inventory[2][i].quantity/10),
+                    GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.inventory[0][i].quantity/10),
                                     BLOCK_COORD(12)); // Top left
 
                     GX_Position3f32(-0.6 + i * 0.158, -0.535, 0);
                     GX_Normal1x8(4);
                     GX_Color1u32(white);
-                    GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.inventory[2][i].quantity/10),
+                    GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.inventory[0][i].quantity/10),
                                     BLOCK_COORD(12)); // Top right
 
                     GX_Position3f32(-0.6 + i * 0.158, -0.575, 0);
                     GX_Normal1x8(4);
                     GX_Color1u32(white);
-                    GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.inventory[2][i].quantity/10),
+                    GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.inventory[0][i].quantity/10),
                                     BLOCK_COORD(13)); // Bottom right
 
                     GX_Position3f32(-0.64 + i * 0.158, -0.575, 0);
                     GX_Normal1x8(4);
                     GX_Color1u32(white);
-                    GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.inventory[2][i].quantity/10),
+                    GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.inventory[0][i].quantity/10),
                                     BLOCK_COORD(13)); // Bottom left
 
 
@@ -527,25 +527,25 @@ void GUI::renderInventory(Player &player) const {
                     GX_Position3f32(-0.6 + i * 0.158, -0.535, 0);
                     GX_Normal1x8(4);
                     GX_Color1u32(white);
-                    GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.inventory[2][i].quantity%10),
+                    GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.inventory[0][i].quantity%10),
                                     BLOCK_COORD(12)); // Top left
 
                     GX_Position3f32(-0.56 + i * 0.158, -0.535, 0);
                     GX_Normal1x8(4);
                     GX_Color1u32(white);
-                    GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.inventory[2][i].quantity%10),
+                    GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.inventory[0][i].quantity%10),
                                     BLOCK_COORD(12)); // Top right
 
                     GX_Position3f32(-0.56 + i * 0.158, -0.575, 0);
                     GX_Normal1x8(4);
                     GX_Color1u32(white);
-                    GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.inventory[2][i].quantity%10),
+                    GX_TexCoord2f32(BLOCK_COORD(17 + player.inventory.inventory[0][i].quantity%10),
                                     BLOCK_COORD(13)); // Bottom right
 
                     GX_Position3f32(-0.6 + i * 0.158, -0.575, 0);
                     GX_Normal1x8(4);
                     GX_Color1u32(white);
-                    GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.inventory[2][i].quantity%10),
+                    GX_TexCoord2f32(BLOCK_COORD(16 + player.inventory.inventory[0][i].quantity%10),
                                     BLOCK_COORD(13)); // Bottom left
 
                     GX_End();
@@ -673,24 +673,24 @@ void GUI::renderInventory(Player &player) const {
             GX_Position3f32(-0.42 + i * 0.098, -0.62, 0);
             GX_Normal1x8(4);
             GX_Color1u32(white);
-            GX_TexCoord2f32(blocData[player.inventory.inventory[2][i].item.type].x[2], blocData[player.inventory.inventory[2][i].item.type].y[2]); // Top left
+            GX_TexCoord2f32(blocData[player.inventory.inventory[0][i].item.type].x[2], blocData[player.inventory.inventory[0][i].item.type].y[2]); // Top left
 
             GX_Position3f32(-0.36 + i * 0.098, -0.62, 0);
             GX_Normal1x8(4);
             GX_Color1u32(white);
-            GX_TexCoord2f32(blocData[player.inventory.inventory[2][i].item.type].x[2] + OFFSET, blocData[player.inventory.inventory[2][i].item.type].y[2]); // Top right
+            GX_TexCoord2f32(blocData[player.inventory.inventory[0][i].item.type].x[2] + OFFSET, blocData[player.inventory.inventory[0][i].item.type].y[2]); // Top right
 
             GX_Position3f32(-0.36 + i * 0.098, -0.68, 0);
             GX_Normal1x8(4);
             GX_Color1u32(white);
-            GX_TexCoord2f32(blocData[player.inventory.inventory[2][i].item.type].x[2] + OFFSET,
-                            blocData[player.inventory.inventory[2][i].item.type].y[2] + OFFSET); // Bottom right
+            GX_TexCoord2f32(blocData[player.inventory.inventory[0][i].item.type].x[2] + OFFSET,
+                            blocData[player.inventory.inventory[0][i].item.type].y[2] + OFFSET); // Bottom right
 
             GX_Position3f32(-0.42 + i * 0.098, -0.68, 0);
             GX_Normal1x8(4);
             GX_Color1u32(white);
-            GX_TexCoord2f32(blocData[player.inventory.inventory[2][i].item.type].x[2],
-                            blocData[player.inventory.inventory[2][i].item.type].y[2] + OFFSET); // Bottom left
+            GX_TexCoord2f32(blocData[player.inventory.inventory[0][i].item.type].x[2],
+                            blocData[player.inventory.inventory[0][i].item.type].y[2] + OFFSET); // Bottom left
         }
     }
 
