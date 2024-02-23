@@ -172,9 +172,21 @@ void Inventory::action(int slot, bool craftSlot, int dropMode, bool fast, bool d
                 dropItem(inventory[0][slot % 9], dropMode, false);
         }
     }
-    else{
-        dropItem(slot, false, craftSlot);
+    else {
+        if (slot < 9 && slot >= 0) {
+            if(fast)
+                fastDrop(craftSlots[slot], true, true, creative);
+            else if (pickedItem.item.equals(Item::itemList[0]))
+                pickItem(craftSlots[slot], dividedByTwo, false);
+            else
+                dropItem(craftSlots[slot], dropMode, false);
+            currentCraft = getCurrentCraft();
+            craftSlots[9] = currentCraft.result;
+        } else if (slot == 9)  {
+            handleCraft(fast, creative);
+        }
     }
+
 }
 
 void Inventory::resetInventory() {
@@ -316,5 +328,7 @@ void Inventory::handleCraft(bool fastMode, bool creative) {
                 }
             }
         }
+        currentCraft = getCurrentCraft();
+        craftSlots[9] = currentCraft.result;
     }
 }

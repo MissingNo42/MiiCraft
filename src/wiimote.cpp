@@ -59,20 +59,20 @@ void Wiimote::update(Player& player, World& w) {
             slot = l * 9 + c - 1;
             isValidCursor = true;
         }
-        if(player.inventory.craftOpen){
+        if(player.inventory.craftOpen) {
             if (x > 0.49 && x < 0.975 && y > -0.925 && y < -0.486) {
-                 l = -floor((0.486 + y) / 0.157) - 1;
-                 c = floor((0.49 + x) / 0.163) - 5;
-                 slot = l * 3 + c - 1;
+                l = -floor((0.486 + y) / 0.157) - 1;
+                c = floor((0.49 + x) / 0.163) - 5;
+                slot = l * 3 + c - 1;
                 isValidCursor = true;
                 craftSlot = true;
             } else if (x > 1.3 && x < 1.55 && y > -0.81 && y < -0.59) {
+                slot = 9;
                 isValidCursor = true;
                 craftSlot = true;
             }
-            }
-        else{
-        // Craft slots
+        } else {
+            // Craft slots
          if (x > 1.11 && x < 1.425 && y > -0.8 && y < -0.5){
             l = -floor((0.5 + y) / 0.158) - 1;
             c = floor((1.1 + x) / 0.158) - 13;
