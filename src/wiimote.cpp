@@ -29,6 +29,10 @@ void Wiimote::update(Player& player, World& w) {
         player.inventory.open = !player.inventory.open;
         if (player.inventory.craftOpen == true)
             player.inventory.craftOpen = false;
+        if (!player.inventory.open){
+            player.inventory.ClearCraft();
+        }
+
     }
 
     t_coord coord(floor(player.renderer.camera.pos.x+1), floor(player.renderer.camera.pos.y), floor(player.renderer.camera.pos.z+1));

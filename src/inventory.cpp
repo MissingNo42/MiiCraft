@@ -174,6 +174,39 @@ void Inventory::resetInventory() {
     inventory[1][0] = Slot(static_cast<BlockType>(BlockType::Air), 0);
 }
 
+void Inventory::ClearCraft() {
+    for (auto & craftSlot : craftSlots) {
+        for (auto & c : inventory){
+            for (auto & p : c) {
+                if (craftSlot.item.equals(p.item) && !craftSlot.item.equals(Item::itemList[0])) {
+                    int stack = p.quantity + craftSlot.quantity;
+                    if (stack > 64) {
+                        craftSlot.quantity = stack - 64;
+                        p.quantity = 64;
+                    } else {
+                        p.quantity += craftSlot.quantity;
+                        craftSlot.quantity = 0;
+                        craftSlot.item = Item::itemList[0];
+                    }
+                }
+            }
+        }
+        if (!craftSlot.item.equals(Item::itemList[0])){
+            for (auto & c : inventory) {
+                for (auto &p: c) {
+                    if (craftSlot.item.equals(Item::itemList[0])) {
+                        p = craftSlot;
+                        craftSlot.item = Item::itemList[0];
+                        craftSlot.quantity = 0;
+
+                    }
+                }
+            }
+        }
+        printf("%d %d\r", craftSlot.item ,craftSlot.quantity);
+    }
+}
+
 void Inventory::getUniqueRecipe() {
     bool isValidRow = false;
     bool isValidColumn = false;
