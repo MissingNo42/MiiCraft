@@ -320,8 +320,7 @@ void Inventory::handleCraft(bool fastMode, bool creative) {
                 pickedItem.quantity += craftSlots[9].quantity;
                 for (int i = 0; i < 3 - offsetColumn; i++) {
                     for (int j = 0; j < 3 - offsetRow; j++) {
-                        craftSlots[(i + offsetRow) * 3 + j + offsetColumn].quantity -= currentCraft.recipe[i * 3 +
-                                                                                                           j].quantity;
+                        craftSlots[(i + offsetRow) * 3 + j + offsetColumn].quantity -= currentCraft.recipe[i * 3 +j].quantity;
                         if (craftSlots[(i + offsetRow) * 3 + j + offsetColumn].quantity == 0)
                             craftSlots[(i + offsetRow) * 3 + j + offsetColumn].item = Item::itemList[0];
                     }
