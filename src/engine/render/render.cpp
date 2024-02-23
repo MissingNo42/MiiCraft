@@ -797,8 +797,6 @@ void renderChunk(VerticalChunk& c, Renderer& renderer){
                 }
             }
         }
-		
-		center:
 
         for (x = 1; x < 15; x++) {
             for (z = 1; z < 15; z++) {

@@ -26,7 +26,7 @@ public:
 	u8 recache = 1; // 1 if the chunk needs to be recached
 	u8 loaded = 0;
 	u8 dirty = 0;
-	u8 id;
+	u16 id;
 	
 	ChunkCoord coord;
     BlockType blocks[16][128][16];

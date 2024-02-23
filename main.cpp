@@ -69,17 +69,10 @@ int main(int, char **) {
         pos.y = floor(player.renderer.camera.pos.y);
         pos.z = floor(player.renderer.camera.pos.z);
 
-        printf("pos : %d %d %d | %d %d %d\r", pos.x & 15, pos.y &15, pos.z &15, pos.x, pos.y, pos.z);
-        printf(">lk : %.2f %.2f %.2f\r", player.renderer.camera.look.x,
-			   player.renderer.camera.look.y, player.renderer.camera.look.z);
-
         // Calculate used memory
 		u32 mem1 = SYS_GetArena1Size();
 		u32 mem2 = SYS_GetArena2Size();
 		printf("Memory : MEM1 %d (%d)\tMEM2 %d (%d)\r", mem1, mem1 / sizeof(VerticalChunk), mem2, mem2 / sizeof(VerticalChunk));
-
-		printf("camera see O: %d\r", player.renderer.camera.isVisible({0, 0, 0}));
-		printf("camera see Q: %d\r", player.renderer.camera.isChunkVisible(0, 0));
 		
         player.renderer.camera.update(true);
 		
