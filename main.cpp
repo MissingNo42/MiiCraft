@@ -32,19 +32,25 @@ void shutdown() {
 
 int main(int, char **) {
     SYS_STDIO_Report(true);
+	printf("AAAAAAAAAA\r");
 	
 	PAD_Init();
 	WPAD_Init();
 	
+	printf("RRRR\r");
 	World::Init();
 	
+	printf("XXX\r");
 	Renderer::setupVideo();
 	Renderer::setupVtxDesc();
     Renderer::setupTexture();
 	
+	printf("ZZZZZZZZZ\r");
     Player player(8, 120, 8);
+	printf("AAAAAEEEEEEEEEAAAAA\r");
     GUI guy;
 
+	printf("GGGGG\r");
 	//GX_InitTexObjFilterMode(&texture, GX_NEAR, GX_NEAR);
 
 	SYS_SetResetCallback(reload);
@@ -103,7 +109,7 @@ int main(int, char **) {
         player.renderer.camera.loadOrtho(); // set for 2D drawing
         player.renderer.camera.applyTransform2D();
 
-        if (player.isUnderwater(w)){
+        if (player.isUnderwater()){
             guy.Underwater(player);
             printf("Underwater\r");
         }

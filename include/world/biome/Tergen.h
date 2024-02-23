@@ -6,8 +6,8 @@
 #define MIICRAFTTEST_TERGEN_H
 
 #include <queue>
-#include "../block.h"
-#include "../verticalChunk.h"
+#include "world/block.h"
+#include "world/verticalChunk.h"
 
 
 const int BIOME_COUNT = 19;

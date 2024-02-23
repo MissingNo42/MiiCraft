@@ -13,7 +13,7 @@
 #include "render.h"
 
 #define LIST_SIZE 1036 // op + sz + vtx[LIST_SIZE] = 32 N
-#define LIST_NUM 768
+#define LIST_NUM 512
 
 #define WHITE 64
 #define BLUE 65

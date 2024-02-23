@@ -2,8 +2,8 @@
 // Created by paulo on 06/02/2024.
 //
 
-#include "verticalChunk.h"
-#include "world.h"
+#include "world/verticalChunk.h"
+#include "world/world.h"
 #include <cstring>
 
 

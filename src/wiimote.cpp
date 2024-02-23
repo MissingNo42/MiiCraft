@@ -38,7 +38,7 @@ void Wiimote::update(Player& player) {
 
     }
 
-    t_coord coord(floor(player.renderer.camera.pos.x+1), floor(player.renderer.camera.pos.y), floor(player.renderer.camera.pos.z+1));
+    BlockCoord coord(floor(player.renderer.camera.pos.x+1), floor(player.renderer.camera.pos.y), floor(player.renderer.camera.pos.z+1));
     if (player.inventory.open){
         f32 x = 2 * wd->ir.x / (f32)Renderer::rmode->fbWidth;
         f32 y = -2 * wd->ir.y / (f32)Renderer::rmode->xfbHeight;
@@ -113,7 +113,7 @@ void Wiimote::update(Player& player) {
     else
         player.sprint = false;
 
-    bool isTargeting = player.getFocusedBlock(w);
+    bool isTargeting = player.getFocusedBlock();
     if(isTargeting){
 //        if (actions & WPAD_BUTTON_MINUS)
 //            player.destroyBlock(w);
@@ -124,7 +124,7 @@ void Wiimote::update(Player& player) {
         if(actions & WPAD_BUTTON_B){
             if (player.focusedBlockType == BlockType::CraftingTable){
                 if (player.sneak){
-                    player.placeBlock(w);
+                    player.placeBlock();
                 }
                 else {
                     player.inventory.craftOpen = true;
@@ -132,7 +132,7 @@ void Wiimote::update(Player& player) {
                 }
             }
             else {
-                player.placeBlock(w);
+                player.placeBlock();
             }
         }
 
@@ -181,7 +181,7 @@ void Wiimote::update(Player& player) {
 
     if(wd->exp.type == WPAD_EXP_NUNCHUK) {
         joystick_t sticks = wd->exp.nunchuk.js;
-        player.move(w, sticks);
+        player.move(sticks);
         vec3w_t accel = wd->exp.nunchuk.accel;
 
         norme = sqrt(accel.y * accel.y + accel.x * accel.x + accel.z * accel.z);
@@ -190,7 +190,7 @@ void Wiimote::update(Player& player) {
 
         last_accel = norme;
         if (acc > 5 && isTargeting) {
-            player.destroyBlock(w);
+            player.destroyBlock();
 
         } else {
             if (frame_cntr < 60)
@@ -203,7 +203,7 @@ void Wiimote::update(Player& player) {
     }
     }
     if (player.gravity)
-        player.handleGravity(w, coord);
+        player.handleGravity(coord);
     if(player.cameraLocked)
         guVecNormalize(&player.renderer.camera.look);
     //printf(">lk : %f %f %f\r", player.renderer.camera.look.x, player.renderer.camera.look.y, player.renderer.camera.look.z);

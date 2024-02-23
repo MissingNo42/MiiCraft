@@ -19,18 +19,15 @@ add_compile_options(-g)
 
 add_executable(Miicraft main.cpp
         src/wiimote.cpp
-        src/world/block.cpp
         src/world/verticalChunk.cpp
         src/world/world.cpp
         src/engine/render/renderer.cpp
         src/matrix/matrix.cpp
         src/engine/render/bloc.cpp
         src/engine/render/camera.cpp
-        src/world/WorldGenerator.cpp
         src/world/FlatWorldGenerator.cpp
         src/world/PerlinWorldGenerator.cpp
         src/world/coord.cpp
-        src/world/blockTemplate.cpp
         src/system/saveManager.cpp
         src/system/Random.cpp
         src/player.cpp
@@ -44,14 +41,11 @@ add_executable(Miicraft main.cpp
 )
 
 add_executable(MiicraftTest Debug.cpp
-        src/world/block.cpp
         src/world/verticalChunk.cpp
         src/world/world.cpp
-        src/world/WorldGenerator.cpp
         src/world/FlatWorldGenerator.cpp
         src/world/PerlinWorldGenerator.cpp
         src/world/coord.cpp
-        src/world/blockTemplate.cpp
         src/system/Random.cpp
 )
 

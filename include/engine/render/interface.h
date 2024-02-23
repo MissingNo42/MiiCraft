@@ -9,9 +9,8 @@
 #include "wiimote.h"
 
 class GUI {
-    f32 x= 0.05,y= 0.05, a, b;
-public :
-    const u32 white = 0xFFFFFFFF;
+    f32 x = 0.05, y = 0.05, a, b;
+public:
 
     void renderCursor(Player &player, Wiimote &wiimote);
     void renderInventory(Player &player) const;

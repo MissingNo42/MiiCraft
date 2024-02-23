@@ -1,4 +1,4 @@
-#include "coord.h"
+#include "world/coord.h"
 
 BlockCoord::BlockCoord(int x, int y, int z) : x(x), y(y), z(z) {}
 

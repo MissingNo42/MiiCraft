@@ -222,16 +222,16 @@ void Inventory::addItem(BlockType type, int quantity) {
                 }
             }
         }
-        if (quantity != 0) {
-            for (auto & c : inventory) {
-                for (auto & p : c) {
-                    if (quantity == 0)
-                        break;
-                    if (type!=Item::itemList[0].type && p.item.equals(Item::itemList[0])) {
-                        p = Slot(type, quantity);
-                        printf("%d %d\r", p.item.type, p.quantity);
-                        quantity = 0;
-                    }
+	}
+    if (quantity != 0) {
+        for (auto & c : inventory) {
+            for (auto & p : c) {
+                if (quantity == 0)
+                    break;
+                if (type!=Item::itemList[0].type && p.item.equals(Item::itemList[0])) {
+                    p = Slot(type, quantity);
+                    printf("%d %d\r", p.item.type, p.quantity);
+                    quantity = 0;
                 }
             }
         }

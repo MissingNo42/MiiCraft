@@ -73,18 +73,6 @@ void Camera::rotateV(f32 rad) {
 }
 
 u8 Camera::isVisible(const guVector &p) {
-	/*
-Calculate the vector from the center of the cone to the query point.
-	 Normalize the vector to be of length 1,
-	 Take the center vector of the cone and normalize
-	 this as well to the length of 1.
-Now take the dot product between the vectors.
-	 The dot product between two normalized vectors is the cosinus
-	 of the angle between them. Take the arccos (acos in most languages)
-	 of the dot product and you'll get the angle. compare this angle to the cone's
-	 angle (half angle in your description). if its lower, then point in question is inside the cone.
-	 * */
-	
 	guVector pt = {p.x - pos.x, 0, p.z - pos.z},
 	         ct = {look.x, 0, look.z};
 	
@@ -93,17 +81,6 @@ Now take the dot product between the vectors.
 	f32 a = guVecDotProduct(&pt, &ct);
 	f32 b = acosf(a);
 	return b < fovx;
-	
-	/*
-	guVector s, m;
-	guVecSub(&p, &pos, &s);
-	f32 cone_dist = guVecDotProduct(&s, &look);
-	
-	if (0.0f > cone_dist  || cone_dist > max) return 0;
-	f32 cone_radius = (cone_dist / max) * radius;
-	guVecScale(&look, &m, cone_dist);
-	guVecSub(&s, &m, &s);
-	return s.x * s.x + s.y * s.y + s.z * s.z < cone_radius * cone_radius;*/
 }
 
 u8 Camera::isChunkVisible(s16 x, s16 z) {
@@ -116,15 +93,5 @@ u8 Camera::isChunkVisible(s16 x, s16 z) {
 	
 	return 0;
 }
-
-//void Camera::goUp(int speed, bool collision, World& w) {
-//    if ( collision ){
-//        coord.y += 1;
-//        if (w.getBlockAt(coord).type == BlockType::Air)
-//            renderer.camera.pos.y += 0.1;
-//    }
-//    else
-//        renderer.camera.pos.y += 0.1;
-//}
 
 

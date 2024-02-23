@@ -7,8 +7,7 @@
 
 
 #include "utils/FastNoiseLite.h"
-#include "biome/StructBuilder.h"
-#include "../system/Random.h"
+#include "system/Random.h"
 #include "verticalChunk.h"
 #include "world/biome/Tergen.h"
 #include "WorldGenerator.h"

@@ -3,9 +3,10 @@
 //
 
 #include <queue>
-#include "PerlinWorldGenerator.h"
+#include "world/PerlinWorldGenerator.h"
 #include "world/biome/Tergen.h"
-#include "world.h"
+#include "world/world.h"
+#include "world/biome/StructBuilder.h"
 
 
 PerlinWorldGenerator::PerlinWorldGenerator() {
@@ -134,26 +135,26 @@ void PerlinWorldGenerator::generateChunk(VerticalChunk& vc) {
     if (biomeRepartition[Tundra] >= 128)
     {
         int proba = (int)((float)biomeRepartition[Tundra] / 256.f * 10.f);
-        if (rand()%200 < proba)
+        if (rand() % 200 < proba)
         {
-            t_coord iglooPos{(pos.x * 16 + 8), heightMap[8][8] - 1, (pos.y * 16 + 8)};
-            StructBuilder::generateIgloo(w, iglooPos);
+            BlockCoord iglooPos{(vc.coord.x * 16 + 8), heightMap[8][8] - 1, (vc.coord.y * 16 + 8)};
+            StructBuilder::generateIgloo(iglooPos);
         }
     }
     if (biomeRepartition[Savanna] >= 128)
     {
         int proba = (int)((float)biomeRepartition[Savanna] / 256.f * 10.f);
-        if (rand()% 25 < proba)
+        if (rand() % 25 < proba)
         {
-            t_coord acaciaPos{(pos.x * 16 + 7 + rand()%3), heightMap[8][8], (pos.y * 16 + 7 + rand()%3)};
-            StructBuilder::generateAcacia(w, acaciaPos);
+            BlockCoord acaciaPos{(vc.coord.x * 16 + 7 + rand()%3), heightMap[8][8], (vc.coord.y * 16 + 7 + rand()%3)};
+            StructBuilder::generateAcacia(acaciaPos);
         }
     }
 //    if (biomeRepartition[DarkForest] >= 64)
 //    {
 //        int nbTry = humidityMean * 2 - 1.8f;
 //        for (int i = 0; i < nbTry; ++i) {
-//            t_coord mushroomPos{pos.x * 16 + rand()%10 + 3, heightMap[8][8], (pos.y * 16 + rand()%10 + 3)};
+//            BlockCoord mushroomPos{pos.x * 16 + rand()%10 + 3, heightMap[8][8], (pos.y * 16 + rand()%10 + 3)};
 //            if (rand() % 2 == 0)
 //            {
 //                StructBuilder::generateRedMushroom(w, mushroomPos);
@@ -176,8 +177,8 @@ void PerlinWorldGenerator::generateChunk(VerticalChunk& vc) {
         int y = heightMap[x][z] + 1;
 
 
-        t_coord treePos((pos.x * 16 + x), y, (pos.y * 16 + z));
-        if (StructBuilder::checkClassicTree(w, treePos))
+        BlockCoord treePos((vc.coord.x * 16 + x), y, (vc.coord.y * 16 + z));
+        if (StructBuilder::checkClassicTree(treePos))
         {
             u16 b;
             int treeChoice = rand() % 256;
@@ -204,23 +205,23 @@ void PerlinWorldGenerator::generateChunk(VerticalChunk& vc) {
                     break;
                 case Desert:
                 case Badlands:
-                    StructBuilder::generateCactus(w, treePos);
+                    StructBuilder::generateCactus(treePos);
                     break;
                 case WoodedPlain:
                 case WoodedHills:
-                    StructBuilder::generateStdTree(w, treePos);
+                    StructBuilder::generateStdTree(treePos);
                     break;
                 case WoodedBadlands:
-                    StructBuilder::generateStdTree(w, treePos, DryOakTree);
+                    StructBuilder::generateStdTree(treePos, DryOakTree);
                     break;
                 case Jungle:
-                    StructBuilder::generateStdTree(w, treePos, SakuraTree);
+                    StructBuilder::generateStdTree(treePos, SakuraTree);
                     break;
                 case DarkForest:
-                    StructBuilder::generateStdTree(w, treePos, BirchTree);
+                    StructBuilder::generateStdTree(treePos, BirchTree);
                     break;
                 case Taiga:
-                    StructBuilder::generateSpruce(w, treePos);
+                    StructBuilder::generateSpruce(treePos);
                     break;
             }
 

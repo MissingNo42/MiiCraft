@@ -5,24 +5,24 @@
 #ifndef MIICRAFTTEST_STRUCTBUILDER_H
 #define MIICRAFTTEST_STRUCTBUILDER_H
 
-#include "../block.h"
-#include "../world.h"
+#include "world/block.h"
+#include "world/world.h"
 
 #define INIT_STRUCT_CONSTRUCTION \
-t_coord blockPos(structPos.x, structPos.y, structPos.z);\
+BlockCoord blockPos(structPos.x, structPos.y, structPos.z);\
 BlockType checkedBlock;
 
 
 #define PLACE_BLOCK_SOFT(blockType) \
-checkedBlock = w.getBlockAt(blockPos).type;\
+checkedBlock = World::getBlockAt(blockPos);\
 if ((checkedBlock <= Air14) ||\
 (checkedBlock >= LeaveAcacia && checkedBlock <= LeaveSnow) ||\
 checkedBlock == Water   ||\
 checkedBlock == Lava)\
-{w.setBlockAt(blockPos, blockType, false);}
+{World::setBlockAt(blockPos, blockType, false);}
 
 #define PLACE_BLOCK_HARD(blockType) \
-{w.setBlockAt(blockPos, blockType, false);}
+{World::setBlockAt(blockPos, blockType, false);}
 
 #define X_ABSOLUTE(increment) blockPos.x = structPos.x + increment;
 #define Y_ABSOLUTE(increment) blockPos.y = structPos.y + increment;
@@ -48,7 +48,7 @@ enum StructType
 
 class StructBuilder{
 private:
-    static void generateCanopy(World& w, t_coord structPos, float rad)
+    static void generateCanopy(BlockCoord structPos, float rad)
     {
         INIT_STRUCT_CONSTRUCTION;
         blockPos.y++;
@@ -74,14 +74,14 @@ private:
         }
     }
 public:
-    static void generateStdTree(World& w, t_coord structPos, StructType treeType = OakTree)
+    static void generateStdTree(BlockCoord structPos, StructType treeType = OakTree)
     {
         BlockType wood; BlockType leave;
         if (treeType == BirchTree) {wood = WoodBirch; leave = LeaveBirch;}
         else if (treeType == SakuraTree) {wood = WoodSakura; leave = LeaveSakura;}
         else if (treeType == DryOakTree) {wood = WoodOak; leave = LeaveAcacia;}
         else {wood = WoodOak; leave = LeaveOak;}
-        //t_coord blockPos(structPos.x, structPos.y, structPos.z);\
+        //BlockCoord blockPos(structPos.x, structPos.y, structPos.z);
         //BlockType checkedBlock;
         INIT_STRUCT_CONSTRUCTION;
 
@@ -148,7 +148,7 @@ public:
         }
     }
 
-    static void generateCactus(World& w, t_coord structPos)
+    static void generateCactus(BlockCoord structPos)
     {
         INIT_STRUCT_CONSTRUCTION;
         int height = rand()%18;
@@ -162,7 +162,7 @@ public:
         }
     }
 
-    static void generateSpruce(World& w, t_coord structPos)
+    static void generateSpruce(BlockCoord structPos)
     {
         INIT_STRUCT_CONSTRUCTION
         int height = 6 + rand()%3;
@@ -210,7 +210,7 @@ public:
         }
     }
 
-    static void generateAcacia(World& w, t_coord structPos)
+    static void generateAcacia(BlockCoord structPos)
     {
         INIT_STRUCT_CONSTRUCTION;
 
@@ -224,7 +224,7 @@ public:
         int branchDirX   = rand() % 3 - 1; //[-1;1]
         int branchDirZ   = rand() % 3 - 1; //[-1;1]
 
-        t_coord branchNode{structPos.x, structPos.y, structPos.z};
+        BlockCoord branchNode{structPos.x, structPos.y, structPos.z};
 
         for (int h = 0; h < trunkHeight; ++h) {
             if (h > trunkBend)
@@ -241,7 +241,7 @@ public:
             blockPos.y++;
         }
         blockPos.y--;
-        generateCanopy(w, blockPos, 2.5f + (float)(rand()%1));
+        generateCanopy(blockPos, 2.5f + (float)(rand()%1));
 
         blockPos.x = branchNode.x; blockPos.y = branchNode.y; blockPos.z = branchNode.z;
         for (int i = 0; i < branchHeight; ++i) {
@@ -250,9 +250,9 @@ public:
             blockPos.y++;
             PLACE_BLOCK_SOFT(WoodAcacia);
         }
-        generateCanopy(w, blockPos, 1.5f + (float)(rand()%1));
+        generateCanopy(blockPos, 1.5f + (float)(rand()%1));
     }
-    static void generateBrownMushroom(World& w, t_coord structPos)
+    static void generateBrownMushroom(BlockCoord structPos)
     {
         INIT_STRUCT_CONSTRUCTION;
         int height = 5 + rand()%2;
@@ -277,7 +277,7 @@ public:
         }
     }
 
-    static void generateRedMushroom(World& w, t_coord structPos)
+    static void generateRedMushroom(BlockCoord structPos)
     {
         INIT_STRUCT_CONSTRUCTION;
         int height = 5 + rand()%2;
@@ -312,7 +312,7 @@ public:
 
     }
 
-    static void generateIgloo(World& w, t_coord structPos)
+    static void generateIgloo(BlockCoord structPos)
     {
 
 
@@ -422,10 +422,10 @@ public:
 
 // ======================= CHECK STRUCT ============================
 
-#define INIT_STRUCT_CHECK BlockType b; t_coord checkPos = structPos; checkPos.y += 2;
+#define INIT_STRUCT_CHECK BlockType b; BlockCoord checkPos = structPos; checkPos.y += 2;
 
 #define CHECK_TREE_AT_STRUCTPOS \
-    b = w.getBlockAt(checkPos).type;\
+    b = World::getBlockAt(checkPos);\
     if ((b >= WoodAcacia && b <= WoodMushroom) ||\
         b == LeaveMushroomBrown ||\
         b == LeaveMushroomRed ||\
@@ -433,7 +433,7 @@ public:
         b == Snow             )\
         {return false;}
 
-    static bool checkClassicTree(World& w, t_coord structPos)
+    static bool checkClassicTree(BlockCoord structPos)
     {
         INIT_STRUCT_CHECK;
 

@@ -12,7 +12,7 @@
 #include <queue>
 #include <cmath>
 
-#define LOADED_CHUNKS 1601 // 20x20 chunks + empty chunk
+#define LOADED_CHUNKS 1401 // 20x20 chunks + empty chunk
 #define EMPTY_CHUNK 0
 
 class World {
@@ -23,12 +23,12 @@ public:
     static PerlinWorldGenerator gen;
     static std::map<ChunkCoord, u16> loadedChunk;
     static std::set<ChunkCoord> savedChunk;
-    static std::queue<BlockCoord> lightQueue;
 	//static VerticalChunk chunkSlots[LOADED_CHUNKS];
 	static VerticalChunk * chunkSlots;
 	static u16 usedSlots;
 	
 	static void Init() {
+		chunkSlots = new VerticalChunk[LOADED_CHUNKS];
 		chunkSlots[EMPTY_CHUNK].loaded = 1;
 		chunkSlots[EMPTY_CHUNK].recache = 0;
 		chunkSlots[EMPTY_CHUNK].fillWith(BlockType::Bedrock);
@@ -44,25 +44,20 @@ public:
 		return 0;
 	}
 	
-    static BlockType getBlockAt(BlockCoord coord) ;
-    static void setBlockAt(BlockCoord coord, BlockType block);
+    static BlockType getBlockAt(BlockCoord coord);
+    static void setBlockAt(BlockCoord coord, BlockType block, bool calculLight = true);
 
     static VerticalChunk& getChunkAt(ChunkCoord pos, bool generate = false);
     //static void addChunk(ChunkCoord pos, VerticalChunk& chunk);
     static void setNeighboors(VerticalChunk& chunk);
-    static void initLight(VerticalChunk& c, std::queue<BlockCoord>& lightQueue);
-    static void propagateLight(VerticalChunk& c, std::queue<BlockCoord>& lightQueue);
+    static void initLight(VerticalChunk& c);
+    static void propagateLight(VerticalChunk& c);
 	
-    static void handleLightBlock(VerticalChunk& vc,  BlockCoord coord, BlockType block);
-    static void initLightBlock(VerticalChunk& vc, BlockCoord coord, BlockType block);
     static void handleLightBlock(VerticalChunk& vc);
+    static void initLightBlock(VerticalChunk& vc);
 	
 	static void requestChunk(ChunkCoord pos);
 	static void requestChunks(ChunkCoord pos);
 };
-
-
-
-
 
 #endif //MIICRAFT_WORLD_H

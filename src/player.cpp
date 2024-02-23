@@ -58,7 +58,7 @@ guVector Player::InverseVector(const guVector& v){
 }
 
 
-void Player::goUp(t_coord coord, World &w, float velocity, bool collision) {
+void Player::goUp(BlockCoord coord, float velocity, bool collision) {
     f32 size = sneak ? 0.70005 : 0.40005;
     f32 x = renderer.camera.pos.x + 1;
     f32 y = renderer.camera.pos.y + 1;
@@ -104,7 +104,7 @@ void Player::goUp(t_coord coord, World &w, float velocity, bool collision) {
 }
 
 
-void Player::goDown(t_coord coord, World &w, float velocity, bool collision ) {
+void Player::goDown(BlockCoord coord, float velocity, bool collision ) {
     f32 size = sneak ? 1.3 : 1.6;
     f32 x = renderer.camera.pos.x + 1;
     f32 y = renderer.camera.pos.y + 1;
@@ -195,8 +195,8 @@ void Player::destroyBlock(){
         World::setBlockAt(focusedBlockPos, BlockType::Air);
         if (!creative)
             inventory.addItem(breaked, 1);
-        if (focusedBlockPos.equals(lockedBlockPos)) {
-            if(getFocusedBlock(w)) {
+        if (focusedBlockPos == lockedBlockPos) {
+            if(getFocusedBlock()) {
                 lockedBlockPos = focusedBlockPos;
             }
             else
@@ -207,9 +207,9 @@ void Player::destroyBlock(){
     breakingState++;
 }
 
-void Player::placeBlock(World& w){
-    if (inventory.inventory[0][inventory.selectedSlot].item > BlockType::Blocks)
-        return;
+void Player::placeBlock(){
+    //if (inventory.inventory[0][inventory.selectedSlot].item.type )  // IF NOT SOLID BLOCK
+    //    return;
     if(placeDelay < 10){
         return;}
     BlockCoord pos = focusedBlockPos;
@@ -253,7 +253,7 @@ void Player::placeBlock(World& w){
                     || (pos.y != (int)floor(renderer.camera.pos.y + 1) && pos.y != (int)floor(renderer.camera.pos.y))
                     || (pos.z != (int)floor(renderer.camera.pos.z + 1.3) && pos.z != (int)floor(renderer.camera.pos.z + 0.7))))
         {
-            World::setBlockAt(pos, inventory.inventory[0][inventory.selectedSlot].item);
+            World::setBlockAt(pos, inventory.inventory[0][inventory.selectedSlot].item.type);
             if (!creative){
                 inventory.inventory[0][inventory.selectedSlot].quantity--;
                 if (inventory.inventory[0][inventory.selectedSlot].quantity == 0)
@@ -264,7 +264,7 @@ void Player::placeBlock(World& w){
     placeDelay = 0;
 }
 
-int Player::getFocusedFace(World& w) const {
+int Player::getFocusedFace() const {
     if(focusedBlockType != BlockType::Air) {
         f32 deltaX = (f32) std::fabs((focusedBlockLook.x- round(focusedBlockLook.x)));
         f32 deltaY = (f32) std::fabs((focusedBlockLook.y- round(focusedBlockLook.y)));
@@ -439,7 +439,7 @@ void Player::move(joystick_t sticks) {
     }
 }
 
-void Player::handleGravity(World &w, t_coord& coord) {
+void Player::handleGravity(BlockCoord& coord) {
     if (!gravity)
         return;
 
@@ -471,16 +471,16 @@ void Player::handleGravity(World &w, t_coord& coord) {
     } else {
         Velocity = 0;
         //printf("%f %f %f\r", floor(x), floor(y - 1.8), floor(z));
-        goDown(coord, w, 0);
+        goDown(coord, 0);
     }
     if (Velocity < 0) {
-        goUp(coord, w, -Velocity);
+        goUp(coord, -Velocity);
     } else if (Velocity > 0) {
-        goDown(coord, w, Velocity);
+        goDown(coord, Velocity);
     }
 }
 
-bool Player::isUnderwater(World & w) const{
+bool Player::isUnderwater() const{
     if (World::getBlockAt({(int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1)}) == BlockType::Water
         || World::getBlockAt({(int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1)}) == BlockType::Water)
         return true;
