@@ -141,10 +141,19 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
             StructBuilder::generateIgloo(w, iglooPos);
         }
     }
+    if (biomeRepartition[Savanna] >= 128)
+    {
+        int proba = (int)((float)biomeRepartition[Savanna] / 256.f * 10.f);
+        if (rand()% 25 < proba)
+        {
+            t_coord acaciaPos{(pos.x * 16 + 7 + rand()%3), heightMap[8][8], (pos.y * 16 + 7 + rand()%3)};
+            StructBuilder::generateAcacia(w, acaciaPos);
+        }
+    }
 
     humidityMean /= 16*16;
     int treeAttempts = humidityMean * 3;
-    for (int i = 0; i < 1; ++i)
+    for (int i = 0; i < treeAttempts; ++i)
     {
 
         //On sélectionne une coordonnée aléatoire du tableau des hauteurs
@@ -156,6 +165,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
         t_coord treePos((pos.x * 16 + x), y, (pos.y * 16 + z));
         if (StructBuilder::checkClassicTree(w, treePos))
         {
+
             BiomeType biome = biomeMap[x][z];
             if (biome == Desert || biome == Badlands ||biome == WoodedBadlands)
             {
@@ -165,9 +175,9 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
             {
                 StructBuilder::generateSpruce(w, treePos);
             }
-            else
+            else if (biome == Savanna)
             {
-                StructBuilder::generateAcacia(w, treePos);
+                StructBuilder::generateStdTree(w, treePos);
             }
 
         }
