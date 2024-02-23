@@ -236,12 +236,15 @@ void Player::placeBlock(World& w){
                     (pos.x != (int)floor(renderer.camera.pos.x + 1.3) && pos.x != (int)floor(renderer.camera.pos.x + 0.7))
                     || (pos.y != (int)floor(renderer.camera.pos.y + 1) && pos.y != (int)floor(renderer.camera.pos.y))
                     || (pos.z != (int)floor(renderer.camera.pos.z + 1.3) && pos.z != (int)floor(renderer.camera.pos.z + 0.7))))
+        {
             w.setBlockAt(pos, inventory.inventory[0][inventory.selectedSlot].item.type);
-        if (!creative){
-            inventory.inventory[0][inventory.selectedSlot].quantity--;
-            if (inventory.inventory[0][inventory.selectedSlot].quantity == 0)
-                inventory.inventory[0][inventory.selectedSlot].item = Item(BlockType::Air);
+            if (!creative){
+                inventory.inventory[0][inventory.selectedSlot].quantity--;
+                if (inventory.inventory[0][inventory.selectedSlot].quantity == 0)
+                    inventory.inventory[0][inventory.selectedSlot].item = Item(BlockType::Air);
+            }
         }
+
 
     }
     placeDelay = 0;
