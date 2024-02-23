@@ -10,6 +10,7 @@
 struct Slot {
     explicit Slot(BlockType type = BlockType::Air, int quantity = 0);
     bool enoughToCraft(Slot) const;
+    bool equals(Slot) const;
     Item item;
     int quantity;
 };
@@ -18,7 +19,8 @@ struct Slot {
 struct Craft {
     Craft();
     Craft(Slot, Slot, Slot, Slot, Slot, Slot, Slot, Slot, Slot, Slot);
-    static Craft craftList[11];
+    bool equals(Craft) const;
+    static Craft craftList[10];
     Slot recipe[9];
     Slot result;
 };

@@ -20,124 +20,69 @@ Inventory::Inventory() : open(false), craftOpen(true), selectedSlot(0), pickedIt
     }
 }
 
-void Inventory::pickItem(int slot, bool craftSlot) {
-    Slot temp = pickedItem;
-    if(!craftSlot){
-        if(slot < 27) {
-            pickedItem = inventory[1 + currentPage * 3 + slot / 9][slot % 9];
-            inventory[1 + currentPage * 3 + slot / 9][slot % 9] = temp;
-        }
-        else if(slot < 36){
-            pickedItem = inventory[0][slot % 9];
-            inventory[0][slot % 9] = temp;
-        }
+void Inventory::pickItem(Slot& s, bool dividedByTwo, bool creativeInventory){
+    pickedItem.item = s.item;
+    if(creativeInventory){
+        pickedItem.quantity = 64;
     }
-    else {
-        if(slot < 9 && slot >= 0) {
-            pickedItem = craftSlots[slot];
-            craftSlots[slot] = temp;
-            currentCraft = getCurrentCraft();
+    else if(!s.item.equals(Item::itemList[0])){
+        if(dividedByTwo && s.quantity > 1 ) {
+            pickedItem.quantity = s.quantity / 2;
+            s.quantity -=  pickedItem.quantity;
         }
-        else if(slot == 9 && pickedItem.item.equals(Item::itemList[0])){
-            pickedItem = craftSlots[slot];
-            for(int i = 0; i < 3 - offsetColumn; i++){
-                for(int j = 0; j < 3 - offsetRow; j++) {
-                    craftSlots[(i + offsetRow)*3 + j + offsetColumn].quantity -= currentCraft.recipe[i*3+j].quantity;
-                    if (craftSlots[(i + offsetRow)*3 + j + offsetColumn].quantity == 0)
-                        craftSlots[(i + offsetRow)*3 + j + offsetColumn].item = Item::itemList[0];
-                }
-            }
+        else
+        {
+            pickedItem.quantity = s.quantity;
+            s.quantity = 0;
+            s.item = Item::itemList[0];
         }
-        currentCraft = getCurrentCraft();
-        craftSlots[9] = currentCraft.result;
     }
 }
 
-void Inventory::dropItem(int slot, bool unique, bool craftSlot){
-    Slot temp;
-    if(!craftSlot) {
-        if (slot < 27) {
-            temp = inventory[1 + currentPage * 3 + slot / 9][slot % 9];
-            if (unique && inventory[1 + currentPage * 3 + slot / 9][slot % 9].item.equals(Item::itemList[0])) {
-                inventory[1 + currentPage * 3 + slot / 9][slot % 9].item = pickedItem.item;
-                inventory[1 + currentPage * 3 + slot / 9][slot % 9].quantity++;
-                pickedItem.quantity--;
-                if (pickedItem.quantity == 0)
-                    pickedItem.item = Item::itemList[0];
-            } else {
-                if (pickedItem.item.equals(inventory[1 + currentPage * 3 + slot / 9][slot % 9].item)) {
-                    if (unique) {
-                        inventory[1 + currentPage * 3 + slot / 9][slot % 9].quantity++;
-                        pickedItem.quantity--;
-                        if (pickedItem.quantity == 0)
-                            pickedItem.item = Item::itemList[0];
-                    }
-                    else {
-                        int stack = inventory[1 + currentPage * 3 + slot / 9][slot % 9].quantity + pickedItem.quantity;
-                        if(stack > 64){
-                            pickedItem.quantity = stack - 64;
-                            inventory[1 + currentPage * 3 + slot / 9][slot % 9].quantity = 64;
-                        }
-                        else{
-                            inventory[1 + currentPage * 3 + slot / 9][slot % 9].quantity += pickedItem.quantity;
-                            pickedItem.quantity = 0;
-                            }
-                        if (pickedItem.quantity == 0)
-                            pickedItem.item = Item::itemList[0];
-                    }
-                }
-                else{
-                inventory[1 + currentPage * 3 + slot / 9][slot % 9] = pickedItem;
-                pickedItem = temp;
-                }
-            }
-        }
-        else if(slot < 36){
-            temp = inventory[0][slot % 9];
-            if(unique && inventory[0][slot % 9].item.equals(Item::itemList[0])){
-                inventory[0][slot % 9].item = pickedItem.item;
-                inventory[0][slot % 9].quantity++;
-                pickedItem.quantity--;
-                if(pickedItem.quantity == 0)
-                    pickedItem.item = Item::itemList[0];
-            }
-            else {
-                if (pickedItem.item.equals(inventory[0][slot % 9].item)) {
-                    int stack = inventory[0][slot % 9].quantity + pickedItem.quantity;
+void Inventory::dropItem(Slot& s, int mode, bool creativeInventory){
+    int quantity = 0;
+    switch (mode){
+        case 0:
+            quantity = pickedItem.quantity;
+            break;
+        case 1:
+            quantity = 1;
+            break;
+    }
 
-                    if (stack > 64) {
-                        pickedItem.quantity = stack - 64;
-                        inventory[0][slot % 9].quantity = 64;
-                    } else {
-                        inventory[0][slot % 9].quantity += pickedItem.quantity;
-                        pickedItem.quantity = 0;
-                    }
-                    if (pickedItem.quantity == 0)
-                        pickedItem.item = Item::itemList[0];
-                }
-                else {
-                    inventory[0][slot % 9] = pickedItem;
-                    pickedItem = temp;
-                }
-            }
+    if(s.item.equals(pickedItem.item)) {
+        if(creativeInventory) {
+            pickedItem.item = Item::itemList[0];
+            pickedItem.quantity = 0;
+        }
+        else if (quantity + s.quantity <= 64) {
+            s.quantity += quantity;
+            pickedItem.quantity -= quantity;
+            if (pickedItem.quantity == 0)
+                pickedItem.item = Item::itemList[0];
+        } else {
+            int resultQuantity = 64 - s.quantity;
+            s.quantity += resultQuantity;
+            pickedItem.quantity -= resultQuantity;
         }
     }
-    else{
-        temp = craftSlots[slot];
-        if(slot <= 8 && slot >= 0) {
-            if(unique && craftSlots[slot].item.equals(Item::itemList[0])){
-                craftSlots[slot].item = pickedItem.item;
-                craftSlots[slot].quantity++;
-                pickedItem.quantity--;
-                if(pickedItem.quantity == 0)
-                    pickedItem.item = Item::itemList[0];
-            }
-            else {
-                craftSlots[slot] = pickedItem;
-                pickedItem = temp;
-            }
-            currentCraft = getCurrentCraft();
-            craftSlots[9] = currentCraft.result;
+    else if (s.item.equals(Item::itemList[0])){
+        s.item = pickedItem.item;
+        s.quantity = quantity;
+        pickedItem.quantity -= quantity;
+
+        if (pickedItem.quantity == 0)
+            pickedItem.item = Item::itemList[0];
+    }
+    else {
+        if(creativeInventory) {
+            pickedItem.item = Item::itemList[0];
+            pickedItem.quantity = 0;
+        }
+        else if(pickedItem.quantity == quantity){
+            Slot temp = pickedItem;
+            pickedItem = s;
+            s = temp;
         }
     }
 }
@@ -156,9 +101,76 @@ Craft Inventory::getCurrentCraft() {
     return Craft::craftList[0];
 }
 
-void Inventory::action(int slot, bool craftSlot) {
-    if(pickedItem.item.equals(Item::itemList[0])){
-        pickItem(slot, craftSlot);
+bool Inventory::fastDrop(Slot& s, bool putInHotbar, bool putInInv, bool creativeInventory){
+    if(putInInv && !creativeInventory){
+        for(int i = 1; i < 10; i++) {
+            for (int j = 0; j < 9; j++) {
+                if (inventory[i][j].item.equals(Item::itemList[0])){
+                    inventory[i][j] = s;
+                    s.quantity = 0;
+                    s.item = Item::itemList[0];
+                    return true;
+                }
+                else if (inventory[i][j].item.equals(s.item)) {
+                    if (inventory[i][j].quantity + s.quantity <= 64) {
+                        inventory[i][j].quantity += s.quantity;
+                        s.quantity = 0;
+                        s.item = Item::itemList[0];
+                        return true;
+                    }
+                    else {
+                        int quantity = 64 - inventory[i][j].quantity;
+                        inventory[i][j].quantity = 64;
+                        s.quantity -= quantity;
+                    }
+                }
+            }
+        }
+    }
+    if(putInHotbar) {
+        for (int i = 0; i < 9; i++) {
+            if (inventory[0][i].item.equals(Item::itemList[0])){
+                inventory[0][i] = s;
+                s.quantity = 0;
+                s.item = Item::itemList[0];
+                return true;
+            }
+            else if (inventory[0][i].item.equals(s.item)) {
+                if (inventory[0][i].quantity + s.quantity <= 64) {
+                    inventory[0][i].quantity += s.quantity;
+                    s.quantity = 0;
+                    s.item = Item::itemList[0];
+                    return true;
+                }
+                else {
+                    int quantity = 64 - inventory[0][i].quantity;
+                    inventory[0][i].quantity = 64;
+                    s.quantity -= quantity;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+void Inventory::action(int slot, bool craftSlot, int dropMode, bool fast, bool dividedByTwo, bool creative) {
+    if(!craftSlot) {
+        if (slot < 27) {
+            if(fast)
+                fastDrop(inventory[1 + currentPage * 3 + slot / 9][slot % 9], true, false, creative);
+            else if(pickedItem.item.equals(Item::itemList[0])){
+                pickItem(inventory[1 + currentPage * 3 + slot / 9][slot % 9], dividedByTwo, creative);
+            }else
+                dropItem(inventory[1 + currentPage * 3 + slot / 9][slot % 9], dropMode, creative);
+        }
+        else if(slot < 36){
+            if(fast)
+                fastDrop(inventory[0][slot % 9], false, true, creative);
+            else if(pickedItem.item.equals(Item::itemList[0])) {
+                pickItem(inventory[0][slot % 9], dividedByTwo, false);
+            }else
+                dropItem(inventory[0][slot % 9], dropMode, false);
+        }
     }
     else{
         dropItem(slot, false, craftSlot);
@@ -256,6 +268,53 @@ void Inventory::getUniqueRecipe() {
         if(++count == 3){
             offsetRow = 0;
             offsetColumn = 0;
+        }
+    }
+}
+
+void Inventory::handleCraft(bool fastMode, bool creative) {
+    if(fastMode){
+        bool full = false;
+        while(!currentCraft.equals(Craft::craftList[0]) && !full){
+            full = !fastDrop(craftSlots[9], true, true, creative);
+            if(full)
+                return;
+            for (int i = 0; i < 3 - offsetColumn; i++) {
+                for (int j = 0; j < 3 - offsetRow; j++) {
+                    craftSlots[(i + offsetRow) * 3 + j + offsetColumn].quantity -= currentCraft.recipe[i * 3 +
+                                                                                                       j].quantity;
+                    if (craftSlots[(i + offsetRow) * 3 + j + offsetColumn].quantity == 0)
+                        craftSlots[(i + offsetRow) * 3 + j + offsetColumn].item = Item::itemList[0];
+                }
+            }
+            currentCraft = getCurrentCraft();
+            craftSlots[9] = currentCraft.result;
+        }
+    }
+    else if(pickedItem.item.equals(Item::itemList[0]) || pickedItem.item.equals(craftSlots[9].item)){
+        if(pickedItem.item.equals(Item::itemList[0])) {
+            pickedItem = craftSlots[9];
+            for (int i = 0; i < 3 - offsetColumn; i++) {
+                for (int j = 0; j < 3 - offsetRow; j++) {
+                    craftSlots[(i + offsetRow) * 3 + j + offsetColumn].quantity -= currentCraft.recipe[i * 3 +
+                                                                                                       j].quantity;
+                    if (craftSlots[(i + offsetRow) * 3 + j + offsetColumn].quantity == 0)
+                        craftSlots[(i + offsetRow) * 3 + j + offsetColumn].item = Item::itemList[0];
+                }
+            }
+        }
+        else if(pickedItem.item.equals(craftSlots[9].item)) {
+            if(pickedItem.quantity + craftSlots[9].quantity <= 64) {
+                pickedItem.quantity += craftSlots[9].quantity;
+                for (int i = 0; i < 3 - offsetColumn; i++) {
+                    for (int j = 0; j < 3 - offsetRow; j++) {
+                        craftSlots[(i + offsetRow) * 3 + j + offsetColumn].quantity -= currentCraft.recipe[i * 3 +
+                                                                                                           j].quantity;
+                        if (craftSlots[(i + offsetRow) * 3 + j + offsetColumn].quantity == 0)
+                            craftSlots[(i + offsetRow) * 3 + j + offsetColumn].item = Item::itemList[0];
+                    }
+                }
+            }
         }
     }
 }
