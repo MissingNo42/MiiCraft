@@ -117,6 +117,9 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
                     break;
                 case StonyShore: Tergen::generateStonyShore(vc, i, j, height, w.lightQueue);
                     break;
+                case RedBeach:
+                    Tergen::generateRedBeach(vc, i, j, height, w.lightQueue);
+                    break;
                 case Void:
                     Tergen::generateVoid(vc, i, j, height, w.lightQueue);
                     break;
@@ -145,7 +148,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
         if (rand()% 25 < proba)
         {
             t_coord acaciaPos{(pos.x * 16 + 7 + rand()%3), heightMap[8][8], (pos.y * 16 + 7 + rand()%3)};
-            StructBuilder::generateAcacia(w, acaciaPos);
+            StructBuilder::generateBrownMushroom(w, acaciaPos);
         }
     }
 
@@ -351,6 +354,8 @@ BiomeType PerlinWorldGenerator::guessBiome(float ero, float temp, float hum, flo
     {// ===== PLAGE =====
         if (ero > 1.4 && temp < 1.3)
         {return BiomeType::StonyShore;}
+        else if (temp > 1.6f)
+        {return BiomeType::RedBeach;}
         else
         {return BiomeType::Beach;}
     }

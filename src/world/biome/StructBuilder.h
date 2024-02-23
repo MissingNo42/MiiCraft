@@ -252,6 +252,30 @@ public:
         }
         generateCanopy(w, blockPos, 1.5f + (float)(rand()%1));
     }
+    static void generateBrownMushroom(World& w, t_coord structPos)
+    {
+        INIT_STRUCT_CONSTRUCTION;
+        blockPos.y++;
+        int height = 4 + rand()%2;
+        for (int i = 0; i < height; ++i) {
+            PLACE_BLOCK_SOFT(WoodMushroom);
+            blockPos.y++;
+        }
+        X_ABSOLUTE(-3);
+        Z_ABSOLUTE(-3);
+        for (int i = -3; i < 4; ++i) {
+            for (int j = -3; j < 4; ++j) {
+                float dist = i*i + j*j;
+                if (dist <= 3.5)
+                {
+                    PLACE_BLOCK_SOFT(LeaveMushroomBrown);
+                }
+                blockPos.z++;
+            }
+            blockPos.x++;
+            Z_ABSOLUTE(-3);
+        }
+    }
 
     static void generateIgloo(World& w, t_coord structPos)
     {

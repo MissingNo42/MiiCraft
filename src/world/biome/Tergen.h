@@ -9,7 +9,7 @@
 #include "../verticalChunk.h"
 
 
-const int BIOME_COUNT = 18;
+const int BIOME_COUNT = 19;
 
 enum BiomeType : u16{
     Void = 0,
@@ -30,6 +30,7 @@ enum BiomeType : u16{
     IcePeak,
     Taiga,
     StonyShore,
+    RedBeach,
 };
 
 #define INIT_GENERATOR \
@@ -134,18 +135,31 @@ public:
         APPLY_SKY;
     }
 
-
      static void generateBadLand(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
 
-        APPLY_CONTINENT(Stone, Clay);
-        APPLY_BLOCK(ClayRed);
+         for (; pos.y < seaLevel + bottomLevel; ++pos.y) {
+             APPLY_BLOCK(Stone);
+         }
+         int bl = seaLevel + bottomLevel;
+         for (; pos.y < height; ++pos.y) {
+             int badlandY = pos.y % 30;
+             int dice = rand()%100;
+             if (dice == 0) {badlandY++;}
+             else if (dice == 1) {
+                 badlandY--;
+                 if (badlandY < 0) {badlandY = 30;}
+             }
+
+             APPLY_BLOCK(BADLANDS_STRATS[badlandY]);
+         }
         pos.y++;
         APPLY_SKY;
     }
-     static void generateDarkForest(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
+
+    static void generateDarkForest(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -155,7 +169,7 @@ public:
         pos.y++;
         APPLY_SKY;
     }
-     static void generateTaiga(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
+    static void generateTaiga(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -165,7 +179,6 @@ public:
         pos.y++;
         APPLY_SKY;
     }
-
      static void generateWindSwept(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
         INIT_GENERATOR;
         APPLY_BEDROCK;
@@ -198,7 +211,8 @@ public:
         pos.y++;
         APPLY_SKY;
     }
-     static void generateJungle(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
+
+    static void generateJungle(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -208,7 +222,6 @@ public:
         pos.y++;
         APPLY_SKY;
     }
-
      static void generateOcean(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
         INIT_GENERATOR;
         APPLY_BEDROCK;
@@ -242,6 +255,49 @@ public:
         pos.y++;
         APPLY_SKY;
     }
+
+    static void generateRedBeach(VerticalChunk *chunk, int block_x, int block_z, int height, std::queue<t_coord>& lightQueue){
+        INIT_GENERATOR;
+        APPLY_BEDROCK;
+        APPLY_BOTTOM;
+
+        APPLY_CONTINENT(Stone, RedSand);
+        APPLY_BLOCK(BlockType::RedSand);
+        pos.y++;
+        APPLY_SKY;
+    }
+    constexpr static const BlockType BADLANDS_STRATS[30] = {
+            Clay,
+            Clay,
+            ClayRed,
+            Clay,
+            ClayBrown,
+            ClayYellow,
+            ClayYellow,
+            Clay,
+            Clay,
+            ClayRed,
+            ClayBrown,
+            ClayWhite,
+            ClayLightGray,
+            Clay,
+            ClayRed,
+            ClayWhite,
+            ClayLightGray,
+            Clay,
+            Clay,
+            ClayLightGray,
+            ClayWhite,
+            ClayBrown,
+            Clay,
+            ClayRed,
+            Clay,
+            Clay,
+            ClayRed,
+            Clay,
+            ClayGray,
+            Clay,
+    };
 };
 //void generateVoid( VerticalChunk* chunk, int block_x, int block_z, int height);
 //void generateDesert( VerticalChunk* chunk, int block_x, int block_z, int height);
