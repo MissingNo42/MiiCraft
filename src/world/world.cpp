@@ -44,11 +44,11 @@ Block World::getBlockAt(t_coord coord)  {
 void World::setBlockAt(t_coord coord, BlockType block, bool calculLight) {
     loadedChunk[to_chunk_pos(coord)]->VC_SetBlock(coord, block);
 
-    if (calculLight){
-    initLight(loadedChunk[to_chunk_pos(coord)], loadedChunk[to_chunk_pos(coord)]->lightQueue);
-    handleLightBlock(loadedChunk[to_chunk_pos(coord)]);
-    propagateLight(loadedChunk[to_chunk_pos(coord)], loadedChunk[to_chunk_pos(coord)]->lightQueue);
-}
+    if (calculLight) {
+        initLight(loadedChunk[to_chunk_pos(coord)], loadedChunk[to_chunk_pos(coord)]->lightQueue);
+        handleLightBlock(loadedChunk[to_chunk_pos(coord)]);
+        propagateLight(loadedChunk[to_chunk_pos(coord)]);
+    }
 
 
 }
@@ -212,11 +212,11 @@ void World::initLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
 }
 
 
-void World::propagateLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
-    while(!lightQueue.empty()){
-        t_coord p = lightQueue.front();
+void World::propagateLight(VerticalChunk* c) {
+    while(!c->lightQueue.empty()){
+        t_coord p = c->lightQueue.front();
 
-        lightQueue.pop();
+        c->lightQueue.pop();
         int CurrentLightValue = c->VC_GetBlock(p).type;
         if(CurrentLightValue <= 0 || CurrentLightValue > 15){
             continue;
@@ -228,7 +228,7 @@ void World::propagateLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
                     c->VC_SetBlock({p.x, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
                     if(c->VC_GetBlock({p.x + 1, p.y, p.z}).type <= 15){
                         c->VC_SetBlock({p.x + 1, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
-                        lightQueue.push({p.x + 1, p.y, p.z});
+                        c->lightQueue.push({p.x + 1, p.y, p.z});
                     }
 
                 }
@@ -241,7 +241,7 @@ void World::propagateLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
                         if(newChunk->VC_GetBlock({0, p.y, p.z}).type <= 15){
                             newChunk->VC_SetBlock({0, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
                             newChunk->lightQueue.push({0 , p.y, p.z});
-                            propagateLight(newChunk, newChunk->lightQueue);
+                            propagateLight(newChunk);
                         }
                     }
                 }
@@ -251,7 +251,7 @@ void World::propagateLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
                     c->VC_SetBlock({p.x, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
                     if(c->VC_GetBlock({p.x - 1, p.y, p.z}).type <= 15){
                         c->VC_SetBlock({p.x - 1, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
-                        lightQueue.push({p.x - 1, p.y, p.z});
+                        c->lightQueue.push({p.x - 1, p.y, p.z});
                     }
 
                 }
@@ -264,7 +264,7 @@ void World::propagateLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
                         if(newChunk->VC_GetBlock({15, p.y, p.z}).type <= 15){
                             newChunk->VC_SetBlock({15, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
                             newChunk->lightQueue.push({15 , p.y, p.z});
-                            propagateLight(newChunk, newChunk->lightQueue);
+                            propagateLight(newChunk);
                         }
                     }
                 }
@@ -274,7 +274,7 @@ void World::propagateLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
                     c->VC_SetBlock({p.x, p.y, p.z }, static_cast<BlockType>(CurrentLightValue - 1));
                     if(c->VC_GetBlock({p.x, p.y, p.z + 1}).type <= 15){
                         c->VC_SetBlock({p.x, p.y, p.z + 1}, static_cast<BlockType>(CurrentLightValue - 1));
-                        lightQueue.push({p.x, p.y, p.z + 1});
+                        c->lightQueue.push({p.x, p.y, p.z + 1});
                     }
 
                 }
@@ -287,7 +287,7 @@ void World::propagateLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
                         if(newChunk->VC_GetBlock({p.x, p.y, 0}).type <= 15){
                             newChunk->VC_SetBlock({p.x, p.y, 0}, static_cast<BlockType>(CurrentLightValue - 1));
                             newChunk->lightQueue.push({p.x , p.y, 0});
-                            propagateLight(newChunk, newChunk->lightQueue);
+                            propagateLight(newChunk);
                         }
                     }
                 }
@@ -297,7 +297,7 @@ void World::propagateLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
                     c->VC_SetBlock({p.x, p.y, p.z }, static_cast<BlockType>(CurrentLightValue - 1));
                     if(c->VC_GetBlock({p.x, p.y, p.z - 1}).type <= 15){
                         c->VC_SetBlock({p.x, p.y, p.z - 1}, static_cast<BlockType>(CurrentLightValue - 1));
-                        lightQueue.push({p.x, p.y, p.z - 1});
+                        c->lightQueue.push({p.x, p.y, p.z - 1});
                     }
 
                 }
@@ -310,7 +310,7 @@ void World::propagateLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
                         if(newChunk->VC_GetBlock({p.x, p.y, 15}).type <= 15){
                             newChunk->VC_SetBlock({p.x, p.y, 15}, static_cast<BlockType>(CurrentLightValue - 1));
                             newChunk->lightQueue.push({p.x , p.y, 15});
-                            propagateLight(newChunk, newChunk->lightQueue);
+                            propagateLight(newChunk);
                         }
                     }
                 }
@@ -320,7 +320,7 @@ void World::propagateLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
                     c->VC_SetBlock({p.x, p.y , p.z} , static_cast<BlockType>(CurrentLightValue - 1));
                     if(c->VC_GetBlock({p.x, p.y + 1, p.z}).type <= 15){
                         c->VC_SetBlock({p.x, p.y + 1, p.z} , static_cast<BlockType>(CurrentLightValue - 1));
-                        lightQueue.push({p.x, p.y + 1, p.z});
+                        c->lightQueue.push({p.x, p.y + 1, p.z});
 
                     }
 
@@ -331,7 +331,7 @@ void World::propagateLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
                     c->VC_SetBlock({p.x, p.y , p.z} , static_cast<BlockType>(CurrentLightValue));
                     if(c->VC_GetBlock({p.x, p.y - 1, p.z}).type <= 15){
                         c->VC_SetBlock({p.x, p.y - 1, p.z} , static_cast<BlockType>(CurrentLightValue));
-                        lightQueue.push({p.x, p.y - 1, p.z});
+                        c->lightQueue.push({p.x, p.y - 1, p.z});
                     }
 
                 }

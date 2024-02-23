@@ -73,55 +73,55 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
 //            printf("%d\r", height);
             biome = guessBiome(erosion, temperature, humidity, continent, height);
-//            if (biome == BiomeType::Ocean) {Tergen::generateOcean(vc, i, j, height, w.lightQueue);}
-//            else if (biome == BiomeType::Beach) {Tergen::generateBeach(vc, i, j, height, w.lightQueue);}
+//            if (biome == BiomeType::Ocean) {Tergen::generateOcean(vc, i, j, height);}
+//            else if (biome == BiomeType::Beach) {Tergen::generateBeach(vc, i, j, height);}
 //            else
 //            {
 //                erosion = temperature;
 ////                height = 10;
-//                if (erosion < 0) {Tergen::generateTundra(vc, i, j, height, w.lightQueue);}
+//                if (erosion < 0) {Tergen::generateTundra(vc, i, j, height);}
 //                else if (erosion < 1.0) {Tergen::generatePlain(vc, i, j, height,w.lightQueue);}
-//                else if (erosion < 1.5) {Tergen::generateDesert(vc, i, j, height, w.lightQueue);}
+//                else if (erosion < 1.5) {Tergen::generateDesert(vc, i, j, height);}
 //                else if (erosion <= 2.) //ne pas enlever
 //                {Tergen::generateSavanna(vc, i, j, height,w.lightQueue);}
 //            }
             switch (biome) {
-                case Ocean: Tergen::generateOcean(vc, i, j, height, w.lightQueue);
+                case Ocean: Tergen::generateOcean(vc, i, j, height);
                     break;
-                case Beach: Tergen::generateBeach(vc, i, j, height, w.lightQueue);
+                case Beach: Tergen::generateBeach(vc, i, j, height);
                     break;
-                case Savanna: Tergen::generateSavanna(vc, i, j, height, w.lightQueue);
+                case Savanna: Tergen::generateSavanna(vc, i, j, height);
                     break;
-                case Tundra: Tergen::generateTundra(vc, i, j, height, w.lightQueue);
+                case Tundra: Tergen::generateTundra(vc, i, j, height);
                     break;
-                case Desert: Tergen::generateDesert(vc, i, j, height, w.lightQueue);
+                case Desert: Tergen::generateDesert(vc, i, j, height);
                     break;
-                case Plain: case Hills: Tergen::generatePlain(vc, i, j, height, w.lightQueue);
+                case Plain: case Hills: Tergen::generatePlain(vc, i, j, height);
                     break;
-                case WoodedPlain: case WoodedHills: Tergen::generateForest(vc, i, j, height, w.lightQueue);
+                case WoodedPlain: case WoodedHills: Tergen::generateForest(vc, i, j, height);
                     break;
 
-                case StonyLand: Tergen::generateWindSwept(vc, i, j, height, w.lightQueue);
+                case StonyLand: Tergen::generateWindSwept(vc, i, j, height);
                     break;
-                case Badlands: Tergen::generateBadLand(vc, i, j, height, w.lightQueue);
+                case Badlands: Tergen::generateBadLand(vc, i, j, height);
                     break;
-                case WoodedBadlands: Tergen::generateBadLand(vc, i, j, height, w.lightQueue);
+                case WoodedBadlands: Tergen::generateBadLand(vc, i, j, height);
                     break;
-                case Jungle: Tergen::generateJungle(vc, i, j, height, w.lightQueue);
+                case Jungle: Tergen::generateJungle(vc, i, j, height);
                     break;
-                case DarkForest: Tergen::generateDarkForest(vc, i, j, height, w.lightQueue);
+                case DarkForest: Tergen::generateDarkForest(vc, i, j, height);
                     break;
-                case IcePeak: Tergen::generateIcy(vc, i, j, height, w.lightQueue);
+                case IcePeak: Tergen::generateIcy(vc, i, j, height);
                     break;
-                case Taiga: Tergen::generateTaiga(vc, i, j, height, w.lightQueue);
+                case Taiga: Tergen::generateTaiga(vc, i, j, height);
                     break;
-                case StonyShore: Tergen::generateStonyShore(vc, i, j, height, w.lightQueue);
+                case StonyShore: Tergen::generateStonyShore(vc, i, j, height);
                     break;
                 case RedBeach:
-                    Tergen::generateRedBeach(vc, i, j, height, w.lightQueue);
+                    Tergen::generateRedBeach(vc, i, j, height);
                     break;
                 case Void:
-                    Tergen::generateVoid(vc, i, j, height, w.lightQueue);
+                    Tergen::generateVoid(vc, i, j, height);
                     break;
             }
 
@@ -216,7 +216,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
     }
 
     //    w.initLight(vc);
-    w.propagateLight(vc,w.lightQueue);
+    w.propagateLight(vc);
     std::cout << "Chunk generated at " << pos.x << " " << pos.y << " with id : " << vc->id << std::endl;
     std::cout << " with neighboors : " << std::endl;
     for(int i = 0; i < 4; i++){

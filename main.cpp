@@ -334,10 +334,10 @@ int main(int, char **) {
 
     Wiimote wiimote;
 
-
+    printf("ici\r");
     t_coord pos(0,0,0);
     World& w = Game::getInstance()->getWorld();
-
+    printf("ici\r");
     while (!exiting) {
 
         player.renderer.camera.loadPerspective();

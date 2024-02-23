@@ -34,7 +34,7 @@ public:
 
     void initLight(VerticalChunk* c, std::queue<t_coord>& lightQueue);
 
-    void propagateLight(VerticalChunk *c, std::queue<t_coord>& lightQueue);
+    void propagateLight(VerticalChunk *c);
 
     void handleLightBlock(VerticalChunk * vc,  t_coord coord, BlockType block);
 
