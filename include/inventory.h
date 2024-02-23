@@ -32,6 +32,7 @@ public:
     Craft getCurrentCraft();
     void action(int slot, bool craftSlot);
     void ClearCraft();
+    void addItem(BlockType type, int quantity);
 
     void getUniqueRecipe();
 };

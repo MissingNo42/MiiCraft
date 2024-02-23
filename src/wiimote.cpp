@@ -25,6 +25,9 @@ void Wiimote::update(Player& player, World& w) {
 
     wd = WPAD_Data(chan);
 
+    if(player.inventory.pickedItem.item.type == BlockType::Air)
+        player.inventory.pickedItem.quantity = 0;
+
     if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_UP){
         player.inventory.open = !player.inventory.open;
         if (player.inventory.craftOpen == true)

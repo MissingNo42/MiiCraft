@@ -203,7 +203,40 @@ void Inventory::ClearCraft() {
                 }
             }
         }
-        printf("%d %d\r", craftSlot.item ,craftSlot.quantity);
+        //printf("%d %d\r", craftSlot.item ,craftSlot.quantity);
+    }
+}
+
+void Inventory::addItem(BlockType type, int quantity) {
+    printf("Added\r");
+    for (auto & c : inventory) {
+        for (auto & p : c) {
+            if (quantity == 0)
+                break;
+            if (type==p.item.type && type!=Item::itemList[0].type) {
+                int stack = p.quantity + quantity;
+                if (stack > 64) {
+                    quantity = stack - 64;
+                    p.quantity = 64;
+                } else {
+                    p.quantity += quantity;
+                    quantity = 0;
+                }
+            }
+        }
+        if (quantity != 0) {
+            for (auto & c : inventory) {
+                for (auto & p : c) {
+                    if (quantity == 0)
+                        break;
+                    if (type!=Item::itemList[0].type && p.item.equals(Item::itemList[0])) {
+                        p = Slot(type, quantity);
+                        printf("%d %d\r", p.item.type, p.quantity);
+                        quantity = 0;
+                    }
+                }
+            }
+        }
     }
 }
 
