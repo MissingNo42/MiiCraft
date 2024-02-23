@@ -151,6 +151,21 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
             StructBuilder::generateAcacia(w, acaciaPos);
         }
     }
+//    if (biomeRepartition[DarkForest] >= 64)
+//    {
+//        int nbTry = humidityMean * 2 - 1.8f;
+//        for (int i = 0; i < nbTry; ++i) {
+//            t_coord mushroomPos{pos.x * 16 + rand()%10 + 3, heightMap[8][8], (pos.y * 16 + rand()%10 + 3)};
+//            if (rand() % 2 == 0)
+//            {
+//                StructBuilder::generateRedMushroom(w, mushroomPos);
+//            }
+//            else
+//            {
+//                StructBuilder::generateBrownMushroom(w, mushroomPos);
+//            }
+//        }
+//    }
 
     humidityMean /= 16*16;
     int treeAttempts = humidityMean * 3;
