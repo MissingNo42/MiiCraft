@@ -360,6 +360,10 @@ int main(int, char **) {
         player.renderer.camera.loadOrtho(); // set for 2D drawing
         player.renderer.camera.applyTransform2D();
 
+        if (player.isUnderwater(w)){
+            guy.Underwater(player);
+            printf("Underwater\r");
+        }
 
 
         guy.renderInventory(player);

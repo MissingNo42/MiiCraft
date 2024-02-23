@@ -29,7 +29,7 @@ bool Player::getFocusedBlock(World &w) {
             x = renderer.camera.pos.x + 1,
             y = renderer.camera.pos.y + 1,
             z = renderer.camera.pos.z + 1;
-    while(type <= BlockType::Air && distance <= 5){
+    while((type <= BlockType::Air || type == Water) && distance <= 5){
         x += renderer.camera.look.x/200;
         y += renderer.camera.look.y/200;
         z += renderer.camera.look.z/200;
@@ -37,7 +37,7 @@ bool Player::getFocusedBlock(World &w) {
         pos = t_coord((int)floor(x), (int)floor(y), (int)floor(z));
         type = w.getBlockAt(pos).type;
     }
-    if(type > BlockType::Air) {
+    if(type > BlockType::Air && type != Water) {
         renderer.drawFocus(w.getBlockAt(pos), (f32) pos.x, (f32) pos.y, (f32) pos.z);
         previousFocusedBlockPos = focusedBlockPos;
         focusedBlockLook = {x,y,z};
@@ -460,7 +460,6 @@ void Player::handleGravity(World &w, t_coord& coord) {
                     || w.getBlockAt({(int)floor(x + 0.3), (int)floor(y - size), (int)floor(z - 0.3)}).type == BlockType::Water
                     || w.getBlockAt({(int)floor(x - 0.3), (int)floor(y - size), (int)floor(z - 0.3)}).type == BlockType::Water);
     if (inWater){
-        printf("inWater\r");
         Velocity += Acceleration;
         if (Velocity > 0.1)
             Velocity = 0.5;
@@ -481,6 +480,14 @@ void Player::handleGravity(World &w, t_coord& coord) {
     } else if (Velocity > 0) {
         goDown(coord, w, Velocity);
     }
+}
+
+bool Player::isUnderwater(World & w) const{
+    if (w.getBlockAt({(int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1)}).type == BlockType::Water
+        || w.getBlockAt({(int)floor(renderer.camera.pos.x + 1), (int)floor(renderer.camera.pos.y + 1), (int)floor(renderer.camera.pos.z + 1)}).type == BlockType::Water)
+        return true;
+    else
+        return false;
 }
 
 

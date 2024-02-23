@@ -64,6 +64,8 @@ public:
     void destroyBlock(World& w);
 
     void move(World& w, joystick_t sticks);
+
+    bool isUnderwater(World& w) const;
 };
 
 

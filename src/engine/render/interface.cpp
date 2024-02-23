@@ -779,3 +779,27 @@ void GUI::renderInventory(Player &player) const {
         GX_End();
     }
 }
+
+void GUI::Underwater(Player& player) const{
+        GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
+        GX_Position3f32(-1, 1, 0);
+        GX_Normal1x8(4);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(3)); // Top left
+
+        GX_Position3f32(1, 1, 0);
+        GX_Normal1x8(4);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(3)); // Top left
+
+        GX_Position3f32(1, -1, 0);
+        GX_Normal1x8(4);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(4)); // Top left
+
+        GX_Position3f32(-1, -1, 0);
+        GX_Normal1x8(4);
+        GX_Color1u32(white);
+        GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(4)); // Top left
+        GX_End();
+}

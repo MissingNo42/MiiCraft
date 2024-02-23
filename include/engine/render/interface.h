@@ -15,5 +15,6 @@ public :
 
     void renderCursor(Player &player, Wiimote &wiimote);
     void renderInventory(Player &player) const;
+    void Underwater(Player &player) const;
 };
 #endif //MIICRAFTTEST_INTERFACE_H
