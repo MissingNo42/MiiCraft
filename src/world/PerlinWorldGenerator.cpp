@@ -148,7 +148,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
         if (rand()% 25 < proba)
         {
             t_coord acaciaPos{(pos.x * 16 + 7 + rand()%3), heightMap[8][8], (pos.y * 16 + 7 + rand()%3)};
-            StructBuilder::generateBrownMushroom(w, acaciaPos);
+            StructBuilder::generateAcacia(w, acaciaPos);
         }
     }
 

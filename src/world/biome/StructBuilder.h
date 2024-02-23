@@ -255,18 +255,18 @@ public:
     static void generateBrownMushroom(World& w, t_coord structPos)
     {
         INIT_STRUCT_CONSTRUCTION;
-        blockPos.y++;
-        int height = 4 + rand()%2;
+        int height = 5 + rand()%2;
         for (int i = 0; i < height; ++i) {
             PLACE_BLOCK_SOFT(WoodMushroom);
             blockPos.y++;
         }
+        float rad = 2.8;//3 + rand() % 3;
         X_ABSOLUTE(-3);
         Z_ABSOLUTE(-3);
-        for (int i = -3; i < 4; ++i) {
-            for (int j = -3; j < 4; ++j) {
+        for (int i = -3; i < 3+1; ++i) {
+            for (int j = -3; j < 3+1; ++j) {
                 float dist = i*i + j*j;
-                if (dist <= 3.5)
+                if (dist <= rad*rad)
                 {
                     PLACE_BLOCK_SOFT(LeaveMushroomBrown);
                 }
@@ -275,6 +275,41 @@ public:
             blockPos.x++;
             Z_ABSOLUTE(-3);
         }
+    }
+
+    static void generateRedMushroom(World& w, t_coord structPos)
+    {
+        INIT_STRUCT_CONSTRUCTION;
+        int height = 5 + rand()%2;
+        for (int i = 0; i < height; ++i) {
+            PLACE_BLOCK_SOFT(WoodMushroom);
+            blockPos.y++;
+        }
+
+        X_ABSOLUTE(-3)
+        Y_ABSOLUTE(height-3)
+        Z_ABSOLUTE(-3)
+        for (int h = 0; h < 4; ++h) {
+            for (int i = -3; i < 3+1; ++i) {
+                for (int j = -3; j < 3+1; ++j) {
+                    float dist = i*i + j*j;
+                    if (h == 3 && dist <= 3)
+                    {
+                        PLACE_BLOCK_HARD(LeaveMushroomRed);
+                    }
+                    else if (h < 3 && dist > 3 && dist <= 6)
+                    {
+                        PLACE_BLOCK_SOFT(LeaveMushroomRed);
+                    }
+                    blockPos.z++;
+                }
+                blockPos.x++;
+                Z_ABSOLUTE(-3);
+            }
+            blockPos.y++;
+            X_ABSOLUTE(-3)
+        }
+
     }
 
     static void generateIgloo(World& w, t_coord structPos)
