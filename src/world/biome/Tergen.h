@@ -214,7 +214,7 @@ public:
         APPLY_BEDROCK;
         APPLY_BOTTOM;
 
-        APPLY_BLOCK(Gravel);
+        APPLY_CONTINENT(Stone, Sand);
         for (; pos.y < seaLevel + bottomLevel; ++pos.y) {
             APPLY_BLOCK(Water);
         }
