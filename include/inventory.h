@@ -25,13 +25,16 @@ public:
     int currentPage;
 
     Inventory();
-    void pickItem(int slot, bool craftSlot);
+    void pickItem(Slot& s, bool dividedByTwo, bool creativeInventory);
     void resetInventory();
-    void dropItem(int slot, bool unique, bool craftSlot);
+    bool fastDrop(Slot& s, bool putInHotbar, bool putInInv, bool creativeInventory);
     Craft getCurrentCraft();
-    void action(int slot, bool craftSlot);
+    void action(int slot, bool craftSlot, int dropMode = 0, bool fastDrop = false, bool dividedByTwo = false, bool creative = true);
+    void dropItem(Slot& s, int quantity, bool creativeInventory);
 
     void getUniqueRecipe();
+
+    void handleCraft(bool fastDrop, bool creative);
 };
 
 

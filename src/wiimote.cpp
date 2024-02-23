@@ -36,28 +36,39 @@ void Wiimote::update(Player& player, World& w) {
             player.inventory.currentPage--;
         if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_RIGHT && player.inventory.currentPage < 2)
             player.inventory.currentPage++;
-        if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_A)
-        {
-            //printf("x: %f, y: %f\r", x, y);
-            if (x > 0.32 && x < 1.73 && y > -1.62 && y < -1){
-                int l = -floor((1 + y) / 0.158) - 1;
-                int c = floor((0.32 + x) / 0.158) - 3;
-                int slot = l * 9 + c - 1;
-                player.inventory.action(slot, false);
-            }
-            else if (x > 1.11 && x < 1.425 && y > -0.8 && y < -0.5){
-                int l = -floor((0.5 + y) / 0.158) - 1;
-                int c = floor((1.1 + x) / 0.158) - 13;
-                int slot = l * 3 + c - 1;
-                player.inventory.action(slot, true);
-            }
-            else if ( x > 1.6 && x < 1.75 && y > - 0.72 && y < -0.58){
-                player.inventory.action(9, true);
-            }
 
+        int l, c, slot;
+        bool isValidCursor = false;
+        bool craftSlot = false;
 
+        // Inventory
+        if (x > 0.32 && x < 1.73 && y > -1.62 && y < -1) {
+            l = -floor((1 + y) / 0.158) - 1;
+            c = floor((0.32 + x) / 0.158) - 3;
+            slot = l * 9 + c - 1;
+            isValidCursor = true;
         }
-            //player.inventory.pickItem(player.inventory.selectedSlot, false);
+        // Craft slots
+        else if (x > 1.11 && x < 1.425 && y > -0.8 && y < -0.5){
+            l = -floor((0.5 + y) / 0.158) - 1;
+            c = floor((1.1 + x) / 0.158) - 13;
+            slot = l * 3 + c - 1;
+            isValidCursor = true;
+            craftSlot = true;
+        }
+        // Craft result
+        else if ( x > 1.6 && x < 1.75 && y > - 0.72 && y < -0.58){
+            slot = 9;
+            isValidCursor = true;
+            craftSlot = true;
+        }
+
+        if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_A && isValidCursor)
+            player.inventory.action(slot, craftSlot, 0, false, false, player.creative);
+        else if(WPAD_ButtonsDown(chan) & WPAD_BUTTON_MINUS && isValidCursor)
+            player.inventory.action(slot, craftSlot, 1, false, true, player.creative);
+        else if(WPAD_ButtonsDown(chan) & WPAD_BUTTON_PLUS && isValidCursor)
+            player.inventory.action(slot, craftSlot, 0, true, false, player.creative);
     }
     else {
     if(!player.cameraLocked)

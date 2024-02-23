@@ -13,6 +13,10 @@ Slot::Slot(BlockType type, int quantity) : item(type), quantity(quantity){
 
 }
 
+bool Slot::equals(Slot s) const {
+    return s.quantity == quantity && s.item.equals(item);
+}
+
 Craft::Craft() {
     for (auto & i : recipe)
         i = Slot();
@@ -62,3 +66,13 @@ Craft Craft::craftList[10] = {
         Slot{BlockType::CraftingTable, 1}
         )
 };
+
+bool Craft::equals(Craft c) const {
+    for(int i = 0; i < 9; i++) {
+        if(!recipe[i].equals(c.recipe[i]))
+            return false;
+    }
+    if(!c.result.equals(result))
+        return false;
+    return true;
+}
