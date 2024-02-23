@@ -66,11 +66,11 @@ Craft Craft::craftList[11] = {
               Slot{BlockType::Stone,1},
               Slot{BlockType::Stone,1},
               Slot{BlockType::Stone,1},
-              Slot{BlockType::Air,1},
+              Slot{BlockType::Air,0},
               Slot{BlockType::Stone,1},
               Slot{BlockType::Stone,1},
               Slot{BlockType::Stone,1},
               Slot{BlockType::Stone,1},
               Slot{BlockType::Furnace,1}
-        ),
+        )
 };
