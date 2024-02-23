@@ -7,17 +7,12 @@
 
 
 #include "WorldGenerator.h"
-#include "world.h"
 
 class FlatWorldGenerator : public WorldGenerator{
 
 public:
 
-    void generateChunk(World&, const t_pos2D) override;
-
-
-
-
+    //void generateChunk(VerticalChunk& vc) override;
 };
 
 

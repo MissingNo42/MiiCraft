@@ -14,7 +14,7 @@ Wiimote::Wiimote() {
 }
 
 
-void Wiimote::update(Player& player, World& w) {
+void Wiimote::update(Player& player) {
     //printf("x: %lf, y: %lf, z: %lf\r", player.renderer.camera.pos.x, player.renderer.camera.pos.y, player.renderer.camera.pos.z);
     WPAD_ScanPads();
     int wiimote_connection_status, acc, norme;
@@ -103,6 +103,9 @@ void Wiimote::update(Player& player, World& w) {
     if(WPAD_ButtonsDown(chan) & WPAD_BUTTON_HOME)
         exit(1);
 
+    BlockCoord coord(floor(player.renderer.camera.pos.x + 1), floor(player.renderer.camera.pos.y), floor(player.renderer.camera.pos.z + 1));
+    if (player.gravity)
+        player.handleGravity(coord);
 
     u16 actions = WPAD_ButtonsHeld(chan);
     if (actions & WPAD_BUTTON_PLUS)
@@ -161,9 +164,9 @@ void Wiimote::update(Player& player, World& w) {
     }
     else {
         if (actions & WPAD_BUTTON_A)
-            player.goUp(coord, w);
+            player.goUp(coord);
         if (actions & WPAD_BUTTON_B)
-            player.goDown(coord, w);
+            player.goDown(coord);
     }
 
     if(player.cameraLocked){
@@ -205,34 +208,4 @@ void Wiimote::update(Player& player, World& w) {
         guVecNormalize(&player.renderer.camera.look);
     //printf(">lk : %f %f %f\r", player.renderer.camera.look.x, player.renderer.camera.look.y, player.renderer.camera.look.z);
     //printf(">lk : %f %f %f\r", player.renderer.camera.look.x, player.renderer.camera.look.y, player.renderer.camera.look.z);
-}
-
-
-void print_wiimote_connection_status(int wiimote_connection_status) {
-    switch (wiimote_connection_status) {
-        case WPAD_ERR_NO_CONTROLLER: printf(" Wiimote not connected\n");
-            break;
-        case WPAD_ERR_NOT_READY: printf(" Wiimote not ready\n");
-            break;
-        case WPAD_ERR_NONE: printf(" Wiimote ready\n");
-            break;
-        default: printf(" Unknown Wimote state %d\n", wiimote_connection_status);
-    }
-}
-
-void print_wiimote_buttons(WPADData * wd) {
-    printf(" Buttons down:\n ");
-    if (wd->btns_h & WPAD_BUTTON_A) printf("A ");
-    if (wd->btns_h & WPAD_BUTTON_B) printf("B ");
-    if (wd->btns_h & WPAD_BUTTON_1) printf("1 ");
-    if (wd->btns_h & WPAD_BUTTON_2) printf("2 ");
-    if (wd->btns_h & WPAD_BUTTON_MINUS) printf("MINUS ");
-    if (wd->btns_h & WPAD_BUTTON_HOME) printf("HOME ");
-    if (wd->btns_h & WPAD_BUTTON_PLUS) printf("PLUS ");
-    printf("\n ");
-    if (wd->btns_h & WPAD_BUTTON_LEFT) printf("LEFT ");
-    if (wd->btns_h & WPAD_BUTTON_RIGHT) printf("RIGHT ");
-    if (wd->btns_h & WPAD_BUTTON_UP) printf("UP ");
-    if (wd->btns_h & WPAD_BUTTON_DOWN) printf("DOWN ");
-    printf("\n");
 }

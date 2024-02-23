@@ -5,6 +5,7 @@
 #ifndef MIICRAFTTEST_TERGEN_H
 #define MIICRAFTTEST_TERGEN_H
 
+#include <queue>
 #include "../block.h"
 #include "../verticalChunk.h"
 
@@ -34,7 +35,7 @@ enum BiomeType : u16{
 };
 
 #define INIT_GENERATOR \
-t_coord pos(block_x, 0, block_z);
+BlockCoord pos(block_x, 0, block_z);
 
 #define APPLY_BEDROCK \
 APPLY_BLOCK(BlockType::Bedrock); \
@@ -54,13 +55,13 @@ for (; pos.y < height; ++pos.y) {\
 
 
 #define APPLY_SKY \
-for (; pos.y < VerticalChunk::CHUNK_HEIGHT-1; pos.y++){ \
+for (; pos.y < 128-1; pos.y++){ \
     APPLY_BLOCK(BlockType::Air0);\
 } APPLY_BLOCK(BlockType::Air);                          \
-chunk->lightQueue.push(pos);
+chunk.lightQueue.push(pos);
 
 #define APPLY_BLOCK(BLOCK_TYPE) \
-chunk->VC_SetBlock(pos, BLOCK_TYPE);
+chunk.SetBlock(pos, BLOCK_TYPE);
 
 class Tergen {
 private:
@@ -71,16 +72,16 @@ public:
     constexpr static const float continentLevel = 5; // relatif a seaLevel
     constexpr static const float peakAmplitude = 25.;
 
-     static void generateVoid(VerticalChunk *chunk, int block_x, int block_z, int){
+    inline static void generateVoid(VerticalChunk& chunk, int block_x, int block_z, int){
         INIT_GENERATOR;
         APPLY_BEDROCK;
 
-        for (; pos.y < VerticalChunk::CHUNK_HEIGHT; ++pos.y) {
+        for (; pos.y < 128; ++pos.y) {
             APPLY_BLOCK(BlockType::Air);
         }
     }
 
-     static void generateDesert(VerticalChunk *chunk, int block_x, int block_z, int height){
+    inline static void generateDesert(VerticalChunk& chunk, int block_x, int block_z, int height){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -91,7 +92,7 @@ public:
         APPLY_SKY;
     }
 
-     static void generateTundra(VerticalChunk *chunk, int block_x, int block_z, int height){
+    inline static void generateTundra(VerticalChunk& chunk, int block_x, int block_z, int height){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -102,7 +103,7 @@ public:
         APPLY_SKY;
     }
 
-     static void generateSavanna(VerticalChunk *chunk, int block_x, int block_z, int height ){
+    inline static void generateSavanna(VerticalChunk& chunk, int block_x, int block_z, int height){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -113,7 +114,7 @@ public:
         APPLY_SKY;
     }
 
-     static void generatePlain(VerticalChunk *chunk, int block_x, int block_z, int height ){
+    inline static void generatePlain(VerticalChunk& chunk, int block_x, int block_z, int height){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -124,7 +125,7 @@ public:
         APPLY_SKY;
     }
 
-     static void generateForest(VerticalChunk *chunk, int block_x, int block_z, int height ){
+     inline static void generateForest(VerticalChunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -135,7 +136,7 @@ public:
         APPLY_SKY;
     }
 
-     static void generateBadLand(VerticalChunk *chunk, int block_x, int block_z, int height ){
+     inline static void generateBadLand(VerticalChunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -159,7 +160,7 @@ public:
         APPLY_SKY;
     }
 
-    static void generateDarkForest(VerticalChunk *chunk, int block_x, int block_z, int height ){
+    static void generateDarkForest(VerticalChunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -169,7 +170,7 @@ public:
         pos.y++;
         APPLY_SKY;
     }
-    static void generateTaiga(VerticalChunk *chunk, int block_x, int block_z, int height ){
+    static void generateTaiga(VerticalChunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -179,7 +180,7 @@ public:
         pos.y++;
         APPLY_SKY;
     }
-     static void generateWindSwept(VerticalChunk *chunk, int block_x, int block_z, int height ){
+     static void generateWindSwept(VerticalChunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -190,7 +191,7 @@ public:
         APPLY_SKY;
     }
 
-     static void generateIcy(VerticalChunk *chunk, int block_x, int block_z, int height ){
+     static void generateIcy(VerticalChunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -201,7 +202,7 @@ public:
         APPLY_SKY;
     }
 
-     static void generateFlowerLand(VerticalChunk *chunk, int block_x, int block_z, int height ){
+     static void generateFlowerLand(VerticalChunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -212,7 +213,7 @@ public:
         APPLY_SKY;
     }
 
-    static void generateJungle(VerticalChunk *chunk, int block_x, int block_z, int height ){
+    static void generateJungle(VerticalChunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -222,7 +223,7 @@ public:
         pos.y++;
         APPLY_SKY;
     }
-     static void generateOcean(VerticalChunk *chunk, int block_x, int block_z, int height ){
+     static void generateOcean(VerticalChunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -234,7 +235,7 @@ public:
         APPLY_SKY;
     }
 
-     static void generateBeach(VerticalChunk *chunk, int block_x, int block_z, int height ){
+     static void generateBeach(VerticalChunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -245,7 +246,7 @@ public:
         APPLY_SKY;
     }
 
-     static void generateStonyShore(VerticalChunk *chunk, int block_x, int block_z, int height ){
+     static void generateStonyShore(VerticalChunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
@@ -256,7 +257,7 @@ public:
         APPLY_SKY;
     }
 
-    static void generateRedBeach(VerticalChunk *chunk, int block_x, int block_z, int height ){
+    static void generateRedBeach(VerticalChunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;

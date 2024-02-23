@@ -3,7 +3,3 @@
 //
 
 #include "world/block.h"
-
-Block::Block(BlockType bt) : type(bt) {}
-
-Block::Block(): Block(BlockType::Air) {}

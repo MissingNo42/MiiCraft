@@ -9,7 +9,7 @@
 #include "camera.h"
 #include "../../../src/world/block.h"
 
-#define DEFAULT_FIFO_SIZE 262144  // (256 * 1024) // TODO : Need to be increased !!!
+#define DEFAULT_FIFO_SIZE 262144  // (256 * 1024)
 
 class Renderer {
 	static void * gp_fifo;
@@ -17,7 +17,7 @@ class Renderer {
 public:
 	Camera camera;
 	
-	static GXColor background; // blue
+	static GXColor background;
 	static void * frameBuffer, *frameBuffers[2];
 	static int selectFrameBuffer;
 	static GXRModeObj * rmode;
@@ -26,21 +26,15 @@ public:
 
 	static void setupVideo();
 	static void setupVtxDesc();
-	static void setupVtxDesc2D();
 	static void setupTexture();
-	
-	static void setupDebugConsole();
-	
-	static void testRender();
 	
 	static void endFrame();
 	
-	void renderBloc(const guVector &coord, u32 code,
-					int top, int bottom, int left, int right, int front, int back,
-                    int topVal = 0, int bottomVal = 0, int leftVal = 0, int rightVal = 0, int frontVal = 0, int backVal = 0,
-                    int topIndex = 0, int bottomIndex = 0, int leftIndex = 0, int rightIndex = 0, int frontIndex = 0, int backIndex = 0);
+	void renderSky() const;
+	
+	void renderBlock(const guVector &coord, BlockType type, u8 lt = Air, u8 lb = Air, u8 lf = Air, u8 lk = Air, u8 lr = Air, u8 ll = Air);
 
-    void drawFocus(Block block, f32 x, f32 y, f32 z);
+    void renderFocus(BlockType block, f32 x, f32 y, f32 z);
 
 
     //Generate a grey color gradient (with 1 the darkest (not black)

@@ -6,41 +6,59 @@
 #define MIICRAFT_WORLD_H
 
 #include "verticalChunk.h"
- #include <map>
+#include "PerlinWorldGenerator.h"
+#include <map>
+#include <set>
 #include <queue>
+#include <cmath>
 
-#include <math.h>
+#define LOADED_CHUNKS 1601 // 20x20 chunks + empty chunk
+#define EMPTY_CHUNK 0
 
-class World{
-
+class World {
 private:
-    std::map<t_pos2D, VerticalChunk*> loadedChunk;
 
 public:
-    World();
-    ~World();
+    static int globalSeed;
+    static PerlinWorldGenerator gen;
+    static std::map<ChunkCoord, u16> loadedChunk;
+    static std::set<ChunkCoord> savedChunk;
+    static std::queue<BlockCoord> lightQueue;
+	//static VerticalChunk chunkSlots[LOADED_CHUNKS];
+	static VerticalChunk * chunkSlots;
+	static u16 usedSlots;
+	
+	static void Init() {
+		chunkSlots[EMPTY_CHUNK].loaded = 1;
+		chunkSlots[EMPTY_CHUNK].recache = 0;
+		chunkSlots[EMPTY_CHUNK].fillWith(BlockType::Bedrock);
+		for (int i = 0; i < LOADED_CHUNKS; i++) {
+			chunkSlots[i].id = i;
+		}
+	}
+	
+	static u16 getFreeSlot() {
+		for (u16 i = 1; i < LOADED_CHUNKS; i++) {
+			if (chunkSlots[i].loaded == 0) return i;
+		}
+		return 0;
+	}
+	
+    static BlockType getBlockAt(BlockCoord coord) ;
+    static void setBlockAt(BlockCoord coord, BlockType block);
 
-
-    std::map<t_pos2D, VerticalChunk*>& getLoadedChunk();
-
-    Block getBlockAt(t_coord coord) ;
-    void setBlockAt(t_coord coord, BlockType block, bool calculLight = true);
-
-    static t_pos2D to_chunk_pos(t_coord& c);
-    VerticalChunk& getChunkAt(t_pos2D pos);
-    void addChunk(t_pos2D pos, VerticalChunk* chunk);
-
-    void setNeighboors(t_pos2D coord, VerticalChunk *pChunk);
-
-    void initLight(VerticalChunk* c, std::queue<t_coord>& lightQueue);
-
-    void propagateLight(VerticalChunk *c);
-
-    void handleLightBlock(VerticalChunk * vc,  t_coord coord, BlockType block);
-
-    void initLightBlock(VerticalChunk *vc, t_coord coord, BlockType block);
-
-    void handleLightBlock(VerticalChunk *vc);
+    static VerticalChunk& getChunkAt(ChunkCoord pos, bool generate = false);
+    //static void addChunk(ChunkCoord pos, VerticalChunk& chunk);
+    static void setNeighboors(VerticalChunk& chunk);
+    static void initLight(VerticalChunk& c, std::queue<BlockCoord>& lightQueue);
+    static void propagateLight(VerticalChunk& c, std::queue<BlockCoord>& lightQueue);
+	
+    static void handleLightBlock(VerticalChunk& vc,  BlockCoord coord, BlockType block);
+    static void initLightBlock(VerticalChunk& vc, BlockCoord coord, BlockType block);
+    static void handleLightBlock(VerticalChunk& vc);
+	
+	static void requestChunk(ChunkCoord pos);
+	static void requestChunks(ChunkCoord pos);
 };
 
 

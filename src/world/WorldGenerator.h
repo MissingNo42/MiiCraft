@@ -6,10 +6,7 @@
 #define WII_WORLDGENERATOR_H
 
 
-//#include "block.h"
-//#include "coord.h"
-//#include "verticalChunk.h"
-#include "world.h"
+#include "verticalChunk.h"
 
 class WorldGenerator {
 
@@ -17,10 +14,7 @@ public:
 
     virtual ~WorldGenerator() = default;
 
-    virtual void generateChunk(World&, const t_pos2D ) = 0;
-
-    void buildTree(World& world, t_coord pos);
-
+    virtual void generateChunk(VerticalChunk& vc) = 0;
 };
 
 

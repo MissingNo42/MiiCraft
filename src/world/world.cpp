@@ -3,44 +3,48 @@
 //
 
 #include "world.h"
-#include <stdexcept>
 
+PerlinWorldGenerator World::gen;
+std::map<ChunkCoord, u16> World::loadedChunk;
+std::set<ChunkCoord> World::savedChunk;
+std::queue<BlockCoord> World::lightQueue;
 
-World::World() : loadedChunk() {
+//VerticalChunk World::chunkSlots[LOADED_CHUNKS];
+VerticalChunk * World::chunkSlots = new VerticalChunk[LOADED_CHUNKS];
+u16 World::usedSlots = 0;
 
-}
-
-World::~World() {
-
-    for (auto& pair : loadedChunk) {
-        delete pair.second;
+BlockType World::getBlockAt(BlockCoord coord)  {
+    ChunkCoord chunk_pos = coord.toChunkCoord();
+	try {
+        return chunkSlots[loadedChunk.at(chunk_pos)].GetBlock(coord);
+	} catch (...) {
+        return BlockType::Air;
     }
-
-    loadedChunk.clear();
 }
 
-t_pos2D World::to_chunk_pos(t_coord& c)
-{
-    t_pos2D res;
-    if (c.x < 0)
-        res.x = -( - (c.x - VerticalChunk::CHUNK_WIDTH +1) / VerticalChunk::CHUNK_WIDTH);
-    else
-        res.x = c.x / VerticalChunk::CHUNK_WIDTH;
-    if (c.z < 0)
-        res.y = -( - (c.z - VerticalChunk::CHUNK_WIDTH +1) / VerticalChunk::CHUNK_WIDTH);
-    else
-        res.y = c.z / VerticalChunk::CHUNK_WIDTH;
-    return res;
+void World::setBlockAt(BlockCoord coord, BlockType block) {
+    ChunkCoord chunk_pos = coord.toChunkCoord();
+	VerticalChunk& c = chunkSlots[loadedChunk[chunk_pos]];
+    c.SetBlock(coord, block);
+    initLight(c, lightQueue);
+    propagateLight(c, lightQueue);
 }
 
-Block World::getBlockAt(t_coord coord)  {
-    t_pos2D chunk_pos = to_chunk_pos(coord);
-    if (loadedChunk.find(chunk_pos) == loadedChunk.end()) {
-        return {BlockType::Air};
-    }
-    return loadedChunk[chunk_pos]->VC_GetBlock(coord);
+VerticalChunk& World::getChunkAt(ChunkCoord pos, bool generate) {
+	try {
+        return chunkSlots[loadedChunk.at(pos)];
+	} catch (...) {
+		if (generate) {
+			requestChunk(pos);
+			return getChunkAt(pos, false);
+		}
+		return chunkSlots[EMPTY_CHUNK];
+	}
 }
 
+//void World::addChunk(ChunkCoord pos, VerticalChunk& chunk) {
+//    loadedChunk[pos] = chunk;
+//}
 void World::setBlockAt(t_coord coord, BlockType block, bool calculLight) {
     loadedChunk[to_chunk_pos(coord)]->VC_SetBlock(coord, block);
 
@@ -54,56 +58,87 @@ void World::setBlockAt(t_coord coord, BlockType block, bool calculLight) {
 }
 
 
-VerticalChunk& World::getChunkAt(t_pos2D pos) {
-    return *loadedChunk.at(pos);
+void World::setNeighboors(VerticalChunk& chunk) {
+    ChunkCoord coord(chunk.coord.x + 1, chunk.coord.y);
+	
+    if(loadedChunk.find(coord) != loadedChunk.end()){
+		u16 id = loadedChunk[coord];
+        chunk.SetNeighboor(0, id);
+		chunkSlots[id].SetNeighboor(2, chunk.id);
+    }
+	
+    coord = ChunkCoord(chunk.coord.x - 1, chunk.coord.y);
+    if(loadedChunk.find(coord) != loadedChunk.end()){
+		u16 id = loadedChunk[coord];
+        chunk.SetNeighboor(2, id);
+        chunkSlots[id].SetNeighboor(0, chunk.id);
+    }
+	
+    coord = ChunkCoord(chunk.coord.x, chunk.coord.y + 1);
+    if(loadedChunk.find(coord) != loadedChunk.end()){
+		u16 id = loadedChunk[coord];
+        chunk.SetNeighboor(1, id);
+        chunkSlots[id].SetNeighboor(3, chunk.id);
+    }
+	
+    coord = ChunkCoord(chunk.coord.x, chunk.coord.y - 1);
+    if(loadedChunk.find(coord) != loadedChunk.end()){
+		u16 id = loadedChunk[coord];
+        chunk.SetNeighboor(3, id);
+        chunkSlots[id].SetNeighboor(1, chunk.id);
+    }
 }
 
-void World::addChunk(t_pos2D pos, VerticalChunk* chunk) {
-    loadedChunk[pos] = chunk;
-}
 
-void World::setNeighboors(t_pos2D newcoord, VerticalChunk *pChunk) {
-    t_pos2D coord(newcoord.x + 1, newcoord.y);
-    if(loadedChunk.find(coord) != loadedChunk.end()){
-        pChunk->VC_SetNeighboors(0, loadedChunk[coord]);
-        loadedChunk[coord]->VC_SetNeighboors(2, pChunk);
-    }
-    coord = t_pos2D(newcoord.x - 1, newcoord.y);
-    if(loadedChunk.find(coord) != loadedChunk.end()){
-        pChunk->VC_SetNeighboors(2, loadedChunk[coord]);
-        loadedChunk[coord]->VC_SetNeighboors(0, pChunk);
-    }
-    coord = t_pos2D(newcoord.x, newcoord.y + 1);
-    if(loadedChunk.find(coord) != loadedChunk.end()){
-        pChunk->VC_SetNeighboors(1, loadedChunk[coord]);
-        loadedChunk[coord]->VC_SetNeighboors(3, pChunk);
-    }
-    coord = t_pos2D(newcoord.x, newcoord.y - 1);
-    if(loadedChunk.find(coord) != loadedChunk.end()){
-        pChunk->VC_SetNeighboors(3, loadedChunk[coord]);
-        loadedChunk[coord]->VC_SetNeighboors(1, pChunk);
+void World::requestChunks(ChunkCoord pos) {
+	const short range = 2;
+    for(short x = pos.x - range; x <=  pos.x + range; x++){
+        for(short y = pos.y - range; y <= pos.y + range; y++){
+            ChunkCoord p(x, y);
+			requestChunk(p);
+        }
     }
 }
 
-std::map<t_pos2D, VerticalChunk *>& World::getLoadedChunk() {
-    return loadedChunk;
+void World::requestChunk(ChunkCoord pos) {
+	if (loadedChunk.contains(pos)) return;
+	if (savedChunk.contains(pos)) {
+		//TODO
+	} else {
+		u16 slot = getFreeSlot();
+		if (slot > 0) {
+			VerticalChunk& vc = chunkSlots[slot];
+			vc.coord = pos;
+			vc.recache = 1;
+			vc.loaded = 1;
+			loadedChunk[pos] = slot;
+			usedSlots++;
+			setNeighboors(vc);
+			vc.fillWith(WoodOak);
+            gen.generateChunk(vc);
+			vc.dirty = 0;
+		} else {
+			//TODO
+		}
+	}
 }
 
 
 
 //TODO : REMOVE THIS FUNCTION AND ADAPT IT IN THE WORLD GENERATOR SO THAT WE DONT ITERATE TWICE ON AIR BLOCKS
-void World::initLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
+void World::initLight(VerticalChunk& c, std::queue<BlockCoord>& lightQueue) {
+
     for (int y = 127; y >= 0; y--) {
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
 
-                t_coord p = {x, y, z};
-                if (c->VC_GetBlock(p).type < 16 ) {
+                BlockCoord p = {x, y, z};
+                if (c.GetBlock(p) < 16) {
                     if (y == 127) {
-                        c->VC_SetBlock(p, static_cast<BlockType>(15));
+                        c.SetBlock(p, static_cast<BlockType>(15));
                         lightQueue.push(p);
                     } else {
-                        c->VC_SetBlock(p, static_cast<BlockType>(0));
+                        c.SetBlock(p, static_cast<BlockType>(0));
                     }
 
                 if(x == 15) {
@@ -151,8 +186,8 @@ void World::initLight(VerticalChunk* c, std::queue<t_coord>& lightQueue) {
                 }
 
 //                }
-//                else if(c->VC_GetBlock({x, y, z}).type < 16 && c->VC_GetBlock({x, y , z}).type >= 0){
-//                    c->VC_SetBlock({x, y, z}, static_cast<BlockType>(0));
+//                else if(c->GetBlock({x, y, z}) < 16 && c->GetBlock({x, y , z}) >= 0){
+//                    c->SetBlock({x, y, z}, static_cast<BlockType>(0));
 //
 //                }
 
@@ -323,7 +358,6 @@ void World::propagateLight(VerticalChunk* c) {
                         c->lightQueue.push({p.x, p.y + 1, p.z});
 
                     }
-
                 }
             }
             if(p.y - 1 >= 0) {// bottom neighboor
@@ -333,17 +367,10 @@ void World::propagateLight(VerticalChunk* c) {
                         c->VC_SetBlock({p.x, p.y - 1, p.z} , static_cast<BlockType>(CurrentLightValue));
                         c->lightQueue.push({p.x, p.y - 1, p.z});
                     }
-
                 }
             }
-
         }
-
-
-
     }
-
-
 }
 
 
@@ -388,7 +415,6 @@ void World::handleLightBlock(VerticalChunk *vc){
                         vc->VC_SetBlock({p.x - 1, p.y, p.z}, static_cast<BlockType>(CurrentLightValue - 1));
                         vc->blockLightQueue.push({p.x - 1, p.y, p.z});
                     }
-
                 }
             }
             if(p.x-1<0){
