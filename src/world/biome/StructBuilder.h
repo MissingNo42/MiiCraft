@@ -48,6 +48,31 @@ enum StructType
 
 class StructBuilder{
 private:
+    static void generateCanopy(World& w, t_coord structPos, float rad)
+    {
+        INIT_STRUCT_CONSTRUCTION;
+        blockPos.y++;
+        X_ABSOLUTE(-rad);
+        Z_ABSOLUTE(-rad);
+        for (int i = -rad; i < rad + 1; ++i) {
+            for (int j = -rad; j < rad + 1; ++j) {
+                float dist = i*i + j*j;
+                if (dist < rad*rad)
+                {
+                    PLACE_BLOCK_SOFT(LeaveAcacia);
+                    if (dist < (rad / 2.f)*(rad /2.f))
+                    {
+                        blockPos.y++;
+                        PLACE_BLOCK_SOFT(LeaveAcacia);
+                        blockPos.y--;
+                    }
+                }
+                blockPos.z++;
+            }
+            blockPos.x++;
+            Z_ABSOLUTE(-rad);
+        }
+    }
 public:
     static void generateStdTree(World& w, t_coord structPos, StructType treeType = OakTree)
     {
@@ -136,10 +161,101 @@ public:
         }
     }
 
+    static void generateSpruce(World& w, t_coord structPos)
+    {
+        INIT_STRUCT_CONSTRUCTION
+        int height = 6 + rand()%3;
+        //tronc
+        for (int i = 0; i < height; ++i) { PLACE_BLOCK_SOFT(WoodSpruce); blockPos.y++;}
 
+        //feuilles
+        int treeBase = rand()%2 + 1;
+        Y_ABSOLUTE(treeBase)
+        X_ABSOLUTE(-2)
+        Z_ABSOLUTE(-2)
+        for (int h = 0; h < height + 3; ++h) {
+            for (int i = -2; i < 3; ++i) {
+                for (int j = -2; j < 3; ++j) {
+                    float dist = sqrt(i*i + j*j);
+                    if (h + treeBase <= height)
+                    {
+                        if ((treeBase + h) & 1)
+                        {
+                            if (dist < 2.5f) {PLACE_BLOCK_SOFT(LeaveSpruce);}
+                        }
+                        else
+                        {
+                            if (dist == 1.f) { PLACE_BLOCK_SOFT(LeaveSpruce);}
+                        }
+                    }
+                    else
+                    {
+                        if ((treeBase + h) & 1)
+                        {
+                            if (dist < 1.f) {PLACE_BLOCK_SOFT(LeaveSpruce);}
+                        }
+                        else if (h != height + 2)
+                        {
+                            if (dist <= 1.f) { PLACE_BLOCK_SOFT(LeaveSpruce);}
+                        }
+                    }
+                    blockPos.z++;
+                }
+                blockPos.x++;
+                Z_ABSOLUTE(-2)
+            }
+            blockPos.y++;
+            X_ABSOLUTE(-2)
+        }
+    }
+
+    static void generateAcacia(World& w, t_coord structPos)
+    {
+        INIT_STRUCT_CONSTRUCTION;
+
+        int trunkHeight = rand() % 5 + 4; //[4;8]
+        int trunkBend   = rand() % (trunkHeight - 3) + 2;
+        int trunkDirX   = rand() % 3 - 1; //[-1;1]
+        int trunkDirZ   = rand() % 3 - 1; //[-1;1]
+
+        int branchHeight = rand() % 4 + 2; //[2;5]
+        int branchBend   = rand() % (trunkHeight - 4) + 3;
+        int branchDirX   = rand() % 3 - 1; //[-1;1]
+        int branchDirZ   = rand() % 3 - 1; //[-1;1]
+
+        t_coord branchNode{structPos.x, structPos.y, structPos.z};
+
+        for (int h = 0; h < trunkHeight; ++h) {
+            if (h > trunkBend)
+            {
+                blockPos.x += trunkDirX;
+                blockPos.z += trunkDirZ;
+            }
+            PLACE_BLOCK_SOFT(WoodAcacia);
+
+            if (h == branchBend + 1)
+            { //Sauvegarde la position de départ de la branche
+                branchNode.x = blockPos.x; branchNode.y = blockPos.y; branchNode.z = blockPos.z;
+            }
+            blockPos.y++;
+        }
+        blockPos.y--;
+        generateCanopy(w, blockPos, 2.5f + (float)(rand()%1));
+
+        blockPos.x = branchNode.x; blockPos.y = branchNode.y; blockPos.z = branchNode.z;
+        for (int i = 0; i < branchHeight; ++i) {
+            blockPos.x += branchDirX;
+            blockPos.z += branchDirZ;
+            blockPos.y++;
+            PLACE_BLOCK_SOFT(WoodAcacia);
+        }
+        generateCanopy(w, blockPos, 1.5f + (float)(rand()%1));
+    }
 
     static void generateIgloo(World& w, t_coord structPos)
     {
+
+
         INIT_STRUCT_CONSTRUCTION;
         X_ABSOLUTE(-3);
         Z_ABSOLUTE(-3);

@@ -144,7 +144,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
     humidityMean /= 16*16;
     int treeAttempts = humidityMean * 3;
-    for (int i = 0; i < treeAttempts; ++i)
+    for (int i = 0; i < 1; ++i)
     {
 
         //On sélectionne une coordonnée aléatoire du tableau des hauteurs
@@ -161,10 +161,15 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
             {
                 StructBuilder::generateCactus(w, treePos);
             }
+            else if (biome == Taiga)
+            {
+                StructBuilder::generateSpruce(w, treePos);
+            }
             else
             {
-                StructBuilder::generateStdTree(w, treePos, OakTree);
+                StructBuilder::generateAcacia(w, treePos);
             }
+
         }
 
     }
