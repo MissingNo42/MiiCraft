@@ -7,13 +7,13 @@ set(CMAKE_CXX_STANDARD 20)
 include_directories(include)
 include_directories(assets)
 include_directories(src)
+include_directories(include/engine)
 
 add_compile_options(-Wall)
 add_compile_options(-Wextra)
 add_compile_options(-g)
 add_compile_options(-Wpedantic)
 add_compile_options(-Winline)
-add_compile_options(-g)
 #add_compile_options(-Ofast)
 
 
@@ -42,6 +42,7 @@ add_executable(Miicraft main.cpp
         src/item.cpp
         src/craft.cpp
         src/engine/render/interface.cpp
+        src/world/biome/StructBuilder.h
 )
 
 add_executable(MiicraftTest Debug.cpp

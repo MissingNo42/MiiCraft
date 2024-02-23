@@ -23,13 +23,27 @@ float easeInOutCubic(float x) {
     return x < 0.5f ? 4.f * x * x * x : 1.f - tmp * tmp * tmp / 2.f;
 }
 
+float easeInOutQuint(float x) {
+    float tmp = -2.f * x + 2.f;
+    return x < 0.5f ? 16.f * x * x * x * x * x : 1 - tmp * tmp * tmp * tmp * tmp / 2.f;
+}
+
+float erosionRepartition(float x) {
+    if (x < .85f) {return 0.3f * x + .05f;}
+    else if (x > 1.64f) { float result = x * 3.5f - 4.4f; return result < 2.f ? result : 2.f ;}
+    return 1.3f * x -.8f;
+}
+
 void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
     VerticalChunk* vc = new VerticalChunk();
 
+    w.setNeighboors(pos, vc);
+    w.addChunk(pos, vc);
     //Append in a file
 
     u8        heightMap[16][16];
-    BiomeType biomeMap [16][16];
+    u16 biomeRepartition[BIOME_COUNT];           for (int i = 0; i < BIOME_COUNT; ++i) {biomeRepartition[i] = 0;}
+    f64       humidityMean = 0;
 
     for(int i = 0; i < 16; i ++){
         for(int j = 0; j < 16; j++){
@@ -48,6 +62,8 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
             float humidity = noiseHumidity.GetNoise(block_x, block_y) + 1.;
             float continent = noiseContinental.GetNoise(block_x, block_y) + 1.;
             altitude = easeInOutCubic(altitude / 2.f);
+            erosion = erosionRepartition(erosion);
+
 
             height = (Tergen::peakAmplitude * erosion) * altitude
                      + smoothstep(.3, 1.2, continent) * (Tergen::seaLevel + Tergen::continentLevel * shoreLevel)
@@ -57,70 +73,150 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
 //            printf("%d\r", height);
             biome = guessBiome(erosion, temperature, humidity, continent, height);
-            if (biome == BiomeType::Ocean) {Tergen::generateOcean(vc, i, j, height, vc->lightQueue);}
-            else
-            {
-                if (erosion < .5) {Tergen::generateTundra(vc, i, j, height, vc->lightQueue);}
-                else if (erosion < 1.0) {Tergen::generatePlain(vc, i, j, height,vc->lightQueue);}
-                else if (erosion < 1.5) {Tergen::generateDesert(vc, i, j, height, vc->lightQueue);}
-                else if (erosion <= 2.) //ne pas enlever
-                {Tergen::generateSavanna(vc, i, j, height,vc->lightQueue);}
-            }
-//            switch (biome) {
-//                case Ocean:
-//                    Tergen::generateTundra(vc, i, j, height);
-//                    break;
-//                case Beach:
-//                    Tergen::generateDesert(vc, i, j, height);
-//                    break;
-//                case Savanna:
-//                    break;
-//                case Tundra:
-//                    break;
-//                case Desert:
-//                    break;
-//                case Plain:
-//                    Tergen::generatePlain(vc, i, j, height);
-//                    break;
-//                case WoodedPlain:
-//                    break;
-//                case Hills:
-//                    break;
-//                case WoodedHills:
-//                    break;
-//                case Badlands:
-//                    break;
-//                case WoodedBadlands:
-//                    break;
-//                case Jungle:
-//                    break;
-//                case Mushroom:
-//                    break;
-//                case IcePeak:
-//                    break;
-//                case Taiga:
-//                    break;
+//            if (biome == BiomeType::Ocean) {Tergen::generateOcean(vc, i, j, height, w.lightQueue);}
+//            else if (biome == BiomeType::Beach) {Tergen::generateBeach(vc, i, j, height, w.lightQueue);}
+//            else
+//            {
+//                erosion = temperature;
+////                height = 10;
+//                if (erosion < 0) {Tergen::generateTundra(vc, i, j, height, w.lightQueue);}
+//                else if (erosion < 1.0) {Tergen::generatePlain(vc, i, j, height,w.lightQueue);}
+//                else if (erosion < 1.5) {Tergen::generateDesert(vc, i, j, height, w.lightQueue);}
+//                else if (erosion <= 2.) //ne pas enlever
+//                {Tergen::generateSavanna(vc, i, j, height,w.lightQueue);}
 //            }
+            switch (biome) {
+                case Ocean: Tergen::generateOcean(vc, i, j, height, w.lightQueue);
+                    break;
+                case Beach: Tergen::generateBeach(vc, i, j, height, w.lightQueue);
+                    break;
+                case Savanna: Tergen::generateSavanna(vc, i, j, height, w.lightQueue);
+                    break;
+                case Tundra: Tergen::generateTundra(vc, i, j, height, w.lightQueue);
+                    break;
+                case Desert: Tergen::generateDesert(vc, i, j, height, w.lightQueue);
+                    break;
+                case Plain: case Hills: Tergen::generatePlain(vc, i, j, height, w.lightQueue);
+                    break;
+                case WoodedPlain: case WoodedHills: Tergen::generateForest(vc, i, j, height, w.lightQueue);
+                    break;
+
+                case StonyLand: Tergen::generateWindSwept(vc, i, j, height, w.lightQueue);
+                    break;
+                case Badlands: Tergen::generateBadLand(vc, i, j, height, w.lightQueue);
+                    break;
+                case WoodedBadlands: Tergen::generateBadLand(vc, i, j, height, w.lightQueue);
+                    break;
+                case Jungle: Tergen::generateJungle(vc, i, j, height, w.lightQueue);
+                    break;
+                case DarkForest: Tergen::generateDarkForest(vc, i, j, height, w.lightQueue);
+                    break;
+                case IcePeak: Tergen::generateIcy(vc, i, j, height, w.lightQueue);
+                    break;
+                case Taiga: Tergen::generateTaiga(vc, i, j, height, w.lightQueue);
+                    break;
+                case StonyShore: Tergen::generateStonyShore(vc, i, j, height, w.lightQueue);
+                    break;
+                case RedBeach:
+                    Tergen::generateRedBeach(vc, i, j, height, w.lightQueue);
+                    break;
+                case Void:
+                    Tergen::generateVoid(vc, i, j, height, w.lightQueue);
+                    break;
+            }
 
 
             //On remplit le tableau des hauteurs
-            biomeMap [i][j] = biome;
+            biomeRepartition[biome]++;
             heightMap[i][j] = height;
+            humidityMean += humidity;
         }
     }
 
-    //On sélectionne une coordonnée aléatoire du tableau des hauteurs
-    int x = rand() %12 + 2;
-    int z = rand() %12 +2;
-    int y = heightMap[x][z] + 1;
+    if (biomeRepartition[Tundra] >= 128)
+    {
+        int proba = (int)((float)biomeRepartition[Tundra] / 256.f * 10.f);
+        if (rand()%200 < proba)
+        {
+            t_coord iglooPos{(pos.x * 16 + 8), heightMap[8][8] - 1, (pos.y * 16 + 8)};
+            StructBuilder::generateIgloo(w, iglooPos);
+        }
+    }
+    if (biomeRepartition[Savanna] >= 128)
+    {
+        int proba = (int)((float)biomeRepartition[Savanna] / 256.f * 10.f);
+        if (rand()% 25 < proba)
+        {
+            t_coord acaciaPos{(pos.x * 16 + 7 + rand()%3), heightMap[8][8], (pos.y * 16 + 7 + rand()%3)};
+            StructBuilder::generateBrownMushroom(w, acaciaPos);
+        }
+    }
 
-    //On construit un arbre à cette position
-    buildTree({x, y, z}, vc);
+    humidityMean /= 16*16;
+    int treeAttempts = humidityMean * 3;
+    for (int i = 0; i < treeAttempts; ++i)
+    {
 
-//    w.initLight(vc);
-    w.addChunk(pos, vc);
-    w.propagateLight(vc,vc->lightQueue);
-    w.setNeighboors(pos, vc);
+        //On sélectionne une coordonnée aléatoire du tableau des hauteurs
+        int x = rand() %10 + 3;
+        int z = rand() %10 + 3;
+        int y = heightMap[x][z] + 1;
+
+
+        t_coord treePos((pos.x * 16 + x), y, (pos.y * 16 + z));
+        if (StructBuilder::checkClassicTree(w, treePos))
+        {
+            u16 b;
+            int treeChoice = rand() % 256;
+            int cumulProba = 0;
+            for (b = 0; b < BIOME_COUNT; ++b) {
+                cumulProba += biomeRepartition[b];
+                if (treeChoice <= cumulProba)
+                {
+                    break;
+                }
+            }
+            BiomeType biomeTree = (BiomeType)b;
+            switch (biomeTree) {
+                case Void:
+                case Ocean:
+                case Savanna:
+                case Tundra:
+                case Plain:
+                case Hills:
+                case Beach:
+                case IcePeak:
+                case StonyShore:
+                case StonyLand:
+                    break;
+                case Desert:
+                case Badlands:
+                    StructBuilder::generateCactus(w, treePos);
+                    break;
+                case WoodedPlain:
+                case WoodedHills:
+                    StructBuilder::generateStdTree(w, treePos);
+                    break;
+                case WoodedBadlands:
+                    StructBuilder::generateStdTree(w, treePos, DryOakTree);
+                    break;
+                case Jungle:
+                    StructBuilder::generateStdTree(w, treePos, SakuraTree);
+                    break;
+                case DarkForest:
+                    StructBuilder::generateStdTree(w, treePos, BirchTree);
+                    break;
+                case Taiga:
+                    StructBuilder::generateSpruce(w, treePos);
+                    break;
+            }
+
+        }
+
+    }
+
+    //    w.initLight(vc);
+    w.propagateLight(vc,w.lightQueue);
     std::cout << "Chunk generated at " << pos.x << " " << pos.y << " with id : " << vc->id << std::endl;
     std::cout << " with neighboors : " << std::endl;
     for(int i = 0; i < 4; i++){
@@ -186,13 +282,13 @@ void PerlinWorldGenerator::initNoise() {
     noiseErosion.SetFrequency(.004); // On garde
     noiseErosion.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2S); //Peut-être mettre en non S
     //Temperature
-    noiseTemperature.SetFrequency(.02*10);
+    noiseTemperature.SetFrequency(.012);
     noiseTemperature.SetNoiseType(FastNoiseLite::NoiseType_ValueCubic);
     //Humidity
     noiseHumidity.SetFrequency(.01);
     noiseHumidity.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     //Altitude (main)
-    noiseAltitude.SetFrequency(0.025f / 7.f);
+    noiseAltitude.SetFrequency(0.025f / 6.f);
     noiseAltitude.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     noiseAltitude.SetFractalType(FastNoiseLite::FractalType_FBm);
     noiseAltitude.SetFractalOctaves(3);
@@ -249,10 +345,64 @@ void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
 
 
 BiomeType PerlinWorldGenerator::guessBiome(float ero, float temp, float hum, float cont, int height) {
-    if      (cont < 1.2 && height < Tergen::seaLevel + Tergen::bottomLevel)     {return BiomeType::Ocean;}
-    else if (height < Tergen::seaLevel + Tergen::bottomLevel + 4) {return BiomeType::Beach;}
-    else
-    {// CONTINENT
-        return BiomeType::Plain;
+    // cont < 1.0f || <- falaises
+    if      (height < Tergen::seaLevel - 1 + Tergen::bottomLevel)
+    { // ===== OCEAN =====
+        return BiomeType::Ocean;
     }
+    else if (cont < 1.14f && height < Tergen::seaLevel + Tergen::bottomLevel + 4)
+    {// ===== PLAGE =====
+        if (ero > 1.4 && temp < 1.3)
+        {return BiomeType::StonyShore;}
+        else if (temp > 1.6f)
+        {return BiomeType::RedBeach;}
+        else
+        {return BiomeType::Beach;}
+    }
+    else
+    {// ===== CONTINENT =====
+        // Cold biomes
+        if (temp < .5)
+        {
+            if (ero < 1.8)
+            {
+                if (hum > 1.) {return Taiga;}
+                else          {return Tundra;}
+            }
+            else {return IcePeak;}
+        }
+        //Flat hot biomes
+        else if (temp > 1.3 && ero < .8)
+        {
+            if (hum < .7)        {return Desert;}
+            else if (hum < 1.4 ) {return Savanna;}
+            else                 {return Jungle;}
+        }
+        //hilly hot biomes
+        else if (temp > 1.55 && ero >= .8 )
+        {
+            if (hum < .7)       {return Badlands;}
+            else if (hum < 1.4) {return WoodedBadlands;}
+            return BiomeType::WoodedBadlands;
+        }
+        //Temperate biomes
+        else
+        {
+            if (hum < .4) {return StonyLand;}
+            else if (hum < 1.)
+            {
+                if (ero < 1.) {return Plain;}
+                else          {return Hills;}
+            }
+            else
+            {
+                if (ero < .75 && hum > 1.45) {return DarkForest;}
+                else if (ero < 1.)           {return WoodedPlain;}
+                else                         {return WoodedHills;}
+            }
+
+
+        }
+    }
+    return BiomeType::Void;
 }

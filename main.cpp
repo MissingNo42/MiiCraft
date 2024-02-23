@@ -25,6 +25,7 @@
 
 
 int exiting = 0;
+const bool PRINT_PLAYER_POS = false;
 
 //Calling the function will end the while loop and properly exit the program to the HBChannel.
 void reload(u32, void *) {
@@ -344,6 +345,13 @@ int main(int, char **) {
         pos.x = floor(player.renderer.camera.pos.x);
         pos.y = floor(player.renderer.camera.pos.y);
         pos.z = floor(player.renderer.camera.pos.z);
+
+        if (PRINT_PLAYER_POS)
+        {
+        printf("pos : %d %d %d  ", pos.x & 15, pos.y &15, pos.z &15);
+        printf(">lk : %.2f %.2f %.2f\r", player.renderer.camera.look.x,
+			   player.renderer.camera.look.y, player.renderer.camera.look.z);
+        }
 
         player.renderer.camera.update(true);
 		
