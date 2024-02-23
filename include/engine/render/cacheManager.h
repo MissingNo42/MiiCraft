@@ -13,10 +13,14 @@
 
 class ChunkCache {
 	static DisplayList lists[LIST_NUM] ATTRIBUTE_ALIGN(32);
-	static int current[2], used;
+	//static DisplayList * lists;
+	static u16 current[2], used;
+	static u8 full;
 	
 public:
 	static void render();
+	
+	static void init();
 	
 	static void reset();
 	

@@ -12,7 +12,7 @@
 #include <queue>
 #include <cmath>
 
-#define LOADED_CHUNKS 401 // 20x20 chunks + empty chunk
+#define LOADED_CHUNKS 1601 // 20x20 chunks + empty chunk
 #define EMPTY_CHUNK 0
 
 class World {
@@ -24,7 +24,8 @@ public:
     static std::map<ChunkCoord, u16> loadedChunk;
     static std::set<ChunkCoord> savedChunk;
     static std::queue<BlockCoord> lightQueue;
-	static VerticalChunk chunkSlots[LOADED_CHUNKS];
+	//static VerticalChunk chunkSlots[LOADED_CHUNKS];
+	static VerticalChunk * chunkSlots;
 	static u16 usedSlots;
 	
 	static void Init() {
@@ -46,7 +47,7 @@ public:
     static BlockType getBlockAt(BlockCoord coord) ;
     static void setBlockAt(BlockCoord coord, BlockType block);
 
-    static VerticalChunk& getChunkAt(ChunkCoord pos);
+    static VerticalChunk& getChunkAt(ChunkCoord pos, bool generate = false);
     //static void addChunk(ChunkCoord pos, VerticalChunk& chunk);
     static void setNeighboors(VerticalChunk& chunk);
     static void initLight(VerticalChunk& c, std::queue<BlockCoord>& lightQueue);

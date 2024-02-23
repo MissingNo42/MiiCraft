@@ -54,6 +54,7 @@ int main(int, char **) {
     BlockCoord pos(0, 0, 0);
 
     printf("end init\r");
+	ChunkCache::init();
 	ChunkCache::reset();
 	
 	
@@ -77,6 +78,9 @@ int main(int, char **) {
 		u32 mem2 = SYS_GetArena2Size();
 		printf("Memory : MEM1 %d (%d)\tMEM2 %d (%d)\r", mem1, mem1 / sizeof(VerticalChunk), mem2, mem2 / sizeof(VerticalChunk));
 
+		printf("camera see O: %d\r", player.renderer.camera.isVisible({0, 0, 0}));
+		printf("camera see Q: %d\r", player.renderer.camera.isChunkVisible(0, 0));
+		
         player.renderer.camera.update(true);
 		
         World::requestChunks(pos.toChunkCoord());

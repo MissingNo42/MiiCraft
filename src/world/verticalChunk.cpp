@@ -11,7 +11,23 @@
 void VerticalChunk::SetBlock(BlockCoord cd, BlockType block) {
 	recache = 1;
 	dirty = 1;
-    blocks[cd.x & 15][cd.y][cd.z & 15] = block;
+	cd.x &= 15;
+	cd.z &= 15;
+    blocks[cd.x][cd.y][cd.z] = block;
+	if (!cd.x) {
+		u16 u = neighboors[CHUNK_WEST];
+		if (u) World::chunkSlots[u].recache = 1;
+	} else if (cd.x == 15) {
+		u16 u = neighboors[CHUNK_EAST];
+		if (u) World::chunkSlots[u].recache = 1;
+	}
+	if (!cd.z) {
+		u16 u = neighboors[CHUNK_SOUTH];
+		if (u) World::chunkSlots[u].recache = 1;
+	} else if (cd.z == 15) {
+		u16 u = neighboors[CHUNK_NORTH];
+		if (u) World::chunkSlots[u].recache = 1;
+	}
 }
 
 BlockType VerticalChunk::GetBlock(BlockCoord c) {

@@ -119,11 +119,11 @@ void PerlinWorldGenerator::generateChunk(VerticalChunk& vc) {
 
 //    w.initLight(vc);
     World::propagateLight(vc, World::lightQueue);
-    std::cout << "ChunkCoord generated at " << vc.coord.x << " " << vc.coord.y << " with x : " << vc.coord.x << " y : " << vc.coord.y << std::endl;
-    std::cout << " with neighboors : " << std::endl;
-    for(int i = 0; i < 4; i++){
-		std::cout << "Neighboor " << i << " : " << vc.GetNeighboor(i) << std::endl;
-    }
+    //std::cout << "ChunkCoord generated at " << vc.coord.x << " " << vc.coord.y << " with x : " << vc.coord.x << " y : " << vc.coord.y << std::endl;
+    //std::cout << " with neighboors : " << std::endl;
+    //for(int i = 0; i < 4; i++){
+	//	std::cout << "Neighboor " << i << " : " << vc.GetNeighboor(i) << std::endl;
+    //}
 
     //print the whole chunk
 //    for(int i = 0; i < 16; i++){

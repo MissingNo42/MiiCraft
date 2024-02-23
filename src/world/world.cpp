@@ -8,7 +8,9 @@ PerlinWorldGenerator World::gen;
 std::map<ChunkCoord, u16> World::loadedChunk;
 std::set<ChunkCoord> World::savedChunk;
 std::queue<BlockCoord> World::lightQueue;
-VerticalChunk World::chunkSlots[LOADED_CHUNKS];
+
+//VerticalChunk World::chunkSlots[LOADED_CHUNKS];
+VerticalChunk * World::chunkSlots = new VerticalChunk[LOADED_CHUNKS];
 u16 World::usedSlots = 0;
 
 BlockType World::getBlockAt(BlockCoord coord)  {
@@ -28,11 +30,14 @@ void World::setBlockAt(BlockCoord coord, BlockType block) {
     propagateLight(c, lightQueue);
 }
 
-VerticalChunk& World::getChunkAt(ChunkCoord pos) {
+VerticalChunk& World::getChunkAt(ChunkCoord pos, bool generate) {
 	try {
         return chunkSlots[loadedChunk.at(pos)];
 	} catch (...) {
-		//printf("Get chunk at %d %d FAILED\r", pos.x, pos.y);
+		if (generate) {
+			requestChunk(pos);
+			return getChunkAt(pos, false);
+		}
 		return chunkSlots[EMPTY_CHUNK];
 	}
 }
@@ -85,13 +90,10 @@ void World::requestChunks(ChunkCoord pos) {
 
 void World::requestChunk(ChunkCoord pos) {
 	if (loadedChunk.contains(pos)) return;
-	printf(">>>\r");
 	if (savedChunk.contains(pos)) {
 		//TODO
 	} else {
 		u16 slot = getFreeSlot();
-		
-		printf("--- %d\r", slot);
 		if (slot > 0) {
 			VerticalChunk& vc = chunkSlots[slot];
 			vc.coord = pos;
@@ -103,12 +105,10 @@ void World::requestChunk(ChunkCoord pos) {
 			vc.fillWith(WoodOak);
             gen.generateChunk(vc);
 			vc.dirty = 0;
-			printf("Chunk %d %d generated %p\r", pos.x, pos.y, &getChunkAt(pos));
 		} else {
 			//TODO
 		}
 	}
-	printf("<<<\r");
 }
 
 
