@@ -17,7 +17,7 @@ private:
     float Acceleration = 0.12;
 public:
     int placeDelay;
-    bool gravity = false;
+    bool gravity = true;
     bool isJumping = false;
     Renderer renderer;
     t_coord focusedBlockPos;
