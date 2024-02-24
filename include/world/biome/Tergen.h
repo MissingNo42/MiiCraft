@@ -148,12 +148,15 @@ public:
          for (; pos.y < height + 1; ++pos.y) {
              int badlandY = pos.y % 30;
              int dice = rand()%100;
-             if (dice == 0) {badlandY++;}
+             if (dice == 0) {
+				 badlandY++;
+				 if (badlandY > 29) {badlandY = 0;}
+			 }
              else if (dice == 1) {
                  badlandY--;
-                 if (badlandY < 0) {badlandY = 30;}
+                 if (badlandY < 0) {badlandY = 29;}
              }
-
+			 
              APPLY_BLOCK(BADLANDS_STRATS[badlandY]);
          }
         pos.y++;

@@ -117,7 +117,7 @@ void ChunkCache::cache(Renderer& renderer) {
 		}
 	}
 	
-	const short limit = 8;
+	const short limit = 7;
 	
 	
 	for (short n = 2; n <= limit; n++) {

@@ -85,6 +85,7 @@ int main(int, char **) {
         // Calculate used memory
 		u32 mem1 = SYS_GetArena1Size();
 		u32 mem2 = SYS_GetArena2Size();
+		
 		printf("Memory : MEM1 %d (%d)\tMEM2 %d (%d)\r", mem1, mem1 / sizeof(VerticalChunk), mem2, mem2 / sizeof(VerticalChunk));
 		
         player.renderer.camera.update(true);
