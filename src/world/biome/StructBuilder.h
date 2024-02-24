@@ -312,10 +312,53 @@ public:
 
     }
 
+    static void generateDarkOak(World& w, t_coord structPos)
+    {
+        INIT_STRUCT_CONSTRUCTION;
+        int height = rand() % 2 + 6;
+        for (int h = 0; h < height; ++h) {
+
+            blockPos.x++;
+            PLACE_BLOCK_SOFT(WoodDark);
+            blockPos.z++;
+            PLACE_BLOCK_SOFT(WoodDark);
+            blockPos.x--;
+            PLACE_BLOCK_SOFT(WoodDark);
+            blockPos.z--;
+            PLACE_BLOCK_SOFT(WoodDark);
+            blockPos.y++;
+        }
+
+        blockPos.y-=2;
+        X_ABSOLUTE(-3)
+        Z_ABSOLUTE(-3)
+
+        for (int h = 0; h < 4; ++h) {
+            for (int i = -3-1; i < 3+1; ++i) {
+                for (int j = -3-1; j < 3+1; ++j) {
+                    float dist;
+                    if (i < 0 || j < 0) {dist = sqrt((i+1)*(i+1) + (j+1)*(j+1));}
+                    else                {dist = sqrt(i*i + j*j);}
+                    if ((h == 0 || h == 3) && dist <= 2.5f)
+                    {
+                        PLACE_BLOCK_SOFT(LeaveDark);
+                    }
+                    else if ((h == 1 || h == 2) && dist <= 3.f)
+                    {
+                        PLACE_BLOCK_SOFT(LeaveDark);
+                    }
+                    blockPos.z++;
+                }
+                blockPos.x++;
+                Z_ABSOLUTE(-3);
+            }
+            blockPos.y++;
+            X_ABSOLUTE(-3)
+        }
+    }
+
     static void generateIgloo(World& w, t_coord structPos)
     {
-
-
         INIT_STRUCT_CONSTRUCTION;
         X_ABSOLUTE(-3);
         Z_ABSOLUTE(-3);

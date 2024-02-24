@@ -132,6 +132,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
             humidityMean += humidity;
         }
     }
+    humidityMean /= 16*16;
 
     if (biomeRepartition[Tundra] >= 128)
     {
@@ -151,32 +152,53 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
             StructBuilder::generateAcacia(w, acaciaPos);
         }
     }
-//    if (biomeRepartition[DarkForest] >= 64)
+    if (biomeRepartition[DarkForest] >= 64)
+    {
+        int nbTry = ((float)humidityMean * 2.f) - .8f;
+        for (int i = 0; i < nbTry; ++i) {
+            t_coord mushroomPos{pos.x * 16 + rand()%10 + 3, heightMap[8][8], (pos.y * 16 + rand()%10 + 3)};
+            if (rand() % 2 == 0)
+            {
+                StructBuilder::generateRedMushroom(w, mushroomPos);
+            }
+            else
+            {
+                StructBuilder::generateBrownMushroom(w, mushroomPos);
+            }
+        }
+    }
+
+    int treeAttempts = (float)humidityMean * 10.f + (float)biomeRepartition[Desert] / 256.f * 5.f;
+
+
+    int boundMinX = 3; int boundLenX = 10;
+    int boundMinZ = 3; int boundLenZ = 10;
+//    if (vc->VC_GetNeighboor(CHUNK_NORTH) != VerticalChunk::emptyChunk)
 //    {
-//        int nbTry = humidityMean * 2 - 1.8f;
-//        for (int i = 0; i < nbTry; ++i) {
-//            t_coord mushroomPos{pos.x * 16 + rand()%10 + 3, heightMap[8][8], (pos.y * 16 + rand()%10 + 3)};
-//            if (rand() % 2 == 0)
-//            {
-//                StructBuilder::generateRedMushroom(w, mushroomPos);
-//            }
-//            else
-//            {
-//                StructBuilder::generateBrownMushroom(w, mushroomPos);
-//            }
-//        }
+//        boundLenZ+=3;
+//    }
+//    if (vc->VC_GetNeighboor(CHUNK_SOUTH) != VerticalChunk::emptyChunk)
+//    {
+//        boundMinZ =0;
+//        boundLenZ+=3;
+//    }
+//    if (vc->VC_GetNeighboor(CHUNK_EAST) != VerticalChunk::emptyChunk)
+//    {
+//        boundLenX+=3;
+//    }
+//    if (vc->VC_GetNeighboor(CHUNK_WEST) != VerticalChunk::emptyChunk)
+//    {
+//        boundMinX =0;
+//        boundLenX+=3;
 //    }
 
-    humidityMean /= 16*16;
-    int treeAttempts = humidityMean * 3;
     for (int i = 0; i < treeAttempts; ++i)
     {
-
         //On sélectionne une coordonnée aléatoire du tableau des hauteurs
-        int x = rand() %10 + 3;
-        int z = rand() %10 + 3;
-        int y = heightMap[x][z] + 1;
 
+        int x = rand() %boundLenX + boundMinX;
+        int z = rand() %boundLenZ + boundMinZ;
+        int y = heightMap[x][z] + 1;
 
         t_coord treePos((pos.x * 16 + x), y, (pos.y * 16 + z));
         if (StructBuilder::checkClassicTree(w, treePos))
@@ -206,8 +228,13 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
                     break;
                 case Desert:
                 case Badlands:
-                    StructBuilder::generateCactus(w, treePos);
+                {
+                    int cactusX = rand() %16;
+                    int cactusZ = rand() &16;
+                    t_coord cactusPos(cactusX, treePos.y, cactusZ);
+                    StructBuilder::generateCactus(w, cactusPos);
                     break;
+                }
                 case WoodedPlain:
                 case WoodedHills:
                     StructBuilder::generateStdTree(w, treePos);
@@ -219,7 +246,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
                     StructBuilder::generateStdTree(w, treePos, SakuraTree);
                     break;
                 case DarkForest:
-                    StructBuilder::generateStdTree(w, treePos, BirchTree);
+                    StructBuilder::generateDarkOak(w, treePos);
                     break;
                 case Taiga:
                     StructBuilder::generateSpruce(w, treePos);

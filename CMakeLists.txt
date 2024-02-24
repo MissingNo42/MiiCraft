@@ -32,7 +32,6 @@ add_executable(Miicraft main.cpp
         src/world/FlatWorldGenerator.cpp
         src/world/PerlinWorldGenerator.cpp
         src/world/coord.cpp
-        src/world/blockTemplate.cpp
         src/system/saveManager.cpp
         src/system/Random.cpp
         src/player.cpp
@@ -54,7 +53,6 @@ add_executable(MiicraftTest Debug.cpp
         src/world/FlatWorldGenerator.cpp
         src/world/PerlinWorldGenerator.cpp
         src/world/coord.cpp
-        src/world/blockTemplate.cpp
         src/system/Random.cpp
 )
 
