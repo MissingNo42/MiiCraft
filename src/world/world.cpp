@@ -40,8 +40,8 @@ void World::setBlockAt(BlockCoord coord, BlockType block, bool calculLight) {
     ChunkCoord chunk_pos = coord.toChunkCoord();
 	VerticalChunk& c = chunkSlots[loadedChunk[chunk_pos]];
     c.SetBlock(coord, block);
-    initLight(c);
-    propagateLight(c);
+//    initLight(c);
+//    propagateLight(c);
 
     if (calculLight) {
         initLight(c);

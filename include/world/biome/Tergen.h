@@ -159,7 +159,7 @@ public:
 			 
              APPLY_BLOCK(BADLANDS_STRATS[badlandY]);
          }
-        pos.y++;
+//        pos.y++;
         APPLY_SKY;
     }
 
