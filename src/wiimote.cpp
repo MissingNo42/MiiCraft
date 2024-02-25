@@ -73,19 +73,19 @@ void Wiimote::update(Player& player) {
             }
         } else {
             // Craft slots
-         if (x > 1.11 && x < 1.425 && y > -0.8 && y < -0.5){
-            l = -floor((0.5 + y) / 0.158) - 1;
-            c = floor((1.1 + x) / 0.158) - 13;
-            slot = l * 3 + c - 1;
-            isValidCursor = true;
-            craftSlot = true;
-        }
-        // Craft result
-        else if ( x > 1.6 && x < 1.75 && y > - 0.72 && y < -0.58){
-            slot = 9;
-            isValidCursor = true;
-            craftSlot = true;
-        }
+			if (x > 1.11 && x < 1.425 && y > -0.8 && y < -0.5){
+	            l = -floor((0.5 + y) / 0.158) - 1;
+	            c = floor((1.1 + x) / 0.158) - 13;
+	            slot = l * 3 + c - 1;
+	            isValidCursor = true;
+	            craftSlot = true;
+	        }
+	        // Craft result
+	        else if ( x > 1.6 && x < 1.75 && y > - 0.72 && y < -0.58){
+	            slot = 9;
+	            isValidCursor = true;
+	            craftSlot = true;
+	        }
         }
 
         if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_A && isValidCursor)
@@ -137,13 +137,13 @@ void Wiimote::update(Player& player) {
         }
 
 
-        if(WPAD_ButtonsDown(chan) & WPAD_BUTTON_1){
-            if(player.cameraLocked) player.cameraLocked = false;
-            else {
-                player.cameraLocked = true;
-                player.lockedBlockPos = player.focusedBlockPos;
-            }
-        }
+        //if(WPAD_ButtonsDown(chan) & WPAD_BUTTON_1){
+        //    if(player.cameraLocked) player.cameraLocked = false;
+        //    else {
+        //        player.cameraLocked = true;
+        //        player.lockedBlockPos = player.focusedBlockPos;
+        //    }
+        //}
     }
     player.placeDelay++;
 
@@ -191,7 +191,6 @@ void Wiimote::update(Player& player) {
         last_accel = norme;
         if (acc > 5 && isTargeting) {
             player.destroyBlock();
-
         } else {
             if (frame_cntr < 60)
                 frame_cntr++;
@@ -200,6 +199,11 @@ void Wiimote::update(Player& player) {
                 player.breakingState = 0;
             }
         }
+		
+        if (IS_PRESSED((&(wd->exp.nunchuk)), NUNCHUK_BUTTON_Z)){
+            player.cameraLocked = true;
+            player.lockedBlockPos = player.focusedBlockPos;
+        } else if (IS_RELEASED((&(wd->exp.nunchuk)), NUNCHUK_BUTTON_Z)) player.cameraLocked = false;
     }
     }
     if (player.gravity)

@@ -30,28 +30,27 @@ void GUI::renderCursor(Player &player, Wiimote &wiimote) {
 	
 	GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
 	
-	a = 0, b = 0;
+	a = -x, b = y;
 	auto wd = wiimote.wd;
 	if (wd->ir.valid) {
-		a = 2 * wd->ir.x / (f32) Renderer::rmode->fbWidth - 1;
-		b = -2 * wd->ir.y / (f32) Renderer::rmode->xfbHeight + 1;
+		f32 ratio = (f32) Renderer::rmode->fbWidth / (f32) Renderer::rmode->xfbHeight;
+		a = (2 - 2 * x) * wd->ir.x / (f32) Renderer::rmode->fbWidth - 1;
+		b = (2 * y - 2 / ratio) * wd->ir.y / (f32) Renderer::rmode->xfbHeight + 1 / ratio;
 	}
-	a -= x / 2;
-	b += y / 2;
 	
-	GX_Position3f32(-x + a, y + b, 0);
+	GX_Position3f32(a, b, 0);
 	GX_Color1x8(WHITE);
 	GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(15)); // Top left
 	
-	GX_Position3f32(x + a, y + b, 0);
+	GX_Position3f32(2 * x + a, b, 0);
 	GX_Color1x8(WHITE);
 	GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(15)); // Top right
 	
-	GX_Position3f32(x + a, -y + b, 0);
+	GX_Position3f32(2 * x + a, b - 2 * y, 0);
 	GX_Color1x8(WHITE);
 	GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(16)); // Bottom right
 	
-	GX_Position3f32(-x + a, -y + b, 0);
+	GX_Position3f32(a, b - 2 * y, 0);
 	GX_Color1x8(WHITE);
 	GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(16)); // Bottom left
 	

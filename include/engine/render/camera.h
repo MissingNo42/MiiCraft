@@ -12,9 +12,12 @@
 #include "utils/matrix.h"
 
 class Camera {
-    f32 angleY;
+	
+	void rotate();
+	
 public:
 	/// Read only
+    f32 angleH, angleV;
 	f32 fovy;
 	f32 fovx;
 	f32 min, max, radius;
@@ -23,6 +26,8 @@ public:
     guVector pos = {0.0F, 0.0F, 0.0F},
             look = {0.0F, 0.0F, 1.0F};
 
+	static const inline f32 limitV = 89;
+	
     /** Constructor
      * @param fov Field of view (half angle in degrees)
      * @param min Minimum render distance
@@ -48,9 +53,13 @@ public:
         GX_LoadProjectionMtx(perspective, GX_PERSPECTIVE);
     }
 
-    void rotateH(f32 rad);
+    void rotateH(f32 deg);
 
-    void rotateV(f32 rad);
+    void rotateV(f32 deg);
+
+    void rotateToH(f32 deg);
+
+    void rotateToV(f32 deg);
 	
 	u8 isVisible(const guVector& p);
 	u8 isChunkVisible(s16 x, s16 z);

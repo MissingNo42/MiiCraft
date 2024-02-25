@@ -154,28 +154,31 @@ void Player::setPos(f32 x, f32 y, f32 z) {
     renderer.camera.pos.z = z;
 }
 
+/**
+ * @brief get the rotation horizontal speed of the camera in rad/frame unit
+ * @param dx the distance in x axis from center of the screen in [-1, 1]
+ * @param dy the distance in y axis from center of the screen in [-1, 1]
+ * */
+static f32 rotationHSpeed(f32 dx, f32 dy) {
+	f32 x = std::abs(dx), y = std::abs(dy);
+	/// speed datamined from MP2 (MPT version)
+	f32 speed = 2.5f * (f32)std::pow(x, 2.9); // 0.04363319 radians / 2.5 degrees coeff
+	f32 factor = 0.757f * (f32)std::pow(x, 0.0267); // reduce speed when looking up or down
+	speed *= std::pow(factor, y); // vertical attenuation of speed
+	return dx > 0 ? -speed: speed;
+}
+
 void Player::handleRotation(WPADData * wd) {
     if (wd->ir.valid) {
-        if(wd->ir.x <  (f32) Renderer::rmode->fbWidth/2 - deadzone)
-        {
-            f32 angle = wd->ir.x / (f32) ((f32) Renderer::rmode->fbWidth/2 - deadzone) * 6;
-            renderer.camera.rotateH( M_PI /(2 + angle));
-        }
-        if(wd->ir.x >  (f32) Renderer::rmode->fbWidth/2 + deadzone)
-        {
-            f32 angle = (wd->ir.x - (f32) Renderer::rmode->fbWidth/2 + deadzone) / (f32) ((f32) Renderer::rmode->fbWidth/2 - deadzone) * 6;
-            renderer.camera.rotateH( - (f32) M_PI /(8 - angle));
-        }
-        if(wd->ir.y <  (f32) Renderer::rmode->xfbHeight/2 - deadzoneTop)
-        {
-            f32 angle = wd->ir.y / (f32) ((f32) Renderer::rmode->xfbHeight/2 - deadzoneTop) * 6;
-            renderer.camera.rotateV( - (f32) M_PI /(2 +angle));
-        }
-        if(wd->ir.y >  (f32) Renderer::rmode->xfbHeight/2 + deadzone)
-        {
-            f32 angle = (wd->ir.y - (f32) Renderer::rmode->xfbHeight/2 + deadzone) / ((f32) Renderer::rmode->xfbHeight/2 - deadzone) * 6;
-            renderer.camera.rotateV( M_PI /(8 - angle));
-        }
+		f32 dx = (f32) wd->ir.x * 2 / (f32) Renderer::rmode->fbWidth - 1;
+		f32 dy = (f32) wd->ir.y * 2 / (f32) Renderer::rmode->xfbHeight - 1;
+		
+		renderer.camera.rotateH(rotationHSpeed(dx, dy));
+		
+		f32 targetV = dy * Camera::limitV;
+		f32 deltaV = targetV - renderer.camera.angleV;
+		if (deltaV < 0) renderer.camera.rotateV(std::min(deltaV / (60.f), std::max(deltaV, -0.05f)));
+		else renderer.camera.rotateV(std::max(deltaV / (60.f), std::min(deltaV, 0.05f)));
     }
 }
 

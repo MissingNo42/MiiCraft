@@ -7,7 +7,7 @@
 
 #include <ogc/gu.h>
 
-void MtxRotAxis(Mtx m, guVector axis, float rad);
-void VecRotAxis(guVector * v, guVector axis, float rad);
+void MtxRotAxis(Mtx m, guVector axis, float deg);
+void VecRotAxis(guVector * v, guVector axis, float deg);
 
 #endif //MIICRAFT_MATRIX_H

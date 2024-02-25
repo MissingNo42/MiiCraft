@@ -8,7 +8,7 @@
 #include "engine/render/camera.h"
 #include "engine/render/renderer.h"
 
-Camera::Camera(f32 fov, f32 min, f32 max) : angleY(0), fovy(fov * M_PI / 180.f), min(min), max(max) {
+Camera::Camera(f32 fov, f32 min, f32 max) : angleH(0), angleV(0), fovy(fov * M_PI / 180.f), min(min), max(max) {
     f32 ratio = (f32)Renderer::rmode->fbWidth / (f32)Renderer::rmode->xfbHeight;
 	fovx = atan(tan(fovy) * ratio);
 	radius = tan(fovy) * max;
@@ -50,26 +50,42 @@ void Camera::applyTransform() {
     GX_LoadPosMtxImm(view3D, GX_PNMTX0);
 }
 
-void Camera::rotateH(f32 rad) {
-    // Calculate the right axis (cross product of look-at and up)
-    guVector right, rotup;
-    guVecCross(&up, &look, &right);
-    guVecCross(&look, &right, &rotup);
+void Camera::rotate() {
+	guVector line = {0, 0, 1}, right;
+	
+    VecRotAxis(&line, up, angleH); // rotH
+	
+    guVecCross(&up, &line, &right); // Calculate the right axis (cross product of look-at and up)
 
-    VecRotAxis(&look, rotup, rad);
+    VecRotAxis(&line, right, angleV); // rotV
+	look = line;
 }
 
-void Camera::rotateV(f32 rad) {
-    //printf("angleY + rad: %f\r", angleY + rad);
-    //if(angleY + rad < 88 && angleY + rad > -88){
-        // Calculate the right axis (cross product of look-at and up)
-        guVector right;
-        guVecCross(&up, &look, &right);
+void Camera::rotateH(f32 deg) {
+	angleH += deg;
+	if (angleH > 360) angleH -= 360;
+	if (angleH < 0) angleH += 360;
+	rotate();
+}
 
-        VecRotAxis(&look, right, rad);
-        //angleY += rad;
-    //}
+void Camera::rotateV(f32 deg) {
+	angleV += deg;
+	if (angleV > limitV || angleV < -limitV) {
+		angleV = (deg > 0) ? limitV: -limitV;
+	}
+	rotate();
+}
 
+void Camera::rotateToH(f32 deg) {
+	angleH = fmod(deg, 360);
+	rotate();
+}
+
+void Camera::rotateToV(f32 deg) {
+	if (deg > limitV) angleV = limitV;
+	if (deg < limitV) angleV = -limitV;
+	else angleV = deg;
+	rotate();
 }
 
 u8 Camera::isVisible(const guVector &p) {

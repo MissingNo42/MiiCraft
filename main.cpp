@@ -98,7 +98,21 @@ int main(int, char **) {
 		
 		printf("rendering\r");
 		
+		//GX_SetScissor(0, 0, Renderer::rmode->fbWidth, Renderer::rmode->efbHeight/2);
 		ChunkCache::render();
+		
+		//PoC: 2-player split screen
+		//GX_SetScissor(0, Renderer::rmode->efbHeight / 2, Renderer::rmode->fbWidth, Renderer::rmode->efbHeight/2);
+		//player.renderer.camera.look.x = -player.renderer.camera.look.x;
+		//player.renderer.camera.look.y = -player.renderer.camera.look.y;
+		//player.renderer.camera.look.z = -player.renderer.camera.look.z;
+		//player.renderer.camera.update(true);
+		//
+		//ChunkCache::render();
+		//player.renderer.camera.look.x = -player.renderer.camera.look.x;
+		//player.renderer.camera.look.y = -player.renderer.camera.look.y;
+		//player.renderer.camera.look.z = -player.renderer.camera.look.z;
+		//player.renderer.camera.update(true);
 		
 		printf("rendered\r");
 		
