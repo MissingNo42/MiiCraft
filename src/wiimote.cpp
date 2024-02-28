@@ -8,6 +8,8 @@
 #include <cstdio>
 #include "wiimote.h"
 
+f32 IRDOT[2] = {0, 0};
+
 Wiimote::Wiimote() {
     WPAD_SetDataFormat(WPAD_CHAN_ALL, WPAD_FMT_BTNS_ACC_IR);
     WPAD_SetVRes(WPAD_CHAN_ALL, Renderer::rmode->fbWidth, Renderer::rmode->xfbHeight);
@@ -37,11 +39,17 @@ void Wiimote::update(Player& player) {
         }
 
     }
+	
+	
+    IRDOT[0] = 2 * wd->ir.x / (f32)Renderer::rmode->fbWidth-1;
+    IRDOT[1] = -2 * wd->ir.y / (f32)Renderer::rmode->xfbHeight+1;
 
     BlockCoord coord(floor(player.renderer.camera.pos.x+1), floor(player.renderer.camera.pos.y), floor(player.renderer.camera.pos.z+1));
     if (player.inventory.open){
         f32 x = 2 * wd->ir.x / (f32)Renderer::rmode->fbWidth;
         f32 y = -2 * wd->ir.y / (f32)Renderer::rmode->xfbHeight;
+		IRDOT[0] = x;
+		IRDOT[1] = y;
         //printf("x: %f, y: %f\r", x, y);
         if (WPAD_ButtonsDown(chan) & WPAD_BUTTON_LEFT && player.inventory.currentPage > 0)
             player.inventory.currentPage--;

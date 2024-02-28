@@ -27,6 +27,7 @@ public:
     guVector focusedBlockLook;
     bool sprint;
     bool cameraLocked;
+	bool wiimoteFocus = false;
     int breakingState{};
     bool sneak = false;
     Inventory inventory;

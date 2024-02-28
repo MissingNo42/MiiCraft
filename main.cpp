@@ -118,6 +118,9 @@ int main(int, char **) {
 		
         wiimote.update(player);
 		
+		printf(">> %.2f %.2f %.2f || %.2f %.2f %.2f\r", player.renderer.camera.pos.x, player.renderer.camera.pos.y, player.renderer.camera.pos.z, player.renderer.camera.look.x, player.renderer.camera.look.y, player.renderer.camera.look.z);
+		
+		
         if (player.creative)
             player.inventory.resetInventory();
 

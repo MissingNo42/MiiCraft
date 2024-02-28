@@ -11,6 +11,7 @@
 #include "world/world.h"
 #include "player.h"
 
+extern f32 IRDOT[2];
 
 class Wiimote {
 private:
