@@ -8,45 +8,51 @@
 
 #include "engine/render/renderer.h"
 #include "inventory.h"
+#include "wiimote.h"
+#include "world/coord.h"
 #include <wiiuse/wpad.h>
 #include <vector>
 
 class Player {
-private:
     float Velocity = 0.0;
     float Acceleration = 0.12;
+    int frame_cntr = 0;
+	
+    int placeDelay = 0;
+    int breakingState = 0;
+	
+    BlockCoord focusedBlockPos = {0, 0, 0};
+    BlockCoord lockedBlockPos = {0, 0, 0};
+    BlockCoord previousFocusedBlockPos = {0, 0, 0};
+    guVector focusedBlockLook = {0, 0, 0};
+    BlockType focusedBlockType = Air0;
+	u8 focusedFace = 0;
+	
 public:
-    int placeDelay;
+	Wiimote wiimote;
+    Renderer renderer;
+    Inventory inventory;
     bool gravity = true;
     bool isJumping = false;
-    Renderer renderer;
-    BlockCoord focusedBlockPos;
-    BlockCoord lockedBlockPos;
-    BlockType focusedBlockType;
-    BlockCoord previousFocusedBlockPos;
-    guVector focusedBlockLook;
-    bool sprint;
-    bool cameraLocked;
+    bool sprint = false;
+    bool cameraLocked = false;
 	bool wiimoteFocus = false;
-    int breakingState{};
     bool sneak = false;
-    Inventory inventory;
-    bool creative ;
+    bool creative = false;
     BlockType hotbar[9] = {BlockType::Stone, BlockType::Dirt, BlockType::PlankOak, BlockType::WoodOak, BlockType::LeaveOak, BlockType::Glass, BlockType::Bedrock, BlockType::Glowstone, BlockType::Sand};
-    Player(f32 x, f32 y, f32 z);
-    Player();
+    
+	Player(f32 x, f32 y, f32 z, int chan = WPAD_CHAN_0);
+    explicit Player(int chan);
 
     bool getFocusedBlock();
 
-    f32 getFocusedBlockDistance() const;
+    [[nodiscard]] f32 getFocusedBlockDistance() const;
 
-    static guVector InverseVector(const guVector& v);
+    static guVector negateVector(const guVector& v);
 
     static guVector coordToGuVector(BlockCoord coord);
 
-    static BlockCoord guVectorToCoord(guVector v);
-
-    void handleRotation(WPADData *);
+    void handleRotation();
 
     void handleGravity(BlockCoord& coord);
 
@@ -66,7 +72,9 @@ public:
 
     void move(joystick_t sticks);
 
-    bool isUnderwater() const;
+    [[nodiscard]] bool isUnderwater() const;
+	
+	void update();
 };
 
 

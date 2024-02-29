@@ -133,6 +133,7 @@ void Renderer::endFrame() {
 
 
 void Renderer::renderSky() const {
+	/*
 	f32 x = camera.max * tanf(camera.fovx), y = camera.max * tanf(camera.fovy), z = camera.max - .5;
 
 	GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
@@ -153,7 +154,7 @@ void Renderer::renderSky() const {
     GX_Color1x8(BLUE);
     GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(9));
 	
-	GX_End();
+	GX_End();*/
 }
 
 

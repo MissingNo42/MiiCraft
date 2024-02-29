@@ -8,6 +8,7 @@
 #include "engine/render/cache.h"
 #include "render/cacheManager.h"
 #include "render/bloc.h"
+#include "world/world.h"
 
 
 inline void renderVertex(f32 x, f32 y, f32 z, f32 tx, f32 ty, u8 color, u8 alpha) {

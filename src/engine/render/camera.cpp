@@ -7,11 +7,12 @@
 #include <malloc.h>
 #include "engine/render/camera.h"
 #include "engine/render/renderer.h"
+#include "utils/matrix.h"
 
-Camera::Camera(f32 fov, f32 min, f32 max) : angleH(0), angleV(0), fovy(fov * M_PI / 180.f), min(min), max(max) {
+Camera::Camera(f32 fov, f32 min, f32 max) : angleH(0), angleV(0), fovy(fov * (f32)M_PI / 180.f), min(min), max(max) {
     f32 ratio = (f32)Renderer::rmode->fbWidth / (f32)Renderer::rmode->xfbHeight;
-	fovx = atan(tan(fovy) * ratio);
-	radius = tan(fovy) * max;
+	fovx = atanf(tanf(fovy) * ratio);
+	radius = tanf(fovy) * max;
     guPerspective(perspective, fov, ratio, min, max);
     guOrtho(ortho, 1, -1, -1, 1, 0, 300);
     guLookAt(view3D, &pos, &up, &look);

@@ -14,6 +14,7 @@
 #include "src/system/saveManager.h"
 #include "player.h"
 #include "render/cacheManager.h"
+#include "world/world.h"
 
 
 int exiting = 0;
@@ -32,31 +33,23 @@ void shutdown() {
 
 int main(int, char **) {
     SYS_STDIO_Report(true);
-	printf("AAAAAAAAAA\r");
 	
-	PAD_Init();
-	WPAD_Init();
-	
-	printf("RRRR\r");
 	World::Init();
 	
-	printf("XXX\r");
 	Renderer::setupVideo();
 	Renderer::setupVtxDesc();
     Renderer::setupTexture();
 	
-	printf("ZZZZZZZZZ\r");
+	Wiimote::setup();
+	
     Player player(8, 120, 8);
-	printf("AAAAAEEEEEEEEEAAAAA\r");
+	
     GUI guy;
-
-	printf("GGGGG\r");
+	
 	//GX_InitTexObjFilterMode(&texture, GX_NEAR, GX_NEAR);
 
 	SYS_SetResetCallback(reload);
 	SYS_SetPowerCallback(shutdown);
-	
-    Wiimote wiimote;
 
     //printf("end init\r");
     BlockCoord pos(0, 0, 0);
@@ -69,7 +62,7 @@ int main(int, char **) {
 
         player.renderer.camera.loadPerspective();
 
-		player.renderer.renderSky();
+		//player.renderer.renderSky();
 		
         pos.x = floor(player.renderer.camera.pos.x);
         pos.y = floor(player.renderer.camera.pos.y);
@@ -116,7 +109,8 @@ int main(int, char **) {
 		
 		printf("rendered\r");
 		
-        wiimote.update(player);
+        player.wiimote.update();
+		player.update();
 		
 		printf(">> %.2f %.2f %.2f || %.2f %.2f %.2f\r", player.renderer.camera.pos.x, player.renderer.camera.pos.y, player.renderer.camera.pos.z, player.renderer.camera.look.x, player.renderer.camera.look.y, player.renderer.camera.look.z);
 		
@@ -134,12 +128,13 @@ int main(int, char **) {
 
 
         guy.renderInventory(player);
-        guy.renderCursor(player, wiimote);
+        guy.renderCursor(player, player.wiimote);
 
 
 
 		Renderer::endFrame();
 
+		if (Wiimote::quit) exiting = 1;
 	}
 	
 	if (exiting == 2) SYS_ResetSystem(SYS_SHUTDOWN, 0, 0);

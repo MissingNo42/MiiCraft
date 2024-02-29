@@ -3,6 +3,7 @@
 //
 #include <malloc.h>
 #include "render/cacheManager.h"
+#include "world/world.h"
 
 DisplayList ChunkCache::lists[LIST_NUM] ATTRIBUTE_ALIGN(32);
 //DisplayList * ChunkCache::lists;

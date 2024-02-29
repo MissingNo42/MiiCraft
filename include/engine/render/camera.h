@@ -7,9 +7,6 @@
 
 #include <gccore.h>
 #include <ogc/gu.h>
-//#include "wiimote.h"
-#include  "world/world.h"
-#include "utils/matrix.h"
 
 class Camera {
 	
