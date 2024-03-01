@@ -24,6 +24,7 @@ public:
     void update();
 	
 	static void setup();
+	static void sync();
 };
 
 

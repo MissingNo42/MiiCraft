@@ -7,19 +7,29 @@
 
 
 #include <gctypes.h>
+#include <set>
+#include <queue>
 #include "world/verticalChunk.h"
 #include "renderer.h"
 #include "cache.h"
+#include "player.h"
+
+#define MAX_RENDER_DIST 8
 
 class ChunkCache {
 	static DisplayList lists[LIST_NUM] ATTRIBUTE_ALIGN(32);
-	//static DisplayList * lists;
 	static u16 current[2];
 	static s32 used;
+	static s16 limit;
 	static u8 full;
 	
+	static std::set<u16> cached; // used to check if a chunk is cached
+	static std::set<u16> toRelease; // chunks that CAN be released if needed
+	static std::set<ChunkCoord> toCacheSet; // used only to unify the assoc. queue
+	static std::queue<ChunkCoord> toCacheQueue; // chunks to cache
+	
 public:
-	static void render();
+	static void render(Camera& cam);
 	
 	static void init();
 	
@@ -31,13 +41,11 @@ public:
 	 * */
 	static void release(u32 id);
 	
-	static void cache(VerticalChunk& vc, Renderer& renderer);
-	
-	static u8 isCached(u32 id);
+	static u8 cache(VerticalChunk& vc);
 	
 	static void addVertex(f32 x, f32 y, f32 z, u8 c, f32 u, f32 v, u8 alpha);
 	
-	static void cache(Renderer& renderer);
+	static void cache(Player players[4]);
 };
 
 

@@ -4,9 +4,9 @@
 #include "render/cache.h"
 
 
-void GUI::renderCursor(Player &player, Wiimote &wiimote) {
+void HUD::renderCursor(Player &player) {
 	
-	if (!player.inventory.open) {
+	if (!player.inventory.open && !player.wiimoteFocus) {
 		GX_Begin(GX_QUADS, GX_VTXFMT0, 4); // Start drawing
 		
 		GX_Position3f32(-x, y, 0);
@@ -31,11 +31,10 @@ void GUI::renderCursor(Player &player, Wiimote &wiimote) {
 	GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
 	
 	a = -x, b = y;
-	auto wd = wiimote.wd;
-	if (wd->ir.valid) {
-		f32 ratio = (f32) Renderer::rmode->fbWidth / (f32) Renderer::rmode->xfbHeight;
-		a = (2 - 2 * x) * wd->ir.x / (f32) Renderer::rmode->fbWidth - 1;
-		b = (2 * y - 2 / ratio) * wd->ir.y / (f32) Renderer::rmode->xfbHeight + 1 / ratio;
+	if (player.wiimote.wd->ir.valid) {
+		auto ratio = player.renderer.camera.ratio;
+		a = (2 - 2 * x) * player.wiimote.wd->ir.x / (f32) Renderer::rmode->fbWidth - 1;
+		b = (2 * y - 2 / ratio) * player.wiimote.wd->ir.y / (f32) Renderer::rmode->xfbHeight + 1 / ratio;
 	}
 	
 	GX_Position3f32(a, b, 0);
@@ -57,7 +56,7 @@ void GUI::renderCursor(Player &player, Wiimote &wiimote) {
 	GX_End();
 }
 
-void GUI::renderInventory(Player &player) const {
+void HUD::renderInventory(Player &player) const {
 	if (player.inventory.open) {
 		GX_Begin(GX_QUADS, GX_VTXFMT0, 4); // Start drawing
 		
@@ -736,24 +735,24 @@ void GUI::renderInventory(Player &player) const {
 	}
 }
 
-void GUI::Underwater(Player &player) const {
+void HUD::Underwater() const {
 	GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
-	GX_Position3f32(-1, 1, 0);
+	GX_Position3f32(-2, 1, 0);
 	
 	GX_Color1x8(WHITE);
 	GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(3)); // Top left
 	
-	GX_Position3f32(1, 1, 0);
+	GX_Position3f32(2, 1, 0);
 	
 	GX_Color1x8(WHITE);
 	GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(3)); // Top left
 	
-	GX_Position3f32(1, -1, 0);
+	GX_Position3f32(2, -1, 0);
 	
 	GX_Color1x8(WHITE);
 	GX_TexCoord2f32(BLOCK_COORD(16), BLOCK_COORD(4)); // Top left
 	
-	GX_Position3f32(-1, -1, 0);
+	GX_Position3f32(-2, -1, 0);
 	
 	GX_Color1x8(WHITE);
 	GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(4)); // Top left

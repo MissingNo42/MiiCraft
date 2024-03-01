@@ -2,10 +2,7 @@
 // Created by Romain on 15/02/2024.
 //
 
-#include "engine/render/render.h"
 #include "world/verticalChunk.h"
-#include "engine/render/renderer.h"
-#include "engine/render/cache.h"
 #include "render/cacheManager.h"
 #include "render/bloc.h"
 #include "world/world.h"
@@ -19,7 +16,7 @@ inline void renderVertex(f32 x, f32 y, f32 z, f32 tx, f32 ty, u8 color, u8 alpha
 	ChunkCache::addVertex(x, y, z, color, tx, ty, alpha);
 }
 
-inline void renderFront(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
+inline void renderFront(f32 x, f32 y, f32 z, f32 mx, f32 my, f32, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
     f32 tx = blocData[type].x[BLOC_FACE_FRONT];
     f32 ty = blocData[type].y[BLOC_FACE_FRONT];
     renderVertex(mx, y, z, tx, ty, (light << 2) + c1, alpha); // A
@@ -28,7 +25,7 @@ inline void renderFront(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType t
     renderVertex(mx, my, z, tx, ty + OFFSET, (light << 2) + c4, alpha); // E
 }
 
-inline void renderBack(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
+inline void renderBack(f32 x, f32 y, f32, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
     f32 tx = blocData[type].x[BLOC_FACE_BACK];
     f32 ty = blocData[type].y[BLOC_FACE_BACK];
     renderVertex(x, my, mz, tx, ty + OFFSET, (light << 2) + c1, alpha); // G
@@ -37,7 +34,7 @@ inline void renderBack(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType ty
     renderVertex(mx, my, mz, tx + OFFSET, ty + OFFSET, (light << 2) + c4, alpha); // F
 }
 
-inline void renderTop(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
+inline void renderTop(f32 x, f32 y, f32 z, f32 mx, f32, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
     f32 tx = blocData[type].x[BLOC_FACE_TOP];
     f32 ty = blocData[type].y[BLOC_FACE_TOP];
     renderVertex(x, y, mz, tx + OFFSET, ty, (light << 2) + c1, alpha); // C
@@ -46,7 +43,7 @@ inline void renderTop(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType typ
     renderVertex(mx, y, mz, tx, ty, (light << 2) + c4, alpha); // B
 }
 
-inline void renderBottom(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
+inline void renderBottom(f32 x, f32, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
     f32 tx = blocData[type].x[BLOC_FACE_BOTTOM];
     f32 ty = blocData[type].y[BLOC_FACE_BOTTOM];
     renderVertex(mx, my, z, tx + OFFSET, ty + OFFSET, (light << 2) + c1, alpha); // E
@@ -55,7 +52,7 @@ inline void renderBottom(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType 
     renderVertex(mx, my, mz, tx + OFFSET, ty, (light << 2) + c4, alpha); // F
 }
 
-inline void renderLeft(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
+inline void renderLeft(f32, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
     f32 tx = blocData[type].x[BLOC_FACE_LEFT];
     f32 ty = blocData[type].y[BLOC_FACE_LEFT];
     renderVertex(mx, y, mz, tx, ty, (light << 2) + c1, alpha); // B
@@ -64,7 +61,7 @@ inline void renderLeft(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType ty
     renderVertex(mx, my, mz, tx, ty + OFFSET, (light << 2) + c4, alpha); // F
 }
 
-inline void renderRight(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
+inline void renderRight(f32 x, f32 y, f32 z, f32, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
     f32 tx = blocData[type].x[BLOC_FACE_RIGHT];
     f32 ty = blocData[type].y[BLOC_FACE_RIGHT];
     renderVertex(x, my, z, tx, ty + OFFSET, (light << 2) + c1, alpha); // H
@@ -82,7 +79,7 @@ inline void renderRight(f32 x, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType t
 	|       | /
 	E ------ H
  * */
-void renderChunk(VerticalChunk& c, Renderer& renderer){
+void Renderer::renderChunk(VerticalChunk& c){
     //int f[16][128][16][6];
 
     int px = c.coord.x << 4;

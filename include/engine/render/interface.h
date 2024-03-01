@@ -8,12 +8,12 @@
 #include "player.h"
 #include "wiimote.h"
 
-class GUI {
-    f32 x = 0.05, y = 0.05, a, b;
+class HUD {
+    f32 x = 0.05f, y = 0.05f, a = 0, b = 0;
 public:
 
-    void renderCursor(Player &player, Wiimote &wiimote);
+    void renderCursor(Player &player);
     void renderInventory(Player &player) const;
-    void Underwater(Player &player) const;
+    void Underwater() const;
 };
 #endif //MIICRAFTTEST_INTERFACE_H

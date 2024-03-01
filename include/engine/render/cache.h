@@ -10,10 +10,9 @@
 #include <ogc/gx.h>
 #include "camera.h"
 #include "renderer.h"
-#include "render.h"
 
 #define LIST_SIZE 1036 // op + sz + vtx[LIST_SIZE] = 32 N
-#define LIST_NUM 512
+#define LIST_NUM 800
 
 #define WHITE 64
 #define BLUE 65
@@ -39,7 +38,7 @@ struct DisplayList {
 	u8 opcode = GX_QUADS | GX_VTXFMT0;
 	u16 size;
 	VextexCache vertex[LIST_SIZE];
-	u8 pad[24] = {0};
+	u8 pad[24] = {0}; // 1 real + 23 align the next displaylist
 	u8 sealed = 0;
 	u32 id = 0;
 	RenderType type = RENDER_OPAQUE;
@@ -78,7 +77,7 @@ struct DisplayList {
 		// pad the list to 32 bytes with NOP
 		
 		u16 csz = size * sizeof(VextexCache) + 3;
-		u8 sz = 32 - csz & 31; // 3 = opcode + size
+		u8 sz = (32 - csz) & 31; // 3 = opcode + size
 		if (sz && sz < 32) {
 			u8 * end = (u8 *) (vertex + size);
 			for (u8 i = 0; i < sz; i++) end[i] = 0;
@@ -90,7 +89,7 @@ struct DisplayList {
 	
 	void render() {
 		u16 csz = size * sizeof(VextexCache) + 3;
-		u8 sz = 32 - csz & 31; // 3 = opcode + size
+		u8 sz = (32 - csz) & 31; // 3 = opcode + size
 		GX_CallDispList(&opcode, csz + sz);
 	}
 	

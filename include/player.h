@@ -39,8 +39,9 @@ public:
 	bool wiimoteFocus = false;
     bool sneak = false;
     bool creative = false;
-    BlockType hotbar[9] = {BlockType::Stone, BlockType::Dirt, BlockType::PlankOak, BlockType::WoodOak, BlockType::LeaveOak, BlockType::Glass, BlockType::Bedrock, BlockType::Glowstone, BlockType::Sand};
-    
+	bool focusing = false; // true -> focus must be rendered
+	bool destroying = false; // true -> anim must be rendered
+	
 	Player(f32 x, f32 y, f32 z, int chan = WPAD_CHAN_0);
     explicit Player(int chan);
 
@@ -56,9 +57,9 @@ public:
 
     void handleGravity(BlockCoord& coord);
 
-    void goUp(BlockCoord coord, float velocity = 1.0f, bool collision = true);
+    void goUp(float velocity = 1.0f, bool collision = true);
 
-    void goDown(BlockCoord coord, float velocity = 1.0f, bool collision = true);
+    void goDown(float velocity = 1.0f, bool collision = true);
 
     void Jump();
 
@@ -75,6 +76,10 @@ public:
     [[nodiscard]] bool isUnderwater() const;
 	
 	void update();
+	
+	void renderFocus();
+	
+	void renderDestroy();
 };
 
 

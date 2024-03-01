@@ -4,7 +4,7 @@
 
 #include <gccore.h>
 #include <malloc.h>
-#include <string.h>
+#include <cstring>
 #include "engine/render/renderer.h"
 #include "engine/render/bloc.h"
 #include "texture.c"
@@ -42,7 +42,7 @@ void Renderer::setupVideo() {
 	GX_Init(gp_fifo, DEFAULT_FIFO_SIZE);
 	
 	// clears the bg to color and clears the z buffer
-	GX_SetCopyClear(background, GX_MAX_Z24);
+	GX_SetCopyClear({0x31, 0x31, 0x31, 0xFF}, GX_MAX_Z24);
 	
 	// other gx setup
 	GX_SetViewport(0, 0, rmode->fbWidth, rmode->efbHeight, 0, 1);
@@ -305,7 +305,7 @@ void Renderer::renderBlock(const guVector &coord, BlockType type, u8 lt, u8 lb, 
     GX_End();         // Done drawing quads
 }
 
-void Renderer::renderFocus(BlockType block, f32 x, f32 y, f32 z) {
+void Renderer::renderFocus(f32 x, f32 y, f32 z) {
 	f32
 	mx = x - 1,
 	my = y - 1,
@@ -428,4 +428,85 @@ void Renderer::renderFocus(BlockType block, f32 x, f32 y, f32 z) {
     GX_End();
 	
     GX_SetLineWidth(1.0f, GX_VTXFMT0);
+}
+
+void Renderer::renderSplashScreen() {
+	GX_Begin(GX_QUADS, GX_VTXFMT0, 16); // Start drawing
+	
+	const f32 yr = .2;
+	const f32 xr = 0.8660254037844386 * 2; // sqrt(3/4) * 2
+	
+	GX_Position3f32(0, 2 * yr, 0);
+	GX_Color1x8(61);
+	GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(2)); // Top left
+	
+	GX_Position3f32(yr * xr, yr, 0);
+	GX_Color1x8(61);
+	GX_TexCoord2f32(BLOCK_COORD(4), BLOCK_COORD(2)); // Top right
+	
+	GX_Position3f32(0, 0, 0);
+	GX_Color1x8(61);
+	GX_TexCoord2f32(BLOCK_COORD(4), BLOCK_COORD(3)); // Bottom right
+	
+	GX_Position3f32(-yr * xr, yr, 0);
+	GX_Color1x8(61);
+	GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(3)); // Bottom left
+	
+	
+	GX_Position3f32(0, 0, 0);
+	GX_Color1x8(62);
+	GX_TexCoord2f32(BLOCK_COORD(4), BLOCK_COORD(2)); // Top left
+	
+	GX_Position3f32(yr * xr, yr, 0);
+	GX_Color1x8(62);
+	GX_TexCoord2f32(BLOCK_COORD(5), BLOCK_COORD(2)); // Top right
+	
+	GX_Position3f32(yr * xr, -yr, 0);
+	GX_Color1x8(62);
+	GX_TexCoord2f32(BLOCK_COORD(5), BLOCK_COORD(3)); // Bottom right
+	
+	GX_Position3f32(0, -2 * yr, 0);
+	GX_Color1x8(62);
+	GX_TexCoord2f32(BLOCK_COORD(4), BLOCK_COORD(3)); // Bottom left
+	
+	
+	GX_Position3f32(-yr * xr, yr, 0);
+	GX_Color1x8(WHITE);
+	GX_TexCoord2f32(BLOCK_COORD(4), BLOCK_COORD(2)); // Top left
+	
+	GX_Position3f32(0, 0, 0);
+	GX_Color1x8(WHITE);
+	GX_TexCoord2f32(BLOCK_COORD(5), BLOCK_COORD(2)); // Top right
+	
+	GX_Position3f32(0, -2 * yr, 0);
+	GX_Color1x8(WHITE);
+	GX_TexCoord2f32(BLOCK_COORD(5), BLOCK_COORD(3)); // Bottom right
+	
+	GX_Position3f32(-yr * xr, -yr, 0);
+	GX_Color1x8(WHITE);
+	GX_TexCoord2f32(BLOCK_COORD(4), BLOCK_COORD(3)); // Bottom left
+	
+	const f32 bh = .2;
+	
+	GX_Position3f32(-bh * 3.5f, -yr * 1.5f, 0);
+	GX_Color1x8(WHITE);
+	GX_TexCoord2f32(BLOCK_COORD(8), BLOCK_COORD(15)); // Top left
+	
+	GX_Position3f32(bh * 3.5f, -yr * 1.5f, 0);
+	GX_Color1x8(WHITE);
+	GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(15)); // Top right
+	
+	GX_Position3f32(bh * 3.5f, -yr * 1.5f - bh, 0);
+	GX_Color1x8(WHITE);
+	GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(16)); // Bottom right
+	
+	GX_Position3f32(-bh * 3.5f, -yr * 1.5f - bh, 0);
+	GX_Color1x8(WHITE);
+	GX_TexCoord2f32(BLOCK_COORD(8), BLOCK_COORD(16)); // Bottom left
+	
+	GX_End();
+}
+
+void Renderer::setClearColor(GXColor color) {
+	GX_SetCopyClear(color, GX_MAX_Z24);
 }

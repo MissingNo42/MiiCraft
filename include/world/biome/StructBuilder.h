@@ -314,8 +314,6 @@ public:
 
     static void generateIgloo(BlockCoord structPos)
     {
-
-
         INIT_STRUCT_CONSTRUCTION;
         X_ABSOLUTE(-3);
         Z_ABSOLUTE(-3);

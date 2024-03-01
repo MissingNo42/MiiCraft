@@ -7,21 +7,39 @@
 
 #include <gccore.h>
 #include <ogc/gu.h>
+#include "world/coord.h"
 
 class Camera {
 	
 	void rotate();
 	
 public:
+	enum Format {
+		QuarterTL = 1,
+		QuarterTR = 2,
+		QuarterBL = 4,
+		QuarterBR = 8,
+		
+		SplitTop = 3,
+		SplitBottom = 12,
+		
+		SplitLeft = 5,
+		SplitRight = 10,
+		
+		FullScreen = 15
+	};
+	
 	/// Read only
     f32 angleH, angleV;
 	f32 fovy;
 	f32 fovx;
+	f32 ratio;
 	f32 min, max, radius;
     Mtx44 view3D, perspective, ortho, view2D, view2Dsquare;
     guVector up = {0.0F, 1.0F, 0.0F};
     guVector pos = {0.0F, 0.0F, 0.0F},
             look = {0.0F, 0.0F, 1.0F};
+	Format format;
 
 	static const inline f32 limitV = 89;
 	
@@ -42,6 +60,8 @@ public:
         GX_LoadPosMtxImm(square ? view2Dsquare: view2D, GX_PNMTX0);
     }
 
+	void applyScissor() const;
+	
     void loadOrtho() {
         GX_LoadProjectionMtx(ortho, GX_ORTHOGRAPHIC);
     }
@@ -49,6 +69,8 @@ public:
     void loadPerspective() {
         GX_LoadProjectionMtx(perspective, GX_PERSPECTIVE);
     }
+	
+	void resize(Format format);
 
     void rotateH(f32 deg);
 
@@ -60,6 +82,7 @@ public:
 	
 	u8 isVisible(const guVector& p);
 	u8 isChunkVisible(s16 x, s16 z);
+	u8 isChunkVisible(ChunkCoord coord);
 };
 
 

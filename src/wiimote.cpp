@@ -15,8 +15,6 @@ void Wiimote::setup() {
 
 
 void Wiimote::update() {
-    WPAD_ScanPads();
-	
 	connected = WPAD_Probe(chan, &type) == WPAD_ERR_NONE;
 
     wd = WPAD_Data(chan);
@@ -43,4 +41,8 @@ void Wiimote::update() {
 bool Wiimote::quit = false;
 
 Wiimote::Wiimote(int chan) : chan(chan) {
+}
+
+void Wiimote::sync() {
+    WPAD_ScanPads();
 }

@@ -7,7 +7,6 @@
 #include <cstring>
 
 
-
 void VerticalChunk::SetBlock(BlockCoord cd, BlockType block) {
 	recache = 1;
 	dirty = 1;

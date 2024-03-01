@@ -7,7 +7,6 @@
 
 #include "wiimote.h"
 #include "engine/render/renderer.h"
-#include "engine/render/render.h"
 #include "engine/render/interface.h"
 
 #include "engine/render/bloc.h"
@@ -18,7 +17,6 @@
 
 
 int exiting = 0;
-const bool PRINT_PLAYER_POS = false;
 
 //Calling the function will end the while loop and properly exit the program to the HBChannel.
 void reload(u32, void *) {
@@ -42,96 +40,103 @@ int main(int, char **) {
 	
 	Wiimote::setup();
 	
-    Player player(8, 120, 8);
+    Player players[4] {Player(WPAD_CHAN_0),
+					   Player(WPAD_CHAN_1),
+					   Player(WPAD_CHAN_2),
+					   Player(WPAD_CHAN_3)};
 	
-    GUI guy;
+    HUD hud;
 	
 	//GX_InitTexObjFilterMode(&texture, GX_NEAR, GX_NEAR);
 
 	SYS_SetResetCallback(reload);
 	SYS_SetPowerCallback(shutdown);
-
-    //printf("end init\r");
-    BlockCoord pos(0, 0, 0);
-
-    printf("end init\r");
+	
 	ChunkCache::init();
 	ChunkCache::reset();
 	
+	for (int i = 0; i < 4; i++) {
+		players[i].setPos(0, 126, 0);
+		players[i].renderer.camera.rotateH(45.0f * (f32)i);
+	}
+	
+	/// Splash Screen
+    players[0].renderer.camera.loadOrtho(); // set for 2D drawing
+    players[0].renderer.camera.applyTransform2D();
+	Renderer::renderSplashScreen();
+	Renderer::endFrame();
+	
+	
+	World::requestChunks(ChunkCoord(0, 0), 8);
+	Renderer::setClearColor();
+	
     while (!exiting) {
-
-        player.renderer.camera.loadPerspective();
-
-		//player.renderer.renderSky();
 		
-        pos.x = floor(player.renderer.camera.pos.x);
-        pos.y = floor(player.renderer.camera.pos.y);
-        pos.z = floor(player.renderer.camera.pos.z);
-
-        if (PRINT_PLAYER_POS)
-        {
-	        printf("pos : %d %d %d  ", pos.x & 15, pos.y &15, pos.z &15);
-	        printf(">lk : %.2f %.2f %.2f\r", player.renderer.camera.look.x,
-				   player.renderer.camera.look.y, player.renderer.camera.look.z);
-        }
-
-        // Calculate used memory
+        /// Calculate used memory
 		u32 mem1 = SYS_GetArena1Size();
 		u32 mem2 = SYS_GetArena2Size();
 		
 		printf("Memory : MEM1 %d (%d)\tMEM2 %d (%d)\r", mem1, mem1 / sizeof(VerticalChunk), mem2, mem2 / sizeof(VerticalChunk));
 		
-        player.renderer.camera.update(true);
+		/// Update Wiimotes & Run Engine
+		Wiimote::sync();
 		
-        World::requestChunks(pos.toChunkCoord());
+		for (auto & player : players) {
+			player.wiimote.update();
+			player.update();
+		}
 		
+		/// Update Viewport Layout
+		s8 S[4] = {0, 0, 0, 0 }, c = 0;
+		for (int i = 0; i < 4; i++) if (players[i].wiimote.connected) S[c++] = (s8)i;
+		
+		if (c == 1) players[S[0]].renderer.camera.resize(Camera::FullScreen);
+		else if (c == 2) {
+			players[S[0]].renderer.camera.resize(Camera::SplitTop);
+			players[S[1]].renderer.camera.resize(Camera::SplitBottom);
+		} else if (c == 3) {
+			players[S[0]].renderer.camera.resize(Camera::SplitTop);
+			players[S[1]].renderer.camera.resize(Camera::QuarterBL);
+			players[S[2]].renderer.camera.resize(Camera::QuarterBR);
+		}
+		else for (int i = 0; i < 4; i++) players[S[i]].renderer.camera.resize((Camera::Format)(1 << i));
+	
+		/// Cache
 		printf("caching\r");
 		
-		ChunkCache::cache(player.renderer);
+		ChunkCache::cache(players);
 		
+		/// Render
 		printf("rendering\r");
-		
-		//GX_SetScissor(0, 0, Renderer::rmode->fbWidth, Renderer::rmode->efbHeight/2);
-		ChunkCache::render();
-		
-		//PoC: 2-player split screen
-		//GX_SetScissor(0, Renderer::rmode->efbHeight / 2, Renderer::rmode->fbWidth, Renderer::rmode->efbHeight/2);
-		//player.renderer.camera.look.x = -player.renderer.camera.look.x;
-		//player.renderer.camera.look.y = -player.renderer.camera.look.y;
-		//player.renderer.camera.look.z = -player.renderer.camera.look.z;
-		//player.renderer.camera.update(true);
-		//
-		//ChunkCache::render();
-		//player.renderer.camera.look.x = -player.renderer.camera.look.x;
-		//player.renderer.camera.look.y = -player.renderer.camera.look.y;
-		//player.renderer.camera.look.z = -player.renderer.camera.look.z;
-		//player.renderer.camera.update(true);
+		for (int i = 0; i < c; i++) {
+			auto& player = players[S[i]];
+			player.renderer.camera.applyScissor();
+	        player.renderer.camera.loadPerspective();
+	
+			//player.renderer.renderSky();
+			
+	        player.renderer.camera.update(true);
+			
+			ChunkCache::render(player.renderer.camera);
+			
+			player.renderFocus();
+			player.renderDestroy();
+			
+	        if (player.creative)
+	            player.inventory.resetInventory();
+	
+	        player.renderer.camera.loadOrtho(); // set for 2D drawing
+	        player.renderer.camera.applyTransform2D();
+	
+	        if (player.isUnderwater()){
+	            hud.Underwater();
+	        }
+	
+	        hud.renderInventory(player);
+	        hud.renderCursor(player);
+		}
 		
 		printf("rendered\r");
-		
-        player.wiimote.update();
-		player.update();
-		
-		printf(">> %.2f %.2f %.2f || %.2f %.2f %.2f\r", player.renderer.camera.pos.x, player.renderer.camera.pos.y, player.renderer.camera.pos.z, player.renderer.camera.look.x, player.renderer.camera.look.y, player.renderer.camera.look.z);
-		
-		
-        if (player.creative)
-            player.inventory.resetInventory();
-
-        player.renderer.camera.loadOrtho(); // set for 2D drawing
-        player.renderer.camera.applyTransform2D();
-
-        if (player.isUnderwater()){
-            guy.Underwater(player);
-            printf("Underwater\r");
-        }
-
-
-        guy.renderInventory(player);
-        guy.renderCursor(player, player.wiimote);
-
-
-
 		Renderer::endFrame();
 
 		if (Wiimote::quit) exiting = 1;

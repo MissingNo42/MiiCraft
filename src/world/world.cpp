@@ -85,8 +85,7 @@ void World::setNeighboors(VerticalChunk& chunk) {
 }
 
 
-void World::requestChunks(ChunkCoord pos) {
-	const short range = 2;
+void World::requestChunks(ChunkCoord pos, short range) {
     for(short x = pos.x - range; x <=  pos.x + range; x++){
         for(short y = pos.y - range; y <= pos.y + range; y++){
             ChunkCoord p(x, y);

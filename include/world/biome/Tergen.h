@@ -144,7 +144,7 @@ public:
          for (; pos.y < seaLevel + bottomLevel; ++pos.y) {
              APPLY_BLOCK(Stone);
          }
-         int bl = seaLevel + bottomLevel;
+		 
          for (; pos.y < height + 1; ++pos.y) {
              int badlandY = pos.y % 30;
              int dice = rand()%100;

@@ -12,7 +12,7 @@
 #include <queue>
 #include <cmath>
 
-#define LOADED_CHUNKS 1401 // 20x20 chunks + empty chunk
+#define LOADED_CHUNKS 1501 // XxX chunks + empty chunk
 #define EMPTY_CHUNK 0
 
 class World {
@@ -48,16 +48,15 @@ public:
     static void setBlockAt(BlockCoord coord, BlockType block, bool calculLight = true);
 
     static VerticalChunk& getChunkAt(ChunkCoord pos, bool generate = false);
-    //static void addChunk(ChunkCoord pos, VerticalChunk& chunk);
+	
     static void setNeighboors(VerticalChunk& chunk);
     static void initLight(VerticalChunk& c);
     static void propagateLight(VerticalChunk& c);
 	
     static void handleLightBlock(VerticalChunk& vc);
-    static void initLightBlock(VerticalChunk& vc);
 	
 	static void requestChunk(ChunkCoord pos);
-	static void requestChunks(ChunkCoord pos);
+	static void requestChunks(ChunkCoord pos, short range = 2);
 };
 
 #endif //MIICRAFT_WORLD_H
