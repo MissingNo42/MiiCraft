@@ -14,83 +14,83 @@ BlocData blocData[]{
 		
 		{
 				//Air
-				.x = BLOCK_COORDS(11, 11, 11, 11, 11, 11),
-				.y = BLOCK_COORDS(0, 0, 0, 0, 0, 0)
+				.x = BLOCK_COORDS(31, 31, 31, 31, 31, 31),
+				.y = BLOCK_COORDS(31, 31, 31, 31, 31, 31)
 		},
 		{
 				//Air
-				.x = BLOCK_COORDS(11, 11, 11, 11, 11, 11),
-				.y = BLOCK_COORDS(0, 0, 0, 0, 0, 0)
+				.x = BLOCK_COORDS(31, 31, 31, 31, 31, 31),
+				.y = BLOCK_COORDS(31, 31, 31, 31, 31, 31)
 		},
 		{
 				//Air
-				.x = BLOCK_COORDS(11, 11, 11, 11, 11, 11),
-				.y = BLOCK_COORDS(0, 0, 0, 0, 0, 0)
+				.x = BLOCK_COORDS(31, 31, 31, 31, 31, 31),
+				.y = BLOCK_COORDS(31, 31, 31, 31, 31, 31)
 		},
 		{
 				//Air
-				.x = BLOCK_COORDS(11, 11, 11, 11, 11, 11),
-				.y = BLOCK_COORDS(0, 0, 0, 0, 0, 0)
+				.x = BLOCK_COORDS(31, 31, 31, 31, 31, 31),
+				.y = BLOCK_COORDS(31, 31, 31, 31, 31, 31)
 		},
 		{
 				//Air
-				.x = BLOCK_COORDS(11, 11, 11, 11, 11, 11),
-				.y = BLOCK_COORDS(0, 0, 0, 0, 0, 0)
+				.x = BLOCK_COORDS(31, 31, 31, 31, 31, 31),
+				.y = BLOCK_COORDS(31, 31, 31, 31, 31, 31)
 		},
 		{
 				//Air
-				.x = BLOCK_COORDS(11, 11, 11, 11, 11, 11),
-				.y = BLOCK_COORDS(0, 0, 0, 0, 0, 0)
+				.x = BLOCK_COORDS(31, 31, 31, 31, 31, 31),
+				.y = BLOCK_COORDS(31, 31, 31, 31, 31, 31)
 		},
 		{
 				//Air
-				.x = BLOCK_COORDS(11, 11, 11, 11, 11, 11),
-				.y = BLOCK_COORDS(0, 0, 0, 0, 0, 0)
+				.x = BLOCK_COORDS(31, 31, 31, 31, 31, 31),
+				.y = BLOCK_COORDS(31, 31, 31, 31, 31, 31)
 		},
 		{
 				//Air
-				.x = BLOCK_COORDS(11, 11, 11, 11, 11, 11),
-				.y = BLOCK_COORDS(0, 0, 0, 0, 0, 0)
+				.x = BLOCK_COORDS(31, 31, 31, 31, 31, 31),
+				.y = BLOCK_COORDS(31, 31, 31, 31, 31, 31)
 		},
 		{
 				//Air
-				.x = BLOCK_COORDS(11, 11, 11, 11, 11, 11),
-				.y = BLOCK_COORDS(0, 0, 0, 0, 0, 0)
+				.x = BLOCK_COORDS(31, 31, 31, 31, 31, 31),
+				.y = BLOCK_COORDS(31, 31, 31, 31, 31, 31)
 		},
 		{
 				//Air
-				.x = BLOCK_COORDS(11, 11, 11, 11, 11, 11),
-				.y = BLOCK_COORDS(0, 0, 0, 0, 0, 0)
+				.x = BLOCK_COORDS(31, 31, 31, 31, 31, 31),
+				.y = BLOCK_COORDS(31, 31, 31, 31, 31, 31)
 		},
 		{
 				//Air
-				.x = BLOCK_COORDS(11, 11, 11, 11, 11, 11),
-				.y = BLOCK_COORDS(0, 0, 0, 0, 0, 0)
+				.x = BLOCK_COORDS(31, 31, 31, 31, 31, 31),
+				.y = BLOCK_COORDS(31, 31, 31, 31, 31, 31)
 		},
 		{
 				//Air
-				.x = BLOCK_COORDS(11, 11, 11, 11, 11, 11),
-				.y = BLOCK_COORDS(0, 0, 0, 0, 0, 0)
+				.x = BLOCK_COORDS(31, 31, 31, 31, 31, 31),
+				.y = BLOCK_COORDS(31, 31, 31, 31, 31, 31)
 		},
 		{
 				//Air
-				.x = BLOCK_COORDS(11, 11, 11, 11, 11, 11),
-				.y = BLOCK_COORDS(0, 0, 0, 0, 0, 0)
+				.x = BLOCK_COORDS(31, 31, 31, 31, 31, 31),
+				.y = BLOCK_COORDS(31, 31, 31, 31, 31, 31)
 		},
 		{
 				//Air
-				.x = BLOCK_COORDS(11, 11, 11, 11, 11, 11),
-				.y = BLOCK_COORDS(0, 0, 0, 0, 0, 0)
+				.x = BLOCK_COORDS(31, 31, 31, 31, 31, 31),
+				.y = BLOCK_COORDS(31, 31, 31, 31, 31, 31)
 		},
 		{
 				//Air
-				.x = BLOCK_COORDS(11, 11, 11, 11, 11, 11),
-				.y = BLOCK_COORDS(0, 0, 0, 0, 0, 0)
+				.x = BLOCK_COORDS(31, 31, 31, 31, 31, 31),
+				.y = BLOCK_COORDS(31, 31, 31, 31, 31, 31)
 		},
 		{
 				//Air
-				.x = BLOCK_COORDS(11, 11, 11, 11, 11, 11),
-				.y = BLOCK_COORDS(0, 0, 0, 0, 0, 0)
+				.x = BLOCK_COORDS(31, 31, 31, 31, 31, 31),
+				.y = BLOCK_COORDS(31, 31, 31, 31, 31, 31)
 		},
 		
 		/// Semi-Transparent Blocks

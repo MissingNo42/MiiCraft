@@ -35,7 +35,6 @@ void Camera::resize(Format fm) {
 	
     ratio = (f32)Renderer::rmode->fbWidth / (f32)Renderer::rmode->xfbHeight;
 	fovx = atanf(tanf(fovy) * ratio);
-	radius = tanf(fovy) * max;
 	
     guPerspective(perspective, fovy * 180.f / (f32)M_PI,
 				  (fm == SplitTop || fm == SplitBottom) ? ratio * 2: ratio,
@@ -122,7 +121,7 @@ u8 Camera::isVisible(const guVector &p) {
 	guVecNormalize(&ct);
 	f32 a = guVecDotProduct(&pt, &ct);
 	f32 b = acosf(a);
-	return b < fovx;
+	return b < fovx * (1 + std::abs(look.y));
 }
 
 u8 Camera::isChunkVisible(s16 x, s16 z) {

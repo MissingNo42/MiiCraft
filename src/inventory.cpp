@@ -287,7 +287,7 @@ void Inventory::getUniqueRecipe() {
 void Inventory::handleCraft(bool fastMode, bool creative) {
     if(fastMode){
         bool full = false;
-        while(!currentCraft.equals(Craft::craftList[0]) && !full){
+        while(!currentCraft.equals(Craft::craftList[0])){
             full = !fastDrop(craftSlots[9], true, true, creative);
             if(full)
                 return;

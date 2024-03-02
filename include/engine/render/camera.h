@@ -34,7 +34,7 @@ public:
 	f32 fovy;
 	f32 fovx;
 	f32 ratio;
-	f32 min, max, radius;
+	f32 min, max;
     Mtx44 view3D, perspective, ortho, view2D, view2Dsquare;
     guVector up = {0.0F, 1.0F, 0.0F};
     guVector pos = {0.0F, 0.0F, 0.0F},
@@ -48,7 +48,7 @@ public:
      * @param min Minimum render distance
      * @param max Maximum render distance
      */
-    explicit Camera(f32 fov = 45, f32 min = .1, f32 max = 256);
+    explicit Camera(f32 fov = 45, f32 min = .1, f32 max = 1024);
 
     ~Camera() = default;
 

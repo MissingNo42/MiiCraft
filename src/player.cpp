@@ -576,7 +576,7 @@ void Player::update() {
 		
         if (wiimote.wd->btns_d & WPAD_BUTTON_LEFT && inventory.currentPage > 0) inventory.currentPage--;
         if (wiimote.wd->btns_d & WPAD_BUTTON_RIGHT && inventory.currentPage < 2) inventory.currentPage++;
-
+/*
         int l, c, slot;
         bool isValidCursor = false;
         bool craftSlot = false;
@@ -616,14 +616,14 @@ void Player::update() {
 				isValidCursor = true;
 				craftSlot = true;
 			}
-		}
-		
+		}*/
+		printf(">>> %d %d %d\r", isValidCursor, selectedSlot, craftSlot);
 		if (wiimote.wd->btns_d & WPAD_BUTTON_A && isValidCursor)
-			inventory.action(slot, craftSlot, 0, false, false, creative);
+			inventory.action(selectedSlot, craftSlot, 0, false, false, creative);
 		else if (wiimote.wd->btns_d & WPAD_BUTTON_MINUS && isValidCursor)
-			inventory.action(slot, craftSlot, 1, false, true, creative);
+			inventory.action(selectedSlot, craftSlot, 1, false, true, creative);
 		else if (wiimote.wd->btns_d & WPAD_BUTTON_PLUS && isValidCursor)
-			inventory.action(slot, craftSlot, 0, true, false, creative);
+			inventory.action(selectedSlot, craftSlot, 0, true, false, creative);
 	}
 	else {
 		if (!cameraLocked) handleRotation();

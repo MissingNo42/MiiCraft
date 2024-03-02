@@ -14,6 +14,8 @@
 #include <vector>
 
 class Player {
+    static constexpr f32 x = 0.05f, y = 0.05f;
+	
     float Velocity = 0.0;
     float Acceleration = 0.12;
     int frame_cntr = 0;
@@ -28,10 +30,17 @@ class Player {
     BlockType focusedBlockType = Air0;
 	u8 focusedFace = 0;
 	
+	u8 renderRect(f32 x, f32 y, f32 x2, f32 y2, f32 u, f32 v, f32 u2, f32 v2) const;
+	
 public:
 	Wiimote wiimote;
     Renderer renderer;
     Inventory inventory;
+	
+	int selectedSlot = 0;
+	bool isValidCursor = false;
+	bool craftSlot = false;
+	
     bool gravity = true;
     bool isJumping = false;
     bool sprint = false;
@@ -80,6 +89,11 @@ public:
 	void renderFocus();
 	
 	void renderDestroy();
+	
+	/// HUD
+    void renderCursor();
+    void renderInventory();
+    static void Underwater();
 };
 
 

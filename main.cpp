@@ -7,7 +7,6 @@
 
 #include "wiimote.h"
 #include "engine/render/renderer.h"
-#include "engine/render/interface.h"
 
 #include "engine/render/bloc.h"
 #include "src/system/saveManager.h"
@@ -45,8 +44,6 @@ int main(int, char **) {
 					   Player(WPAD_CHAN_2),
 					   Player(WPAD_CHAN_3)};
 	
-    HUD hud;
-	
 	//GX_InitTexObjFilterMode(&texture, GX_NEAR, GX_NEAR);
 
 	SYS_SetResetCallback(reload);
@@ -72,13 +69,17 @@ int main(int, char **) {
 	
     while (!exiting) {
 		
+		
         /// Calculate used memory
+        
 		u32 mem1 = SYS_GetArena1Size();
 		u32 mem2 = SYS_GetArena2Size();
 		
 		printf("Memory : MEM1 %d (%d)\tMEM2 %d (%d)\r", mem1, mem1 / sizeof(VerticalChunk), mem2, mem2 / sizeof(VerticalChunk));
 		
+		
 		/// Update Wiimotes & Run Engine
+		
 		Wiimote::sync();
 		
 		for (auto & player : players) {
@@ -86,7 +87,9 @@ int main(int, char **) {
 			player.update();
 		}
 		
+		
 		/// Update Viewport Layout
+		
 		s8 S[4] = {0, 0, 0, 0 }, c = 0;
 		for (int i = 0; i < 4; i++) if (players[i].wiimote.connected) S[c++] = (s8)i;
 		
@@ -101,39 +104,38 @@ int main(int, char **) {
 		}
 		else for (int i = 0; i < 4; i++) players[S[i]].renderer.camera.resize((Camera::Format)(1 << i));
 	
+		
 		/// Cache
 		printf("caching\r");
 		
 		ChunkCache::cache(players);
 		
+		
 		/// Render
 		printf("rendering\r");
+		
 		for (int i = 0; i < c; i++) {
 			auto& player = players[S[i]];
 			player.renderer.camera.applyScissor();
 	        player.renderer.camera.loadPerspective();
-	
-			//player.renderer.renderSky();
 			
 	        player.renderer.camera.update(true);
 			
+			player.renderer.renderSky();
 			ChunkCache::render(player.renderer.camera);
 			
 			player.renderFocus();
 			player.renderDestroy();
 			
-	        if (player.creative)
-	            player.inventory.resetInventory();
+	        if (player.creative) player.inventory.resetInventory();
 	
 	        player.renderer.camera.loadOrtho(); // set for 2D drawing
 	        player.renderer.camera.applyTransform2D();
 	
-	        if (player.isUnderwater()){
-	            hud.Underwater();
-	        }
+	        if (player.isUnderwater()) player.Underwater();
 	
-	        hud.renderInventory(player);
-	        hud.renderCursor(player);
+	        player.renderInventory();
+	        player.renderCursor();
 		}
 		
 		printf("rendered\r");

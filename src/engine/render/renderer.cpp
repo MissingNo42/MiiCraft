@@ -133,40 +133,33 @@ void Renderer::endFrame() {
 
 
 void Renderer::renderSky() const {
-	/*
-	f32 x = camera.max * tanf(camera.fovx), y = camera.max * tanf(camera.fovy), z = camera.max - .5;
-
+    f32 tx = 0;
+    f32 ty = 0.5;
+	f32 x = 1000, z = 1000, y = 130;
+	
 	GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
-
-    GX_Position3f32(-x, y, -z);
-    GX_Color1x8(BLUE);
-    GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(9));
 	
-    GX_Position3f32(x, y, -z);
-    GX_Color1x8(BLUE);
-    GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(9));
+    GX_Position3f32(-x + camera.pos.x, y, z + camera.pos.z);
+    GX_Color1x8(WHITE);
+    GX_TexCoord2f32(tx + .5f, ty + .5f);
 	
-    GX_Position3f32(x, -y, -z);
-    GX_Color1x8(BLUE);
-    GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(9));
+    GX_Position3f32(x + camera.pos.x, y, z + camera.pos.z);
+    GX_Color1x8(WHITE);
+    GX_TexCoord2f32(tx, ty + .5f);
 	
-    GX_Position3f32(-x, -y, -z);
-    GX_Color1x8(BLUE);
-    GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(9));
+    GX_Position3f32(x + camera.pos.x, y, -z + camera.pos.z);
+    GX_Color1x8(WHITE);
+    GX_TexCoord2f32(tx, ty);
 	
-	GX_End();*/
+    GX_Position3f32(-x + camera.pos.x, y, -z + camera.pos.z);
+    GX_Color1x8(WHITE);
+    GX_TexCoord2f32(tx + .5f, ty);
+	
+	GX_End();
 }
 
 
 void Renderer::renderBlock(const guVector &coord, BlockType type, u8 lt, u8 lb, u8 lf, u8 lk, u8 lr, u8 ll) {
-    //Mtx model, modelview; // Various matrices
-
-    //guMtxIdentity(model);
-
-    //guMtxTransApply(model, model, coord.x, coord.y, coord.z);
-
-    //guMtxConcat(camera.view3D, model, modelview);
-    //GX_LoadPosMtxImm(modelview, GX_PNMTX0);
 	
 	f32
 	mx = coord.x - 1,
