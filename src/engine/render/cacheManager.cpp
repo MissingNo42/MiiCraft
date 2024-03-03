@@ -115,8 +115,8 @@ u8 ChunkCache::cache(VerticalChunk& vc) {
 	}
 }
 
-void ChunkCache::addVertex(f32 x, f32 y, f32 z, u8 c, f32 u, f32 v, u8 alpha) {
-	if (lists[current[alpha]].addVertex(x, y, z, c, u, v)) {
+void ChunkCache::addVertex(f32 x, f32 y, f32 z, u8 c, u16 tc, u8 alpha) {
+	if (lists[current[alpha]].addVertex(x, y, z, c, tc)) {
 		lists[current[alpha]].seal();
 		
 		int i;

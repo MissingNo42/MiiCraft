@@ -68,7 +68,7 @@ int main(int, char **) {
 	Renderer::setClearColor();
 	
     while (!exiting) {
-		
+		runWater();
 		
         /// Calculate used memory
         

@@ -81,14 +81,14 @@ void Renderer::setupVtxDesc() {
 	
 	GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
     GX_SetVtxDesc(GX_VA_CLR0, GX_INDEX8);
-    GX_SetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+    GX_SetVtxDesc(GX_VA_TEX0, GX_INDEX16);
 	
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
     GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_S8, 0);
     GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
 
 	GX_SetArray(GX_VA_CLR0, (void *)Lights, 4);
-
+	GX_SetArray(GX_VA_TEX0, (void *)TexCoord, 8);
 }
 
 void Renderer::setupTexture() {
@@ -133,6 +133,7 @@ void Renderer::endFrame() {
 
 
 void Renderer::renderSky() const {
+		return;
     f32 tx = 0;
     f32 ty = 0.5;
 	f32 x = 1000, z = 1000, y = 130;
@@ -160,7 +161,7 @@ void Renderer::renderSky() const {
 
 
 void Renderer::renderBlock(const guVector &coord, BlockType type, u8 lt, u8 lb, u8 lf, u8 lk, u8 lr, u8 ll) {
-	
+	return;
 	f32
 	mx = coord.x - 1,
 	my = coord.y - 1,
@@ -299,6 +300,7 @@ void Renderer::renderBlock(const guVector &coord, BlockType type, u8 lt, u8 lb, 
 }
 
 void Renderer::renderFocus(f32 x, f32 y, f32 z) {
+		return;
 	f32
 	mx = x - 1,
 	my = y - 1,
@@ -431,71 +433,71 @@ void Renderer::renderSplashScreen() {
 	
 	GX_Position3f32(0, 2 * yr, 0);
 	GX_Color1x8(61);
-	GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(2)); // Top left
+	GX_TexCoord1x16(TXCOORD(3, 2)); // Top left
 	
 	GX_Position3f32(yr * xr, yr, 0);
 	GX_Color1x8(61);
-	GX_TexCoord2f32(BLOCK_COORD(4), BLOCK_COORD(2)); // Top right
+	GX_TexCoord1x16(TXCOORD(4, 2)); // Top right
 	
 	GX_Position3f32(0, 0, 0);
 	GX_Color1x8(61);
-	GX_TexCoord2f32(BLOCK_COORD(4), BLOCK_COORD(3)); // Bottom right
+	GX_TexCoord1x16(TXCOORD(4, 3)); // Bottom right
 	
 	GX_Position3f32(-yr * xr, yr, 0);
 	GX_Color1x8(61);
-	GX_TexCoord2f32(BLOCK_COORD(3), BLOCK_COORD(3)); // Bottom left
+	GX_TexCoord1x16(TXCOORD(3, 3)); // Bottom left
 	
 	
 	GX_Position3f32(0, 0, 0);
 	GX_Color1x8(62);
-	GX_TexCoord2f32(BLOCK_COORD(4), BLOCK_COORD(2)); // Top left
+	GX_TexCoord1x16(TXCOORD(4, 2)); // Top left
 	
 	GX_Position3f32(yr * xr, yr, 0);
 	GX_Color1x8(62);
-	GX_TexCoord2f32(BLOCK_COORD(5), BLOCK_COORD(2)); // Top right
+	GX_TexCoord1x16(TXCOORD(5, 2)); // Top right
 	
 	GX_Position3f32(yr * xr, -yr, 0);
 	GX_Color1x8(62);
-	GX_TexCoord2f32(BLOCK_COORD(5), BLOCK_COORD(3)); // Bottom right
+	GX_TexCoord1x16(TXCOORD(5, 3)); // Bottom right
 	
 	GX_Position3f32(0, -2 * yr, 0);
 	GX_Color1x8(62);
-	GX_TexCoord2f32(BLOCK_COORD(4), BLOCK_COORD(3)); // Bottom left
+	GX_TexCoord1x16(TXCOORD(4, 3)); // Bottom left
 	
 	
 	GX_Position3f32(-yr * xr, yr, 0);
 	GX_Color1x8(WHITE);
-	GX_TexCoord2f32(BLOCK_COORD(4), BLOCK_COORD(2)); // Top left
+	GX_TexCoord1x16(TXCOORD(4, 2)); // Top left
 	
 	GX_Position3f32(0, 0, 0);
 	GX_Color1x8(WHITE);
-	GX_TexCoord2f32(BLOCK_COORD(5), BLOCK_COORD(2)); // Top right
+	GX_TexCoord1x16(TXCOORD(5, 2)); // Top right
 	
 	GX_Position3f32(0, -2 * yr, 0);
 	GX_Color1x8(WHITE);
-	GX_TexCoord2f32(BLOCK_COORD(5), BLOCK_COORD(3)); // Bottom right
+	GX_TexCoord1x16(TXCOORD(5, 3)); // Bottom right
 	
 	GX_Position3f32(-yr * xr, -yr, 0);
 	GX_Color1x8(WHITE);
-	GX_TexCoord2f32(BLOCK_COORD(4), BLOCK_COORD(3)); // Bottom left
+	GX_TexCoord1x16(TXCOORD(4, 3)); // Bottom left
 	
 	const f32 bh = .2;
 	
 	GX_Position3f32(-bh * 3.5f, -yr * 1.5f, 0);
 	GX_Color1x8(WHITE);
-	GX_TexCoord2f32(BLOCK_COORD(8), BLOCK_COORD(15)); // Top left
+	GX_TexCoord1x16(TXCOORD(8, 15)); // Top left
 	
 	GX_Position3f32(bh * 3.5f, -yr * 1.5f, 0);
 	GX_Color1x8(WHITE);
-	GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(15)); // Top right
+	GX_TexCoord1x16(TXCOORD(15, 15)); // Top right
 	
 	GX_Position3f32(bh * 3.5f, -yr * 1.5f - bh, 0);
 	GX_Color1x8(WHITE);
-	GX_TexCoord2f32(BLOCK_COORD(15), BLOCK_COORD(16)); // Bottom right
+	GX_TexCoord1x16(TXCOORD(15, 16)); // Bottom right
 	
 	GX_Position3f32(-bh * 3.5f, -yr * 1.5f - bh, 0);
 	GX_Color1x8(WHITE);
-	GX_TexCoord2f32(BLOCK_COORD(8), BLOCK_COORD(16)); // Bottom left
+	GX_TexCoord1x16(TXCOORD(8, 16)); // Bottom left
 	
 	GX_End();
 }

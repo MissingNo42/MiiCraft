@@ -47,6 +47,7 @@ static const f32 itemYpad = 0.18181818181818182f * hotbarH;
 static const f32 itemXoff = 0.10989010989010989f * hotbarW;
 
 inline u8 Player::renderRect(f32 x1, f32 y1, f32 x2, f32 y2, f32 u, f32 v, f32 u2, f32 v2) const {
+	return 0;
 	GX_Position3f32(x1, y1, 0);
 	GX_Color1x8(WHITE);
 	GX_TexCoord2f32(u, v);
@@ -74,6 +75,7 @@ inline u8 Player::renderRect(f32 x1, f32 y1, f32 x2, f32 y2, f32 u, f32 v, f32 u
 
 void Player::renderCursor() {
 	
+	return;
 	if (!inventory.open && !wiimoteFocus) {
 		
 		GX_Begin(GX_QUADS, GX_VTXFMT0, 4); // Start drawing
@@ -97,6 +99,7 @@ void Player::renderCursor() {
 }
 
 void Player::renderInventory() {
+	return;
 	isValidCursor = false;
 	bool collide;
 	
@@ -401,6 +404,7 @@ void Player::renderInventory() {
 
 
 void Player::Underwater() {
+	
 	GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
 	GX_Position3f32(-2, 1, 0);
 	

@@ -43,7 +43,7 @@ public:
 	
 	static u8 cache(VerticalChunk& vc);
 	
-	static void addVertex(f32 x, f32 y, f32 z, u8 c, f32 u, f32 v, u8 alpha);
+	static void addVertex(f32 x, f32 y, f32 z, u8 c, u16 tc, u8 alpha);
 	
 	static void cache(Player players[4]);
 };
