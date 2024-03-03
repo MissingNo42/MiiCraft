@@ -222,7 +222,7 @@ void Inventory::addItem(BlockType type, int quantity) {
                 }
             }
         }
-    }
+	}
     if (quantity != 0) {
         for (auto & c : inventory) {
             for (auto & p : c) {
@@ -287,7 +287,7 @@ void Inventory::getUniqueRecipe() {
 void Inventory::handleCraft(bool fastMode, bool creative) {
     if(fastMode){
         bool full = false;
-        while(!currentCraft.equals(Craft::craftList[0]) && !full){
+        while(!currentCraft.equals(Craft::craftList[0])){
             full = !fastDrop(craftSlots[9], true, true, creative);
             if(full)
                 return;

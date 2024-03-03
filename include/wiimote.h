@@ -5,27 +5,26 @@
 #ifndef MIICRAFT_WIIMOTE_H
 #define MIICRAFT_WIIMOTE_H
 
-#include <cstdlib>
 #include <wiiuse/wpad.h>
-#include "engine/render/renderer.h"
-#include "world/world.h"
-#include "player.h"
-
 
 class Wiimote {
-private:
     struct expansion_t data;
-    int chan = WPAD_CHAN_0;
+    int chan;
     u32 type = 0;
-    int last_accel = 0;
-    int frame_cntr = 0;
-
+    f32 last_accel = 0;
+	
 public:
-    Wiimote();
-    WPADData * wd;
+	static bool quit;
+    WPADData * wd = nullptr;
+	f32 x = 0, y = 0, accel = 0;
+	bool connected = false;
 
-    void update(Player& player, World& w);
-
+	explicit Wiimote(int chan = WPAD_CHAN_0);
+	
+    void update();
+	
+	static void setup();
+	static void sync();
 };
 
 

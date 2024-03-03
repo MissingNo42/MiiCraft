@@ -4,16 +4,6 @@
 
 #include "engine/render/cache.h"
 
-const s8 Normals[] ATTRIBUTE_ALIGN(32) = {
-		0, 1, 0,    // 0
-		0, -1, 0,   // 1
-		1, 0, 0,    // 2
-		-1, 0, 0, // 3
-		0, 0, 1, // 4
-		0, 0, -1, // 5
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-};
-
 const u32 Lights[][4] ATTRIBUTE_ALIGN(32) = {
         {0x0e0e0eff, 0x0b0b0bff, 0x080909ff, 0x080909ff},
         {0x131313ff, 0x0f0f0fff, 0x0b0c0cff, 0x0b0c0cff},
@@ -30,7 +20,6 @@ const u32 Lights[][4] ATTRIBUTE_ALIGN(32) = {
         {0x848484ff, 0x686a6bff, 0x4f5151ff, 0x4f5151ff},
         {0xa0a0a0ff, 0x7e8181ff, 0x5f6263ff, 0x5f6263ff},
         {0xc5c5c5ff, 0x9b9e9fff, 0x757979ff, 0x757979ff},
-        {0xfafafaff, 0xc5c9caff, 0x95999aff, 0x95999aff}
+        {0xfafafaff, 0xc5c9caff, 0x95999aff, 0x95999aff},
+        {0xffffffff, 0x29aeeaff, 0x000000ff}
 };
-
-// No opti -> 14 fps

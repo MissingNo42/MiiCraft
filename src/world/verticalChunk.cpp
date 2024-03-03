@@ -2,67 +2,63 @@
 // Created by paulo on 06/02/2024.
 //
 
-#include "verticalChunk.h"
+#include "world/verticalChunk.h"
+#include "world/world.h"
 #include <cstring>
 
-t_pos2D::t_pos2D() : t_pos2D(0, 0) {}
-t_pos2D::t_pos2D(short x, short y) : x(x), y(y) {}
 
-bool t_pos2D::operator==(const t_pos2D &p) const {
-    return x == p.x && y == p.y;
+void VerticalChunk::SetBlock(BlockCoord cd, BlockType block) {
+	recache = 1;
+	dirty = 1;
+	cd.x &= 15;
+	cd.z &= 15;
+    blocks[cd.x][cd.y][cd.z] = block;
+	if (!cd.x) {
+		u16 u = neighboors[CHUNK_WEST];
+		if (u) World::chunkSlots[u].recache = 1;
+	} else if (cd.x == 15) {
+		u16 u = neighboors[CHUNK_EAST];
+		if (u) World::chunkSlots[u].recache = 1;
+	}
+	if (!cd.z) {
+		u16 u = neighboors[CHUNK_SOUTH];
+		if (u) World::chunkSlots[u].recache = 1;
+	} else if (cd.z == 15) {
+		u16 u = neighboors[CHUNK_NORTH];
+		if (u) World::chunkSlots[u].recache = 1;
+	}
 }
 
-bool t_pos2D::operator<(const t_pos2D &p) const {
-    if (p.x == x){return y < p.y;}
-    else {return x < p.x;}
+BlockType VerticalChunk::GetBlock(BlockCoord c) {
+    return blocks[c.x & 15][c.y][c.z & 15];
 }
 
-
-VerticalChunk* VerticalChunk::emptyChunk = new VerticalChunk();
-
-VerticalChunk::VerticalChunk() : id(cpt++) {
-    for(int i = 0; i < 4; i++){
-        neighboors[i] = VerticalChunk::emptyChunk;
-    }
-}
-
-
-void VerticalChunk::VC_SetBlock(t_coord coord, BlockType block) {
-    t_coord c = {coord.x & 15, coord.y, coord.z & 15};
-    blocks[c.x][c.y][c.z].type = block;
-}
-
-Block VerticalChunk::VC_GetBlock(t_coord coord) {
-    t_coord c = {coord.x  & 15, coord.y, coord.z & 15};
-    return blocks[c.x][c.y][c.z];
-}
-
-void VerticalChunk::VC_SetNeighboors(int indice, VerticalChunk *chunk) {
+void VerticalChunk::SetNeighboor(u8 indice, u16 chunk) {
+	recache = 1;
     neighboors[indice] = chunk;
 }
 
 
-
-
-
-const char* VerticalChunk::toString() {
-    return (char*) blocks;
+void VerticalChunk::fillWith(BlockType block) {
+	memset(blocks, block, sizeof(blocks));
 }
 
-void VerticalChunk::fillWithBedrock() {
-    for (int i = 0; i < 16; ++i) {
-        for (int j = 0; j < 128; ++j) {
-            for (int k = 0; k < 16; ++k) {
-                blocks[i][j][k] = BlockType::Bedrock;
-            }
-        }
-    }
-}
-
-VerticalChunk *VerticalChunk::VC_GetNeighboors() {
-    return *neighboors;
-}
-
-VerticalChunk* VerticalChunk::VC_GetNeighboor(int indice ) {
+u16 VerticalChunk::GetNeighboor(int indice) {
     return neighboors[indice];
+}
+
+VerticalChunk& VerticalChunk::GetNeighboorChunk(int indice) {
+    return World::chunkSlots[neighboors[indice]];
+}
+
+u16 VerticalChunk::Count(BlockType block) {
+	u16 r = 0;
+	for (int i = 0; i < 16; ++i) {
+		for (int j = 0; j < 128; ++j) {
+			for (int k = 0; k < 16; ++k) {
+				if (blocks[i][j][k] == block) r++;
+			}
+		}
+	}
+	return r;
 }

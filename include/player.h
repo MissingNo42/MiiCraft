@@ -8,64 +8,92 @@
 
 #include "engine/render/renderer.h"
 #include "inventory.h"
+#include "wiimote.h"
+#include "world/coord.h"
 #include <wiiuse/wpad.h>
 #include <vector>
 
 class Player {
-private:
+    static constexpr f32 x = 0.05f, y = 0.05f;
+	
     float Velocity = 0.0;
     float Acceleration = 0.12;
+    int frame_cntr = 0;
+	
+    int placeDelay = 0;
+    int breakingState = 0;
+	
+    BlockCoord focusedBlockPos = {0, 0, 0};
+    BlockCoord lockedBlockPos = {0, 0, 0};
+    BlockCoord previousFocusedBlockPos = {0, 0, 0};
+    guVector focusedBlockLook = {0, 0, 0};
+    BlockType focusedBlockType = Air0;
+	u8 focusedFace = 0;
+	
+	u8 renderRect(f32 x, f32 y, f32 x2, f32 y2, f32 u, f32 v, f32 u2, f32 v2) const;
+	
 public:
-    int placeDelay;
+	Wiimote wiimote;
+    Renderer renderer;
+    Inventory inventory;
+	
+	int selectedSlot = 0;
+	bool isValidCursor = false;
+	bool craftSlot = false;
+	
     bool gravity = true;
     bool isJumping = false;
-    Renderer renderer;
-    t_coord focusedBlockPos;
-    t_coord lockedBlockPos;
-    BlockType focusedBlockType;
-    t_coord previousFocusedBlockPos;
-    guVector focusedBlockLook;
-    bool sprint;
-    bool cameraLocked;
-    int breakingState{};
+    bool sprint = false;
+    bool cameraLocked = false;
+	bool wiimoteFocus = false;
     bool sneak = false;
-    Inventory inventory;
-    bool creative ;
-    BlockType hotbar[9] = {BlockType::Stone, BlockType::Dirt, BlockType::PlankOak, BlockType::WoodOak, BlockType::LeaveOak, BlockType::Glass, BlockType::Bedrock, BlockType::Glowstone, BlockType::Sand};
-    Player(f32 x, f32 y, f32 z);
-    Player();
+    bool creative = false;
+	bool focusing = false; // true -> focus must be rendered
+	bool destroying = false; // true -> anim must be rendered
+	
+	Player(f32 x, f32 y, f32 z, int chan = WPAD_CHAN_0);
+    explicit Player(int chan);
 
-    bool getFocusedBlock(World& w);
+    bool getFocusedBlock();
 
-    f32 getFocusedBlockDistance() const;
+    [[nodiscard]] f32 getFocusedBlockDistance() const;
 
-    static guVector InverseVector(const guVector& v);
+    static guVector negateVector(const guVector& v);
 
-    static guVector coordToGuVector(t_coord coord);
+    static guVector coordToGuVector(BlockCoord coord);
 
-    static t_coord guVectorToCoord(guVector v);
+    void handleRotation();
 
-    void handleRotation(WPADData *);
+    void handleGravity(BlockCoord& coord);
 
-    void handleGravity(World& w, t_coord& coord);
+    void goUp(float velocity = 1.0f, bool collision = true);
 
-    void goUp(t_coord coord, World& w, float velocity = 1.0f, bool collision = true);
-
-    void goDown(t_coord coord, World& w, float velocity = 1.0f, bool collision = true);
+    void goDown(float velocity = 1.0f, bool collision = true);
 
     void Jump();
 
     void setPos(f32 x, f32 y, f32 z);
 
-    int getFocusedFace() const;
+    [[nodiscard]] int getFocusedFace() const;
 
-    void placeBlock(World& w);
+    void placeBlock();
 
-    void destroyBlock(World& w);
+    void destroyBlock();
 
-    void move(World& w, joystick_t sticks);
+    void move(joystick_t sticks);
 
-    bool isUnderwater(World& w) const;
+    [[nodiscard]] bool isUnderwater() const;
+	
+	void update();
+	
+	void renderFocus();
+	
+	void renderDestroy();
+	
+	/// HUD
+    void renderCursor();
+    void renderInventory();
+    static void Underwater();
 };
 
 

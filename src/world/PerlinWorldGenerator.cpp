@@ -3,7 +3,10 @@
 //
 
 #include <queue>
-#include "PerlinWorldGenerator.h"
+#include "world/PerlinWorldGenerator.h"
+#include "world/biome/Tergen.h"
+#include "world/world.h"
+#include "world/biome/StructBuilder.h"
 
 
 PerlinWorldGenerator::PerlinWorldGenerator() {
@@ -34,22 +37,18 @@ float erosionRepartition(float x) {
     return 1.3f * x -.8f;
 }
 
-void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
-    VerticalChunk* vc = new VerticalChunk();
-
-    w.setNeighboors(pos, vc);
-    w.addChunk(pos, vc);
-    //Append in a file
+void PerlinWorldGenerator::generateChunk(VerticalChunk& vc) {
 
     u8        heightMap[16][16];
-    u16 biomeRepartition[BIOME_COUNT];           for (int i = 0; i < BIOME_COUNT; ++i) {biomeRepartition[i] = 0;}
+    u16 biomeRepartition[BIOME_COUNT];
+	for (int i = 0; i < BIOME_COUNT; ++i) biomeRepartition[i] = 0;
     f64       humidityMean = 0;
 
     for(int i = 0; i < 16; i ++){
         for(int j = 0; j < 16; j++){
 
-            float block_x = (float) (pos.x * 16 + i);
-            float block_y = (float) (pos.y * 16 + j);
+            float block_x = (float) (vc.coord.x * 16 + i);
+            float block_y = (float) (vc.coord.y * 16 + j);
 
 
             BiomeType biome;
@@ -136,26 +135,26 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
     if (biomeRepartition[Tundra] >= 128)
     {
         int proba = (int)((float)biomeRepartition[Tundra] / 256.f * 10.f);
-        if (rand()%200 < proba)
+        if (rand() % 200 < proba)
         {
-            t_coord iglooPos{(pos.x * 16 + 8), heightMap[8][8] - 1, (pos.y * 16 + 8)};
-            StructBuilder::generateIgloo(w, iglooPos);
+            BlockCoord iglooPos{(vc.coord.x * 16 + 8), heightMap[8][8] - 1, (vc.coord.y * 16 + 8)};
+            StructBuilder::generateIgloo(iglooPos);
         }
     }
     if (biomeRepartition[Savanna] >= 128)
     {
         int proba = (int)((float)biomeRepartition[Savanna] / 256.f * 10.f);
-        if (rand()% 25 < proba)
+        if (rand() % 25 < proba)
         {
-            t_coord acaciaPos{(pos.x * 16 + 7 + rand()%3), heightMap[8][8], (pos.y * 16 + 7 + rand()%3)};
-            StructBuilder::generateAcacia(w, acaciaPos);
+            BlockCoord acaciaPos{(vc.coord.x * 16 + 7 + rand()%3), heightMap[8][8], (vc.coord.y * 16 + 7 + rand()%3)};
+            StructBuilder::generateAcacia(acaciaPos);
         }
     }
 //    if (biomeRepartition[DarkForest] >= 64)
 //    {
 //        int nbTry = humidityMean * 2 - 1.8f;
 //        for (int i = 0; i < nbTry; ++i) {
-//            t_coord mushroomPos{pos.x * 16 + rand()%10 + 3, heightMap[8][8], (pos.y * 16 + rand()%10 + 3)};
+//            BlockCoord mushroomPos{pos.x * 16 + rand()%10 + 3, heightMap[8][8], (pos.y * 16 + rand()%10 + 3)};
 //            if (rand() % 2 == 0)
 //            {
 //                StructBuilder::generateRedMushroom(w, mushroomPos);
@@ -178,8 +177,8 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
         int y = heightMap[x][z] + 1;
 
 
-        t_coord treePos((pos.x * 16 + x), y, (pos.y * 16 + z));
-        if (StructBuilder::checkClassicTree(w, treePos))
+        BlockCoord treePos((vc.coord.x * 16 + x), y, (vc.coord.y * 16 + z));
+        if (StructBuilder::checkClassicTree(treePos))
         {
             u16 b;
             int treeChoice = rand() % 256;
@@ -206,23 +205,23 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
                     break;
                 case Desert:
                 case Badlands:
-                    StructBuilder::generateCactus(w, treePos);
+                    StructBuilder::generateCactus(treePos);
                     break;
                 case WoodedPlain:
                 case WoodedHills:
-                    StructBuilder::generateStdTree(w, treePos);
+                    StructBuilder::generateStdTree(treePos);
                     break;
                 case WoodedBadlands:
-                    StructBuilder::generateStdTree(w, treePos, DryOakTree);
+                    StructBuilder::generateStdTree(treePos, DryOakTree);
                     break;
                 case Jungle:
-                    StructBuilder::generateStdTree(w, treePos, SakuraTree);
+                    StructBuilder::generateStdTree(treePos, SakuraTree);
                     break;
                 case DarkForest:
-                    StructBuilder::generateStdTree(w, treePos, BirchTree);
+                    StructBuilder::generateStdTree(treePos, BirchTree);
                     break;
                 case Taiga:
-                    StructBuilder::generateSpruce(w, treePos);
+                    StructBuilder::generateSpruce(treePos);
                     break;
             }
 
@@ -230,21 +229,19 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
     }
 
-    //    w.initLight(vc);
-    w.propagateLight(vc);
-    std::cout << "Chunk generated at " << pos.x << " " << pos.y << " with id : " << vc->id << std::endl;
-    std::cout << " with neighboors : " << std::endl;
-    for(int i = 0; i < 4; i++){
-        if(vc->VC_GetNeighboors() != nullptr){
-            std::cout << "Neighboor " << i << " : " << vc->VC_GetNeighboor(i)->id << std::endl;
-        }
-    }
+//    w.initLight(vc);
+    World::propagateLight(vc);
+    //std::cout << "ChunkCoord generated at " << vc.coord.x << " " << vc.coord.y << " with x : " << vc.coord.x << " y : " << vc.coord.y << std::endl;
+    //std::cout << " with neighboors : " << std::endl;
+    //for(int i = 0; i < 4; i++){
+	//	std::cout << "Neighboor " << i << " : " << vc.GetNeighboor(i) << std::endl;
+    //}
 
     //print the whole chunk
 //    for(int i = 0; i < 16; i++){
 //        for(int j = 0; j < 16; j++){
 //            for(int k = 0; k < 128; k++){
-//                printf("Block at %d %d %d : %d\r",i,j,k,vc->VC_GetBlock({i, k, j}).type);
+//                printf("Block at %d %d %d : %d\r",i,j,k,vc.GetBlock({i, k, j}).type);
 //            }
 //        }
 //    }
@@ -272,7 +269,7 @@ void PerlinWorldGenerator::generateChunk(World& w , const t_pos2D pos) {
 
 void PerlinWorldGenerator::initNoise() {
 //    biomeNoise.SetFrequency(.01);
-//    biomeNoise.SetSeed(Random::getSeed());//  Game::getInstance()->getSeed());
+//    biomeNoise.SetSeed(Random::getSeed());//  Game::getInstance().getSeed());
 //
 //    biomeNoise.SetNoiseType(FastNoiseLite::NoiseType_Cellular);
 //    biomeNoise.SetFractalType(FastNoiseLite::FractalType_None);
@@ -311,11 +308,11 @@ void PerlinWorldGenerator::initNoise() {
     noiseAltitude.SetFractalGain(0.5);
 }
 
-void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
+void PerlinWorldGenerator::buildTree(BlockCoord pos, VerticalChunk& vc) {
     int height = rand() % 4 + 1;
     //On construit le tronc :
     for (int y = 0; y < 3+height ; y++) {
-        vc->VC_SetBlock({pos.x, pos.y + y, pos.z}, BlockType::WoodOak);
+        vc.SetBlock({pos.x, pos.y + y, pos.z}, BlockType::WoodOak);
     }
 
     //On construit les feuilles :
@@ -327,10 +324,10 @@ void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
                 }
                 if ((i == 2 || i == -2) && ( j == 2 || j == -2)) {
                     if (rand() %2)
-                        vc->VC_SetBlock({pos.x + i, pos.y + height + h, pos.z + j}, BlockType::LeaveOak);
+                        vc.SetBlock({pos.x + i, pos.y + height + h, pos.z + j}, BlockType::LeaveOak);
                 }
                 else
-                    vc->VC_SetBlock({pos.x + i, pos.y + height + h, pos.z + j}, BlockType::LeaveOak);
+                    vc.SetBlock({pos.x + i, pos.y + height + h, pos.z + j}, BlockType::LeaveOak);
             }
         }
     }
@@ -341,21 +338,20 @@ void PerlinWorldGenerator::buildTree(t_coord pos, VerticalChunk* vc) {
             }
             if ((i == 1 || i == -1) && ( j == 1 || j == -1)) {
                 if (rand() %2)
-                    vc->VC_SetBlock({pos.x + i, pos.y + 2 + height, pos.z + j}, BlockType::LeaveOak);
+                    vc.SetBlock({pos.x + i, pos.y + 2 + height, pos.z + j}, BlockType::LeaveOak);
             }
             else
-                vc->VC_SetBlock({pos.x + i, pos.y + 2 + height, pos.z + j}, BlockType::LeaveOak);
+                vc.SetBlock({pos.x + i, pos.y + 2 + height, pos.z + j}, BlockType::LeaveOak);
         }
     }
 
-    vc->VC_SetBlock({pos.x + 1, pos.y + 3 + height, pos.z}, BlockType::LeaveOak);
-    vc->VC_SetBlock({pos.x - 1, pos.y + 3 + height, pos.z}, BlockType::LeaveOak);
-    vc->VC_SetBlock({pos.x, pos.y + 3 + height, pos.z+1}, BlockType::LeaveOak);
-    vc->VC_SetBlock({pos.x, pos.y + 3 + height, pos.z-1}, BlockType::LeaveOak);
-    vc->VC_SetBlock({pos.x, pos.y + 3 + height, pos.z}, BlockType::LeaveOak);
+    vc.SetBlock({pos.x + 1, pos.y + 3 + height, pos.z}, BlockType::LeaveOak);
+    vc.SetBlock({pos.x - 1, pos.y + 3 + height, pos.z}, BlockType::LeaveOak);
+    vc.SetBlock({pos.x, pos.y + 3 + height, pos.z+1}, BlockType::LeaveOak);
+    vc.SetBlock({pos.x, pos.y + 3 + height, pos.z-1}, BlockType::LeaveOak);
+    vc.SetBlock({pos.x, pos.y + 3 + height, pos.z}, BlockType::LeaveOak);
 
 }
-
 
 
 

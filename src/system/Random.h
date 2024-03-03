@@ -10,8 +10,7 @@ class Random {
 private:
     static int globalSeed;
 public:
-    static int getSeed();
-
+	static int getSeed();
 };
 
 
