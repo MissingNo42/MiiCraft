@@ -7,7 +7,7 @@
 #include <cstring>
 #include "engine/render/renderer.h"
 #include "engine/render/bloc.h"
-#include "texture.c"
+#include "texture.h"
 #include "engine/render/cache.h"
 
 void * Renderer::frameBuffer;

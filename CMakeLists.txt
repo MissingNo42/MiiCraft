@@ -17,6 +17,32 @@ add_compile_options(-g)
 #add_compile_options(-Ofast)
 
 
+# Compile the texture from PNG to TPL to C raw data
+message(STATUS "Compiling TPL texture...")
+execute_process(
+    COMMAND ${DEVKITPRO}/tools/bin/gxtexconv -i assets/texture.png colfmt=6 mipmap=no
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    RESULT_VARIABLE result
+    ERROR_VARIABLE error
+)
+
+if(result)
+    message(FATAL_ERROR "Failed to compile texture: ${error}")
+endif()
+
+execute_process(
+    COMMAND ./gen.py
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/assets
+    RESULT_VARIABLE result
+    OUTPUT_VARIABLE output
+    ERROR_VARIABLE error
+)
+
+if(result)
+    message(FATAL_ERROR "Failed to export the texture: ${error} (${output})")
+endif()
+
+message(STATUS "Building...")
 add_executable(Miicraft main.cpp
         src/wiimote.cpp
         src/world/verticalChunk.cpp
