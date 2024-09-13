@@ -37,6 +37,9 @@ enum BiomeType : u16{
 #define INIT_GENERATOR \
 BlockCoord pos(block_x, 0, block_z);
 
+#define APPLY_BLOCK(...) \
+chunk.SetBlock(pos, __VA_ARGS__);
+
 #define APPLY_BEDROCK \
 APPLY_BLOCK(BlockType::Bedrock); \
 pos.y ++; \
@@ -55,13 +58,11 @@ for (; pos.y < height; ++pos.y) {\
 
 
 #define APPLY_SKY \
-for (; pos.y < 128-1; pos.y++){ \
-    APPLY_BLOCK(BlockType::Air0);\
-} APPLY_BLOCK(BlockType::Air);                          \
+for (; pos.y < 127; pos.y++){ \
+    APPLY_BLOCK((Block){.type = BlockType::Air, .flags = 0});\
+} APPLY_BLOCK((Block){.type = BlockType::Air, .naturalLight = 0xf, .artificialLight = 0});\
 chunk.lightQueue.push(pos);
 
-#define APPLY_BLOCK(BLOCK_TYPE) \
-chunk.SetBlock(pos, BLOCK_TYPE);
 
 class Tergen {
 private:
@@ -85,7 +86,7 @@ public:
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
-
+		
         APPLY_CONTINENT(Stone, SandStone);
         APPLY_BLOCK(BlockType::Sand);
         pos.y++;

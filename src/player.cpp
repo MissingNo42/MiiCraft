@@ -5,7 +5,7 @@
 #include <cmath>
 #include <algorithm>
 #include "player.h"
-#include "render/bloc.h"
+#include "render/block.h"
 #include "wiimote.h"
 #include "world/world.h"
 #include "utils/matrix.h"
@@ -90,9 +90,9 @@ bool Player::getFocusedBlock() {
 			}
 			
 			pos = BlockCoord((int)( floorf(cpos.x) + 1), (int) (floorf(cpos.y) + 1), (int) (floorf(cpos.z) + 1)); // apply negative render correction
-			type = World::getBlockAt(pos);
+			type = World::getBlockAt(pos).type;
 			
-			if (type > BlockType::Air && type != Water) {
+			if (type && type != Water) {
 				guVector dt = {(f32)pos.x - 0.5f, (f32)pos.y - 0.5f, (f32)pos.z - 0.5f};
 				guVecSub(&dt, &renderer.camera.pos, &dt);
 				
@@ -109,20 +109,20 @@ bool Player::getFocusedBlock() {
 		
 	} else {
 		f32 distance = 0,
-				x = renderer.camera.pos.x + 1,
-				y = renderer.camera.pos.y + 1,
-				z = renderer.camera.pos.z + 1;
+				px = renderer.camera.pos.x + 1,
+				py = renderer.camera.pos.y + 1,
+				pz = renderer.camera.pos.z + 1;
 		while ((type <= BlockType::Air || type == Water) && distance <= 5) {
-			x += renderer.camera.look.x / 200;
-			y += renderer.camera.look.y / 200;
-			z += renderer.camera.look.z / 200;
+			px += renderer.camera.look.x / 200;
+			py += renderer.camera.look.y / 200;
+			pz += renderer.camera.look.z / 200;
 			distance += 0.005;
-			pos = BlockCoord((int) floorf(x), (int) floorf(y), (int) floorf(z));
-			type = World::getBlockAt(pos);
+			pos = BlockCoord((int) floorf(px), (int) floorf(py), (int) floorf(pz));
+			type = World::getBlockAt(pos).type;
 		}
-		if (type > BlockType::Air && type != Water) {
+		if (type && type != Water) {
 			previousFocusedBlockPos = focusedBlockPos;
-			focusedBlockLook = {x, y, z};
+			focusedBlockLook = {px, py, pz};
 			focusedBlockPos = pos;
 			focusedBlockType = type;
 			focusedFace = getFocusedFace();
@@ -140,51 +140,47 @@ guVector Player::negateVector(const guVector &v) {
 
 void Player::goUp(float velocity, bool collision) {
 	f32 size = sneak ? 0.70005 : 0.40005;
-	f32 x = renderer.camera.pos.x + 1;
-	f32 y = renderer.camera.pos.y + 1;
-	f32 z = renderer.camera.pos.z + 1;
+	f32 px = renderer.camera.pos.x + 1;
+	f32 py = renderer.camera.pos.y + 1;
+	f32 pz = renderer.camera.pos.z + 1;
+	
+	s32 pxp = (s32)floorf(px + 0.3f),
+		pxm = (s32)floorf(px - 0.3f),
+		pzp = (s32)floorf(pz + 0.3f),
+		pzm = (s32)floorf(pz - 0.3f),
+		pyc = (s32)ceilf(py + size + velocity / 10 - 1),
+		pys = (s32)floorf(py - size);
+	
+	
 	if (collision) {
-		if (World::getBlockAt({(int) floorf(x + 0.3f), (int) ceilf(y + size + velocity / 10 - 1), (int) floorf(z + 0.3f)}) <=
-		    BlockType::Air
-		    &&
-		    World::getBlockAt({(int) floorf(x - 0.3f), (int) ceilf(y + size + velocity / 10 - 1), (int) floorf(z + 0.3f)}) <=
-		    BlockType::Air
-		    &&
-		    World::getBlockAt({(int) floorf(x + 0.3f), (int) ceilf(y + size + velocity / 10 - 1), (int) floorf(z - 0.3f)}) <=
-		    BlockType::Air
-		    &&
-		    World::getBlockAt({(int) floorf(x - 0.3f), (int) ceilf(y + size + velocity / 10 - 1), (int) floorf(z - 0.3f)}) <=
-		    BlockType::Air) {
-			if (!cameraLocked) {
-				renderer.camera.pos.y += velocity / 10;
-			} else {
-				renderer.camera.pos.y += velocity / 10;
+		if (!World::getBlockAt({pxp, pyc, pzp}).type &&
+		    !World::getBlockAt({pxm, pyc, pzp}).type &&
+			!World::getBlockAt({pxp, pyc, pzm}).type &&
+			!World::getBlockAt({pxm, pyc, pzm}).type) {
+			
+			renderer.camera.pos.y += velocity / 10;
+			if (cameraLocked) {
 				renderer.camera.look.y -= velocity / 10;
 			}
-		} else if (World::getBlockAt({(int) floorf(x + 0.3f), (int) floorf(y - size), (int) floorf(z + 0.3f)}) ==
-		           BlockType::Water
-		           || World::getBlockAt({(int) floorf(x - 0.3f), (int) floorf(y - size), (int) floorf(z + 0.3f)}) ==
-		              BlockType::Water
-		           || World::getBlockAt({(int) floorf(x + 0.3f), (int) floorf(y - size), (int) floorf(z - 0.3f)}) ==
-		              BlockType::Water
-		           || World::getBlockAt({(int) floorf(x - 0.3f), (int) floorf(y - size), (int) floorf(z - 0.3f)}) ==
-		              BlockType::Water) {
+			
+		} else if (   World::getBlockAt({pxp, pys, pzp}).type == BlockType::Water
+		           || World::getBlockAt({pxm, pys, pzp}).type == BlockType::Water
+		           || World::getBlockAt({pxp, pys, pzm}).type == BlockType::Water
+		           || World::getBlockAt({pxm, pys, pzm}).type == BlockType::Water) {
 			if (!cameraLocked) {
 				renderer.camera.pos.y += velocity / 40;
 			} else {
-				renderer.camera.pos.y += velocity / 10;
+				renderer.camera.pos.y += velocity / 10; // TODO: check coeff (40 ???)
 				renderer.camera.look.y -= velocity / 10;
 			}
 		} else {
-			renderer.camera.pos.y = (f32) ceilf(y + 0.40005f + velocity / 10 - 1) - 1.1005f;
+			renderer.camera.pos.y = (f32) ceilf(py + 0.40005f + velocity / 10 - 1) - 1.1005f;
 			Velocity = 0.6f;
 		}
 		
-	} else if (!cameraLocked) {
-		renderer.camera.pos.y += velocity / 10;
 	} else {
 		renderer.camera.pos.y += velocity / 10;
-		renderer.camera.look.y -= velocity / 10;
+		if (cameraLocked) renderer.camera.look.y -= velocity / 10;
 	}
 	guVecNormalize(&renderer.camera.look);
 }
@@ -195,44 +191,33 @@ void Player::goDown(float velocity, bool collision) {
 	f32 x = renderer.camera.pos.x + 1;
 	f32 y = renderer.camera.pos.y + 1;
 	f32 z = renderer.camera.pos.z + 1;
+	
+	s32 pxp = (s32)floorf(x + 0.3f),
+		pxm = (s32)floorf(x - 0.3f),
+		pzp = (s32)floorf(z + 0.3f),
+		pzm = (s32)floorf(z - 0.3f),
+		pys = (s32)floorf(y - size - velocity / 10);
+	
+	BlockType bpp = World::getBlockAt({pxp, pys, pzp}).type,
+	          bmp = World::getBlockAt({pxm, pys, pzp}).type,
+	          bmm = World::getBlockAt({pxm, pys, pzm}).type,
+	          bpm = World::getBlockAt({pxp, pys, pzm}).type;
+	
 	if (collision) {
-		if ((World::getBlockAt({(int) floorf(x + 0.3), (int) floorf(y - size - velocity / 10), (int) floorf(z + 0.3)}) <=
-		     BlockType::Air
-		     &&
-		     World::getBlockAt({(int) floorf(x - 0.3), (int) floorf(y - size - velocity / 10), (int) floorf(z + 0.3)}) <=
-		     BlockType::Air
-		     &&
-		     World::getBlockAt({(int) floorf(x + 0.3), (int) floorf(y - size - velocity / 10), (int) floorf(z - 0.3)}) <=
-		     BlockType::Air
-		     &&
-		     World::getBlockAt({(int) floorf(x - 0.3), (int) floorf(y - size - velocity / 10), (int) floorf(z - 0.3)}) <=
-		     BlockType::Air)
+		if ((!bpp && !bmp && !bmm && !bpm)
 		    ||
-		    (World::getBlockAt({(int) floorf(x + 0.3), (int) floorf(y - size - velocity / 10), (int) floorf(z + 0.3)}) ==
-		     BlockType::Water
-		     &&
-		     World::getBlockAt({(int) floorf(x - 0.3), (int) floorf(y - size - velocity / 10), (int) floorf(z + 0.3)}) ==
-		     BlockType::Water
-		     &&
-		     World::getBlockAt({(int) floorf(x + 0.3), (int) floorf(y - size - velocity / 10), (int) floorf(z - 0.3)}) ==
-		     BlockType::Water
-		     &&
-		     World::getBlockAt({(int) floorf(x - 0.3), (int) floorf(y - size - velocity / 10), (int) floorf(z - 0.3)}) ==
-		     BlockType::Water)) {
-			if (!cameraLocked) {
-				renderer.camera.pos.y -= velocity / 10;
-			} else {
-				renderer.camera.pos.y -= velocity / 10;
+		    (bpp == BlockType::Water && bmp == BlockType::Water && bmm == BlockType::Water && bpm == BlockType::Water)) {
+			
+			renderer.camera.pos.y -= velocity / 10;
+			if (cameraLocked)
 				renderer.camera.look.y += velocity / 10;
-			}
-		} else {
+			
+		} else
 			renderer.camera.pos.y = floorf(y - size - velocity / 10) + size + 0.00001f;
-		}
+		
 	} else {
-		if (!cameraLocked) {
-			renderer.camera.pos.y -= velocity / 10;
-		} else {
-			renderer.camera.pos.y -= velocity / 10;
+		renderer.camera.pos.y -= velocity / 10;
+		if (cameraLocked) {
 			renderer.camera.look.y += velocity / 10;
 		}
 	}
@@ -247,10 +232,10 @@ void Player::Jump() {
 }
 
 
-void Player::setPos(f32 x, f32 y, f32 z) {
-	renderer.camera.pos.x = x;
-	renderer.camera.pos.y = y;
-	renderer.camera.pos.z = z;
+void Player::setPos(f32 px, f32 py, f32 pz) {
+	renderer.camera.pos.x = px;
+	renderer.camera.pos.y = py;
+	renderer.camera.pos.z = pz;
 }
 
 
@@ -291,8 +276,8 @@ void Player::destroyBlock() {
 	if (breakingState < 50) {
 		destroying = true;
 	} else {
-		BlockType breaked = World::getBlockAt(focusedBlockPos);
-		World::setBlockAt(focusedBlockPos, BlockType::Air);
+		BlockType breaked = World::getBlockAt(focusedBlockPos).type;
+		World::setBlockTypeAt(focusedBlockPos, BlockType::Air);
 		if (!creative)
 			inventory.addItem(breaked, 1);
 		if (focusedBlockPos == lockedBlockPos) {
@@ -328,14 +313,14 @@ void Player::placeBlock() {
 				break;
 		}
 		
-		if (World::getBlockAt(pos) <= BlockType::Air
+		if (!World::getBlockAt(pos).type
 		    && (
 				    (pos.x != (int) floorf(renderer.camera.pos.x + 1.3f) &&
 				     pos.x != (int) floorf(renderer.camera.pos.x + 0.7f))
 				    || (pos.y != (int) floorf(renderer.camera.pos.y + 1.0f) && pos.y != (int) floorf(renderer.camera.pos.y))
 				    || (pos.z != (int) floorf(renderer.camera.pos.z + 1.3f) &&
 				        pos.z != (int) floorf(renderer.camera.pos.z + 0.7f)))) {
-			World::setBlockAt(pos, inventory.inventory[0][inventory.selectedSlot].item.type);
+			World::setBlockTypeAt(pos, inventory.inventory[0][inventory.selectedSlot].item.type);
 			if (!creative) {
 				inventory.inventory[0][inventory.selectedSlot].quantity--;
 				if (inventory.inventory[0][inventory.selectedSlot].quantity == 0)
@@ -429,32 +414,32 @@ void Player::move(joystick_t sticks) {
 	f32 camZ = renderer.camera.pos.z;
 	
 	if ((World::getBlockAt({(int) floorf(offsetX + camX + 1 + move.x), (int) (camY - 0.5f),
-	                        (int) floorf(camZ + 1.3)}) <= BlockType::Air
+	                        (int) floorf(camZ + 1.3)}).type <= BlockType::Air
 	     && World::getBlockAt({(int) floorf(offsetX + camX + 1 + move.x), (int) (camY - 0.5f),
-	                           (int) floorf(camZ + 0.7)}) <= BlockType::Air
+	                           (int) floorf(camZ + 0.7)}).type <= BlockType::Air
 	     && World::getBlockAt({(int) floorf(offsetX + camX + 1 + move.x), (int) (camY + 0.5f),
-	                           (int) floorf(camZ + 1.3)}) <= BlockType::Air
+	                           (int) floorf(camZ + 1.3)}).type <= BlockType::Air
 	     && World::getBlockAt({(int) floorf(offsetX + camX + 1 + move.x), (int) (camY + 0.5f),
-	                           (int) floorf(camZ + 0.7)}) <= BlockType::Air) ||
+	                           (int) floorf(camZ + 0.7)}).type <= BlockType::Air) ||
 	    (World::getBlockAt({(int) floorf(offsetX + camX + 1 + move.x), (int) (camY - 0.5f),
-	                        (int) floorf(camZ + 1.3)}) == BlockType::Water
+	                        (int) floorf(camZ + 1.3)}).type == BlockType::Water
 	     && World::getBlockAt({(int) floorf(offsetX + camX + 1 + move.x), (int) (camY - 0.5f),
-	                           (int) floorf(camZ + 0.7)}) == BlockType::Water
+	                           (int) floorf(camZ + 0.7)}).type == BlockType::Water
 	     && World::getBlockAt({(int) floorf(offsetX + camX + 1 + move.x), (int) (camY + 0.5f),
-	                           (int) floorf(camZ + 1.3)}) == BlockType::Water
+	                           (int) floorf(camZ + 1.3)}).type == BlockType::Water
 	     && World::getBlockAt({(int) floorf(offsetX + camX + 1 + move.x), (int) (camY + 0.5f),
-	                           (int) floorf(camZ + 0.7)}) == BlockType::Water)) {
+	                           (int) floorf(camZ + 0.7)}).type == BlockType::Water)) {
 		if (sneak && !isJumping) {
-			if (World::getBlockAt({(int) floorf(camX + 1.3 + move.x), (int) (camY - 1), (int) floorf(camZ + 1.3)}) >
+			if (World::getBlockAt({(int) floorf(camX + 1.3 + move.x), (int) (camY - 1), (int) floorf(camZ + 1.3)}).type >
 			    BlockType::Air
 			    ||
-			    World::getBlockAt({(int) floorf(camX + 0.7 + move.x), (int) (camY - 1), (int) floorf(camZ + 1.3)}) >
+			    World::getBlockAt({(int) floorf(camX + 0.7 + move.x), (int) (camY - 1), (int) floorf(camZ + 1.3)}).type >
 			    BlockType::Air
 			    ||
-			    World::getBlockAt({(int) floorf(camX + 1.3 + move.x), (int) (camY - 1), (int) floorf(camZ + 0.7)}) >
+			    World::getBlockAt({(int) floorf(camX + 1.3 + move.x), (int) (camY - 1), (int) floorf(camZ + 0.7)}).type >
 			    BlockType::Air
 			    ||
-			    World::getBlockAt({(int) floorf(camX + 0.7 + move.x), (int) (camY - 1), (int) floorf(camZ + 0.7)}) >
+			    World::getBlockAt({(int) floorf(camX + 0.7 + move.x), (int) (camY - 1), (int) floorf(camZ + 0.7)}).type >
 			    BlockType::Air) {
 				renderer.camera.pos.x += move.x;
 			}
@@ -468,33 +453,33 @@ void Player::move(joystick_t sticks) {
 		}
 	}
 	if ((World::getBlockAt({(int) floorf(camX + 1.3), (int) (camY - 0.5),
-	                        (int) floorf(offsetZ + camZ + 1 + move.z)}) <= BlockType::Air
+	                        (int) floorf(offsetZ + camZ + 1 + move.z)}).type <= BlockType::Air
 	     && World::getBlockAt({(int) floorf(camX + 0.7), (int) (camY - 0.5),
-	                           (int) floorf(offsetZ + camZ + 1 + move.z)}) <= BlockType::Air
+	                           (int) floorf(offsetZ + camZ + 1 + move.z)}).type <= BlockType::Air
 	     && World::getBlockAt({(int) floorf(camX + 1.3), (int) (camY + 0.5f),
-	                           (int) floorf(offsetZ + camZ + 1 + move.z)}) <= BlockType::Air
+	                           (int) floorf(offsetZ + camZ + 1 + move.z)}).type <= BlockType::Air
 	     && World::getBlockAt({(int) floorf(camX + 0.7), (int) (camY + 0.5f),
-	                           (int) floorf(offsetZ + camZ + 1 + move.z)}) <= BlockType::Air) ||
+	                           (int) floorf(offsetZ + camZ + 1 + move.z)}).type <= BlockType::Air) ||
 	    (World::getBlockAt({(int) floorf(camX + 1.3), (int) (camY - 0.5),
-	                        (int) floorf(offsetZ + camZ + 1 + move.z)}) == BlockType::Water
+	                        (int) floorf(offsetZ + camZ + 1 + move.z)}).type == BlockType::Water
 	     && World::getBlockAt({(int) floorf(camX + 0.7), (int) (camY - 0.5),
-	                           (int) floorf(offsetZ + camZ + 1 + move.z)}) == BlockType::Water
+	                           (int) floorf(offsetZ + camZ + 1 + move.z)}).type == BlockType::Water
 	     && World::getBlockAt({(int) floorf(camX + 1.3), (int) (camY + 0.5f),
-	                           (int) floorf(offsetZ + camZ + 1 + move.z)}) == BlockType::Water
+	                           (int) floorf(offsetZ + camZ + 1 + move.z)}).type == BlockType::Water
 	     && World::getBlockAt({(int) floorf(camX + 0.7), (int) (camY + 0.5f),
-	                           (int) floorf(offsetZ + camZ + 1 + move.z)}) == BlockType::Water)
+	                           (int) floorf(offsetZ + camZ + 1 + move.z)}).type == BlockType::Water)
 			) {
 		if (sneak && !isJumping) {
-			if (World::getBlockAt({(int) floorf(camX + 0.7), (int) (camY - 1), (int) floorf(camZ + 1.3 + move.z)}) >
+			if (World::getBlockAt({(int) floorf(camX + 0.7), (int) (camY - 1), (int) floorf(camZ + 1.3 + move.z)}).type >
 			    BlockType::Air
 			    ||
-			    World::getBlockAt({(int) floorf(camX + 0.7), (int) (camY - 1), (int) floorf(camZ + 0.7 + move.z)}) >
+			    World::getBlockAt({(int) floorf(camX + 0.7), (int) (camY - 1), (int) floorf(camZ + 0.7 + move.z)}).type >
 			    BlockType::Air
 			    ||
-			    World::getBlockAt({(int) floorf(camX + 1.3), (int) (camY - 1), (int) floorf(camZ + 1.3 + move.z)}) >
+			    World::getBlockAt({(int) floorf(camX + 1.3), (int) (camY - 1), (int) floorf(camZ + 1.3 + move.z)}).type >
 			    BlockType::Air
 			    ||
-			    World::getBlockAt({(int) floorf(camX + 1.3), (int) (camY - 1), (int) floorf(camZ + 0.7 + move.z)}) >
+			    World::getBlockAt({(int) floorf(camX + 1.3), (int) (camY - 1), (int) floorf(camZ + 0.7 + move.z)}).type >
 			    BlockType::Air) {
 				renderer.camera.pos.z += move.z;
 			}
@@ -521,20 +506,20 @@ void Player::handleGravity(BlockCoord &coord) {
 	f32 z = renderer.camera.pos.z + 1;
 	
 	bool canGoDown = (
-			World::getBlockAt({(int) floorf(x + 0.3f), (int) floorf(y - size), (int) floorf(z + 0.3f)}) <= BlockType::Air
-			&& World::getBlockAt({(int) floorf(x - 0.3f), (int) floorf(y - size), (int) floorf(z + 0.3f)}) <= BlockType::Air
-			&& World::getBlockAt({(int) floorf(x + 0.3f), (int) floorf(y - size), (int) floorf(z - 0.3f)}) <= BlockType::Air
+			World::getBlockAt({(int) floorf(x + 0.3f), (int) floorf(y - size), (int) floorf(z + 0.3f)}).type <= BlockType::Air
+			&& World::getBlockAt({(int) floorf(x - 0.3f), (int) floorf(y - size), (int) floorf(z + 0.3f)}).type <= BlockType::Air
+			&& World::getBlockAt({(int) floorf(x + 0.3f), (int) floorf(y - size), (int) floorf(z - 0.3f)}).type <= BlockType::Air
 			&&
-			World::getBlockAt({(int) floorf(x - 0.3f), (int) floorf(y - size), (int) floorf(z - 0.3f)}) <= BlockType::Air);
+			World::getBlockAt({(int) floorf(x - 0.3f), (int) floorf(y - size), (int) floorf(z - 0.3f)}).type <= BlockType::Air);
 	
 	bool inWater = (
-			World::getBlockAt({(int) floorf(x + 0.3), (int) floorf(y - size), (int) floorf(z + 0.3)}) == BlockType::Water
+			World::getBlockAt({(int) floorf(x + 0.3), (int) floorf(y - size), (int) floorf(z + 0.3)}).type == BlockType::Water
 			||
-			World::getBlockAt({(int) floorf(x - 0.3), (int) floorf(y - size), (int) floorf(z + 0.3)}) == BlockType::Water
+			World::getBlockAt({(int) floorf(x - 0.3), (int) floorf(y - size), (int) floorf(z + 0.3)}).type == BlockType::Water
 			||
-			World::getBlockAt({(int) floorf(x + 0.3), (int) floorf(y - size), (int) floorf(z - 0.3)}) == BlockType::Water
+			World::getBlockAt({(int) floorf(x + 0.3), (int) floorf(y - size), (int) floorf(z - 0.3)}).type == BlockType::Water
 			||
-			World::getBlockAt({(int) floorf(x - 0.3), (int) floorf(y - size), (int) floorf(z - 0.3)}) == BlockType::Water);
+			World::getBlockAt({(int) floorf(x - 0.3), (int) floorf(y - size), (int) floorf(z - 0.3)}).type == BlockType::Water);
 	if (inWater) {
 		Velocity += Acceleration;
 		if (Velocity > 0.1)	Velocity = 0.5;
@@ -552,9 +537,9 @@ void Player::handleGravity(BlockCoord &coord) {
 
 bool Player::isUnderwater() const {
 	return (World::getBlockAt({(int) floorf(renderer.camera.pos.x + 1), (int) floorf(renderer.camera.pos.y + 1),
-	                       (int) floorf(renderer.camera.pos.z + 1)}) == BlockType::Water
+	                       (int) floorf(renderer.camera.pos.z + 1)}).type == BlockType::Water
 	    || World::getBlockAt({(int) floorf(renderer.camera.pos.x + 1), (int) floorf(renderer.camera.pos.y + 1),
-	                          (int) floorf(renderer.camera.pos.z + 1)}) == BlockType::Water);
+	                          (int) floorf(renderer.camera.pos.z + 1)}).type == BlockType::Water);
 }
 
 void Player::update() {

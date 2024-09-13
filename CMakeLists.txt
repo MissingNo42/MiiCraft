@@ -48,8 +48,7 @@ add_executable(Miicraft main.cpp
         src/world/verticalChunk.cpp
         src/world/world.cpp
         src/engine/render/renderer.cpp
-        src/matrix/matrix.cpp
-        src/engine/render/bloc.cpp
+        src/engine/render/block.cpp
         src/engine/render/camera.cpp
         src/world/FlatWorldGenerator.cpp
         src/world/PerlinWorldGenerator.cpp
@@ -57,9 +56,9 @@ add_executable(Miicraft main.cpp
         src/system/saveManager.cpp
         src/system/Random.cpp
         src/player.cpp
-        src/engine/render/cache.cpp
+        src/engine/render/cacheUnit.cpp
         src/engine/render/render.cpp
-        src/engine/render/cacheManager.cpp
+        src/engine/render/cache.cpp
         src/inventory.cpp
         src/item.cpp
         src/craft.cpp

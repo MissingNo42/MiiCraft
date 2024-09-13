@@ -23,11 +23,11 @@ class Player {
     int placeDelay = 0;
     int breakingState = 0;
 	
-    BlockCoord focusedBlockPos = {0, 0, 0};
-    BlockCoord lockedBlockPos = {0, 0, 0};
-    BlockCoord previousFocusedBlockPos = {0, 0, 0};
-    guVector focusedBlockLook = {0, 0, 0};
-    BlockType focusedBlockType = Air0;
+    BlockCoord focusedBlockPos{0, 0, 0};
+    BlockCoord lockedBlockPos{0, 0, 0};
+    BlockCoord previousFocusedBlockPos{0, 0, 0};
+    guVector focusedBlockLook{0, 0, 0};
+    BlockType focusedBlockType = Air;
 	u8 focusedFace = 0;
 	
 	u8 renderRect(f32 x, f32 y, f32 x2, f32 y2, f32 u, f32 v, f32 u2, f32 v2) const;

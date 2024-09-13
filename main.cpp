@@ -8,10 +8,10 @@
 #include "wiimote.h"
 #include "engine/render/renderer.h"
 
-#include "engine/render/bloc.h"
+#include "engine/render/block.h"
 #include "src/system/saveManager.h"
 #include "player.h"
-#include "render/cacheManager.h"
+#include "render/cache.h"
 #include "world/world.h"
 
 
@@ -53,7 +53,7 @@ int main(int, char **) {
 	ChunkCache::reset();
 	
 	for (int i = 0; i < 4; i++) {
-		players[i].setPos(0, 126, 0);
+		players[i].setPos(95500, 126, 0);
 		players[i].renderer.camera.rotateH(45.0f * (f32)i);
 	}
 	
@@ -64,7 +64,7 @@ int main(int, char **) {
 	Renderer::endFrame();
 	
 	
-	World::requestChunks(ChunkCoord(0, 0), 8);
+	World::requestChunks(ChunkCoord((int)players[0].renderer.camera.pos.x >> 4, (int)players[0].renderer.camera.pos.y >> 4), 8);
 	Renderer::setClearColor();
 	
     while (!exiting) {
@@ -75,6 +75,7 @@ int main(int, char **) {
 		u32 mem1 = SYS_GetArena1Size();
 		u32 mem2 = SYS_GetArena2Size();
 		
+		printf("Coord : %d %d %d\r", (int)players[0].renderer.camera.pos.x, (int)players[0].renderer.camera.pos.y, (int)players[0].renderer.camera.pos.z);
 		printf("Memory : MEM1 %d (%d)\tMEM2 %d (%d)\r", mem1, mem1 / sizeof(VerticalChunk), mem2, mem2 / sizeof(VerticalChunk));
 		
 		

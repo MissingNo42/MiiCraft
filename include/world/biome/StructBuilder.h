@@ -10,19 +10,20 @@
 
 #define INIT_STRUCT_CONSTRUCTION \
 BlockCoord blockPos(structPos.x, structPos.y, structPos.z);\
-BlockType checkedBlock;
+Block checkedBlock;
 
 
 #define PLACE_BLOCK_SOFT(blockType) \
 checkedBlock = World::getBlockAt(blockPos);\
-if ((checkedBlock <= Air14) ||\
-(checkedBlock >= LeaveAcacia && checkedBlock <= LeaveSnow) ||\
-checkedBlock == Water   ||\
-checkedBlock == Lava)\
-{World::setBlockAt(blockPos, blockType, false);}
+if (!checkedBlock.type || \
+(checkedBlock.type >= LeaveAcacia && checkedBlock.type <= LeaveSnow) ||\
+checkedBlock.type == Water   ||\
+checkedBlock.type == Lava)\
+{World::setBlockAt(blockPos, {blockType, {checkedBlock.flags}}, false);}
+// TODO check why (!checkedBlock) was (checkedBlock <= Air14 and not Air15)
 
 #define PLACE_BLOCK_HARD(blockType) \
-{World::setBlockAt(blockPos, blockType, false);}
+{World::setBlockAt(blockPos, {blockType, {World::getBlockAt(blockPos).flags}}, false);}
 
 #define X_ABSOLUTE(increment) blockPos.x = structPos.x + increment;
 #define Y_ABSOLUTE(increment) blockPos.y = structPos.y + increment;
@@ -423,7 +424,7 @@ public:
 #define INIT_STRUCT_CHECK BlockType b; BlockCoord checkPos = structPos; checkPos.y += 2;
 
 #define CHECK_TREE_AT_STRUCTPOS \
-    b = World::getBlockAt(checkPos);\
+    b = World::getBlockAt(checkPos).type;\
     if ((b >= WoodAcacia && b <= WoodMushroom) ||\
         b == LeaveMushroomBrown ||\
         b == LeaveMushroomRed ||\

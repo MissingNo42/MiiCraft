@@ -11,7 +11,7 @@
  * @macro isAir
  * @brief Check if a block is air
  * */
-#define isAir(x) ((x) <= BlockType::Air)
+#define isAir(x) (!(x))
 
 /**
  * @macro isIrregular
@@ -23,61 +23,54 @@
  * @macro isRegular
  * @brief Check if a block is an regular (a cube)
  * */
-#define isRegular(x) ((x) >= BlockType::REGULAR)
+#define isRegular(x) ((x) < BlockType::IRREGULAR)
 
 /**
  * @enum isTransparent
  * @brief Check if a block is a transparent cube block
  * */
-#define isTransparent(x) ((x) >= BlockType::TRANSPARENT && (x) < BlockType::OPAQUE)
+#define isTransparent(x) ((x) < BlockType::SEMITRANSPARENT)
 
 /**
  * @enum isSemiTransparent
  * @brief Check if a block is a semi-transparent cube block
  * */
-#define isSemiTransparent(x) ((x) >= BlockType::SEMITRANSPARENT && (x) < BlockType::TRANSPARENT)
+#define isSemiTransparent(x) ((x) >= BlockType::SEMITRANSPARENT && (x) < BlockType::OPAQUE)
 
 /**
  * @enum isOpaque
  * @brief Check if a block is an opaque cube block
  * */
-#define isOpaque(x) ((x) >= BlockType::OPAQUE)
+#define isOpaque(x) ((x) >= BlockType::OPAQUE && (x) < BlockType::IRREGULAR)
 
 /**
  * @enum BlockType
  * @brief Enumerate all the block types
+ * @details faces rendering relations: // TODO check if accurate and expected
+ * [T][T] -> [T  T]
+ * [T][S] -> [T [S]
+ * [T][O] -> [T [O]
+ * [T][I] -> [T [I]
+ *
+ * [S][S] -> [S][S]
+ * [S][O] -> [S][O]
+ * [S][I] -> [S][I]
+ *
+ * [O][O] -> [O  O]
+ * [O][I] -> [O][I]
  * */
 enum BlockType : u8 {
-    /// Air
+
+	/// Transparent Blocks: no texture or alpha channel (alpha in [0: 255])
+	TRANSPARENT = 0,
+	Air = 0,
+    Glass,
+    ClearIce,
+    Water,
 	
-    Air0 =      0, //Darkest value of light
-    Air1 =      1,
-    Air2 =      2,
-    Air3 =      3,
-    Air4 =      4,
-    Air5 =      5,
-    Air6 =      6,
-    Air7 =      7,
-    Air8 =      8,
-    Air9 =      9,
-    Air10 =     10,
-    Air11 =     11,
-    Air12 =     12,
-    Air13 =     13,
-    Air14 =     14,
-    Air15 =     15, //Brightest value of light
-	Air = 15,
-	
-	/// Irrgular Blocks
-	
-	// Doors, flowers, ...
-	
-	/// Semi-Transparent Blocks
-	
-    //Leave
+	/// Semi-Transparent Blocks: texture with partial full transparency (alpha = 0 or 255)
     LeaveAcacia,
 	SEMITRANSPARENT = LeaveAcacia,
-	REGULAR = SEMITRANSPARENT,
     LeaveOak,
     LeaveJungle,
     LeaveSpruce,
@@ -86,16 +79,7 @@ enum BlockType : u8 {
     LeaveSakura,
     LeaveSnow,
 	
-	/// Transparent Blocks
-
-    //Misc
-    Glass,
-	TRANSPARENT = Glass,
-    ClearIce,
-    Water,
-
-	/// Opaque Blocks
-	
+	/// Opaque Blocks: no transparency (alpha = 255)
     //Mineral
 	Bedrock,
     OPAQUE = Bedrock,
@@ -125,8 +109,7 @@ enum BlockType : u8 {
     ClayLightGray,
     ClayPurple,
     ClayGreen,
-
-
+	
     //Powder
     Dirt,
     Sand,
@@ -167,7 +150,6 @@ enum BlockType : u8 {
     PlankDark,
     PlankBirch,
     PlankSakura,
-
 
     //Misc
     Furnace,
@@ -222,8 +204,39 @@ enum BlockType : u8 {
     BlockBreaking7,
     BlockBreaking8,
     BlockBreaking9,
+	
+	
+	/// Irregular Blocks: block than require special rendering / non-cube
+	IRREGULAR,
+	DoorLow = IRREGULAR,
+	DoorHigh,
+	// Doors, flowers, ...
+
 };
 
+/**
+ * @struct Block
+ * @brief Structure representing a "living" block with its individual attributes
+ * */
+struct Block {
+	// Block type
+	BlockType type; // 0 = Air
+	
+	// Flags attributes
+	union {
+		u8 flags;
+		
+		struct { // used for (Semi)Transparent blocks
+			u8 naturalLight: 4;    // 0: no light, 15: full light
+			u8 artificialLight: 4; // 0: no light, 15: full light
+		};
+		
+		struct { // used for orientable blocks
+			u8 orient: 2; // 0: north, 1: east, 2: south, 3: west
+			u8 state: 6; // block impl specific (e.g.: irregular blocks, redstone states, ...)
+		};
+	};
+};
 
 #endif //MIICRAFT_BLOCK_H
 

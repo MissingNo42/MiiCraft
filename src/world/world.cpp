@@ -12,10 +12,19 @@ std::set<ChunkCoord> World::savedChunk;
 VerticalChunk * World::chunkSlots;
 u16 World::usedSlots = 0;
 
-BlockType World::getBlockAt(BlockCoord coord)  {
+Block World::getBlockAt(BlockCoord coord)  {
     ChunkCoord chunk_pos = coord.toChunkCoord();
 	try {
         return chunkSlots[loadedChunk.at(chunk_pos)].GetBlock(coord);
+	} catch (...) {
+        return {BlockType::Air, {0}};
+    }
+}
+
+BlockType World::getBlockTypeAt(BlockCoord coord)  {
+    ChunkCoord chunk_pos = coord.toChunkCoord();
+	try {
+        return chunkSlots[loadedChunk.at(chunk_pos)].GetBlockType(coord);
 	} catch (...) {
         return BlockType::Air;
     }
@@ -25,80 +34,81 @@ VerticalChunk& World::getChunkAt(ChunkCoord pos, bool generate) {
 	try {
         return chunkSlots[loadedChunk.at(pos)];
 	} catch (...) {
-		if (generate) {
-			requestChunk(pos);
-			return getChunkAt(pos, false);
-		}
+		if (generate) return requestChunk(pos);
 		return chunkSlots[EMPTY_CHUNK];
 	}
 }
 
-//void World::addChunk(ChunkCoord pos, VerticalChunk& chunk) {
-//    loadedChunk[pos] = chunk;
-//}
-void World::setBlockAt(BlockCoord coord, BlockType block, bool calculLight) {
+void World::setBlockAt(BlockCoord coord, Block block, bool calculLight) {
     ChunkCoord chunk_pos = coord.toChunkCoord();
 	VerticalChunk& c = chunkSlots[loadedChunk[chunk_pos]];
     c.SetBlock(coord, block);
-//    initLight(c);
-//    propagateLight(c);
 
     if (calculLight) {
         initLight(c);
         handleLightBlock(c);
         propagateLight(c);
     }
-
-
 }
 
+void World::setBlockTypeAt(BlockCoord coord, BlockType block, bool calculLight) {
+    ChunkCoord chunk_pos = coord.toChunkCoord();
+	VerticalChunk& c = chunkSlots[loadedChunk[chunk_pos]];
+    c.SetBlockType(coord, block);
+
+    if (calculLight) {
+        initLight(c);
+        handleLightBlock(c);
+        propagateLight(c);
+    }
+}
 
 void World::setNeighboors(VerticalChunk& chunk) {
-    ChunkCoord coord(chunk.coord.x + 1, chunk.coord.y);
+    ChunkCoord coord((s16)(chunk.coord.x + 1), chunk.coord.y);
 	
     if(loadedChunk.find(coord) != loadedChunk.end()){
 		u16 id = loadedChunk[coord];
-        chunk.SetNeighboor(0, id);
-		chunkSlots[id].SetNeighboor(2, chunk.id);
+        chunk.SetNeighboor(Neighboor::EAST, id);
+		chunkSlots[id].SetNeighboor(Neighboor::WEST, chunk.id);
     }
 	
-    coord = ChunkCoord(chunk.coord.x - 1, chunk.coord.y);
+    coord.x -= 2;
     if(loadedChunk.find(coord) != loadedChunk.end()){
 		u16 id = loadedChunk[coord];
-        chunk.SetNeighboor(2, id);
-        chunkSlots[id].SetNeighboor(0, chunk.id);
+        chunk.SetNeighboor(Neighboor::WEST, id);
+        chunkSlots[id].SetNeighboor(Neighboor::EAST, chunk.id);
     }
 	
-    coord = ChunkCoord(chunk.coord.x, chunk.coord.y + 1);
+    coord.x++;
+	coord.y++;
     if(loadedChunk.find(coord) != loadedChunk.end()){
 		u16 id = loadedChunk[coord];
-        chunk.SetNeighboor(1, id);
-        chunkSlots[id].SetNeighboor(3, chunk.id);
+        chunk.SetNeighboor(Neighboor::NORTH, id);
+        chunkSlots[id].SetNeighboor(Neighboor::SOUTH, chunk.id);
     }
 	
-    coord = ChunkCoord(chunk.coord.x, chunk.coord.y - 1);
+    coord.y -= 2;
     if(loadedChunk.find(coord) != loadedChunk.end()){
 		u16 id = loadedChunk[coord];
-        chunk.SetNeighboor(3, id);
-        chunkSlots[id].SetNeighboor(1, chunk.id);
+        chunk.SetNeighboor(Neighboor::SOUTH, id);
+        chunkSlots[id].SetNeighboor(Neighboor::NORTH, chunk.id);
     }
 }
 
 
-void World::requestChunks(ChunkCoord pos, short range) {
-    for(short x = pos.x - range; x <=  pos.x + range; x++){
-        for(short y = pos.y - range; y <= pos.y + range; y++){
-            ChunkCoord p(x, y);
+void World::requestChunks(ChunkCoord pos, s16 range) {
+    for(s32 x = pos.x - range; x <=  pos.x + range; x++){
+        for(s32 y = pos.y - range; y <= pos.y + range; y++){
+            ChunkCoord p((s16)x, (s16)y);
 			requestChunk(p);
         }
     }
 }
 
-void World::requestChunk(ChunkCoord pos) {
-	if (loadedChunk.contains(pos)) return;
-	if (savedChunk.contains(pos)) {
-		//TODO
-	} else {
+VerticalChunk& World::requestChunk(ChunkCoord pos) {
+	try {
+		return chunkSlots[loadedChunk.at(pos)];
+	} catch (...) {
 		u16 slot = getFreeSlot();
 		if (slot > 0) {
 			VerticalChunk& vc = chunkSlots[slot];
@@ -108,20 +118,21 @@ void World::requestChunk(ChunkCoord pos) {
 			loadedChunk[pos] = slot;
 			usedSlots++;
 			setNeighboors(vc);
-			vc.fillWith(WoodOak);
-            gen.generateChunk(vc);
+			//vc.fillWith(WoodOak); // TODO: check WTF is that?
+			gen.generateChunk(vc);
 			vc.dirty = 0;
+			return vc;
 		} else {
-			//TODO
+			return chunkSlots[EMPTY_CHUNK];	//TODO: save chunk to disk and release a slot
 		}
 	}
 }
 
 
-
 //TODO : REMOVE THIS FUNCTION AND ADAPT IT IN THE WORLD GENERATOR SO THAT WE DONT ITERATE TWICE ON AIR BLOCKS
 void World::initLight(VerticalChunk& c) {
-
+	return;
+	/*
     for (int y = 127; y >= 0; y--) {
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
@@ -237,11 +248,12 @@ void World::initLight(VerticalChunk& c) {
                 }
             }
         }
-    }
+    }*/
 }
 
 
 void World::propagateLight(VerticalChunk& c) {
+	/*
     while(!c.lightQueue.empty()){
         BlockCoord p = c.lightQueue.front();
 
@@ -373,11 +385,12 @@ void World::propagateLight(VerticalChunk& c) {
                 }
             }
         }
-    }
+    }*/
 }
 
 
 void World::handleLightBlock(VerticalChunk& vc){
+	/*
     while(!vc.blockLightQueue.empty()){
         BlockCoord p = vc.blockLightQueue.front();
         vc.blockLightQueue.pop();
@@ -501,6 +514,6 @@ void World::handleLightBlock(VerticalChunk& vc){
                 }
             }
         }
-    }
+    }*/
 }
 

@@ -10,39 +10,63 @@
 #include <cstdint>
 #include <queue>
 
-#define CHUNK_NORTH 1
-#define CHUNK_SOUTH 3
-#define CHUNK_EAST 0
-#define CHUNK_WEST 2
+enum Neighboor : u8 {
+	NORTH = 0,
+	EAST = 1,
+	SOUTH = 2,
+	WEST = 3
+};
 
 
+/**
+ * @class VerticalChunk
+ * @brief One of these fixed unit stores a currently loaded chunk
+ * The represented loaded chunk change to one another during the game lifetime
+ * */
 class VerticalChunk {
 
-private:
-    static inline int cpt = 0;
-	
 public:
-    std::queue<BlockCoord> lightQueue;
-    std::queue<BlockCoord> blockLightQueue;
-    u16 neighboors[4]{0, 0, 0, 0};
+	std::queue<BlockCoord> lightQueue;
+	std::queue<BlockCoord> blockLightQueue;
+	u16 neighboors[4]{0, 0, 0, 0};
+	u16 id;
+	
 	u8 recache = 1; // 1 if the chunk needs to be recached
 	u8 loaded = 0;
 	u8 dirty = 0;
-	u16 id;
 	
 	ChunkCoord coord;
-    BlockType blocks[16][128][16];
-
-    void SetBlock(BlockCoord coord, BlockType block);
-    BlockType GetBlock(BlockCoord coord);
+	Block blocks[16][128][16];
 	
-    void SetNeighboor(u8 indice, u16 chunk);
-    u16 GetNeighboor(int indice);
-	VerticalChunk& GetNeighboorChunk(int indice);
+	void SetBlock(BlockCoord coord, Block block);
+	void SetBlockType(BlockCoord coord, BlockType block);
 	
-    void fillWith(BlockType block = BlockType::Bedrock);
+	inline void SetBlock(BlockCoord bcoord, BlockType block) {
+		SetBlock(bcoord, {block, {0}});
+	}
 	
-	u16 Count(BlockType block);
+	[[nodiscard]] inline Block GetBlock(BlockCoord bcoord) const noexcept {
+		return blocks[bcoord.x & 15][bcoord.y][bcoord.z & 15];
+	}
+	
+	[[nodiscard]] inline BlockType GetBlockType(BlockCoord bcoord) const noexcept {
+		return blocks[bcoord.x & 15][bcoord.y][bcoord.z & 15].type;
+	}
+	
+	void inline SetNeighboor(Neighboor neighboor, u16 chunk) noexcept {
+		recache = 1;
+		neighboors[neighboor] = chunk;
+	}
+	
+	[[nodiscard]] inline VerticalChunk& GetNeighboorChunk(Neighboor neighboor) const noexcept;
+	
+	void inline fillWith(Block block = {BlockType::Bedrock, {0}}) noexcept {
+		std::wmemset((wchar_t *) (blocks), *(wchar_t *) &block, sizeof(blocks));
+	}
+	
+	void inline fillWith(BlockType block) noexcept {
+		fillWith({block, {0}});
+	}
 };
 
 

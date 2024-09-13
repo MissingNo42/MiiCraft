@@ -12,18 +12,16 @@
 #include <queue>
 #include <cmath>
 
-#define LOADED_CHUNKS 1501 // XxX chunks + empty chunk
+#define LOADED_CHUNKS 601 // XxX chunks + empty chunk
 #define EMPTY_CHUNK 0
 
-class World {
-private:
-
-public:
+struct World {
+	
     static int globalSeed;
     static PerlinWorldGenerator gen;
     static std::map<ChunkCoord, u16> loadedChunk;
     static std::set<ChunkCoord> savedChunk;
-	//static VerticalChunk chunkSlots[LOADED_CHUNKS];
+	//static VerticalChunk chunkSlots[LOADED_CHUNKS];  // RAM1 chip cannot be used at compile time
 	static VerticalChunk * chunkSlots;
 	static u16 usedSlots;
 	
@@ -44,8 +42,11 @@ public:
 		return 0;
 	}
 	
-    static BlockType getBlockAt(BlockCoord coord);
-    static void setBlockAt(BlockCoord coord, BlockType block, bool calculLight = true);
+	// Must not be used for massive R/W, get the working chunk first and R/W directly on it
+    static Block getBlockAt(BlockCoord coord);
+    static BlockType getBlockTypeAt(BlockCoord coord);
+    static void setBlockAt(BlockCoord coord, Block block, bool calculLight = true);
+    static void setBlockTypeAt(BlockCoord coord, BlockType block, bool calculLight = true);
 
     static VerticalChunk& getChunkAt(ChunkCoord pos, bool generate = false);
 	
@@ -55,7 +56,7 @@ public:
 	
     static void handleLightBlock(VerticalChunk& vc);
 	
-	static void requestChunk(ChunkCoord pos);
+	static VerticalChunk& requestChunk(ChunkCoord pos);
 	static void requestChunks(ChunkCoord pos, short range = 2);
 };
 

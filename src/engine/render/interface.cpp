@@ -1,7 +1,7 @@
 
 #include "player.h"
-#include "engine/render/bloc.h"
-#include "render/cache.h"
+#include "engine/render/block.h"
+#include "render/cacheUnit.h"
 
 static const f32 menuSz = 0.65;
 static const f32 menuXMid = 0.2840909090909091;
@@ -126,8 +126,8 @@ void Player::renderInventory() {
 		/// Render slots
 		GX_Begin(GX_QUADS, GX_VTXFMT0, 108); // Start drawing
 		for (int i = 0; i < 27; i++) {
-			auto &tx = blocData[inventory.inventory[1 + inventory.currentPage * 3 + i / 9][i %
-			                                                                                             9].item.type];
+			auto &tx = blockData[inventory.inventory[1 + inventory.currentPage * 3 + i / 9][i %
+			                                                                                9].item.type];
 			int X = i % 9, Y = i / 9;
 			collide = renderRect(-menuSz + menuSz * 2 * (slotsXpad + (f32) X * slotsXoff),
 								           menuSz  - menuSz * 2 * (slotsYpad + (f32) Y * slotsYoff),
@@ -141,7 +141,7 @@ void Player::renderInventory() {
 		/// Render hotbar slots
 		GX_Begin(GX_QUADS, GX_VTXFMT0, 36);
 		for (int i = 0; i < 9; i++) {
-			auto& tx = blocData[inventory.inventory[0][i].item.type];
+			auto& tx = blockData[inventory.inventory[0][i].item.type];
 			collide = renderRect(-menuSz + menuSz * 2 * (slotsXpad + (f32) i * slotsXoff),
 			           menuSz  - menuSz * 2 * slotsHpad,
 			           -menuSz + menuSz * 2 * (slotsXpad + (f32) i * slotsXoff + slotsSz),
@@ -155,7 +155,7 @@ void Player::renderInventory() {
 		GX_Begin(GX_QUADS, GX_VTXFMT0, 36);
 		if (inventory.craftOpen) {
 			for (int i = 0; i < 9; i++) {
-				auto& tx = blocData[inventory.craftSlots[i].item.type];
+				auto& tx = blockData[inventory.craftSlots[i].item.type];
 				int X = i % 3, Y = i / 3;
 				collide = renderRect(-menuSz + menuSz * 2 * (slotsXCpad + (f32) X * slotsXoff),
 				           menuSz  - menuSz * 2 * (slotsYCpad + (f32) Y * slotsYoff),
@@ -166,7 +166,7 @@ void Player::renderInventory() {
 			}
 		} else {
 			for (int i = 0; i < 9; i++) {
-				auto& tx = blocData[inventory.craftSlots[i].item.type];
+				auto& tx = blockData[inventory.craftSlots[i].item.type];
 				int X = i % 3, Y = i / 3;
 				collide = renderRect(-menuSz + menuSz * 2 * (slotsXMpad + (f32) X * slotsXoff),
 				           menuSz  - menuSz * 2 * (slotsYMpad + (f32) Y * slotsYoff),
@@ -181,7 +181,7 @@ void Player::renderInventory() {
 		/// Render craft result slot
 		GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
 		if (inventory.craftOpen) {
-			auto& tx = blocData[inventory.craftSlots[9].item.type];
+			auto& tx = blockData[inventory.craftSlots[9].item.type];
 			collide = renderRect(-menuSz + menuSz * 2 * (slotsXCRpad),
 			           menuSz  - menuSz * 2 * (slotsYCRpad),
 			           -menuSz + menuSz * 2 * (slotsXCRpad + slotsCRSz),
@@ -189,7 +189,7 @@ void Player::renderInventory() {
 			           tx.x[2], tx.y[2], tx.x[2] + OFFSET, tx.y[2] + OFFSET);
 			if (collide) selectedSlot = 9, craftSlot = true, isValidCursor = true;
 		} else {
-			auto& tx = blocData[inventory.craftSlots[9].item.type];
+			auto& tx = blockData[inventory.craftSlots[9].item.type];
 			collide = renderRect(-menuSz + menuSz * 2 * (slotsXMRpad),
 			           menuSz  - menuSz * 2 * (slotsYMRpad),
 			           -menuSz + menuSz * 2 * (slotsXMRpad + slotsSz),
@@ -351,7 +351,7 @@ void Player::renderInventory() {
 		renderRect(X, hotbarY + selectorSz / 2, X + selectorSz, hotbarY - selectorSz / 2, BLOCK_COORD(16), 0.44921875, 0.546875, 0.49609375);
 		
 		for (int i = 0; i < 9; i++) {
-			auto& tx = blocData[inventory.inventory[0][i].item.type];
+			auto& tx = blockData[inventory.inventory[0][i].item.type];
 			renderRect(-hotbarW / 2 + itemXpad + (f32) i * itemXoff,
 					   hotbarY + hotbarH / 2 - itemYpad,
 					   -hotbarW / 2 + itemXpad + (f32) i * itemXoff + itemW,
@@ -387,7 +387,7 @@ void Player::renderInventory() {
 	
 	if (inventory.open && inventory.pickedItem.item.type != BlockType::Air) {
 		/// Render picked item
-		auto &tx = blocData[inventory.pickedItem.item.type];
+		auto &tx = blockData[inventory.pickedItem.item.type];
 		GX_Begin(GX_QUADS, GX_VTXFMT0, 4); // Start drawing
 		
 		f32 a = 0, b = 0;

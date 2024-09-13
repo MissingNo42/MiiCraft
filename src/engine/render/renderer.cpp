@@ -6,9 +6,9 @@
 #include <malloc.h>
 #include <cstring>
 #include "engine/render/renderer.h"
-#include "engine/render/bloc.h"
+#include "engine/render/block.h"
 #include "texture.h"
-#include "engine/render/cache.h"
+#include "engine/render/cacheUnit.h"
 
 void * Renderer::frameBuffer;
 void * Renderer::frameBuffers[2];
@@ -172,8 +172,8 @@ void Renderer::renderBlock(const guVector &coord, BlockType type, u8 lt, u8 lb, 
     GX_Begin(GX_QUADS, GX_VTXFMT0, 24); // Start drawing
 
     // Bottom face
-    x = blocData[type].x[BLOC_FACE_BOTTOM];
-    y = blocData[type].y[BLOC_FACE_BOTTOM];
+    x = blockData[type].x[BLOC_FACE_BOTTOM];
+    y = blockData[type].y[BLOC_FACE_BOTTOM];
 
     GX_Position3f32(mx, my, coord.z);
 	GX_Color1x8(lb << 2);
@@ -193,8 +193,8 @@ void Renderer::renderBlock(const guVector &coord, BlockType type, u8 lt, u8 lb, 
     
 
     // Front face
-    x = blocData[type].x[BLOC_FACE_FRONT];
-    y = blocData[type].y[BLOC_FACE_FRONT];
+    x = blockData[type].x[BLOC_FACE_FRONT];
+    y = blockData[type].y[BLOC_FACE_FRONT];
 
     GX_Position3f32(mx, coord.y, coord.z);
 	GX_Color1x8(lf << 2);
@@ -214,8 +214,8 @@ void Renderer::renderBlock(const guVector &coord, BlockType type, u8 lt, u8 lb, 
     
 
     // Back face
-    x = blocData[type].x[BLOC_FACE_BACK];
-    y = blocData[type].y[BLOC_FACE_BACK];
+    x = blockData[type].x[BLOC_FACE_BACK];
+    y = blockData[type].y[BLOC_FACE_BACK];
 
     GX_Position3f32(coord.x, my, mz);
 	GX_Color1x8(lk << 2);
@@ -235,8 +235,8 @@ void Renderer::renderBlock(const guVector &coord, BlockType type, u8 lt, u8 lb, 
 
 
     // Right face
-    x = blocData[type].x[BLOC_FACE_RIGHT];
-    y = blocData[type].y[BLOC_FACE_RIGHT];
+    x = blockData[type].x[BLOC_FACE_RIGHT];
+    y = blockData[type].y[BLOC_FACE_RIGHT];
 
     GX_Position3f32(coord.x, my, coord.z);
 	GX_Color1x8(lr << 2);
@@ -256,8 +256,8 @@ void Renderer::renderBlock(const guVector &coord, BlockType type, u8 lt, u8 lb, 
 
 
     // Left face
-    x = blocData[type].x[BLOC_FACE_LEFT];
-    y = blocData[type].y[BLOC_FACE_LEFT];
+    x = blockData[type].x[BLOC_FACE_LEFT];
+    y = blockData[type].y[BLOC_FACE_LEFT];
 
     GX_Position3f32(mx, coord.y, mz);
 	GX_Color1x8(ll << 2);
@@ -277,8 +277,8 @@ void Renderer::renderBlock(const guVector &coord, BlockType type, u8 lt, u8 lb, 
 
 
     // Top face
-    x = blocData[type].x[BLOC_FACE_TOP];
-    y = blocData[type].y[BLOC_FACE_TOP];
+    x = blockData[type].x[BLOC_FACE_TOP];
+    y = blockData[type].y[BLOC_FACE_TOP];
 
     GX_Position3f32(coord.x, coord.y, mz);
 	GX_Color1x8(lt << 2);

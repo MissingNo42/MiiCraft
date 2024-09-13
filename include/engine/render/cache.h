@@ -1,101 +1,52 @@
 //
-// Created by Romain on 14/02/2024.
+// Created by Romain on 19/02/2024.
 //
 
 #ifndef MIICRAFTTEST_CACHE_H
 #define MIICRAFTTEST_CACHE_H
 
+
 #include <gctypes.h>
-#include <gcutil.h>
-#include <ogc/gx.h>
-#include "camera.h"
+#include <set>
+#include <queue>
+#include "world/verticalChunk.h"
 #include "renderer.h"
+#include "cacheUnit.h"
+#include "player.h"
 
-#define LIST_SIZE 1044 // op + sz + vtx[LIST_SIZE] = 32 N
-#define LIST_NUM 800
+#define MAX_RENDER_DIST 8
 
-#define WHITE 64
-#define BLUE 65
-#define BLACK 66
-
-extern const u32 Lights[][4] ATTRIBUTE_ALIGN(32);
-extern f32 TexCoord[][2] ATTRIBUTE_ALIGN(32);
-
-void runWater();
-
-enum RenderType {
-	RENDER_OPAQUE = 0,
-	RENDER_TRANSPARENT = 1
-};
-
-
-struct VextexCache {
-	f32 x, y, z;
-	u8 c;
-	u16 tc;
-} __attribute__((packed));
-
-
-struct DisplayList {
-	u8 opcode = GX_QUADS | GX_VTXFMT0;
-	u16 size;
-	VextexCache vertex[LIST_SIZE];
-	u8 pad[40] = {0}; // 1 real + 23 align the next displaylist
-	u8 sealed = 0;
-	u32 id = 0;
-	RenderType type = RENDER_OPAQUE;
+class ChunkCache {
+	static DisplayList lists[LIST_NUM] ATTRIBUTE_ALIGN(32);
+	static u16 current[2];
+	static s32 used;
+	static s16 limit;
+	static u8 full;
 	
-	void reset(RenderType rtype = RENDER_OPAQUE, u32 owner = 0) {
-		size = 0;
-		sealed = 0;
-		id = owner;
-		type = rtype;
-	}
+	static std::set<u16> cached; // used to check if a chunk is cached
+	static std::set<u16> toRelease; // chunks that CAN be released if needed
+	static std::set<ChunkCoord> toCacheSet; // used only to unify the assoc. queue
+	static std::queue<ChunkCoord> toCacheQueue; // chunks to cache
 	
-	u8 addVertex(f32 x, f32 y, f32 z, u8 c, u16 tc) {
-		vertex[size].x = x;
-		vertex[size].y = y;
-		vertex[size].z = z;
-		vertex[size].c = c;
-		vertex[size].tc = tc;
-		size++;
-		return size == LIST_SIZE; // True if the list is full
-	}
+public:
+	static void render(Camera& cam);
+	
+	static void init();
+	
+	static void reset();
 	
 	/**
-	 * @brief seal the display list, pad it to 32 bytes or release it if empty
-	 * @return 1 if released, 0 otherwise
+	 * @brief invalidate the cache of a given chunk
+	 * @param[in] id the id of the chunk
 	 * */
-	u8 seal() {
-		if (size == 0) {
-			u8 r = id != 0;
-			id = 0; // release the list
-			return r;
-		}
-		
-		if (sealed) return 0;
-		sealed = 1;
-		// pad the list to 32 bytes with NOP
-		
-		u16 csz = size * sizeof(VextexCache) + 3;
-		u8 sz = (32 - csz) & 31; // 3 = opcode + size
-		if (sz && sz < 32) {
-			u8 * end = (u8 *) (vertex + size);
-			for (u8 i = 0; i < sz; i++) end[i] = 0;
-		}
-		
-		DCFlushRange(&opcode, csz + sz);
-		return 0;
-	}
+	static void release(u32 id);
 	
-	void render() {
-		u16 csz = size * sizeof(VextexCache) + 3;
-		u8 sz = (32 - csz) & 31; // 3 = opcode + size
-		
-		GX_CallDispList(&opcode, csz + sz);
-	}
+	static u8 cache(VerticalChunk& vc);
 	
-} __attribute__((packed));
+	static void addVertex(f32 x, f32 y, f32 z, u8 c, u16 tc, u8 alpha);
+	
+	static void cache(Player players[4]);
+};
 
 
 #endif //MIICRAFTTEST_CACHE_H

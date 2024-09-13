@@ -10,7 +10,7 @@
 #include "world/block.h"
 #include "world/verticalChunk.h"
 
-#define DEFAULT_FIFO_SIZE 262144  // (256 * 1024)
+#define DEFAULT_FIFO_SIZE 262144  // (256 * 1024)  TODO: check if accurate
 
 class Renderer {
 	static void * gp_fifo;

@@ -4,61 +4,56 @@
 
 #include "world/verticalChunk.h"
 #include "world/world.h"
-#include <cstring>
 
-
-void VerticalChunk::SetBlock(BlockCoord cd, BlockType block) {
+void VerticalChunk::SetBlock(BlockCoord cd, Block block) {
 	recache = 1;
 	dirty = 1;
-	cd.x &= 15;
-	cd.z &= 15;
-    blocks[cd.x][cd.y][cd.z] = block;
+	cd.x &= 15; // normalize in chunk coord
+	cd.z &= 15; // normalize in chunk coord
+	blocks[cd.x][cd.y][cd.z] = block;
+	
 	if (!cd.x) {
-		u16 u = neighboors[CHUNK_WEST];
+		u16 u = neighboors[Neighboor::WEST];
 		if (u) World::chunkSlots[u].recache = 1;
 	} else if (cd.x == 15) {
-		u16 u = neighboors[CHUNK_EAST];
+		u16 u = neighboors[Neighboor::EAST];
 		if (u) World::chunkSlots[u].recache = 1;
 	}
+	
 	if (!cd.z) {
-		u16 u = neighboors[CHUNK_SOUTH];
+		u16 u = neighboors[Neighboor::SOUTH];
 		if (u) World::chunkSlots[u].recache = 1;
 	} else if (cd.z == 15) {
-		u16 u = neighboors[CHUNK_NORTH];
+		u16 u = neighboors[Neighboor::NORTH];
 		if (u) World::chunkSlots[u].recache = 1;
 	}
 }
 
-BlockType VerticalChunk::GetBlock(BlockCoord c) {
-    return blocks[c.x & 15][c.y][c.z & 15];
-}
-
-void VerticalChunk::SetNeighboor(u8 indice, u16 chunk) {
+void VerticalChunk::SetBlockType(BlockCoord cd, BlockType block) {
 	recache = 1;
-    neighboors[indice] = chunk;
-}
-
-
-void VerticalChunk::fillWith(BlockType block) {
-	memset(blocks, block, sizeof(blocks));
-}
-
-u16 VerticalChunk::GetNeighboor(int indice) {
-    return neighboors[indice];
-}
-
-VerticalChunk& VerticalChunk::GetNeighboorChunk(int indice) {
-    return World::chunkSlots[neighboors[indice]];
-}
-
-u16 VerticalChunk::Count(BlockType block) {
-	u16 r = 0;
-	for (int i = 0; i < 16; ++i) {
-		for (int j = 0; j < 128; ++j) {
-			for (int k = 0; k < 16; ++k) {
-				if (blocks[i][j][k] == block) r++;
-			}
-		}
+	dirty = 1;
+	cd.x &= 15; // normalize in chunk coord
+	cd.z &= 15; // normalize in chunk coord
+	blocks[cd.x][cd.y][cd.z] = {block, {0}};
+	
+	if (!cd.x) {
+		u16 u = neighboors[Neighboor::WEST];
+		if (u) World::chunkSlots[u].recache = 1;
+	} else if (cd.x == 15) {
+		u16 u = neighboors[Neighboor::EAST];
+		if (u) World::chunkSlots[u].recache = 1;
 	}
-	return r;
+	
+	if (!cd.z) {
+		u16 u = neighboors[Neighboor::SOUTH];
+		if (u) World::chunkSlots[u].recache = 1;
+	} else if (cd.z == 15) {
+		u16 u = neighboors[Neighboor::NORTH];
+		if (u) World::chunkSlots[u].recache = 1;
+	}
 }
+
+VerticalChunk& VerticalChunk::GetNeighboorChunk(Neighboor neighboor) const noexcept {
+	return World::chunkSlots[neighboors[neighboor]];
+}
+
