@@ -61,7 +61,7 @@ for (; pos.y < height; ++pos.y) {\
 for (; pos.y < 127; pos.y++){ \
     APPLY_BLOCK((Block){.type = BlockType::Air, .flags = 0});\
 } APPLY_BLOCK((Block){.type = BlockType::Air, .naturalLight = 0xf, .artificialLight = 0});\
-chunk.lightQueue.push(pos);
+//chunk.lightQueue.push(pos); // TODO: reenable (?) when light is fixed
 
 
 class Tergen {
@@ -168,7 +168,7 @@ public:
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
-
+		
         APPLY_CONTINENT(Stone, Dirt);
         APPLY_BLOCK(GrassDark);
         pos.y++;

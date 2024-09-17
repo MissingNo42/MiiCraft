@@ -84,6 +84,7 @@ void PerlinWorldGenerator::generateChunk(VerticalChunk& vc) {
 //                else if (erosion <= 2.) //ne pas enlever
 //                {Tergen::generateSavanna(vc, i, j, height,w.lightQueue);}
 //            }
+			printf(">>> %d\r\n", biome);
             switch (biome) {
                 case Ocean: Tergen::generateOcean(vc, i, j, height);
                     break;

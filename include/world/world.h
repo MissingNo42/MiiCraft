@@ -27,12 +27,18 @@ struct World {
 	
 	static void Init() {
 		chunkSlots = new VerticalChunk[LOADED_CHUNKS];
+		for (u16 i = 0; i < LOADED_CHUNKS; i++) {
+			chunkSlots[i].id = i;
+			printf("Chunk %d, N %d %d %d %d\r\n",
+				   i,
+				   chunkSlots[i].neighboors[0],
+				   chunkSlots[i].neighboors[1],
+				   chunkSlots[i].neighboors[2],
+				   chunkSlots[i].neighboors[3]);
+		}
 		chunkSlots[EMPTY_CHUNK].loaded = 1;
 		chunkSlots[EMPTY_CHUNK].recache = 0;
 		chunkSlots[EMPTY_CHUNK].fillWith(BlockType::Bedrock);
-		for (int i = 0; i < LOADED_CHUNKS; i++) {
-			chunkSlots[i].id = i;
-		}
 	}
 	
 	static u16 getFreeSlot() {

@@ -68,6 +68,7 @@ void World::setNeighboors(VerticalChunk& chunk) {
 	
     if(loadedChunk.find(coord) != loadedChunk.end()){
 		u16 id = loadedChunk[coord];
+		printf("> Neighboor===A %d %d\r\n", id, chunk.id);
         chunk.SetNeighboor(Neighboor::EAST, id);
 		chunkSlots[id].SetNeighboor(Neighboor::WEST, chunk.id);
     }
@@ -75,6 +76,7 @@ void World::setNeighboors(VerticalChunk& chunk) {
     coord.x -= 2;
     if(loadedChunk.find(coord) != loadedChunk.end()){
 		u16 id = loadedChunk[coord];
+		printf("> Neighboor===B %d %d\r\n", id, chunk.id);
         chunk.SetNeighboor(Neighboor::WEST, id);
         chunkSlots[id].SetNeighboor(Neighboor::EAST, chunk.id);
     }
@@ -83,6 +85,7 @@ void World::setNeighboors(VerticalChunk& chunk) {
 	coord.y++;
     if(loadedChunk.find(coord) != loadedChunk.end()){
 		u16 id = loadedChunk[coord];
+		printf("> Neighboor===C %d %d\r\n", id, chunk.id);
         chunk.SetNeighboor(Neighboor::NORTH, id);
         chunkSlots[id].SetNeighboor(Neighboor::SOUTH, chunk.id);
     }
@@ -90,6 +93,7 @@ void World::setNeighboors(VerticalChunk& chunk) {
     coord.y -= 2;
     if(loadedChunk.find(coord) != loadedChunk.end()){
 		u16 id = loadedChunk[coord];
+		printf("> Neighboor===D %d %d\r\n", id, chunk.id);
         chunk.SetNeighboor(Neighboor::SOUTH, id);
         chunkSlots[id].SetNeighboor(Neighboor::NORTH, chunk.id);
     }
@@ -120,7 +124,7 @@ VerticalChunk& World::requestChunk(ChunkCoord pos) {
 			setNeighboors(vc);
 			//vc.fillWith(WoodOak); // TODO: check WTF is that?
 			gen.generateChunk(vc);
-			vc.dirty = 0;
+			vc.dirty = 0; // TODO: check this cause no issue ( 0-> no save for non-edited chunk, intended behavior?)
 			return vc;
 		} else {
 			return chunkSlots[EMPTY_CHUNK];	//TODO: save chunk to disk and release a slot

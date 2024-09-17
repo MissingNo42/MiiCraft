@@ -5,9 +5,7 @@
 #include "engine/render/cacheUnit.h"
 #include "render/block.h"
 
-#define CUSTOM_TEXCOORD 289
-
-const u32 Lights[][4] ATTRIBUTE_ALIGN(32) = {
+const u32 Lights[][4] ATTRIBUTE_ALIGN(32) = { // TODO: runtime write & flush to make the day/night cycle
         {0x0e0e0eff, 0x0b0b0bff, 0x080909ff, 0x080909ff},
         {0x131313ff, 0x0f0f0fff, 0x0b0c0cff, 0x0b0c0cff},
         {0x171717ff, 0x121213ff, 0x0e0e0eff, 0x0e0e0eff},
@@ -24,11 +22,11 @@ const u32 Lights[][4] ATTRIBUTE_ALIGN(32) = {
         {0xa0a0a0ff, 0x7e8181ff, 0x5f6263ff, 0x5f6263ff},
         {0xc5c5c5ff, 0x9b9e9fff, 0x757979ff, 0x757979ff},
         {0xfafafaff, 0xc5c9caff, 0x95999aff, 0x95999aff},
-        {0xffffffff, 0x29aeeaff, 0x000000ff}
+        {0xffffffff, 0x29aeeaff, 0x000000ff, 0x00000000}
 };
 
 f32 TexCoord[][2] ATTRIBUTE_ALIGN(32) {
-	/// [0: 288]: All 16x16 tiles coords (first quarter (LT) only)
+	/// [0: 288]: All 16x16 tiles coords (first quarter ([0->0.5]) only)
  {0.0, 0.0},
  {0.0, 0.03125},
  {0.0, 0.0625},
@@ -319,7 +317,7 @@ f32 TexCoord[][2] ATTRIBUTE_ALIGN(32) {
  {0.5, 0.46875},
  {0.5, 0.5},
  
- /// Customs (LT, RT, <15>, LB, RB)
+ /// Customs tile coords (LT, RT, <15>, LB, RB)
  {10 * OFFSET, 0},  // LT Water
  {10 * OFFSET, 0},  // RT Water
  {0, 0},
@@ -340,8 +338,70 @@ f32 TexCoord[][2] ATTRIBUTE_ALIGN(32) {
  
  {11 * OFFSET, 0}, // LB Water
  {11 * OFFSET, 0}, // RB Water
+ {0, 0},
+ {0, 0},
+ {0, 0},
+ {0, 0},
+ {0, 0},
+ {0, 0},
+ {0, 0},
+ {0, 0},
+ {0, 0},
+ {0, 0},
+ {0, 0},
+ {0, 0},
+ {0, 0},
+ {0, 0},
+ {0, 0},
  
+ /// Customs coords
+ {TILE_COORDS(16, 27)},
+ {TILE_COORDS(27, 16)},
+ {TILE_COORDS(27, 27)},
  
+ {TILE_COORDS(27, 0)},
+ {TILE_COORDS(27, 11)},
+ 
+ {TILE_COORDS(27, 0)},
+ {TILE_COORDS(27, 11)},
+ {TILE_COORDS(32, 0)},
+ {TILE_COORDS(32, 11)},
+ 
+ {TILE_COORDS(16, 12)},
+ {TILE_COORDS(17, 12)},
+ {TILE_COORDS(18, 12)},
+ {TILE_COORDS(19, 12)},
+ {TILE_COORDS(20, 12)},
+ {TILE_COORDS(21, 12)},
+ {TILE_COORDS(22, 12)},
+ {TILE_COORDS(23, 12)},
+ {TILE_COORDS(24, 12)},
+ {TILE_COORDS(25, 12)},
+ {TILE_COORDS(26, 12)},
+ 
+ {TILE_COORDS(16, 13)},
+ {TILE_COORDS(17, 13)},
+ {TILE_COORDS(18, 13)},
+ {TILE_COORDS(19, 13)},
+ {TILE_COORDS(20, 13)},
+ {TILE_COORDS(21, 13)},
+ {TILE_COORDS(22, 13)},
+ {TILE_COORDS(23, 13)},
+ {TILE_COORDS(24, 13)},
+ {TILE_COORDS(25, 13)},
+ {TILE_COORDS(26, 13)},
+ 
+ {TILE_COORDS(16, 14.375)},
+ {TILE_COORDS(27.375f, 13)},
+ {TILE_COORDS(27.375f, 14.375f)},
+ 
+ {TILE_COORDS(16, 14.375f)},
+ {TILE_COORDS(16, 15.875f)},
+ {TILE_COORDS(17.5f, 14.375f)},
+ {TILE_COORDS(17.5f, 15.875f)},
+ 
+ {TILE_COORDS(0, 32)},
+ {TILE_COORDS(16, 32)},
 };
 
 void runWater() {
@@ -350,15 +410,15 @@ void runWater() {
 	
 	frame--;
 	
-	if (frame) {
+	if (!frame) {
 		frame = 4;
 		step = (step + 1) % 14;
 		
-		TexCoord[306][1] = TexCoord[289][1] = (f32)step * OFFSET;
-		TexCoord[307][1] = TexCoord[290][1] = (f32)(step + 1) * OFFSET;
-		DCFlushRange(&TexCoord[289][1], 4);
-		DCFlushRange(&TexCoord[290][1], 4);
-		DCFlushRange(&TexCoord[306][1], 4);
-		DCFlushRange(&TexCoord[307][1], 4);
+		TexCoord[TextureIndex::WATER + 17][1] = TexCoord[TextureIndex::WATER + 0][1] = (f32)step * OFFSET;
+		TexCoord[TextureIndex::WATER + 18][1] = TexCoord[TextureIndex::WATER + 1][1] = (f32)(step + 1) * OFFSET;
+		DCFlushRange(&TexCoord[TextureIndex::WATER + 0][1], 4);
+		DCFlushRange(&TexCoord[TextureIndex::WATER + 1][1], 4);
+		DCFlushRange(&TexCoord[TextureIndex::WATER + 17][1], 4);
+		DCFlushRange(&TexCoord[TextureIndex::WATER + 18][1], 4);
 	}
 }

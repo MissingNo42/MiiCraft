@@ -2,6 +2,7 @@
 // Created by Romain on 07/02/2024.
 //
 #include "engine/render/block.h"
+#include "render/cacheUnit.h"
 
 #define BLOC_FACE_TOP 0
 #define BLOC_FACE_BOTTOM 1
@@ -29,7 +30,7 @@ BlockData blockData[]{
 		{
 				// Water
 				.x = BLOCK_COORDS_ALL(0),
-				.y = BLOCK_COORDS_ALL(289)
+				.y = BLOCK_COORDS_ALL(TextureIndex::WATER)
 		},
 		
 		/// Semi-Transparent Blocks

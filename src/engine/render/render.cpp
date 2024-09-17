@@ -17,8 +17,8 @@ inline void renderVertex(f32 x, f32 y, f32 z, u16 tc, u8 color, u8 alpha) {
 }
 
 inline void renderFront(f32 x, f32 y, f32 z, f32 mx, f32 my, f32, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
-    u16 tx = blockData[type].x[BLOC_FACE_FRONT];
-    u16 ty = blockData[type].y[BLOC_FACE_FRONT];
+    u16 tx = blockData[type].x[BLOCK_FACE_FRONT];
+    u16 ty = blockData[type].y[BLOCK_FACE_FRONT];
 	u16 tc = TXCOORD(tx, ty);
     renderVertex(mx, y, z, tc, (light << 2) + c1, alpha); // A
     renderVertex(x, y, z, tc + 17, (light << 2) + c2, alpha); // D
@@ -27,8 +27,8 @@ inline void renderFront(f32 x, f32 y, f32 z, f32 mx, f32 my, f32, BlockType type
 }
 
 inline void renderBack(f32 x, f32 y, f32, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
-    u16 tx = blockData[type].x[BLOC_FACE_BACK];
-    u16 ty = blockData[type].y[BLOC_FACE_BACK];
+    u16 tx = blockData[type].x[BLOCK_FACE_BACK];
+    u16 ty = blockData[type].y[BLOCK_FACE_BACK];
 	u16 tc = TXCOORD(tx, ty);
     renderVertex(x, my, mz, tc + 1, (light << 2) + c1, alpha); // G
     renderVertex(x, y, mz, tc, (light << 2) + c2, alpha); // C
@@ -37,8 +37,8 @@ inline void renderBack(f32 x, f32 y, f32, f32 mx, f32 my, f32 mz, BlockType type
 }
 
 inline void renderTop(f32 x, f32 y, f32 z, f32 mx, f32, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
-    u16 tx = blockData[type].x[BLOC_FACE_TOP];
-    u16 ty = blockData[type].y[BLOC_FACE_TOP];
+    u16 tx = blockData[type].x[BLOCK_FACE_TOP];
+    u16 ty = blockData[type].y[BLOCK_FACE_TOP];
 	u16 tc = TXCOORD(tx, ty);
     renderVertex(x, y, mz, tc + 17, (light << 2) + c1, alpha); // C
     renderVertex(x, y, z, tc + 18, (light << 2) + c2, alpha); // D
@@ -47,8 +47,8 @@ inline void renderTop(f32 x, f32 y, f32 z, f32 mx, f32, f32 mz, BlockType type, 
 }
 
 inline void renderBottom(f32 x, f32, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
-    u16 tx = blockData[type].x[BLOC_FACE_BOTTOM];
-    u16 ty = blockData[type].y[BLOC_FACE_BOTTOM];
+    u16 tx = blockData[type].x[BLOCK_FACE_BOTTOM];
+    u16 ty = blockData[type].y[BLOCK_FACE_BOTTOM];
 	u16 tc = TXCOORD(tx, ty);
     renderVertex(mx, my, z, tc + 18, (light << 2) + c1, alpha); // E
     renderVertex(x, my, z, tc + 1, (light << 2) + c2, alpha); // H
@@ -57,8 +57,8 @@ inline void renderBottom(f32 x, f32, f32 z, f32 mx, f32 my, f32 mz, BlockType ty
 }
 
 inline void renderLeft(f32, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
-    u16 tx = blockData[type].x[BLOC_FACE_LEFT];
-    u16 ty = blockData[type].y[BLOC_FACE_LEFT];
+    u16 tx = blockData[type].x[BLOCK_FACE_LEFT];
+    u16 ty = blockData[type].y[BLOCK_FACE_LEFT];
 	u16 tc = TXCOORD(tx, ty);
     renderVertex(mx, y, mz, tc, (light << 2) + c1, alpha); // B
     renderVertex(mx, y, z, tc + 17, (light << 2) + c2, alpha); // A
@@ -67,8 +67,8 @@ inline void renderLeft(f32, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type
 }
 
 inline void renderRight(f32 x, f32 y, f32 z, f32, f32 my, f32 mz, BlockType type, u8 c1, u8 c2, u8 c3, u8 c4, u8 light, u8 alpha) {
-    u16 tx = blockData[type].x[BLOC_FACE_RIGHT];
-    u16 ty = blockData[type].y[BLOC_FACE_RIGHT];
+    u16 tx = blockData[type].x[BLOCK_FACE_RIGHT];
+    u16 ty = blockData[type].y[BLOCK_FACE_RIGHT];
 	u16 tc = TXCOORD(tx, ty);
     renderVertex(x, my, z, tc + 1, (light << 2) + c1, alpha); // H
     renderVertex(x, y, z, tc, (light << 2) + c2, alpha); // D
@@ -924,12 +924,12 @@ void Renderer::renderChunk(VerticalChunk& c) {
                     sz = tT + tB + tL + tR + tF + tK;
                     if (sz) {
                 
-                        lT = fT.naturalLight; // undefined corrupted light if 'fT' is not (semi-)transparent (context warranty: may never happen)
-                        lB = fB.naturalLight;
-                        lL = fL.naturalLight;
-                        lR = fR.naturalLight;
-                        lF = fF.naturalLight;
-                        lK = fK.naturalLight;
+                        lT = 15; //fT.naturalLight; // undefined corrupted light if 'fT' is not (semi-)transparent (context warranty: may never happen)
+                        lB = 15; //fB.naturalLight;
+                        lL = 15; //fL.naturalLight;
+                        lR = 15; //fR.naturalLight;
+                        lF = 15; //fF.naturalLight;
+                        lK = 15; //fK.naturalLight;
                 
                         if (isOpaque(type.type) || isSemiTransparent(type.type)) {
                             A = !isTransparent(c.blocks[mx][My][Mz].type);

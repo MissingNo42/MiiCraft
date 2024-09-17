@@ -10,19 +10,20 @@
 
 #define OFFSET 0.03125f // 1/32 = 16/512
 
-#define BLOC_FACE_TOP 0 // +y
-#define BLOC_FACE_BOTTOM 1 // -y
-#define BLOC_FACE_RIGHT 2 // +x
-#define BLOC_FACE_LEFT 3 // -x
-#define BLOC_FACE_FRONT 4 // +z
-#define BLOC_FACE_BACK 5 // -z
+#define BLOCK_FACE_TOP 0 // +y
+#define BLOCK_FACE_BOTTOM 1 // -y
+#define BLOCK_FACE_RIGHT 2 // +x
+#define BLOCK_FACE_LEFT 3 // -x
+#define BLOCK_FACE_FRONT 4 // +z
+#define BLOCK_FACE_BACK 5 // -z
 
 #define TXCOORD(x, y) (17 * (x) + (y))
 
-#define BLOCK_COORD(x) (x)
-#define BLOCK_COORDS_ALL(a) { BLOCK_COORD(a), BLOCK_COORD(a), BLOCK_COORD(a), BLOCK_COORD(a), BLOCK_COORD(a), BLOCK_COORD(a) }
-#define BLOCK_COORDS_SIDE(a, t, b) { BLOCK_COORD(t), BLOCK_COORD(b), BLOCK_COORD(a), BLOCK_COORD(a), BLOCK_COORD(a), BLOCK_COORD(a) }
-#define BLOCK_COORDS(a, b, c, d, e, f) { BLOCK_COORD(a), BLOCK_COORD(b), BLOCK_COORD(c), BLOCK_COORD(d), BLOCK_COORD(e), BLOCK_COORD(f) }
+#define TILE_COORD(x) ((x) * OFFSET)
+#define TILE_COORDS(x, y) (x) * OFFSET, (y) * OFFSET
+#define BLOCK_COORDS_ALL(a) { (a), (a), (a), (a), (a), (a) }
+#define BLOCK_COORDS_SIDE(a, t, b) { (t), (b), (a), (a), (a), (a) }
+#define BLOCK_COORDS(a, b, c, d, e, f) { (a), (b), (c), (d), (e), (f) }
 
 enum Interaction: u8 {
 	// Player triggers

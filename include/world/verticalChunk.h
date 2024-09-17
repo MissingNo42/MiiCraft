@@ -61,7 +61,9 @@ public:
 	[[nodiscard]] inline VerticalChunk& GetNeighboorChunk(Neighboor neighboor) const noexcept;
 	
 	void inline fillWith(Block block = {BlockType::Bedrock, {0}}) noexcept {
-		std::wmemset((wchar_t *) (blocks), *(wchar_t *) &block, sizeof(blocks));
+		for (s32 i = sizeof(blocks) / sizeof(Block); i--;) {
+			((Block *)blocks)[i] = block;
+		}
 	}
 	
 	void inline fillWith(BlockType block) noexcept {

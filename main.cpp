@@ -49,6 +49,7 @@ int main(int, char **) {
 	SYS_SetResetCallback(reload);
 	SYS_SetPowerCallback(shutdown);
 	
+	
 	ChunkCache::init();
 	ChunkCache::reset();
 	
@@ -63,8 +64,9 @@ int main(int, char **) {
 	Renderer::renderSplashScreen();
 	Renderer::endFrame();
 	
-	
+	printf("Loading world...\r");
 	World::requestChunks(ChunkCoord((int)players[0].renderer.camera.pos.x >> 4, (int)players[0].renderer.camera.pos.y >> 4), 8);
+	printf("Loaded world!\r");
 	Renderer::setClearColor();
 	
     while (!exiting) {
@@ -133,7 +135,7 @@ int main(int, char **) {
 	        player.renderer.camera.loadOrtho(); // set for 2D drawing
 	        player.renderer.camera.applyTransform2D();
 	
-	        if (player.isUnderwater()) player.Underwater();
+	        if (player.isUnderwater()) Renderer::Underwater();
 	
 	        player.renderInventory();
 	        player.renderCursor();

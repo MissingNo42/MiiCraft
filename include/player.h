@@ -30,7 +30,7 @@ class Player {
     BlockType focusedBlockType = Air;
 	u8 focusedFace = 0;
 	
-	u8 renderRect(f32 x, f32 y, f32 x2, f32 y2, f32 u, f32 v, f32 u2, f32 v2) const;
+	[[nodiscard]] bool renderBlockIcon(f32 x1, f32 y1, f32 x2, f32 y2, BlockType block) const;
 	
 public:
 	Wiimote wiimote;
@@ -91,9 +91,8 @@ public:
 	void renderDestroy();
 	
 	/// HUD
-    void renderCursor();
+    void renderCursor() const;
     void renderInventory();
-    static void Underwater();
 };
 
 

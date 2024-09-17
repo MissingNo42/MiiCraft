@@ -42,6 +42,9 @@ public:
     void renderFocus(f32 x, f32 y, f32 z);
 	
 	static void renderChunk(VerticalChunk& c);
+	static void renderRect(f32 x1, f32 y1, f32 x2, f32 y2, u16 lt, u16 rt, u16 lb, u16 rb);
+	static void renderValue(f32 x1, f32 y1, f32 x2, f32 y2, f32 x3, u8 value);
+    static void Underwater();
 };
 
 #endif //MIICRAFT_RENDERER_H

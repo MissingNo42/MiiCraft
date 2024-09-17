@@ -74,19 +74,19 @@ bool Player::getFocusedBlock() {
 				cpos.x = xq;
 				cpos.y += dx * dir.y;
 				cpos.z += dx * dir.z;
-				focusedFace = dir.x < 0 ? BLOC_FACE_RIGHT : BLOC_FACE_LEFT;
+				focusedFace = dir.x < 0 ? BLOCK_FACE_RIGHT : BLOCK_FACE_LEFT;
 			} else if (dy < dz) {
 				dist += dy; // works since dir is normalized
 				cpos.x += dy * dir.x;
 				cpos.y = yq;
 				cpos.z += dy * dir.z;
-				focusedFace = dir.y < 0 ? BLOC_FACE_TOP : BLOC_FACE_BOTTOM;
+				focusedFace = dir.y < 0 ? BLOCK_FACE_TOP : BLOCK_FACE_BOTTOM;
 			} else {
 				dist += dz; // works since dir is normalized
 				cpos.x += dz * dir.x;
 				cpos.y += dz * dir.y;
 				cpos.z = zq;
-				focusedFace = dir.z < 0 ? BLOC_FACE_FRONT : BLOC_FACE_BACK;
+				focusedFace = dir.z < 0 ? BLOCK_FACE_FRONT : BLOCK_FACE_BACK;
 			}
 			
 			pos = BlockCoord((int)( floorf(cpos.x) + 1), (int) (floorf(cpos.y) + 1), (int) (floorf(cpos.z) + 1)); // apply negative render correction
@@ -299,17 +299,17 @@ void Player::placeBlock() {
 	
 	if (focusedBlockType > BlockType::Air) {
 		switch (focusedFace) {
-			case BLOC_FACE_LEFT: pos.x--;
+			case BLOCK_FACE_LEFT: pos.x--;
 				break;
-			case BLOC_FACE_RIGHT: pos.x++;
+			case BLOCK_FACE_RIGHT: pos.x++;
 				break;
-			case BLOC_FACE_BOTTOM: pos.y--;
+			case BLOCK_FACE_BOTTOM: pos.y--;
 				break;
-			case BLOC_FACE_TOP: pos.y++;
+			case BLOCK_FACE_TOP: pos.y++;
 				break;
-			case BLOC_FACE_BACK: pos.z--;
+			case BLOCK_FACE_BACK: pos.z--;
 				break;
-			case BLOC_FACE_FRONT: pos.z++;
+			case BLOCK_FACE_FRONT: pos.z++;
 				break;
 		}
 		
@@ -340,14 +340,14 @@ int Player::getFocusedFace() const {
 		std::vector<f32> f = {deltaX, deltaY, deltaZ};
 		auto min = std::min_element(std::begin(f), std::end(f));
 		if (*min == f[0]) {
-			if (renderer.camera.pos.x + 1 <= round(focusedBlockLook.x)) return BLOC_FACE_LEFT;
-			else return BLOC_FACE_RIGHT;
+			if (renderer.camera.pos.x + 1 <= round(focusedBlockLook.x)) return BLOCK_FACE_LEFT;
+			else return BLOCK_FACE_RIGHT;
 		} else if (*min == f[1]) {
-			if (renderer.camera.pos.y + 1 <= round(focusedBlockLook.y)) return BLOC_FACE_BOTTOM;
-			else return BLOC_FACE_TOP;
+			if (renderer.camera.pos.y + 1 <= round(focusedBlockLook.y)) return BLOCK_FACE_BOTTOM;
+			else return BLOCK_FACE_TOP;
 		} else {
-			if (renderer.camera.pos.z + 1 <= round(focusedBlockLook.z)) return BLOC_FACE_BACK;
-			else return BLOC_FACE_FRONT;
+			if (renderer.camera.pos.z + 1 <= round(focusedBlockLook.z)) return BLOCK_FACE_BACK;
+			else return BLOCK_FACE_FRONT;
 		}
 	}
 	return -1;
