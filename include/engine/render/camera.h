@@ -30,7 +30,7 @@ public:
 	};
 	
 	/// Read only
-    f32 angleH, angleV;
+    f32 angleH = 0, angleV = 0;
 	f32 fovy;
 	f32 fovx;
 	f32 ratio;
@@ -39,6 +39,7 @@ public:
     guVector up = {0.0F, 1.0F, 0.0F};
     guVector pos = {0.0F, 0.0F, 0.0F},
             look = {0.0F, 0.0F, 1.0F};
+	Direction direction = Direction::NORTH;
 	Format format;
 
 	static const inline f32 limitV = 89;
@@ -48,7 +49,7 @@ public:
      * @param min Minimum render distance
      * @param max Maximum render distance
      */
-    explicit Camera(f32 fov = 45, f32 min = .1, f32 max = 1024);
+    explicit Camera(f32 fov = 90, f32 min = .1, f32 max = 1024);
 
     ~Camera() = default;
 
@@ -76,13 +77,8 @@ public:
 
     void rotateV(f32 deg);
 
-    void rotateToH(f32 deg);
-
-    void rotateToV(f32 deg);
-	
 	u8 isVisible(const guVector& p);
-	u8 isChunkVisible(s16 x, s16 z);
-	u8 isChunkVisible(ChunkCoord coord);
+	bool isChunkVisible(ChunkCoord coord);
 };
 
 

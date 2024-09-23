@@ -40,6 +40,7 @@ public:
 	void renderBlock(const guVector &coord, BlockType type, u8 lt = Air, u8 lb = Air, u8 lf = Air, u8 lk = Air, u8 lr = Air, u8 ll = Air);
 
     void renderFocus(f32 x, f32 y, f32 z);
+    void renderVector(f32 x, f32 y, f32 z, u8 color);
 	
 	static void renderChunk(VerticalChunk& c);
 	static void renderRect(f32 x1, f32 y1, f32 x2, f32 y2, u16 lt, u16 rt, u16 lb, u16 rb);

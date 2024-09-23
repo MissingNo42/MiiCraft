@@ -52,9 +52,10 @@ int main(int, char **) {
 	
 	ChunkCache::init();
 	ChunkCache::reset();
+	f32 initpos = 0; // 524280;
 	
 	for (int i = 0; i < 4; i++) {
-		players[i].setPos(95500, 126, 0);
+		players[i].setPos(initpos, 126, initpos);
 		players[i].renderer.camera.rotateH(45.0f * (f32)i);
 	}
 	
@@ -68,6 +69,9 @@ int main(int, char **) {
 	World::requestChunks(ChunkCoord((int)players[0].renderer.camera.pos.x >> 4, (int)players[0].renderer.camera.pos.y >> 4), 8);
 	printf("Loaded world!\r");
 	Renderer::setClearColor();
+	
+	players[0].inventory.addItem(BlockType::Furnace, 64);
+	players[0].inventory.addItem(BlockType::DoorLow, 64);
 	
     while (!exiting) {
 		runWater();
@@ -125,6 +129,7 @@ int main(int, char **) {
 	        player.renderer.camera.update(true);
 			
 			player.renderer.renderSky();
+			
 			ChunkCache::render(player.renderer.camera);
 			
 			player.renderFocus();

@@ -7,7 +7,7 @@
 #include "engine/render/renderer.h"
 #include "utils/matrix.h"
 
-Camera::Camera(f32 fov, f32 min, f32 max) : angleH(0), angleV(0), fovy(fov * (f32)M_PI / 180.f), min(min), max(max) {
+Camera::Camera(f32 fov, f32 min, f32 max) : fovy(fov * (f32)M_PI / 180.f), min(min), max(max) {
 	resize(FullScreen);
 	
 	/// Fog setup
@@ -34,7 +34,7 @@ void Camera::resize(Format fm) {
 	format = fm;
 	
     ratio = (f32)Renderer::rmode->fbWidth / (f32)Renderer::rmode->xfbHeight;
-	fovx = atanf(tanf(fovy) * ratio);
+	fovx = 2 * atanf(tanf(fovy / 2) * ratio);
 	
     guPerspective(perspective, fovy * 180.f / (f32)M_PI,
 				  (fm == SplitTop || fm == SplitBottom) ? ratio * 2: ratio,
@@ -67,6 +67,7 @@ void Camera::resize(Format fm) {
 
 void Camera::update(bool applyTransform) {
     guVector pl = {pos.x + look.x, pos.y + look.y, pos.z + look.z};
+	
     guLookAt(view3D, &pos, &up, &pl);
     if (applyTransform) GX_LoadPosMtxImm(view3D, GX_PNMTX0);
 }
@@ -88,8 +89,14 @@ void Camera::rotate() {
 
 void Camera::rotateH(f32 deg) {
 	angleH += deg;
-	if (angleH > 360) angleH -= 360;
-	if (angleH < 0) angleH += 360;
+	while (angleH >= 360) angleH -= 360;
+	while (angleH < 0) angleH += 360;
+	
+	if (angleH < 45) direction = Direction::NORTH;
+	else if (angleH < 135) direction = Direction::EAST;
+	else if (angleH < 225) direction = Direction::SOUTH;
+	else direction = Direction::WEST;
+	
 	rotate();
 }
 
@@ -101,18 +108,6 @@ void Camera::rotateV(f32 deg) {
 	rotate();
 }
 
-void Camera::rotateToH(f32 deg) {
-	angleH = (f32)std::fmod(deg, 360);
-	rotate();
-}
-
-void Camera::rotateToV(f32 deg) {
-	if (deg > limitV) angleV = limitV;
-	if (deg < limitV) angleV = -limitV;
-	else angleV = deg;
-	rotate();
-}
-
 u8 Camera::isVisible(const guVector &p) {
 	guVector pt = {p.x - pos.x, 0, p.z - pos.z},
 	         ct = {look.x, 0, look.z};
@@ -120,25 +115,22 @@ u8 Camera::isVisible(const guVector &p) {
 	guVecNormalize(&pt);
 	guVecNormalize(&ct);
 	f32 a = guVecDotProduct(&pt, &ct);
-	f32 b = acosf(a);
+	f32 b = acosf(a) * 2;
+	
 	return b < fovx * (1 + std::abs(look.y));
 }
 
-u8 Camera::isChunkVisible(s16 x, s16 z) {
-	return isChunkVisible(ChunkCoord{x, z});
-}
-
-u8 Camera::isChunkVisible(ChunkCoord coord) {
-	if (coord == ChunkCoord{(short)((int)pos.x >> 4), (short)((int)pos.z >> 4)}) return 1;
+bool Camera::isChunkVisible(ChunkCoord coord) {
+	if (coord == ChunkCoord{(s32)pos.x >> 4, (s32)pos.z >> 4}) return true;
 	
 	guVector p = {(f32)coord.x * 16, 0, (f32)coord.y * 16},
 	         a = {p.x, 0, p.z + 16},
-			 b = {p.x + 16, 0, p.z + 16},
-			 c = {p.x + 16, 0, p.z};
+			 b = {p.x + 16, 0, a.z},
+			 c = {b.x, 0, p.z};
 	
-	if (isVisible(p) || isVisible(a) || isVisible(b) || isVisible(c)) return 1;
+	if (isVisible(p) || isVisible(a) || isVisible(b) || isVisible(c)) return true;
 	
-	return 0;
+	return false;
 }
 
 void Camera::applyScissor() const {
@@ -150,8 +142,8 @@ void Camera::applyScissor() const {
 	
 	GX_SetViewport(format & SplitLeft ? 0: (f32)W / 2.f,
 				  format & SplitTop ? 0: (f32)H / 2.f,
-				  format & SplitRight && format & SplitLeft ? W: (f32)W / 2.f,
-				  format & SplitBottom && format & SplitTop ? H: (f32)H / 2.f, 0, 1);
+				  format & SplitRight && format & SplitLeft ? (f32)W: (f32)W / 2.f,
+				  format & SplitBottom && format & SplitTop ? (f32)H: (f32)H / 2.f, 0, 1);
 }
 
 

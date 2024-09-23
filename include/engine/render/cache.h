@@ -20,7 +20,7 @@ class ChunkCache {
 	static DisplayList lists[LIST_NUM] ATTRIBUTE_ALIGN(32);
 	static u16 current[2];
 	static s32 used;
-	static s16 limit;
+	static s32 limit;
 	static u8 full;
 	
 	static std::set<u16> cached; // used to check if a chunk is cached

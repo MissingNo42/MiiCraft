@@ -10,7 +10,7 @@ DisplayList ChunkCache::lists[LIST_NUM] ATTRIBUTE_ALIGN(32);
 u16 ChunkCache::current[2] = { 0, 0 };
 s32 ChunkCache::used = 0;
 u8 ChunkCache::full = 0;
-s16 ChunkCache::limit = 0;
+s32 ChunkCache::limit = 0;
 
 std::set<u16> ChunkCache::cached; // used to check if a chunk is cached
 std::set<u16> ChunkCache::toRelease; // chunks that CAN be released if needed
@@ -147,12 +147,12 @@ void ChunkCache::cache(Player players[4]) {
 	ChunkCoord poss[4] {ChunkCoord{0, 0}, ChunkCoord{0, 0}, ChunkCoord{0, 0}, ChunkCoord{0, 0}};
 	Camera * cams[4] = {nullptr, nullptr, nullptr, nullptr};
 	
-	int c = 0;
+	s32 c = 0;
 	
-	for (int i = 0; i < 4; i++) {
+	for (s32 i = 0; i < 4; i++) {
 		if (players[i].wiimote.connected) {
-			poss[c].x = (short)(((int)players[i].renderer.camera.pos.x) >> 4);
-			poss[c].y = (short)(((int)players[i].renderer.camera.pos.z) >> 4);
+			poss[c].x = ((s32)players[i].renderer.camera.pos.x) >> 4;
+			poss[c].y = ((s32)players[i].renderer.camera.pos.z) >> 4;
 			cams[c] = &players[i].renderer.camera;
 			c++;
 		}
@@ -174,15 +174,15 @@ void ChunkCache::cache(Player players[4]) {
 	else if (c > 2) limit -= 2; // reduce pression on the cache
 	
 	// get the surrounding visible chunks
-	for (short n = 1; n < limit; n++) { // for each dist level
+	for (s32 n = 1; n < limit; n++) { // for each dist level
 		for (int p = 0; p < c; p++) { // and for each player
 			ChunkCoord cpos = poss[p];
 			Camera& cam = *cams[p];
 			int i, j = -n;
 			
 			for (i = -n; i <= n; i++) {
-				pos.x = (short)(cpos.x + i);
-				pos.y = (short)(cpos.y + j);
+				pos.x = cpos.x + i;
+				pos.y = cpos.y + j;
 				if (cam.isChunkVisible(pos) && !toCacheSet.contains(pos)) {
 					toCacheSet.insert(pos);
 					toCacheQueue.push(pos);
@@ -190,8 +190,8 @@ void ChunkCache::cache(Player players[4]) {
 			}
 			j = n;
 			for (i = -n; i <= n; i++) {
-				pos.x = (short)(cpos.x + i);
-				pos.y = (short)(cpos.y + j);
+				pos.x = cpos.x + i;
+				pos.y = cpos.y + j;
 				if (cam.isChunkVisible(pos) && !toCacheSet.contains(pos)) {
 					toCacheSet.insert(pos);
 					toCacheQueue.push(pos);
@@ -199,8 +199,8 @@ void ChunkCache::cache(Player players[4]) {
 			}
 			i = -n;
 			for (j = 1 - n; j < n; j++) {
-				pos.x = (short)(cpos.x + i);
-				pos.y = (short)(cpos.y + j);
+				pos.x = cpos.x + i;
+				pos.y = cpos.y + j;
 				if (cam.isChunkVisible(pos) && !toCacheSet.contains(pos)) {
 					toCacheSet.insert(pos);
 					toCacheQueue.push(pos);
@@ -208,8 +208,8 @@ void ChunkCache::cache(Player players[4]) {
 			}
 			i = n;
 			for (j = 1 - n; j < n; j++) {
-				pos.x = (short)(cpos.x + i);
-				pos.y = (short)(cpos.y + j);
+				pos.x = cpos.x + i;
+				pos.y = cpos.y + j;
 				if (cam.isChunkVisible(pos) && !toCacheSet.contains(pos)) {
 					toCacheSet.insert(pos);
 					toCacheQueue.push(pos);

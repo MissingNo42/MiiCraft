@@ -64,47 +64,42 @@ void World::setBlockTypeAt(BlockCoord coord, BlockType block, bool calculLight) 
 }
 
 void World::setNeighboors(VerticalChunk& chunk) {
-    ChunkCoord coord((s16)(chunk.coord.x + 1), chunk.coord.y);
+    ChunkCoord coord(chunk.coord.x + 1, chunk.coord.y);
 	
     if(loadedChunk.find(coord) != loadedChunk.end()){
 		u16 id = loadedChunk[coord];
-		printf("> Neighboor===A %d %d\r\n", id, chunk.id);
-        chunk.SetNeighboor(Neighboor::EAST, id);
-		chunkSlots[id].SetNeighboor(Neighboor::WEST, chunk.id);
+        chunk.SetNeighboor(Direction::EAST, id);
+		chunkSlots[id].SetNeighboor(Direction::WEST, chunk.id);
     }
 	
     coord.x -= 2;
     if(loadedChunk.find(coord) != loadedChunk.end()){
 		u16 id = loadedChunk[coord];
-		printf("> Neighboor===B %d %d\r\n", id, chunk.id);
-        chunk.SetNeighboor(Neighboor::WEST, id);
-        chunkSlots[id].SetNeighboor(Neighboor::EAST, chunk.id);
+        chunk.SetNeighboor(Direction::WEST, id);
+        chunkSlots[id].SetNeighboor(Direction::EAST, chunk.id);
     }
 	
     coord.x++;
 	coord.y++;
     if(loadedChunk.find(coord) != loadedChunk.end()){
 		u16 id = loadedChunk[coord];
-		printf("> Neighboor===C %d %d\r\n", id, chunk.id);
-        chunk.SetNeighboor(Neighboor::NORTH, id);
-        chunkSlots[id].SetNeighboor(Neighboor::SOUTH, chunk.id);
+        chunk.SetNeighboor(Direction::NORTH, id);
+        chunkSlots[id].SetNeighboor(Direction::SOUTH, chunk.id);
     }
 	
     coord.y -= 2;
     if(loadedChunk.find(coord) != loadedChunk.end()){
 		u16 id = loadedChunk[coord];
-		printf("> Neighboor===D %d %d\r\n", id, chunk.id);
-        chunk.SetNeighboor(Neighboor::SOUTH, id);
-        chunkSlots[id].SetNeighboor(Neighboor::NORTH, chunk.id);
+        chunk.SetNeighboor(Direction::SOUTH, id);
+        chunkSlots[id].SetNeighboor(Direction::NORTH, chunk.id);
     }
 }
 
 
-void World::requestChunks(ChunkCoord pos, s16 range) {
+void World::requestChunks(ChunkCoord pos, s32 range) {
     for(s32 x = pos.x - range; x <=  pos.x + range; x++){
         for(s32 y = pos.y - range; y <= pos.y + range; y++){
-            ChunkCoord p((s16)x, (s16)y);
-			requestChunk(p);
+			requestChunk({x, y});
         }
     }
 }

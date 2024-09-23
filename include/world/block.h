@@ -46,18 +46,21 @@
 /**
  * @enum BlockType
  * @brief Enumerate all the block types
- * @details faces rendering relations: // TODO check if accurate and expected
- * [T][T] -> [T  T]
- * [T][S] -> [T [S]
+ * @details faces rendering relations:
+ * [T][T] -> [T  T] or [T][T']
+ * [T][S] -> [T][S]
  * [T][O] -> [T [O]
- * [T][I] -> [T [I]
+ * [T][I] -> [T??I]
  *
+ * [S][T] -> [S][T]
  * [S][S] -> [S][S]
- * [S][O] -> [S][O]
- * [S][I] -> [S][I]
+ * [S][O] -> [S [O] or [S][O] with backface culling disabled
+ * [S][I] -> [S??I]
  *
+ * [O][T] -> [O] T]
+ * [O][S] -> [O] S]
  * [O][O] -> [O  O]
- * [O][I] -> [O][I]
+ * [O][I] -> [O??I]
  * */
 enum BlockType : u8 {
 

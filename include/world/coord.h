@@ -2,23 +2,43 @@
 // Created by guill on 06/02/2024.
 //
 
-#ifndef WII_COORD_H
-#define WII_COORD_H
+#ifndef WORLD_COORD_H
+#define WORLD_COORD_H
+
+#include <queue>
+#include <cstdint>
+#include "block.h"
+#include <gctypes.h>
+
+enum Direction : u8 {
+	NORTH = 0,
+	EAST = 1,
+	SOUTH = 2,
+	WEST = 3
+};
 
 struct ChunkCoord {
-    short x, y;
+    s32 x = 0, y = 0;
 	
-    explicit ChunkCoord(short x = 0, short y = 0);
-    bool operator==(const ChunkCoord& p) const;
-    bool operator<(const ChunkCoord& p) const;
+    [[nodiscard]] inline bool operator==(const ChunkCoord& p) const {
+	    return x == p.x && y == p.y;
+	}
+	
+    [[nodiscard]] inline bool operator<(const ChunkCoord& p) const {
+	    return p.x == x ? y < p.y: x < p.x;
+	}
 };
 
 struct BlockCoord {
-    int x, y, z;
+    s32 x, y, z;
 	
-    BlockCoord(int x, int y, int z);
-    bool operator==(const BlockCoord& coord) const;
-	[[nodiscard]] ChunkCoord toChunkCoord() const;
+    [[nodiscard]] inline bool operator==(const BlockCoord& coord) const {
+	    return (x == coord.x && y == coord.y && z == coord.z);
+	}
+	
+	[[nodiscard]] inline ChunkCoord toChunkCoord() const {
+	    return {x >> 4, z >> 4};
+	}
 };
 
-#endif //WII_COORD_H
+#endif //WORLD_COORD_H

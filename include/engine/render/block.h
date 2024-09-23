@@ -7,6 +7,8 @@
 
 #include <gctypes.h>
 #include <map>
+#include "world/coord.h"
+#include "world/block.h"
 
 #define OFFSET 0.03125f // 1/32 = 16/512
 
@@ -33,24 +35,27 @@ enum Interaction: u8 {
 	Redstone = 1, // redstone wire, torch, etc.
 };
 
-using Interactive = bool(*)();
-using Spawner = void(*)();
-using Despawner = void(*)();
+using Interactive = bool(*)(BlockCoord, Interaction);
+using Spawner = bool(*)(BlockCoord, BlockType, Direction); // true if spawned, false if not
+using Despawner = void(*)(BlockCoord);
 using Render = void(*)();
+
+[[nodiscard]] bool spawnDefault(BlockCoord, BlockType, Direction);
+void despawnDefault(BlockCoord);
 
 struct BlockData {
 	u16 x[6] = {0};
 	u16 y[6] = {0};
 	u8 isOrientable: 1 = 0;  // stairs, doors, etc. -> managed by the engine, no need for custom Spawner/Renderer
-	u8 isInteractive: 1 = 0;  // crafting table, furnace, doors, TNT, etc.
-	u8 hasSpawner: 1 = 0;  // has a setup function (e.g. door for placing two blocks)
-	u8 hasDespawner: 1 = 0;  // has a teardown function (e.g. door for removing two blocks)
-	u8 hasRenderer: 1 = 0; // has a custom renderer function
-	Interactive interactive = nullptr;
-	Spawner spawner = nullptr;
-	Despawner despawner = nullptr;
-	Render render = nullptr;
-	static void blockInit();
+	u8 isSelectable: 1 = 1; // can be selected by the player
+	u8 isBurnable: 1 = 0;   // can be destroyed by fire
+	u8 isFloor: 1 = 1;      // block can be considered as a floor (e.g. can't put doors on flowers, water...)
+	u8 allowAbove: 1 = 1;   // block can be placed above it
+	u8 needFloor: 1 = 0;    // block needs a floor to be placed
+	Interactive interactive = nullptr;    // crafting table, furnace, doors, TNT, etc.
+	Spawner spawner = spawnDefault;       // a setup function (e.g. door for placing two blocks)
+	Despawner despawner = despawnDefault; // a teardown function (e.g. door for removing two blocks)
+	Render render = nullptr;              // a custom renderer function
 };
 
 extern BlockData blockData[];

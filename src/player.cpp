@@ -9,6 +9,7 @@
 #include "wiimote.h"
 #include "world/world.h"
 #include "utils/matrix.h"
+#include "render/cacheUnit.h"
 
 Player::Player(int chan) : Player(0, 0, 0, chan) {}
 
@@ -27,108 +28,124 @@ f32 Player::getFocusedBlockDistance() const {
 }
 
 bool Player::getFocusedBlock() {
-	BlockType type = BlockType::Air;
-	BlockCoord pos(0, 0, 0);
+	guVector cpos = renderer.camera.pos;
+	guVector dir = renderer.camera.look;
 	
-	if (wiimoteFocus && !cameraLocked) { // avoid lock glitching
-		guVector cpos = renderer.camera.pos;
-		guVector dir = renderer.camera.look;
-		guVector right, axis;
+	if (wiimoteFocus && !cameraLocked) { // TODO: enhance accuracy (bad dir deviation?)
+		guVector right;
 		
-		f32 uA = renderer.camera.fovx * wiimote.x / 2.f, vA = renderer.camera.fovy * -wiimote.y / 2.f;
-		f32 uD = uA * 180.f / (f32) M_PI, vD = vA * 180.f / (f32) M_PI;
+		f32 focal = 1 / tanf(renderer.camera.fovy / 2); // fovy = 90° -> 1
 		
+		f32 wX = wiimote.x * (1.f - x),
+		    wY = wiimote.y * (1.f - y); // rendered cursor bias
+		
+		f32 uA = RadToDeg(atanf(wX * renderer.camera.ratio / focal)),
+		    vA = RadToDeg(-atanf(wY / focal));
+		
+		VecRotAxis(&dir, renderer.camera.up, -uA); // rotH (relative up axis)
 		guVecCross(&renderer.camera.up, &dir, &right); // Calculate the right axis (cross product of look-at and up)
-		VecRotAxis(&dir, right, vD); // rotV
+		VecRotAxis(&dir, right, vA); // rotV
 		
-		guVecCross(&right, &dir, &axis); // Calculate the right axis (cross product of look-at and up)
-		VecRotAxis(&dir, axis, uD); // rotH (relative up axis)
+		//Mtx m;
+		//
+		//guVecNormalize(&dir);
+		//guVector target = {.x = -wX * renderer.camera.ratio, .y = wY, .z = focal}, // <-this is 100% accurate
+		// up = renderer.camera.up;
+		//guVecNormalize(&target);
+		//guVecCross(&renderer.camera.up, &dir, &right);
+		////guVecCross(&dir, &right, &up);
+		//guVecNormalize(&right);
+		//guVecNormalize(&up);
+		//
+		//guMtxRowCol(m, 0, 0) = right.x;
+		//guMtxRowCol(m, 1, 0) = right.y;
+		//guMtxRowCol(m, 2, 0) = right.z;
+		//guMtxRowCol(m, 3, 0) = 0;
+		//
+		//guMtxRowCol(m, 0, 1) = up.x;
+		//guMtxRowCol(m, 1, 1) = up.y;
+		//guMtxRowCol(m, 2, 1) = up.z;
+		//guMtxRowCol(m, 3, 1) = 0;
+		//
+		//guMtxRowCol(m, 0, 2) = dir.x;
+		//guMtxRowCol(m, 1, 2) = dir.y;
+		//guMtxRowCol(m, 2, 2) = dir.z;
+		//guMtxRowCol(m, 3, 2) = 0;
+		//
+		//guVecMultiply(m, &target, &dir);
 		
-		guVecNormalize(&dir);
-		
-		f32 xs = dir.x < 0 ? 0 : 1;
-		f32 ys = dir.y < 0 ? 0 : 1;
-		f32 zs = dir.z < 0 ? 0 : 1;
-		f32 dist = 0;
-		
-		do {
-			f32 xq = floorf(cpos.x + xs); // get the coord of the nearest block
-			f32 yq = floorf(cpos.y + ys); // get the coord of the nearest block
-			f32 zq = floorf(cpos.z + zs); // get the coord of the nearest block
-			
-			const f32 ZERO = -0.0f;
-			if (*(s32 *)&xq == *(s32 *)&ZERO) xq = -1.0f; // apply correction : floorf(-0) == -0 -> -1, test through int for safety
-			if (*(s32 *)&yq == *(s32 *)&ZERO) yq = -1.0f; // apply correction : floorf(-0) == -0 -> -1, test through int for safety
-			if (*(s32 *)&zq == *(s32 *)&ZERO) zq = -1.0f; // apply correction : floorf(-0) == -0 -> -1, test through int for safety
-			
-			if (dir.x < 0) xq = nextafterf(xq, -INFINITY); // for negative vector, minimal shift to negative -> no impact on test but shift on floor
-			if (dir.y < 0) yq = nextafterf(yq, -INFINITY); // for negative vector, minimal shift to negative -> no impact on test but shift on floor
-			if (dir.z < 0) zq = nextafterf(zq, -INFINITY); // for negative vector, minimal shift to negative -> no impact on test but shift on floor
-			
-			f32 dx = (xq - cpos.x) / dir.x; // get the delta, always > 0
-			f32 dy = (yq - cpos.y) / dir.y; // get the delta, always > 0
-			f32 dz = (zq - cpos.z) / dir.z; // get the delta, always > 0
-			
-			if (dx < dy && dx < dz) {
-				dist += dx; // works since dir is normalized
-				cpos.x = xq;
-				cpos.y += dx * dir.y;
-				cpos.z += dx * dir.z;
-				focusedFace = dir.x < 0 ? BLOCK_FACE_RIGHT : BLOCK_FACE_LEFT;
-			} else if (dy < dz) {
-				dist += dy; // works since dir is normalized
-				cpos.x += dy * dir.x;
-				cpos.y = yq;
-				cpos.z += dy * dir.z;
-				focusedFace = dir.y < 0 ? BLOCK_FACE_TOP : BLOCK_FACE_BOTTOM;
-			} else {
-				dist += dz; // works since dir is normalized
-				cpos.x += dz * dir.x;
-				cpos.y += dz * dir.y;
-				cpos.z = zq;
-				focusedFace = dir.z < 0 ? BLOCK_FACE_FRONT : BLOCK_FACE_BACK;
-			}
-			
-			pos = BlockCoord((int)( floorf(cpos.x) + 1), (int) (floorf(cpos.y) + 1), (int) (floorf(cpos.z) + 1)); // apply negative render correction
-			type = World::getBlockAt(pos).type;
-			
-			if (type && type != Water) {
-				guVector dt = {(f32)pos.x - 0.5f, (f32)pos.y - 0.5f, (f32)pos.z - 0.5f};
-				guVecSub(&dt, &renderer.camera.pos, &dt);
-				
-				if (guVecDotProduct(&dt, &dt) < 25) { // check the dist with block center
-					previousFocusedBlockPos = focusedBlockPos;
-					focusedBlockLook = {cpos.x + 1, cpos.y + 1, cpos.z + 1};
-					focusedBlockPos = pos;
-					focusedBlockType = type;
-					return true;
-				}
-				return false;
-			}
-		} while (dist < 6); // 6 is the max distance to check : corner or back faces
-		
-	} else {
-		f32 distance = 0,
-				px = renderer.camera.pos.x + 1,
-				py = renderer.camera.pos.y + 1,
-				pz = renderer.camera.pos.z + 1;
-		while ((type <= BlockType::Air || type == Water) && distance <= 5) {
-			px += renderer.camera.look.x / 200;
-			py += renderer.camera.look.y / 200;
-			pz += renderer.camera.look.z / 200;
-			distance += 0.005;
-			pos = BlockCoord((int) floorf(px), (int) floorf(py), (int) floorf(pz));
-			type = World::getBlockAt(pos).type;
-		}
-		if (type && type != Water) {
-			previousFocusedBlockPos = focusedBlockPos;
-			focusedBlockLook = {px, py, pz};
-			focusedBlockPos = pos;
-			focusedBlockType = type;
-			focusedFace = getFocusedFace();
-			return true;
-		}
+		//if (wiimote.wd->btns_d & WPAD_BUTTON_B) {  // Used for debug (requires handleRotation() to be disabled)
+		//	renderer.camera.look = dir;
+		//}
 	}
+	
+	guVecNormalize(&dir);
+	
+	N1 = dir.x;
+	N2 = dir.y;
+	N3 = dir.z;
+	
+	f32 xs = dir.x < 0 ? 0 : 1;
+	f32 ys = dir.y < 0 ? 0 : 1;
+	f32 zs = dir.z < 0 ? 0 : 1;
+	f32 dist = 0;
+	
+	do { // ray casting
+		f32 xq = floorf(cpos.x + xs); // get the coord of the nearest block
+		f32 yq = floorf(cpos.y + ys); // get the coord of the nearest block
+		f32 zq = floorf(cpos.z + zs); // get the coord of the nearest block
+		
+		const f32 ZERO = -0.0f; // check using cast to avoid f32 equality to be badly optimized as "false" statement
+		if (*(s32 *)&xq == *(s32 *)&ZERO) xq = -1.0f; // apply correction : floorf(-0) == -0 -> -1, test through int for safety
+		if (*(s32 *)&yq == *(s32 *)&ZERO) yq = -1.0f; // apply correction : floorf(-0) == -0 -> -1, test through int for safety
+		if (*(s32 *)&zq == *(s32 *)&ZERO) zq = -1.0f; // apply correction : floorf(-0) == -0 -> -1, test through int for safety
+		
+		if (dir.x < 0) xq = nextafterf(xq, -INFINITY); // for negative vector, minimal shift to negative -> no impact on test but shift on floor
+		if (dir.y < 0) yq = nextafterf(yq, -INFINITY); // for negative vector, minimal shift to negative -> no impact on test but shift on floor
+		if (dir.z < 0) zq = nextafterf(zq, -INFINITY); // for negative vector, minimal shift to negative -> no impact on test but shift on floor
+		
+		f32 dx = (xq - cpos.x) / dir.x; // get the delta, always > 0
+		f32 dy = (yq - cpos.y) / dir.y; // get the delta, always > 0
+		f32 dz = (zq - cpos.z) / dir.z; // get the delta, always > 0
+		
+		if (dx < dy && dx < dz) {
+			dist += dx; // works since dir is normalized
+			cpos.x = xq;
+			cpos.y += dx * dir.y;
+			cpos.z += dx * dir.z;
+			focusedFace = dir.x < 0 ? BLOCK_FACE_RIGHT : BLOCK_FACE_LEFT;
+		} else if (dy < dz) {
+			dist += dy; // works since dir is normalized
+			cpos.x += dy * dir.x;
+			cpos.y = yq;
+			cpos.z += dy * dir.z;
+			focusedFace = dir.y < 0 ? BLOCK_FACE_TOP : BLOCK_FACE_BOTTOM;
+		} else {
+			dist += dz; // works since dir is normalized
+			cpos.x += dz * dir.x;
+			cpos.y += dz * dir.y;
+			cpos.z = zq;
+			focusedFace = dir.z < 0 ? BLOCK_FACE_FRONT : BLOCK_FACE_BACK;
+		}
+		
+		BlockCoord pos = BlockCoord((int)( floorf(cpos.x) + 1), (int) (floorf(cpos.y) + 1), (int) (floorf(cpos.z) + 1)); // apply negative render correction
+		BlockType type = World::getBlockAt(pos).type;
+		
+		if (blockData[type].isSelectable) {
+			guVector dt = {(f32)pos.x - 0.5f, (f32)pos.y - 0.5f, (f32)pos.z - 0.5f};
+			guVecSub(&dt, &renderer.camera.pos, &dt);
+			
+			if (guVecDotProduct(&dt, &dt) < 25) { // check the dist with block center
+				previousFocusedBlockPos = focusedBlockPos;
+				focusedBlockLook = {cpos.x + 1, cpos.y + 1, cpos.z + 1};
+				focusedBlockPos = pos;
+				focusedBlockType = type;
+				return true;
+			}
+			return false;
+		}
+	} while (0 < dist && dist < 6); // 6 is the max distance to check : corner or back face, 0 ensure no infinite loop
+	
 	return false;
 }
 
@@ -246,7 +263,7 @@ void Player::setPos(f32 px, f32 py, f32 pz) {
  * */
 static f32 rotationHSpeed(f32 dx, f32 dy) {
 	f32 x = std::abs(dx), y = std::abs(dy);
-	/// speed datamined from MP2 (MPT version)
+	/// speeds mesured from Metroid Prime 2 (Trilogy version)
 	f32 speed = 2.5f * (f32) std::pow(x, 2.9); // 0.04363319 radians / 2.5 degrees coeff
 	f32 factor = 0.757f * (f32) std::pow(x, 0.0267); // reduce speed when looking up or down
 	speed *= std::pow(factor, y); // vertical attenuation of speed
@@ -295,9 +312,12 @@ void Player::placeBlock() {
 	//    return;
 	if (placeDelay < 10) return;
 	
+	auto& slot = inventory.inventory[0][inventory.selectedSlot];
+	if (!slot.quantity) return;
+	
 	BlockCoord pos = focusedBlockPos;
 	
-	if (focusedBlockType > BlockType::Air) {
+	if (focusedBlockType) {
 		switch (focusedFace) {
 			case BLOCK_FACE_LEFT: pos.x--;
 				break;
@@ -320,11 +340,14 @@ void Player::placeBlock() {
 				    || (pos.y != (int) floorf(renderer.camera.pos.y + 1.0f) && pos.y != (int) floorf(renderer.camera.pos.y))
 				    || (pos.z != (int) floorf(renderer.camera.pos.z + 1.3f) &&
 				        pos.z != (int) floorf(renderer.camera.pos.z + 0.7f)))) {
-			World::setBlockTypeAt(pos, inventory.inventory[0][inventory.selectedSlot].item.type);
+			
+			auto block = blockData[]
+			World::setBlockTypeAt(pos, slot.item.type);
+			
 			if (!creative) {
-				inventory.inventory[0][inventory.selectedSlot].quantity--;
-				if (inventory.inventory[0][inventory.selectedSlot].quantity == 0)
+				if (!--slot.quantity) {
 					inventory.inventory[0][inventory.selectedSlot].item = Item(BlockType::Air);
+				}
 			}
 		}
 	}

@@ -63,7 +63,7 @@ struct World {
     static void handleLightBlock(VerticalChunk& vc);
 	
 	static VerticalChunk& requestChunk(ChunkCoord pos);
-	static void requestChunks(ChunkCoord pos, short range = 2);
+	static void requestChunks(ChunkCoord pos, s32 range = 2);
 };
 
 #endif //MIICRAFT_WORLD_H

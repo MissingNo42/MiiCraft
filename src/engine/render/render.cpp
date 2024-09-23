@@ -6,6 +6,7 @@
 #include "render/cache.h"
 #include "render/block.h"
 #include "world/world.h"
+#include "coord.h"
 
 
 inline void renderVertex(f32 x, f32 y, f32 z, u16 tc, u8 color, u8 alpha) {
@@ -101,15 +102,15 @@ void Renderer::renderChunk(VerticalChunk& c) {
 	bool tT, tB, tL, tR, tF, tK; // true if the current block's faces must be rendered
 	u8 lT, lB, lL, lR, lF, lK; // light level of the 6 adjacent blocks
 	
-	VerticalChunk &cnorth = World::chunkSlots[c.neighboors[Neighboor::NORTH]];
-	VerticalChunk &csouth = World::chunkSlots[c.neighboors[Neighboor::SOUTH]];
-	VerticalChunk &ceast = World::chunkSlots[c.neighboors[Neighboor::EAST]];
-	VerticalChunk &cwest = World::chunkSlots[c.neighboors[Neighboor::WEST]];
+	VerticalChunk &cnorth = World::chunkSlots[c.neighboors[Direction::NORTH]];
+	VerticalChunk &csouth = World::chunkSlots[c.neighboors[Direction::SOUTH]];
+	VerticalChunk &ceast = World::chunkSlots[c.neighboors[Direction::EAST]];
+	VerticalChunk &cwest = World::chunkSlots[c.neighboors[Direction::WEST]];
 	
-	VerticalChunk &cnortheast = World::chunkSlots[cnorth.neighboors[Neighboor::EAST]];
-	VerticalChunk &cnorthwest = World::chunkSlots[cnorth.neighboors[Neighboor::WEST]];
-	VerticalChunk &csoutheast = World::chunkSlots[csouth.neighboors[Neighboor::EAST]];
-	VerticalChunk &csouthwest = World::chunkSlots[csouth.neighboors[Neighboor::WEST]];
+	VerticalChunk &cnortheast = World::chunkSlots[cnorth.neighboors[Direction::EAST]];
+	VerticalChunk &cnorthwest = World::chunkSlots[cnorth.neighboors[Direction::WEST]];
+	VerticalChunk &csoutheast = World::chunkSlots[csouth.neighboors[Direction::EAST]];
+	VerticalChunk &csouthwest = World::chunkSlots[csouth.neighboors[Direction::WEST]];
 	
 	for (y = 1; y < 127; y++) { // for each vertical levels (except 1st and last)
 		

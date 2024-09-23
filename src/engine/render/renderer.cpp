@@ -328,7 +328,30 @@ void Renderer::renderFocus(f32 x, f32 y, f32 z) {
 
     GX_End();
 	
-    GX_SetLineWidth(1.0f, GX_VTXFMT0);
+    GX_SetLineWidth(1, GX_VTXFMT0);
+}
+
+void Renderer::renderVector(f32 x, f32 y, f32 z, u8 color) {
+	
+    GX_SetLineWidth(20, GX_VTXFMT0);
+	
+    GX_Begin(GX_LINESTRIP, GX_VTXFMT0, 2);
+	
+		renderVertex(x/z * 0.2, y/z * 0.2, (z<0) ? -0.2: 0.2, color, 0);
+		renderVertex(x/2, y/2, z/2, color, 0);
+
+    GX_End();
+	
+    GX_SetLineWidth(10, GX_VTXFMT0);
+	
+    GX_Begin(GX_LINESTRIP, GX_VTXFMT0, 2);
+	
+		renderVertex(x/2, y/2, z/2, color, 0);
+		renderVertex(x, y, z, color, 0);
+
+    GX_End();
+	
+    GX_SetLineWidth(1, GX_VTXFMT0);
 }
 
 void Renderer::renderSplashScreen() {

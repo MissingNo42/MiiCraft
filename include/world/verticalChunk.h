@@ -10,13 +10,6 @@
 #include <cstdint>
 #include <queue>
 
-enum Neighboor : u8 {
-	NORTH = 0,
-	EAST = 1,
-	SOUTH = 2,
-	WEST = 3
-};
-
 
 /**
  * @class VerticalChunk
@@ -53,12 +46,12 @@ public:
 		return blocks[bcoord.x & 15][bcoord.y][bcoord.z & 15].type;
 	}
 	
-	void inline SetNeighboor(Neighboor neighboor, u16 chunk) noexcept {
+	void inline SetNeighboor(Direction neighboor, u16 chunk) noexcept {
 		recache = 1;
 		neighboors[neighboor] = chunk;
 	}
 	
-	[[nodiscard]] inline VerticalChunk& GetNeighboorChunk(Neighboor neighboor) const noexcept;
+	[[nodiscard]] inline VerticalChunk& GetNeighboorChunk(Direction neighboor) const noexcept;
 	
 	void inline fillWith(Block block = {BlockType::Bedrock, {0}}) noexcept {
 		for (s32 i = sizeof(blocks) / sizeof(Block); i--;) {

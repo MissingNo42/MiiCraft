@@ -6,7 +6,7 @@
 #define MIICRAFT_MATRIX_H
 
 #include <ogc/gu.h>
-
+#include <cstdio>
 inline void MtxRotAxis(Mtx m, Mtx out, guVector axis, float deg){
 	Mtx i;
 	guMtxIdentity(i);
@@ -20,5 +20,6 @@ inline void VecRotAxis(guVector * v, guVector axis, float deg){
 	guMtxRotAxisDeg(m, &axis, deg);
 	guVecMultiply(m, v, v);
 }
+
 
 #endif //MIICRAFT_MATRIX_H

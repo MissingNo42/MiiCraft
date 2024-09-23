@@ -3,17 +3,117 @@
 //
 #include "engine/render/block.h"
 #include "render/cacheUnit.h"
+#include "world/world.h"
 
-#define BLOC_FACE_TOP 0
-#define BLOC_FACE_BOTTOM 1
-#define BLOC_FACE_RIGHT 2
-#define BLOC_FACE_LEFT 3
-#define BLOC_FACE_FRONT 4
-#define BLOC_FACE_BACK 5
+
+
+[[nodiscard]] bool inline checkBlock(BlockCoord coord, BlockType type) {
+	BlockData& block = blockData[type];
+	
+	BlockCoord floor = coord;
+	floor.y--;
+	BlockData& floorBlock = blockData[World::getBlockAt(floor).type];
+	
+	if (!floorBlock.allowAbove) { // check if can be "attached" to side blocks
+		return false;
+	}
+	
+	if (block.needFloor && !floorBlock.isFloor) {
+		return false;
+	}
+	
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////
+///////////////////////////////// Spawn //////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+bool spawnDefault(BlockCoord coord, BlockType type, Direction dir) {
+	BlockData& block = blockData[type];
+	
+	if (!checkBlock(coord, type)) {
+		return false;
+	}
+	
+	Block bk = {type, {0}};
+	
+	if (block.isOrientable) {
+		bk.orient = dir ^ 2; // facing the player
+	}
+	
+	World::setBlockAt(coord, bk);
+	return true;
+}
+
+bool spawnDoorLow(BlockCoord coord, BlockType type, Direction dir) {
+	BlockData& block = blockData[type];
+	BlockCoord up = {coord.x, coord.y + 1, coord.z};
+	
+	if (!checkBlock(coord, type) || !checkBlock(up, (BlockType)(type + 1))) {
+		return false;
+	}
+	
+	Block bkl = {type, {0}};
+	Block bkh = {(BlockType)(type + 1), {0}};
+	
+	bkh.orient = bkl.orient = dir ^ 2; // facing the player
+	
+	World::setBlockAt(coord, bkl);
+	World::setBlockAt(up, bkh);
+	return true;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////// Despawn /////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+void despawnDefault(BlockCoord coord) {
+	World::setBlockAt(coord, {BlockType::Air, {0}});
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////// Interact ////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+
+bool interactDoorLow(BlockCoord coord, Interaction interaction) {
+	Block bk = World::getBlockAt(coord);
+	switch (interaction) {
+		case Interaction::Redstone:
+		case Interaction::Hand:
+			bk.state ^= 1; // open/close
+			return true;
+		default:
+			return false;
+	}
+}
+
+bool interactDoorHigh(BlockCoord coord, Interaction interaction) {
+	return interactDoorLow({coord.x, coord.y - 1, coord.z}, interaction);
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////
+///////////////////////////////// Render /////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+void renderVoid() {
+}
+
+//////////////////////////////////////////////////////////////////////////
+/////////////////////////////// Block Data ///////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 BlockData blockData[]{
 		
-		{}, //Air
+		{
+				// Air
+				.isSelectable = 0,
+				.isFloor = 0,
+			},
 		
 		/// Transparent Blocks
 		
@@ -30,7 +130,8 @@ BlockData blockData[]{
 		{
 				// Water
 				.x = BLOCK_COORDS_ALL(0),
-				.y = BLOCK_COORDS_ALL(TextureIndex::WATER)
+				.y = BLOCK_COORDS_ALL(TextureIndex::WATER),
+				.isSelectable = 0,
 		},
 		
 		/// Semi-Transparent Blocks
@@ -622,18 +723,13 @@ BlockData blockData[]{
 			.x = BLOCK_COORDS_ALL(1),
 			.y = BLOCK_COORDS_ALL(11),
 			.isOrientable = 1,
-			.isInteractive = 1,
+			.interactive = interactDoorLow,
 		},
 		{
 			// DoorHigh
 			.x = BLOCK_COORDS_ALL(1),
 			.y = BLOCK_COORDS_ALL(10),
 			.isOrientable = 1,
-			.isInteractive = 1,
+			.interactive = interactDoorHigh,
 		},
 };
-
-
-void BlockData::blockInit() {
-
-}

@@ -61,7 +61,7 @@ if __name__ == '__main__':
     fK = {chunk( x,  "y", mz)};
 
     if (isOpaque(type.type)) {{
-        tT = !isOpaque(fT.type);
+        tT = !isOpaque(fT.type); // if irregular do more checks 
         tB = !isOpaque(fB.type);
         tL = !isOpaque(fL.type);
         tR = !isOpaque(fR.type);
