@@ -14,6 +14,7 @@ add_compile_options(-Wextra)
 add_compile_options(-Wpedantic)
 add_compile_options(-Winline)
 add_compile_options(-g)
+add_compile_options(-fms-extensions)
 #add_compile_options(-Ofast)
 
 
@@ -52,7 +53,6 @@ add_executable(Miicraft main.cpp
         src/engine/render/camera.cpp
         src/world/FlatWorldGenerator.cpp
         src/world/PerlinWorldGenerator.cpp
-        src/world/coord.cpp
         src/system/saveManager.cpp
         src/system/Random.cpp
         src/player.cpp
@@ -64,16 +64,6 @@ add_executable(Miicraft main.cpp
         src/craft.cpp
         src/engine/render/interface.cpp
 )
-
-add_executable(MiicraftTest Debug.cpp
-        src/world/verticalChunk.cpp
-        src/world/world.cpp
-        src/world/FlatWorldGenerator.cpp
-        src/world/PerlinWorldGenerator.cpp
-        src/world/coord.cpp
-        src/system/Random.cpp
-)
-
 
 #add_compile_options(-lfat)
 target_link_libraries(Miicraft fat)

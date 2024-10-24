@@ -11,6 +11,7 @@
 #include <set>
 #include <queue>
 #include <cmath>
+#include <cstring>
 
 #define LOADED_CHUNKS 601 // XxX chunks + empty chunk
 #define EMPTY_CHUNK 0
@@ -29,16 +30,11 @@ struct World {
 		chunkSlots = new VerticalChunk[LOADED_CHUNKS];
 		for (u16 i = 0; i < LOADED_CHUNKS; i++) {
 			chunkSlots[i].id = i;
-			printf("Chunk %d, N %d %d %d %d\r\n",
-				   i,
-				   chunkSlots[i].neighboors[0],
-				   chunkSlots[i].neighboors[1],
-				   chunkSlots[i].neighboors[2],
-				   chunkSlots[i].neighboors[3]);
 		}
 		chunkSlots[EMPTY_CHUNK].loaded = 1;
 		chunkSlots[EMPTY_CHUNK].recache = 0;
-		chunkSlots[EMPTY_CHUNK].fillWith(BlockType::Bedrock);
+		chunkSlots[EMPTY_CHUNK].fillWith(BlockType::Bedrock); // fill with bedrock for collision
+		std::memset(chunkSlots[EMPTY_CHUNK].lightMap, 0, sizeof(chunkSlots[EMPTY_CHUNK].lightMap)); // 0 instead of 127 for light perf improvement
 	}
 	
 	static u16 getFreeSlot() {
@@ -57,10 +53,8 @@ struct World {
     static VerticalChunk& getChunkAt(ChunkCoord pos, bool generate = false);
 	
     static void setNeighboors(VerticalChunk& chunk);
-    static void initLight(VerticalChunk& c);
+    static void resetLight(VerticalChunk& c);
     static void propagateLight(VerticalChunk& c);
-	
-    static void handleLightBlock(VerticalChunk& vc);
 	
 	static VerticalChunk& requestChunk(ChunkCoord pos);
 	static void requestChunks(ChunkCoord pos, s32 range = 2);

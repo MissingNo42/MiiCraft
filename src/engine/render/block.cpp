@@ -8,11 +8,11 @@
 
 
 [[nodiscard]] bool inline checkBlock(BlockCoord coord, BlockType type) {
-	BlockData& block = blockData[type];
+	auto& block = blockData[type];
 	
 	BlockCoord floor = coord;
 	floor.y--;
-	BlockData& floorBlock = blockData[World::getBlockAt(floor).type];
+	auto& floorBlock = blockData[World::getBlockAt(floor).type];
 	
 	if (!floorBlock.allowAbove) { // check if can be "attached" to side blocks
 		return false;
@@ -30,7 +30,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 bool spawnDefault(BlockCoord coord, BlockType type, Direction dir) {
-	BlockData& block = blockData[type];
+	auto& block = blockData[type];
 	
 	if (!checkBlock(coord, type)) {
 		return false;
@@ -47,7 +47,7 @@ bool spawnDefault(BlockCoord coord, BlockType type, Direction dir) {
 }
 
 bool spawnDoorLow(BlockCoord coord, BlockType type, Direction dir) {
-	BlockData& block = blockData[type];
+	auto& block = blockData[type];
 	BlockCoord up = {coord.x, coord.y + 1, coord.z};
 	
 	if (!checkBlock(coord, type) || !checkBlock(up, (BlockType)(type + 1))) {
@@ -107,31 +107,34 @@ void renderVoid() {
 /////////////////////////////// Block Data ///////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-BlockData blockData[]{
+const BlockData blockData[]{
 		
 		{
 				// Air
 				.isSelectable = 0,
 				.isFloor = 0,
+				.isTransparent = 1,
+				.isLightFilter = 0,
 			},
 		
 		/// Transparent Blocks
 		
 		{
 				// Glass
-				.x = BLOCK_COORDS_ALL(14),
-				.y = BLOCK_COORDS_ALL(0)
+				.tc = TILE_INDEX_ALL(14, 0),
+				.isTransparent = 1,
+				.isLightFilter = 0,
 		},
 		{
 				// ClearIce
-				.x = BLOCK_COORDS_ALL(15),
-				.y = BLOCK_COORDS_ALL(2)
+				.tc = TILE_INDEX_ALL(15, 2),
+				.isTransparent = 1,
 		},
 		{
 				// Water
-				.x = BLOCK_COORDS_ALL(0),
-				.y = BLOCK_COORDS_ALL(TextureIndex::WATER),
+				.tc = TILE_INDEX_ALL(0, TextureIndex::WATER),
 				.isSelectable = 0,
+				.isTransparent = 1,
 		},
 		
 		/// Semi-Transparent Blocks
@@ -139,43 +142,45 @@ BlockData blockData[]{
 		// //Leave
 		{
 				// LeaveAcacia
-				.x = BLOCK_COORDS_ALL(5),
-				.y = BLOCK_COORDS_ALL(0)
+				.tc = TILE_INDEX_ALL(5, 0),
+				.isTransparent = 1,
 		},
 		{
 				// LeaveOak
-				.x = BLOCK_COORDS_ALL(5),
-				.y = BLOCK_COORDS_ALL(1)
+				.tc = TILE_INDEX_ALL(5, 1),
+				.isTransparent = 1,
 		},
 		{
 				// LeaveJungle
-				.x = BLOCK_COORDS_ALL(5),
-				.y = BLOCK_COORDS_ALL(2)
+				.tc = TILE_INDEX_ALL(5, 2),
+				.isTransparent = 1,
 		},
 		{
 				// LeaveSpruce
-				.x = BLOCK_COORDS_ALL(5),
-				.y = BLOCK_COORDS_ALL(3)
+				.tc = TILE_INDEX_ALL(5, 3),
+				.isTransparent = 1,
 		},
 		{
 				// LeaveDark
-				.x = BLOCK_COORDS_ALL(5),
-				.y = BLOCK_COORDS_ALL(4)
+				.tc = TILE_INDEX_ALL(5, 4),
+				.isTransparent = 1,
 		},
 		{
 				// LeaveBirch
-				.x = BLOCK_COORDS_ALL(5),
-				.y = BLOCK_COORDS_ALL(5)
+				.tc = TILE_INDEX_ALL(5, 5),
+				.isTransparent = 1,
 		},
 		{
 				// LeaveSakura
-				.x = BLOCK_COORDS_ALL(5),
-				.y = BLOCK_COORDS_ALL(6)
+				.tc = TILE_INDEX_ALL(5, 6),
+				.isTransparent = 1,
 		},
 		{
 				// LeaveSnow
-				.x = BLOCK_COORDS(3, 5, 5, 5, 5, 5),
-				.y = BLOCK_COORDS(9, 3, 9, 9, 9, 9)
+				.tc = TILE_INDEX_SIDE(5, 9,
+									  3, 9,
+									  5, 3),
+				.isTransparent = 1,
 		},
 		
 		/// Opaque Blocks
@@ -184,154 +189,129 @@ BlockData blockData[]{
 		{
 				// Bedrock
 				
-				.x = BLOCK_COORDS_ALL(0),
-				.y = BLOCK_COORDS_ALL(0)
+				.tc = TILE_INDEX_ALL(0, 0)
 		},
 		{
 				// Stone
 				
-				.x = BLOCK_COORDS_ALL(0),
-				.y = BLOCK_COORDS_ALL(1)
+				.tc = TILE_INDEX_ALL(0, 1)
 		},
 		{
 				// Andesite
 				
-				.x = BLOCK_COORDS_ALL(0),
-				.y = BLOCK_COORDS_ALL(2)
+				.tc = TILE_INDEX_ALL(0, 2)
 		},
 		{
 				// SandStone
 				
-				.x = BLOCK_COORDS_ALL(0),
-				.y = BLOCK_COORDS_ALL(3)
+				.tc = TILE_INDEX_ALL(0, 3)
 		},
 		{
 				// CoalOre
 				
-				.x = BLOCK_COORDS_ALL(0),
-				.y = BLOCK_COORDS_ALL(4)
+				.tc = TILE_INDEX_ALL(0, 4)
 		},
 		{
 				// CopperOre
 				
-				.x = BLOCK_COORDS_ALL(0),
-				.y = BLOCK_COORDS_ALL(5)
+				.tc = TILE_INDEX_ALL(0, 5)
 		},
 		{
 				// DiamondOre
 				
-				.x = BLOCK_COORDS_ALL(0),
-				.y = BLOCK_COORDS_ALL(6)
+				.tc = TILE_INDEX_ALL(0, 6)
 		},
 		{
 				// EmeraldOre
 				
-				.x = BLOCK_COORDS_ALL(0),
-				.y = BLOCK_COORDS_ALL(7)
+				.tc = TILE_INDEX_ALL(0, 7)
 		},
 		{
 				// GoldOre
 				
-				.x = BLOCK_COORDS_ALL(0),
-				.y = BLOCK_COORDS_ALL(8)
+				.tc = TILE_INDEX_ALL(0, 8)
 		},
 		{
 				// IronOre
 				
-				.x = BLOCK_COORDS_ALL(0),
-				.y = BLOCK_COORDS_ALL(9)
+				.tc = TILE_INDEX_ALL(0, 9)
 		},
 		{
 				// LapisOre
 				
-				.x = BLOCK_COORDS_ALL(0),
-				.y = BLOCK_COORDS_ALL(10)
+				.tc = TILE_INDEX_ALL(0, 10)
 		},
 		{
 				// RedstoneOre
 				
-				.x = BLOCK_COORDS_ALL(0),
-				.y = BLOCK_COORDS_ALL(11)
+				.tc = TILE_INDEX_ALL(0, 11)
 		},
 		{
 				// Ametyst
 				
-				.x = BLOCK_COORDS_ALL(0),
-				.y = BLOCK_COORDS_ALL(12)
+				.tc = TILE_INDEX_ALL(0, 12)
 		},
 		{
 				// Granite
 				
-				.x = BLOCK_COORDS_ALL(0),
-				.y = BLOCK_COORDS_ALL(13)
+				.tc = TILE_INDEX_ALL(0, 13)
 		},
 		{
 				// Diorite
 				
-				.x = BLOCK_COORDS_ALL(0),
-				.y = BLOCK_COORDS_ALL(14)
+				.tc = TILE_INDEX_ALL(0, 14)
 		},
 		
 		// //Clay
 		{
 				// Clay
 				
-				.x = BLOCK_COORDS_ALL(1),
-				.y = BLOCK_COORDS_ALL(0)
+				.tc = TILE_INDEX_ALL(1, 0)
 		},
 		{
 				// ClayWhite
 				
-				.x = BLOCK_COORDS_ALL(1),
-				.y = BLOCK_COORDS_ALL(1)
+				.tc = TILE_INDEX_ALL(1, 1)
 		},
 		{
 				// ClayBrown
 				
-				.x = BLOCK_COORDS_ALL(1),
-				.y = BLOCK_COORDS_ALL(2)
+				.tc = TILE_INDEX_ALL(1, 2)
 		},
 		{
 				// ClayBlack
 				
-				.x = BLOCK_COORDS_ALL(1),
-				.y = BLOCK_COORDS_ALL(3)
+				.tc = TILE_INDEX_ALL(1, 3)
 		},
 		{
 				// ClayGray
 				
-				.x = BLOCK_COORDS_ALL(1),
-				.y = BLOCK_COORDS_ALL(4)
+				.tc = TILE_INDEX_ALL(1, 4)
 		},
 		{
 				// ClayYellow
 				
-				.x = BLOCK_COORDS_ALL(1),
-				.y = BLOCK_COORDS_ALL(5)
+				.tc = TILE_INDEX_ALL(1, 5)
 		},
 		{
 				// ClayRed
 				
-				.x = BLOCK_COORDS_ALL(1),
-				.y = BLOCK_COORDS_ALL(6)
+				.tc = TILE_INDEX_ALL(1, 6)
 		},
 		{
 				// ClayLightGray
 				
-				.x = BLOCK_COORDS_ALL(1),
-				.y = BLOCK_COORDS_ALL(7)
+				.tc = TILE_INDEX_ALL(1, 7)
 		},
 		{
 				// ClayPurple
 				
-				.x = BLOCK_COORDS_ALL(1),
-				.y = BLOCK_COORDS_ALL(8)
+				.tc = TILE_INDEX_ALL(1, 8)
 		},
 		{
 				// ClayGreen
 				
-				.x = BLOCK_COORDS_ALL(1),
-				.y = BLOCK_COORDS_ALL(9)
+				.tc = TILE_INDEX_ALL(1, 9)
 		},
 		
 		
@@ -339,396 +319,326 @@ BlockData blockData[]{
 		{
 				// Dirt
 				
-				.x = BLOCK_COORDS_ALL(2),
-				.y = BLOCK_COORDS_ALL(0)
+				.tc = TILE_INDEX_ALL(2, 0)
 		},
 		{
 				// Sand
 				
-				.x = BLOCK_COORDS_ALL(2),
-				.y = BLOCK_COORDS_ALL(1)
+				.tc = TILE_INDEX_ALL(2, 1)
 		},
 		{
 				// RedSand
 				
-				.x = BLOCK_COORDS_ALL(2),
-				.y = BLOCK_COORDS_ALL(2)
+				.tc = TILE_INDEX_ALL(2, 2)
 		},
 		{
 				// Gravel
 				
-				.x = BLOCK_COORDS_ALL(2),
-				.y = BLOCK_COORDS_ALL(3)
+				.tc = TILE_INDEX_ALL(2, 3)
 		},
 		
 		// //Soil
 		{
 				// GrassSavanna,
-				.x = BLOCK_COORDS_SIDE(4, 3, 2),
-				.y = BLOCK_COORDS_SIDE(0, 0, 0)
+				.tc = TILE_INDEX_SIDE(4, 0, 3, 0, 2, 0)
 		},
 		{
 				// GrassTemperate,
-				.x = BLOCK_COORDS_SIDE(4, 3, 2),
-				.y = BLOCK_COORDS_SIDE(1, 1, 0)
+				.tc = TILE_INDEX_SIDE(4, 1, 3, 1, 2, 0)
 		},
 		{
 				// GrassJungle,
-				.x = BLOCK_COORDS_SIDE(4, 3, 2),
-				.y = BLOCK_COORDS_SIDE(2, 2, 0)
+				.tc = TILE_INDEX_SIDE(4, 2, 3, 2, 2, 0)
 		},
 		{
 				// GrassTaiga,
-				.x = BLOCK_COORDS_SIDE(4, 3, 2),
-				.y = BLOCK_COORDS_SIDE(3, 3, 0)
+				.tc = TILE_INDEX_SIDE(4, 3, 3, 3, 2, 0)
 		},
 		{
 				// GrassDark,
-				.x = BLOCK_COORDS_SIDE(4, 3, 2),
-				.y = BLOCK_COORDS_SIDE(4, 4, 0)
+				.tc = TILE_INDEX_SIDE(4, 4, 3, 4, 2, 0)
 		},
 		{
 				// GrassCold,
-				.x = BLOCK_COORDS_SIDE(4, 3, 2),
-				.y = BLOCK_COORDS_SIDE(5, 5, 0)
+				.tc = TILE_INDEX_SIDE(4, 5, 3, 5, 2, 0)
 		},
 		{
 				// GrassSakura,
-				.x = BLOCK_COORDS_SIDE(4, 3, 2),
-				.y = BLOCK_COORDS_SIDE(6, 6, 0)
+				.tc = TILE_INDEX_SIDE(4, 6, 3, 6, 2, 0)
 		},
 		{
 				// GrassBadland,
-				.x = BLOCK_COORDS_SIDE(4, 3, 2),
-				.y = BLOCK_COORDS_SIDE(7, 7, 0)
+				.tc = TILE_INDEX_SIDE(4, 7, 3, 7, 2, 0)
 		},
 		{
 				// GrassPodzol,
-				.x = BLOCK_COORDS_SIDE(4, 3, 2),
-				.y = BLOCK_COORDS_SIDE(8, 8, 0)
+				.tc = TILE_INDEX_SIDE(4, 8, 3, 8, 2, 0)
 		},
 		{
 				// GrassSnow,
-				.x = BLOCK_COORDS_SIDE(4, 3, 2),
-				.y = BLOCK_COORDS_SIDE(9, 9, 0)
+				.tc = TILE_INDEX_SIDE(4, 9, 3, 9, 2, 0)
 		},
 		
 		////Leave
 		{
 				// LeaveMushroomRed
-				.x = BLOCK_COORDS_ALL(5),
-				.y = BLOCK_COORDS_ALL(7)
+				.tc = TILE_INDEX_ALL(5, 7)
 		},
 		{
 				// LeaveMushroomBrown
-				.x = BLOCK_COORDS_ALL(5),
-				.y = BLOCK_COORDS_ALL(8)
+				.tc = TILE_INDEX_ALL(5, 8)
 		},
 		
 		// //Wood
 		{
 				// WoodAcacia
-				.x = BLOCK_COORDS_SIDE(6, 7, 7),
-				.y = BLOCK_COORDS_SIDE(0, 0, 0)
+				.tc = TILE_INDEX_SIDE(6, 0, 7, 0, 7, 0)
 		},
 		{
 				// WoodOak
-				.x = BLOCK_COORDS_SIDE(6, 7, 7),
-				.y = BLOCK_COORDS_SIDE(1, 1, 1)
+				.tc = TILE_INDEX_SIDE(6, 1, 7, 1, 7, 1)
 		},
 		{
 				// WoodJungle
-				.x = BLOCK_COORDS_SIDE(6, 7, 7),
-				.y = BLOCK_COORDS_SIDE(2, 2, 2)
+				.tc = TILE_INDEX_SIDE(6, 2, 7, 2, 7, 2)
 		},
 		{
 				// WoodSpruce
-				.x = BLOCK_COORDS_SIDE(6, 7, 7),
-				.y = BLOCK_COORDS_SIDE(3, 3, 3)
+				.tc = TILE_INDEX_SIDE(6, 3, 7, 3, 7, 3)
 		},
 		{
 				// WoodDark
-				.x = BLOCK_COORDS_SIDE(6, 7, 7),
-				.y = BLOCK_COORDS_SIDE(4, 4, 4)
+				.tc = TILE_INDEX_SIDE(6, 4, 7, 4, 7, 4)
 		},
 		{
 				// WoodBirch
-				.x = BLOCK_COORDS_SIDE(6, 7, 7),
-				.y = BLOCK_COORDS_SIDE(5, 5, 5)
+				.tc = TILE_INDEX_SIDE(6, 5, 7, 5, 7, 5)
 		},
 		{
 				// WoodSakura
-				.x = BLOCK_COORDS_SIDE(6, 7, 7),
-				.y = BLOCK_COORDS_SIDE(6, 6, 6)
+				.tc = TILE_INDEX_SIDE(6, 6, 7, 6, 7, 6)
 		},
 		{
 				// WoodMushroom
-				.x = BLOCK_COORDS_SIDE(6, 7, 7),
-				.y = BLOCK_COORDS_SIDE(7, 7, 7)
+				.tc = TILE_INDEX_SIDE(6, 7, 7, 7, 7, 7)
 		},
 		
 		// //Plank
 		{
 				// PlankAcacia
-				.x = BLOCK_COORDS_ALL(8),
-				.y = BLOCK_COORDS_ALL(0)
+				.tc = TILE_INDEX_ALL(8, 0)
 		},
 		{
 				// PlankOak
-				.x = BLOCK_COORDS_ALL(8),
-				.y = BLOCK_COORDS_ALL(1)
+				.tc = TILE_INDEX_ALL(8, 1)
 		},
 		{
 				// PlankJungle
-				.x = BLOCK_COORDS_ALL(8),
-				.y = BLOCK_COORDS_ALL(2)
+				.tc = TILE_INDEX_ALL(8, 2)
 		},
 		{
 				// PlankSpruce
-				.x = BLOCK_COORDS_ALL(8),
-				.y = BLOCK_COORDS_ALL(3)
+				.tc = TILE_INDEX_ALL(8, 3)
 		},
 		{
 				// PlankDark
-				.x = BLOCK_COORDS_ALL(8),
-				.y = BLOCK_COORDS_ALL(4)
+				.tc = TILE_INDEX_ALL(8, 4)
 		},
 		{
 				// PlankBirch
-				.x = BLOCK_COORDS_ALL(8),
-				.y = BLOCK_COORDS_ALL(5)
+				.tc = TILE_INDEX_ALL(8, 5)
 		},
 		{
 				// PlankSakura
-				.x = BLOCK_COORDS_ALL(8),
-				.y = BLOCK_COORDS_ALL(6)
+				.tc = TILE_INDEX_ALL(8, 6)
 		},
 		
 		
 		/// Misc
 		{
-				//Furnace
-				.x = BLOCK_COORDS_SIDE(13, 13, 13),
-				.y = BLOCK_COORDS_SIDE(1, 2, 2),
-				.isOrientable = 1,
-				.isInteractive = 1,
-		},
-		{
 				//Crafting table
-				.x = BLOCK_COORDS_SIDE(13, 13, 13),
-				.y = BLOCK_COORDS_SIDE(4, 3, 3),
-				.isInteractive = 1
+				.tc = TILE_INDEX_FACE(13, 5, 13, 3, 13, 4),
+				//.isInteractive = 1
 			},
 		{
 				// BrickStone
-				.x = BLOCK_COORDS_ALL(14),
-				.y = BLOCK_COORDS_ALL(1)
+				.tc = TILE_INDEX_ALL(14, 1)
 		},
 		{
 				// BrickDark
-				.x = BLOCK_COORDS_ALL(14),
-				.y = BLOCK_COORDS_ALL(2)
+				.tc = TILE_INDEX_ALL(14, 2)
 		},
 		{
 				// BrickRed
-				.x = BLOCK_COORDS_ALL(14),
-				.y = BLOCK_COORDS_ALL(3)
+				.tc = TILE_INDEX_ALL(14, 3)
 		},
 		
 		// //Ore Block
 		{
 				// CoalBlock
-				.x = BLOCK_COORDS_ALL(14),
-				.y = BLOCK_COORDS_ALL(4)
+				.tc = TILE_INDEX_ALL(14, 4)
 		},
 		{
 				// CopperBlock
-				.x = BLOCK_COORDS_ALL(14),
-				.y = BLOCK_COORDS_ALL(5)
+				.tc = TILE_INDEX_ALL(14, 5)
 		},
 		{
 				// DiamondBlock
-				.x = BLOCK_COORDS_ALL(14),
-				.y = BLOCK_COORDS_ALL(6)
+				.tc = TILE_INDEX_ALL(14, 6)
 		},
 		{
 				// EmeraldBlock
-				.x = BLOCK_COORDS_ALL(14),
-				.y = BLOCK_COORDS_ALL(7)
+				.tc = TILE_INDEX_ALL(14, 7)
 		},
 		{
 				// GoldBlock
-				.x = BLOCK_COORDS_ALL(14),
-				.y = BLOCK_COORDS_ALL(8)
+				.tc = TILE_INDEX_ALL(14, 8)
 		},
 		{
 				// IronBlock
-				.x = BLOCK_COORDS_ALL(14),
-				.y = BLOCK_COORDS_ALL(9)
+				.tc = TILE_INDEX_ALL(14, 9)
 		},
 		{
 				// LapisBlock
-				.x = BLOCK_COORDS_ALL(14),
-				.y = BLOCK_COORDS_ALL(10)
+				.tc = TILE_INDEX_ALL(14, 10)
 		},
 		{
 				// RedstoneBlock
-				.x = BLOCK_COORDS_ALL(14),
-				.y = BLOCK_COORDS_ALL(11)
+				.tc = TILE_INDEX_ALL(14, 11)
 		},
 		
 		// //Misc 2
 		{
 				// ShroomLight
-				.x = BLOCK_COORDS_ALL(14),
-				.y = BLOCK_COORDS_ALL(12)
+				.tc = TILE_INDEX_ALL(14, 12),
+				.emittedLight = 15,
 		},
 		{
 				// RedstoneLamp
-				.x = BLOCK_COORDS_ALL(14),
-				.y = BLOCK_COORDS_ALL(13)
+				.tc = TILE_INDEX_ALL(14, 13),
+				.emittedLight = 15,
 		},
 		
 		// //Elemental
 		{
 				// BlueIce
-				.x = BLOCK_COORDS_ALL(15),
-				.y = BLOCK_COORDS_ALL(0)
+				.tc = TILE_INDEX_ALL(15, 0)
 		},
 		{
 				// StdIce
-				.x = BLOCK_COORDS_ALL(15),
-				.y = BLOCK_COORDS_ALL(1)
+				.tc = TILE_INDEX_ALL(15, 1)
 		},
 		{
 				// Lava
-				.x = BLOCK_COORDS_ALL(15),
-				.y = BLOCK_COORDS_ALL(4)
+				.tc = TILE_INDEX_ALL(15, 4),
+				.emittedLight = 15,
 		},
 		{
 				// Netherrack
-				.x = BLOCK_COORDS_ALL(15),
-				.y = BLOCK_COORDS_ALL(5)
+				.tc = TILE_INDEX_ALL(15, 5)
 		},
 		{
 				// QuartzOre
-				.x = BLOCK_COORDS_ALL(15),
-				.y = BLOCK_COORDS_ALL(6)
+				.tc = TILE_INDEX_ALL(15, 6)
 		},
 		{
 				// MagmaBlock1
-				.x = BLOCK_COORDS_ALL(15),
-				.y = BLOCK_COORDS_ALL(7)
+				.tc = TILE_INDEX_ALL(15, 7)
 		},
 		{
 				// MagmaBlock2
-				.x = BLOCK_COORDS_ALL(15),
-				.y = BLOCK_COORDS_ALL(8)
+				.tc = TILE_INDEX_ALL(15, 8)
 		},
 		{
 				// MagmaBlock3
-				.x = BLOCK_COORDS_ALL(15),
-				.y = BLOCK_COORDS_ALL(9)
+				.tc = TILE_INDEX_ALL(15, 9)
 		},
-		
 		{
 				// Snow
-				.x = BLOCK_COORDS_ALL(3),
-				.y = BLOCK_COORDS_ALL(9)
+				.tc = TILE_INDEX_ALL(3, 9)
 		},
 		
 		// //Misc 3
 		{
-				// Trinitrotoluene
-				.x = BLOCK_COORDS_SIDE(15, 15, 15),
-				.y = BLOCK_COORDS_SIDE(10, 8, 9)
+				// Trinitrotoluene TNT
+				.tc = TILE_INDEX_SIDE(15, 10, 15, 8, 15, 9)
 		},
 		{
 				// QuartzBlock
-				.x = BLOCK_COORDS_ALL(15),
-				.y = BLOCK_COORDS_ALL(11)
+				.tc = TILE_INDEX_ALL(15, 11)
 		},
 		{
 				// Glowstone
-				.x = BLOCK_COORDS_ALL(15),
-				.y = BLOCK_COORDS_ALL(12)
+				.tc = TILE_INDEX_ALL(15, 12),
+				.emittedLight = 15,
 		},
 		{
 				// Impostor
-				.x = BLOCK_COORDS_ALL(0),
-				.y = BLOCK_COORDS_ALL(15)
+				.tc = TILE_INDEX_ALL(0, 15)
 		},
 		
 		// //Plant
 		{
 				//Cactus
-				.x = BLOCK_COORDS_SIDE(9, 9, 9),
-				.y = BLOCK_COORDS_SIDE(1, 0, 0)
+				.tc = TILE_INDEX_SIDE(9, 1, 9, 0, 9, 0)
 		},
 		
 		
 		//Block Breaking
 		{
 				// BlockBreaking0
-				.x = BLOCK_COORDS_ALL(6),
-				.y = BLOCK_COORDS_ALL(14)
+				.tc = TILE_INDEX_ALL(6, 14)
 		},
 		{
 				// BlockBreaking1
-				.x = BLOCK_COORDS_ALL(7),
-				.y = BLOCK_COORDS_ALL(14)
+				.tc = TILE_INDEX_ALL(7, 14)
 		},
 		{
 				// BlockBreaking2
-				.x = BLOCK_COORDS_ALL(8),
-				.y = BLOCK_COORDS_ALL(14)
+				.tc = TILE_INDEX_ALL(8, 14)
 		},
 		{
 				// BlockBreaking3
-				.x = BLOCK_COORDS_ALL(9),
-				.y = BLOCK_COORDS_ALL(14)
+				.tc = TILE_INDEX_ALL(9, 14)
 		},
 		{
 				// BlockBreaking4
-				.x = BLOCK_COORDS_ALL(10),
-				.y = BLOCK_COORDS_ALL(14)
+				.tc = TILE_INDEX_ALL(10, 14)
 		},
 		{
 				// BlockBreaking5
-				.x = BLOCK_COORDS_ALL(11),
-				.y = BLOCK_COORDS_ALL(14)
+				.tc = TILE_INDEX_ALL(11, 14)
 		},
 		{
 				// BlockBreaking6
-				.x = BLOCK_COORDS_ALL(12),
-				.y = BLOCK_COORDS_ALL(14)
+				.tc = TILE_INDEX_ALL(12, 14)
 		},
 		{
 				// BlockBreaking7
-				.x = BLOCK_COORDS_ALL(13),
-				.y = BLOCK_COORDS_ALL(14)
+				.tc = TILE_INDEX_ALL(13, 14)
 		},
 		{
 				// BlockBreaking8
-				.x = BLOCK_COORDS_ALL(14),
-				.y = BLOCK_COORDS_ALL(14)
+				.tc = TILE_INDEX_ALL(14, 14)
 		},
 		{
 				// BlockBreaking9
-				.x = BLOCK_COORDS_ALL(15),
-				.y = BLOCK_COORDS_ALL(14)
+				.tc = TILE_INDEX_ALL(15, 14)
+		},
+		{
+				//Furnace
+				.tc = TILE_INDEX_FACE(13, 1, 13, 2, 13, 0),
+				.isOrientable = 1,
 		},
 		{
 			// DoorLow
-			.x = BLOCK_COORDS_ALL(1),
-			.y = BLOCK_COORDS_ALL(11),
+			.tc = {TextureIndex::WOOD_DOOR_NORTH, TextureIndex::WOOD_DOOR_EAST, TextureIndex::WOOD_DOOR_SOUTH, TextureIndex::WOOD_DOOR_WEST, TextureIndex::WOOD_DOOR_TOP, TextureIndex::WOOD_DOOR_BOTTOM},
 			.isOrientable = 1,
 			.interactive = interactDoorLow,
 		},
 		{
 			// DoorHigh
-			.x = BLOCK_COORDS_ALL(1),
-			.y = BLOCK_COORDS_ALL(10),
+			.tc = TILE_INDEX_ALL(0, 0), // unused
 			.isOrientable = 1,
 			.interactive = interactDoorHigh,
 		},

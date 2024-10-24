@@ -81,14 +81,10 @@ bool Player::getFocusedBlock() {
 	
 	guVecNormalize(&dir);
 	
-	N1 = dir.x;
-	N2 = dir.y;
-	N3 = dir.z;
-	
 	f32 xs = dir.x < 0 ? 0 : 1;
 	f32 ys = dir.y < 0 ? 0 : 1;
 	f32 zs = dir.z < 0 ? 0 : 1;
-	f32 dist = 0;
+	f32 dist = 0, old_dist;
 	
 	do { // ray casting
 		f32 xq = floorf(cpos.x + xs); // get the coord of the nearest block
@@ -108,24 +104,26 @@ bool Player::getFocusedBlock() {
 		f32 dy = (yq - cpos.y) / dir.y; // get the delta, always > 0
 		f32 dz = (zq - cpos.z) / dir.z; // get the delta, always > 0
 		
+		old_dist = dist;
+		
 		if (dx < dy && dx < dz) {
 			dist += dx; // works since dir is normalized
 			cpos.x = xq;
 			cpos.y += dx * dir.y;
 			cpos.z += dx * dir.z;
-			focusedFace = dir.x < 0 ? BLOCK_FACE_RIGHT : BLOCK_FACE_LEFT;
+			focusedFace = dir.x < 0 ? BlockFace::East : BlockFace::West;
 		} else if (dy < dz) {
 			dist += dy; // works since dir is normalized
 			cpos.x += dy * dir.x;
 			cpos.y = yq;
 			cpos.z += dy * dir.z;
-			focusedFace = dir.y < 0 ? BLOCK_FACE_TOP : BLOCK_FACE_BOTTOM;
+			focusedFace = dir.y < 0 ? BlockFace::Top : BlockFace::Bottom;
 		} else {
 			dist += dz; // works since dir is normalized
 			cpos.x += dz * dir.x;
 			cpos.y += dz * dir.y;
 			cpos.z = zq;
-			focusedFace = dir.z < 0 ? BLOCK_FACE_FRONT : BLOCK_FACE_BACK;
+			focusedFace = dir.z < 0 ? BlockFace::North : BlockFace::South;
 		}
 		
 		BlockCoord pos = BlockCoord((int)( floorf(cpos.x) + 1), (int) (floorf(cpos.y) + 1), (int) (floorf(cpos.z) + 1)); // apply negative render correction
@@ -144,7 +142,7 @@ bool Player::getFocusedBlock() {
 			}
 			return false;
 		}
-	} while (0 < dist && dist < 6); // 6 is the max distance to check : corner or back face, 0 ensure no infinite loop
+	} while (0 < dist && dist < 6 && dist > old_dist); // 6 is the max distance to check : corner or back face, 0 ensure no infinite loop
 	
 	return false;
 }
@@ -319,17 +317,17 @@ void Player::placeBlock() {
 	
 	if (focusedBlockType) {
 		switch (focusedFace) {
-			case BLOCK_FACE_LEFT: pos.x--;
+			case BlockFace::West: pos.x--;
 				break;
-			case BLOCK_FACE_RIGHT: pos.x++;
+			case BlockFace::East: pos.x++;
 				break;
-			case BLOCK_FACE_BOTTOM: pos.y--;
+			case BlockFace::Bottom: pos.y--;
 				break;
-			case BLOCK_FACE_TOP: pos.y++;
+			case BlockFace::Top: pos.y++;
 				break;
-			case BLOCK_FACE_BACK: pos.z--;
+			case BlockFace::South: pos.z--;
 				break;
-			case BLOCK_FACE_FRONT: pos.z++;
+			case BlockFace::North: pos.z++;
 				break;
 		}
 		
@@ -341,7 +339,7 @@ void Player::placeBlock() {
 				    || (pos.z != (int) floorf(renderer.camera.pos.z + 1.3f) &&
 				        pos.z != (int) floorf(renderer.camera.pos.z + 0.7f)))) {
 			
-			auto block = blockData[]
+			// TODO auto block = blockData[]
 			World::setBlockTypeAt(pos, slot.item.type);
 			
 			if (!creative) {
@@ -352,28 +350,6 @@ void Player::placeBlock() {
 		}
 	}
 	placeDelay = 0;
-}
-
-int Player::getFocusedFace() const {
-	if (focusedBlockType != BlockType::Air) {
-		f32 deltaX = (f32) std::fabs((focusedBlockLook.x - round(focusedBlockLook.x)));
-		f32 deltaY = (f32) std::fabs((focusedBlockLook.y - round(focusedBlockLook.y)));
-		f32 deltaZ = (f32) std::fabs((focusedBlockLook.z - round(focusedBlockLook.z)));
-		
-		std::vector<f32> f = {deltaX, deltaY, deltaZ};
-		auto min = std::min_element(std::begin(f), std::end(f));
-		if (*min == f[0]) {
-			if (renderer.camera.pos.x + 1 <= round(focusedBlockLook.x)) return BLOCK_FACE_LEFT;
-			else return BLOCK_FACE_RIGHT;
-		} else if (*min == f[1]) {
-			if (renderer.camera.pos.y + 1 <= round(focusedBlockLook.y)) return BLOCK_FACE_BOTTOM;
-			else return BLOCK_FACE_TOP;
-		} else {
-			if (renderer.camera.pos.z + 1 <= round(focusedBlockLook.z)) return BLOCK_FACE_BACK;
-			else return BLOCK_FACE_FRONT;
-		}
-	}
-	return -1;
 }
 
 
@@ -625,7 +601,7 @@ void Player::update() {
 				craftSlot = true;
 			}
 		}*/
-		printf(">>> %d %d %d\r", isValidCursor, selectedSlot, craftSlot);
+		//printf(">>> %d %d %d\r", isValidCursor, selectedSlot, craftSlot);
 		if (wiimote.wd->btns_d & WPAD_BUTTON_A && isValidCursor)
 			inventory.action(selectedSlot, craftSlot, 0, false, false, creative);
 		else if (wiimote.wd->btns_d & WPAD_BUTTON_MINUS && isValidCursor)
@@ -699,7 +675,18 @@ void Player::update() {
 }
 
 void Player::renderFocus() {
-	if (focusing) renderer.renderFocus((f32)focusedBlockPos.x, (f32)focusedBlockPos.y, (f32)focusedBlockPos.z);
+	if (focusing) {
+		Block b = World::getBlockAt(focusedBlockPos);
+		focusedBlockPos.y++;
+		Block h = World::getBlockAt(focusedBlockPos);
+		focusedBlockPos.y--;
+		
+		printf("SELECTED CHUNK: %d %d\r", focusedBlockPos.toChunkCoord().x, focusedBlockPos.toChunkCoord().y);
+		printf("FOCUSBLOCK - LN: %d %d\r", h.naturalLight, b.naturalLight);
+		printf("FOCUSBLOCK - LA: %d %d\r\r", h.artificialLight, b.artificialLight);
+		
+		renderer.renderFocus((f32)focusedBlockPos.x, (f32)focusedBlockPos.y, (f32)focusedBlockPos.z);
+	}
 }
 
 void Player::renderDestroy() {

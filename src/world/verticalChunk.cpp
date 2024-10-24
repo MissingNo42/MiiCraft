@@ -4,7 +4,7 @@
 
 #include "world/verticalChunk.h"
 #include "world/world.h"
-#include "coord.h"
+#include "world/coord.h"
 
 void VerticalChunk::SetBlock(BlockCoord cd, Block block) {
 	recache = 1;

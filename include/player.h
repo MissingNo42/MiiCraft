@@ -74,8 +74,6 @@ public:
 
     void setPos(f32 x, f32 y, f32 z);
 
-    [[nodiscard]] int getFocusedFace() const;
-
     void placeBlock();
 
     void destroyBlock();

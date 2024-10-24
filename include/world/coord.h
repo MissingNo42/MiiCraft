@@ -36,6 +36,10 @@ struct BlockCoord {
 	    return (x == coord.x && y == coord.y && z == coord.z);
 	}
 	
+    [[nodiscard]] inline bool operator<(const BlockCoord& coord) const {
+	    return coord.x == x ? (coord.y == y ? z < coord.z: y < coord.y): x < coord.x;
+	}
+	
 	[[nodiscard]] inline ChunkCoord toChunkCoord() const {
 	    return {x >> 4, z >> 4};
 	}

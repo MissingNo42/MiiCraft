@@ -30,12 +30,19 @@ void ChunkCache::render(Camera& cam) {
 
 void ChunkCache::reset() {
 	for (auto & list : lists) list.reset();
+	
+	printf("AAAAAAAAA\r");
 	current[0] = current[1] = 0;
 	used = 0;
+	printf("AAAAAAAAA\r");
 	cached.clear();
+	printf("AAAAAAAAA\r");
 	toRelease.clear();
+	printf("AAAAAAAAA\r");
 	toCacheSet.clear();
+	printf("AAAAAAAAA\r");
 	while (!toCacheQueue.empty()) toCacheQueue.pop();
+	printf("AAAAAAAAA\r");
 }
 
 void ChunkCache::init() {
@@ -115,7 +122,7 @@ u8 ChunkCache::cache(VerticalChunk& vc) {
 	}
 }
 
-void ChunkCache::addVertex(f32 x, f32 y, f32 z, u8 c, u16 tc, u8 alpha) {
+void ChunkCache::addVertex(f32 x, f32 y, f32 z, u16 c, u16 tc, u8 alpha) {
 	if (lists[current[alpha]].addVertex(x, y, z, c, tc)) {
 		lists[current[alpha]].seal();
 		

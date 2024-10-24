@@ -53,10 +53,10 @@ inline bool Player::renderBlockIcon(f32 x1, f32 y1, f32 x2, f32 y2, BlockType bl
 	if (block) {
 		auto& tx = blockData[block];
 		Renderer::renderRect(x1, y1, x2, y2,
-				   TXCOORD(tx.x[2], tx.y[2]),
-				   TXCOORD(tx.x[2] + 1, tx.y[2]),
-				   TXCOORD(tx.x[2], tx.y[2] + 1),
-				   TXCOORD(tx.x[2] + 1, tx.y[2] + 1));
+				   tx.tc[BlockFace::North],
+				   tx.tc[BlockFace::North] + 17,
+				   tx.tc[BlockFace::North] + 1,
+				   tx.tc[BlockFace::North] + 18);
 	} else { // render "void rect" to avoid GX crash (declared rendered vertices)
 		Renderer::renderRect(0, 0, 0, 0, 0, 0, 0, 0);
 	}

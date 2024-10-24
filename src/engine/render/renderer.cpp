@@ -5,6 +5,7 @@
 #include <gccore.h>
 #include <malloc.h>
 #include <cstring>
+#include <cmath>
 #include "engine/render/renderer.h"
 #include "engine/render/block.h"
 #include "texture.h"
@@ -54,6 +55,7 @@ void Renderer::setupVideo() {
 	GX_SetCopyFilter(rmode->aa, rmode->sample_pattern, GX_TRUE, rmode->vfilter);
 	GX_SetFieldMode(rmode->field_rendering, ((rmode->viHeight == 2 * rmode->xfbHeight) ? GX_ENABLE : GX_DISABLE));
 	
+	printf("Setting up video: AA = %d\r", rmode->aa);
 	GX_SetPixelFmt(rmode->aa ? GX_PF_RGB565_Z16 : GX_PF_RGB8_Z24, GX_ZC_LINEAR);
 	
 	GX_CopyDisp(frameBuffer, GX_TRUE);
@@ -70,7 +72,6 @@ void Renderer::setupVideo() {
     GX_SetZCompLoc(GX_FALSE);
     GX_SetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_CLEAR);
     GX_SetColorUpdate(GX_TRUE);
-    GX_SetAlphaUpdate(GX_TRUE);
 }
 
 void Renderer::setupVtxDesc() {
@@ -79,40 +80,72 @@ void Renderer::setupVtxDesc() {
 	GX_InvVtxCache();
 	
 	GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
-    GX_SetVtxDesc(GX_VA_CLR0, GX_INDEX8);
+    GX_SetVtxDesc(GX_VA_CLR0, GX_INDEX16);
     GX_SetVtxDesc(GX_VA_TEX0, GX_INDEX16);
 	
 	GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
     GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_S8, 0);
     GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
 	
+	setLight();
 	GX_SetArray(GX_VA_CLR0, (void *)Lights, 4);
 	GX_SetArray(GX_VA_TEX0, (void *)TexCoord, 8);
+}
+
+static GXTexRegion region ATTRIBUTE_ALIGN(32) = {0};
+
+static GXTexRegion * RegionAllocator(GXTexObj *, u8) {
+	return &region;
 }
 
 void Renderer::setupTexture() {
 
     TPLFile TPLfile;
 	// set number of rasterized color channels
-	GX_SetNumChans(2);
+	GX_SetNumChans(1);
 	
 	//set number of textures to generate
 	GX_SetNumTexGens(1);
 	
-	GX_InvalidateTexAll();
-
+	
     TPL_OpenTPLFromMemory(&TPLfile, (void *)texture_data, texture_sz);
-    TPL_GetTexture(&TPLfile, 0, &texture);
+    TPL_GetTexture(&TPLfile, 0, &texture); // TODO: avoid copy of the RGBA buffer
+	TPL_CloseTPLFile(&TPLfile);
+	
+
     GX_InitTexObjLOD(&texture, GX_NEAR, GX_NEAR, 0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
 
-
+	GX_SetTexRegionCallback(&RegionAllocator);
+	GX_SetTlutRegionCallback(nullptr);
+	
+	GX_InvalidateTexAll();
+	GX_InitTexPreloadRegion(&region, 0, 0x80000, 0x80000, 0x80000);
+	
+	GX_InitTexCacheRegion(&region, 0, 0, GX_TEXCACHE_512K, 0x80000, GX_TEXCACHE_512K);
+	
+	//GX_InitTexPreloadRegion(&region, 0, 0x80000, 0x80000, 0x80000); // TODO: reimplement libogc non-working GX_InitTexPreloadRegion on RGBA8 textures
+	
+	struct __gx_texregion
+	{
+		u8 _pad0[13];
+		u8 iscached;
+		u8 _pad1[2];
+	} __attribute__((packed));
+	((__gx_texregion*)&region)->iscached = 0;
+	
+	GX_PreloadEntireTexture(&texture, &region); // may cause issues on real hardware
+	
+    GX_LoadTexObj(&texture, GX_TEXMAP0);
+	
     GX_SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_TEXC, GX_CC_RASC, GX_CC_ZERO);
     GX_SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_TEXA, GX_CA_RASA, GX_CA_ZERO);
 
     GX_SetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVPREV);
     GX_SetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVPREV);
 
-    GX_LoadTexObj(&texture, GX_TEXMAP0);
+	GX_SetTevDirect(GX_TEVSTAGE0);
+	
+	
     GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
 }
 
@@ -145,19 +178,19 @@ void Renderer::Underwater() {
 
 void Renderer::renderRect(f32 x1, f32 y1, f32 x2, f32 y2, u16 lt, u16 rt, u16 lb, u16 rb) {
 	GX_Position3f32(x1, y1, 0);
-	GX_Color1x8(WHITE);
+	GX_Color1x16(WHITE);
 	GX_TexCoord1x16(lt);
 	
 	GX_Position3f32(x2, y1, 0);
-	GX_Color1x8(WHITE);
+	GX_Color1x16(WHITE);
 	GX_TexCoord1x16(rt);
 	
 	GX_Position3f32(x2, y2, 0);
-	GX_Color1x8(WHITE);
+	GX_Color1x16(WHITE);
 	GX_TexCoord1x16(rb);
 	
 	GX_Position3f32(x1, y2, 0);
-	GX_Color1x8(WHITE);
+	GX_Color1x16(WHITE);
 	GX_TexCoord1x16(lb);
 }
 
@@ -183,19 +216,19 @@ void Renderer::renderSky() const {
 	GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
 	
     GX_Position3f32(-x + camera.pos.x, y, z + camera.pos.z);
-    GX_Color1x8(WHITE);
+    GX_Color1x16(WHITE);
     GX_TexCoord1x16(TextureIndex::CLOUD_RB);
 	
     GX_Position3f32(x + camera.pos.x, y, z + camera.pos.z);
-    GX_Color1x8(WHITE);
+    GX_Color1x16(WHITE);
     GX_TexCoord1x16(TextureIndex::CLOUD_LB);
 	
     GX_Position3f32(x + camera.pos.x, y, -z + camera.pos.z);
-    GX_Color1x8(WHITE);
+    GX_Color1x16(WHITE);
     GX_TexCoord1x16(TXCOORD(0, 16));
 	
     GX_Position3f32(-x + camera.pos.x, y, -z + camera.pos.z);
-    GX_Color1x8(WHITE);
+    GX_Color1x16(WHITE);
     GX_TexCoord1x16(TXCOORD(16, 16));
 	
 	GX_End();
@@ -203,7 +236,7 @@ void Renderer::renderSky() const {
 
 static inline void renderVertex(f32 x, f32 y, f32 z, u8 c, u16 tc) {
 	GX_Position3f32(x, y, z);
-	GX_Color1x8(c);
+	GX_Color1x16(c);
 	GX_TexCoord1x16(tc);
 }
 
@@ -216,9 +249,7 @@ void Renderer::renderBlock(const guVector &coord, BlockType type, u8 lt, u8 lb, 
     GX_Begin(GX_QUADS, GX_VTXFMT0, 24);
 
     // Bottom face
-    u16 tx = blockData[type].x[BLOCK_FACE_BOTTOM];
-    u16 ty = blockData[type].y[BLOCK_FACE_BOTTOM];
-	u16 tc = TXCOORD(tx, ty);
+	u16 tc = blockData[type].tc[BlockFace::Bottom];
 	
 	renderVertex(mx, my, coord.z, lb << 2, tc + 18); // RB
 	renderVertex(coord.x, my, coord.z, lb << 2, tc + 17); // LB
@@ -227,9 +258,7 @@ void Renderer::renderBlock(const guVector &coord, BlockType type, u8 lt, u8 lb, 
     
 
     // Front face
-    tx = blockData[type].x[BLOCK_FACE_FRONT];
-    ty = blockData[type].y[BLOCK_FACE_FRONT];
-	tc = TXCOORD(tx, ty);
+    tc = blockData[type].tc[BlockFace::North];
 
 	renderVertex(mx, coord.y, coord.z, lf << 2, tc); // LT
 	renderVertex(coord.x, coord.y, coord.z, lf << 2, tc + 1); // RT
@@ -238,9 +267,7 @@ void Renderer::renderBlock(const guVector &coord, BlockType type, u8 lt, u8 lb, 
 	   
 
     // Back face
-    tx = blockData[type].x[BLOCK_FACE_BACK];
-    ty = blockData[type].y[BLOCK_FACE_BACK];
-	tc = TXCOORD(tx, ty);
+    tc = blockData[type].tc[BlockFace::South];
 	
 	renderVertex(coord.x, my, mz, lk << 2, tc + 17); // LB
 	renderVertex(coord.x, coord.y, mz, lk << 2, tc); // LT
@@ -249,9 +276,7 @@ void Renderer::renderBlock(const guVector &coord, BlockType type, u8 lt, u8 lb, 
 
 
     // Right face
-    tx = blockData[type].x[BLOCK_FACE_RIGHT];
-    ty = blockData[type].y[BLOCK_FACE_RIGHT];
-	tc = TXCOORD(tx, ty);
+    tc = blockData[type].tc[BlockFace::East];
 	
 	renderVertex(coord.x, my, coord.z, lr << 2, tc + 17); // LB
 	renderVertex(coord.x, coord.y, coord.z, lr << 2, tc); // LT
@@ -260,9 +285,7 @@ void Renderer::renderBlock(const guVector &coord, BlockType type, u8 lt, u8 lb, 
 
 
     // Left face
-    tx = blockData[type].x[BLOCK_FACE_LEFT];
-    ty = blockData[type].y[BLOCK_FACE_LEFT];
-	tc = TXCOORD(tx, ty);
+    tc = blockData[type].tc[BlockFace::West];
 	
 	renderVertex(mx, coord.y, mz, ll << 2, tc); // LB
 	renderVertex(mx, coord.y, coord.z, ll << 2, tc + 1); // LT
@@ -271,9 +294,7 @@ void Renderer::renderBlock(const guVector &coord, BlockType type, u8 lt, u8 lb, 
 
 
     // Top face
-    tx = blockData[type].x[BLOCK_FACE_TOP];
-    ty = blockData[type].y[BLOCK_FACE_TOP];
-	tc = TXCOORD(tx, ty);
+    tc = blockData[type].tc[BlockFace::Top];
 	
 	renderVertex(coord.x, coord.y, mz, lt << 2, tc + 1); // RT
 	renderVertex(coord.x, coord.y, coord.z, lt << 2, tc + 18); // LT
@@ -331,7 +352,7 @@ void Renderer::renderFocus(f32 x, f32 y, f32 z) {
     GX_SetLineWidth(1, GX_VTXFMT0);
 }
 
-void Renderer::renderVector(f32 x, f32 y, f32 z, u8 color) {
+void Renderer::renderVector(f32 x, f32 y, f32 z, u16 color) {
 	
     GX_SetLineWidth(20, GX_VTXFMT0);
 	
@@ -387,4 +408,26 @@ void Renderer::renderSplashScreen() {
 
 void Renderer::setClearColor(GXColor color) {
 	GX_SetCopyClear(color, GX_MAX_Z24);
+}
+
+void Renderer::setLight(f32 day, bool flush){
+	const f32 night = 1.f - day;
+
+	for (s32 a = 0; a < 64; a++) {
+		for (s32 n = 0; n < 64; n++) {
+			s32 idx = (n << 6) | a;
+			GXColor color;
+			color.r = (u8)std::round((f32)dayLight[idx].r * day + (f32)nightLight[idx].r * night);
+			color.g = (u8)std::round((f32)dayLight[idx].g * day + (f32)nightLight[idx].g * night);
+			color.b = (u8)std::round((f32)dayLight[idx].b * day + (f32)nightLight[idx].b * night);
+			color.a = 0xff;
+			Lights[idx] = color;
+		}
+	}
+	
+	if (flush) flushLight();
+}
+
+void Renderer::flushLight(){
+	DCFlushRange(Lights, sizeof(Lights));
 }

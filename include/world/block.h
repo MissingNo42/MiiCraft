@@ -155,7 +155,6 @@ enum BlockType : u8 {
     PlankSakura,
 
     //Misc
-    Furnace,
     CraftingTable,
     BrickStone,
     BrickDark,
@@ -211,7 +210,8 @@ enum BlockType : u8 {
 	
 	/// Irregular Blocks: block than require special rendering / non-cube
 	IRREGULAR,
-	DoorLow = IRREGULAR,
+    Furnace = IRREGULAR,
+	DoorLow,
 	DoorHigh,
 	// Doors, flowers, ...
 
@@ -228,6 +228,7 @@ struct Block {
 	// Flags attributes
 	union {
 		u8 flags;
+		u8 light;
 		
 		struct { // used for (Semi)Transparent blocks
 			u8 naturalLight: 4;    // 0: no light, 15: full light
@@ -238,6 +239,15 @@ struct Block {
 			u8 orient: 2; // 0: north, 1: east, 2: south, 3: west
 			u8 state: 6; // block impl specific (e.g.: irregular blocks, redstone states, ...)
 		};
+	};
+};
+
+union Light {
+	u8 light;
+	
+	struct {
+		u8 naturalLight: 4;    // 0: no light, 15: full light
+		u8 artificialLight: 4; // 0: no light, 15: full light
 	};
 };
 

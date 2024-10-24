@@ -84,7 +84,7 @@ void PerlinWorldGenerator::generateChunk(VerticalChunk& vc) {
 //                else if (erosion <= 2.) //ne pas enlever
 //                {Tergen::generateSavanna(vc, i, j, height,w.lightQueue);}
 //            }
-			printf(">>> %d\r\n", biome);
+
             switch (biome) {
                 case Ocean: Tergen::generateOcean(vc, i, j, height);
                     break;
@@ -230,8 +230,7 @@ void PerlinWorldGenerator::generateChunk(VerticalChunk& vc) {
 
     }
 
-//    w.initLight(vc);
-    World::propagateLight(vc);
+	World::resetLight(vc);
     //std::cout << "ChunkCoord generated at " << vc.coord.x << " " << vc.coord.y << " with x : " << vc.coord.x << " y : " << vc.coord.y << std::endl;
     //std::cout << " with neighboors : " << std::endl;
     //for(int i = 0; i < 4; i++){

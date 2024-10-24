@@ -20,7 +20,6 @@ class VerticalChunk {
 
 public:
 	std::queue<BlockCoord> lightQueue;
-	std::queue<BlockCoord> blockLightQueue;
 	u16 neighboors[4]{0, 0, 0, 0};
 	u16 id;
 	
@@ -29,7 +28,8 @@ public:
 	u8 dirty = 0;
 	
 	ChunkCoord coord;
-	Block blocks[16][128][16];
+	Block blocks[16][128][16]; // y=0 must be Bedrock & y=127 must be Air
+	u8 lightMap[16][16]; // high of the first non "sun-lighted" block (or 0)
 	
 	void SetBlock(BlockCoord coord, Block block);
 	void SetBlockType(BlockCoord coord, BlockType block);
@@ -51,7 +51,7 @@ public:
 		neighboors[neighboor] = chunk;
 	}
 	
-	[[nodiscard]] inline VerticalChunk& GetNeighboorChunk(Direction neighboor) const noexcept;
+	[[nodiscard]] VerticalChunk& GetNeighboorChunk(Direction neighboor) const noexcept;
 	
 	void inline fillWith(Block block = {BlockType::Bedrock, {0}}) noexcept {
 		for (s32 i = sizeof(blocks) / sizeof(Block); i--;) {

@@ -5,25 +5,7 @@
 #include "engine/render/cacheUnit.h"
 #include "render/block.h"
 
-const u32 Lights[][4] ATTRIBUTE_ALIGN(32) = { // TODO: runtime write & flush to make the day/night cycle
-        {0x0e0e0eff, 0x0b0b0bff, 0x080909ff, 0x080909ff},
-        {0x131313ff, 0x0f0f0fff, 0x0b0c0cff, 0x0b0c0cff},
-        {0x171717ff, 0x121213ff, 0x0e0e0eff, 0x0e0e0eff},
-        {0x1c1c1cff, 0x161717ff, 0x111111ff, 0x111111ff},
-        {0x222222ff, 0x1b1b1bff, 0x141515ff, 0x141515ff},
-        {0x292929ff, 0x202121ff, 0x181919ff, 0x181919ff},
-        {0x303030ff, 0x262727ff, 0x1d1d1eff, 0x1d1d1eff},
-        {0x393939ff, 0x2d2e2eff, 0x222323ff, 0x222323ff},
-        {0x434343ff, 0x353636ff, 0x282929ff, 0x282929ff},
-        {0x4f4f4fff, 0x3e4040ff, 0x2f3031ff, 0x2f3031ff},
-        {0x5d5d5dff, 0x494b4bff, 0x373939ff, 0x373939ff},
-        {0x6e6e6eff, 0x575859ff, 0x424344ff, 0x424344ff},
-        {0x848484ff, 0x686a6bff, 0x4f5151ff, 0x4f5151ff},
-        {0xa0a0a0ff, 0x7e8181ff, 0x5f6263ff, 0x5f6263ff},
-        {0xc5c5c5ff, 0x9b9e9fff, 0x757979ff, 0x757979ff},
-        {0xfafafaff, 0xc5c9caff, 0x95999aff, 0x95999aff},
-        {0xffffffff, 0x29aeeaff, 0x000000ff, 0x00000000}
-};
+GXColor Lights[0x1000] ATTRIBUTE_ALIGN(32);
 
 f32 TexCoord[][2] ATTRIBUTE_ALIGN(32) {
 	/// [0: 288]: All 16x16 tiles coords (first quarter ([0->0.5]) only)
@@ -320,36 +302,36 @@ f32 TexCoord[][2] ATTRIBUTE_ALIGN(32) {
  /// Customs tile coords (LT, RT, <15>, LB, RB)
  {10 * OFFSET, 0},  // LT Water
  {10 * OFFSET, 0},  // RT Water
- {0, 0},
- {0, 0},
- {0, 0},
- {0, 0},
- {0, 0},
- {0, 0},
- {0, 0},
- {0, 0},
- {0, 0},
- {0, 0},
- {0, 0},
- {0, 0},
+ { TILE_COORDS(1, 10) }, // LT Door North
+ { TILE_COORDS(1, 12) }, // LB Door North
+ { TILE_COORDS(1, 10) }, // LT Door East
+ { TILE_COORDS(1, 12) }, // LB Door East
+ { TILE_COORDS(2, 10) }, // LT Door South
+ { TILE_COORDS(2, 10) }, // LB Door South
+ { TILE_COORDS(1, 10) }, // LT Door West
+ { TILE_COORDS(1, 12) }, // LB Door West
+ { TILE_COORDS(1, 10) }, // LT Door Top
+ { TILE_COORDS(1, 10 + 3.f / 16.f) }, // LB Door Top
+ { TILE_COORDS(1, 10 + 3.f / 16.f) }, // LB Door Bottom
+ { TILE_COORDS(1, 10) }, // LT Door Bottom
  {0, 0},
  {0, 0},
  {0, 0},
  
  {11 * OFFSET, 0}, // LB Water
  {11 * OFFSET, 0}, // RB Water
- {0, 0},
- {0, 0},
- {0, 0},
- {0, 0},
- {0, 0},
- {0, 0},
- {0, 0},
- {0, 0},
- {0, 0},
- {0, 0},
- {0, 0},
- {0, 0},
+ { TILE_COORDS(2, 10) }, // RT Door North
+ { TILE_COORDS(2, 12) }, // RB Door North
+ { TILE_COORDS(1 + 3.f / 16.f, 10) }, // RT Door East
+ { TILE_COORDS(1 + 3.f / 16.f, 12) }, // RB Door East
+ { TILE_COORDS(1, 10) }, // RT Door South
+ { TILE_COORDS(1, 10) }, // RB Door South
+ { TILE_COORDS(1 + 3.f / 16.f, 10) }, // RT Door West
+ { TILE_COORDS(1 + 3.f / 16.f, 12) }, // RB Door West
+ { TILE_COORDS(2, 10) }, // RT Door Top
+ { TILE_COORDS(2, 10 + 3.f / 16.f) }, // RB Door Top
+ { TILE_COORDS(2, 10) }, // RT Door Bottom
+ { TILE_COORDS(2, 10 + 3.f / 16.f) }, // RB Door Bottom
  {0, 0},
  {0, 0},
  {0, 0},

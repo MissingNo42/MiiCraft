@@ -22,10 +22,10 @@ class ChunkCache {
 	static s32 used;
 	static s32 limit;
 	static u8 full;
-	
+public:
+	static std::set<ChunkCoord> toCacheSet; // used only to unify the assoc. queue
 	static std::set<u16> cached; // used to check if a chunk is cached
 	static std::set<u16> toRelease; // chunks that CAN be released if needed
-	static std::set<ChunkCoord> toCacheSet; // used only to unify the assoc. queue
 	static std::queue<ChunkCoord> toCacheQueue; // chunks to cache
 	
 public:
@@ -43,7 +43,7 @@ public:
 	
 	static u8 cache(VerticalChunk& vc);
 	
-	static void addVertex(f32 x, f32 y, f32 z, u8 c, u16 tc, u8 alpha);
+	static void addVertex(f32 x, f32 y, f32 z, u16 c, u16 tc, u8 alpha);
 	
 	static void cache(Player players[4]);
 };

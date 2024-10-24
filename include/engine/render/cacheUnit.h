@@ -13,7 +13,7 @@
 #include "renderer.h"
 
 #define LIST_SIZE 1044 // op + sz + vtx[LIST_SIZE] = 32 N
-#define LIST_NUM 800
+#define LIST_NUM 600
 
 #define WHITE 64
 #define BLUE 65
@@ -22,6 +22,12 @@
 enum TextureIndex: u16 {
 	CUSTOM_TILE_TEXCOORDS = 289,
 	WATER = CUSTOM_TILE_TEXCOORDS,
+	WOOD_DOOR_NORTH = 291,
+	WOOD_DOOR_EAST = WOOD_DOOR_NORTH + 2,
+	WOOD_DOOR_SOUTH = WOOD_DOOR_EAST + 2,
+	WOOD_DOOR_WEST = WOOD_DOOR_SOUTH + 2,
+	WOOD_DOOR_TOP = WOOD_DOOR_WEST + 2,
+	WOOD_DOOR_BOTTOM = WOOD_DOOR_TOP + 2,
 	
 	CUSTOM_TEXCOORDS = 323,
 	CRAFT_MENU_LB = CUSTOM_TEXCOORDS,
@@ -73,7 +79,7 @@ enum TextureIndex: u16 {
 	CLOUD_RB,
 };
 
-extern const u32 Lights[][4] ATTRIBUTE_ALIGN(32);
+extern GXColor Lights[0x1000] ATTRIBUTE_ALIGN(32);
 extern f32 TexCoord[][2] ATTRIBUTE_ALIGN(32);
 
 void runWater();
@@ -86,8 +92,7 @@ enum RenderType: u8 {
 
 struct VextexCache {
 	f32 x, y, z; // 3D coordinates
-	u8 c;        // color index
-	u16 tc;      // texture index
+	u16 c, tc;       // color & texture index
 } __attribute__((packed));
 
 
@@ -99,7 +104,7 @@ struct DisplayList { // must be 32 N bytes to keep GP aligned
 	
 	// display list body
 	VextexCache vertex[LIST_SIZE]; // LIST_SIZE vertices: must be multiple of 4 (because quads)
-	u8 padding[17] = {0}; // display list end zero-padding (32 N)
+	u8 padding[29] = {0}; // display list end zero-padding (32 N)
 	
 	/// non-display list handling data: must be 32 N bytes to keep the next list aligned
 	RenderType type = RENDER_OPAQUE;
@@ -117,7 +122,7 @@ struct DisplayList { // must be 32 N bytes to keep GP aligned
 		type = rtype;
 	}
 	
-	u8 addVertex(f32 x, f32 y, f32 z, u8 c, u16 tc) {
+	u8 addVertex(f32 x, f32 y, f32 z, u16 c, u16 tc) {
 		vertex[size].x = x;
 		vertex[size].y = y;
 		vertex[size].z = z;
@@ -164,6 +169,7 @@ struct DisplayList { // must be 32 N bytes to keep GP aligned
 	}
 	
 } __attribute__((packed));
+
 
 
 #endif //MIICRAFTTEST_CACHEUNIT_H
