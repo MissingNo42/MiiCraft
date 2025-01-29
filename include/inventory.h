@@ -1,18 +1,10 @@
-//
-// Created by Natha on 19/02/2024.
-//
+#pragma once
 
-#ifndef MIICRAFTTEST_INVENTORY_H
-#define MIICRAFTTEST_INVENTORY_H
-
-
-#include <vector>
-#include "item.h"
 #include "craft.h"
+#include "item.h"
 
 
 class Inventory {
-private:
 public:
     bool open;
     bool craftOpen;
@@ -39,8 +31,3 @@ public:
 
     void handleCraft(bool fastDrop, bool creative);
 };
-
-
-
-
-#endif //MIICRAFTTEST_INVENTORY_H

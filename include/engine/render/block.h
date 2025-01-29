@@ -1,16 +1,11 @@
-//
-// Created by Romain on 07/02/2024.
-//
-
-#ifndef MIICRAFT_BLOC_H
-#define MIICRAFT_BLOC_H
+#pragma once
 
 #include <gctypes.h>
-#include <map>
-#include "world/coord.h"
 #include "world/block.h"
+#include "world/coord.h"
 
-#define OFFSET 0.03125f // 1/32 = 16/512
+constexpr f32 TEXPIX = 1.f / 512.f;
+constexpr f32 OFFSET = 16.f / 512.f; // 0.03125f
 
 enum BlockFace: u8 {
 	North = 0,  // +z: Front
@@ -21,6 +16,9 @@ enum BlockFace: u8 {
 	Bottom = 5  // -y: Bottom
 };
 
+consteval f32 PIX_COORD(const u16 pix) {
+	return static_cast<f32>(pix) * TEXPIX;
+}
 
 #define TXCOORD(x, y) (17 * (x) + (y))
 
@@ -33,7 +31,7 @@ enum BlockFace: u8 {
 enum Interaction: u8 {
 	// Player triggers
 	Hand = 0, // default, player hand (!= fire maker)
-	
+
 	// Environment triggers
 	Redstone = 1, // redstone wire, torch, etc.
 };
@@ -64,5 +62,3 @@ struct BlockData {
 };
 
 extern const BlockData blockData[] ;
-
-#endif //MIICRAFT_BLOC_H

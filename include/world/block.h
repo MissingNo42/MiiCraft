@@ -1,10 +1,5 @@
-//
-// Created by paulo on 06/02/2024.
-//
+#pragma once
 
-#ifndef MIICRAFT_BLOCK_H
-#define MIICRAFT_BLOCK_H
-#include <iostream>
 #include <gctypes.h>
 
 /**
@@ -70,7 +65,7 @@ enum BlockType : u8 {
     Glass,
     ClearIce,
     Water,
-	
+
 	/// Semi-Transparent Blocks: texture with partial full transparency (alpha = 0 or 255)
     LeaveAcacia,
 	SEMITRANSPARENT = LeaveAcacia,
@@ -81,7 +76,7 @@ enum BlockType : u8 {
     LeaveBirch,
     LeaveSakura,
     LeaveSnow,
-	
+
 	/// Opaque Blocks: no transparency (alpha = 255)
     //Mineral
 	Bedrock,
@@ -112,7 +107,7 @@ enum BlockType : u8 {
     ClayLightGray,
     ClayPurple,
     ClayGreen,
-	
+
     //Powder
     Dirt,
     Sand,
@@ -194,7 +189,7 @@ enum BlockType : u8 {
 
     //Plant
     Cactus,
-	
+
     //Bloc Breaking
     BlockBreaking0,
     BlockBreaking1,
@@ -206,8 +201,8 @@ enum BlockType : u8 {
     BlockBreaking7,
     BlockBreaking8,
     BlockBreaking9,
-	
-	
+
+
 	/// Irregular Blocks: block than require special rendering / non-cube
 	IRREGULAR,
     Furnace = IRREGULAR,
@@ -224,17 +219,17 @@ enum BlockType : u8 {
 struct Block {
 	// Block type
 	BlockType type; // 0 = Air
-	
+
 	// Flags attributes
 	union {
 		u8 flags;
 		u8 light;
-		
+
 		struct { // used for (Semi)Transparent blocks
 			u8 naturalLight: 4;    // 0: no light, 15: full light
 			u8 artificialLight: 4; // 0: no light, 15: full light
 		};
-		
+
 		struct { // used for orientable blocks
 			u8 orient: 2; // 0: north, 1: east, 2: south, 3: west
 			u8 state: 6; // block impl specific (e.g.: irregular blocks, redstone states, ...)
@@ -244,12 +239,9 @@ struct Block {
 
 union Light {
 	u8 light;
-	
+
 	struct {
 		u8 naturalLight: 4;    // 0: no light, 15: full light
 		u8 artificialLight: 4; // 0: no light, 15: full light
 	};
 };
-
-#endif //MIICRAFT_BLOCK_H
-

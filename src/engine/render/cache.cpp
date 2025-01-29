@@ -2,7 +2,7 @@
 // Created by Romain on 19/02/2024.
 //
 #include <malloc.h>
-#include "render/cache.h"
+#include "engine/render/cache.h"
 #include "world/world.h"
 
 DisplayList ChunkCache::lists[LIST_NUM] ATTRIBUTE_ALIGN(32);
@@ -18,36 +18,30 @@ std::set<ChunkCoord> ChunkCache::toCacheSet; // used only to unify the assoc. qu
 std::queue<ChunkCoord> ChunkCache::toCacheQueue; // chunks to cache
 
 void ChunkCache::render(Camera& cam) {
-	for (auto & list : lists) if (list.id && list.type == RENDER_OPAQUE) {
+	for (auto & list : lists) if (list.id && list.type == RenderChannel::Opaque) {
 		auto c = World::chunkSlots[list.id].coord;
-		if (cam.isChunkVisible(c) && std::max(std::abs(c.x - ((int)cam.pos.x >> 4)), std::abs(c.y - ((int)cam.pos.z >> 4))) < limit) list.render();
+		if (cam.isChunkVisible(c) && std::max(std::abs(c.x - ((int)cam.pos.x >> 4)), std::abs(c.z - ((int)cam.pos.z >> 4))) < limit) list.render();
 	}
-	for (auto & list : lists) if (list.id && list.type == RENDER_TRANSPARENT) {
+	for (auto & list : lists) if (list.id && list.type == RenderChannel::Transparent) {
 		auto c = World::chunkSlots[list.id].coord;
-		if (cam.isChunkVisible(c) && std::max(std::abs(c.x - ((int)cam.pos.x >> 4)), std::abs(c.y - ((int)cam.pos.z >> 4))) < limit) list.render();
+		if (cam.isChunkVisible(c) && std::max(std::abs(c.x - ((int)cam.pos.x >> 4)), std::abs(c.z - ((int)cam.pos.z >> 4))) < limit) list.render();
 	}
 }
 
 void ChunkCache::reset() {
 	for (auto & list : lists) list.reset();
-	
-	printf("AAAAAAAAA\r");
 	current[0] = current[1] = 0;
 	used = 0;
-	printf("AAAAAAAAA\r");
+
 	cached.clear();
-	printf("AAAAAAAAA\r");
 	toRelease.clear();
-	printf("AAAAAAAAA\r");
 	toCacheSet.clear();
-	printf("AAAAAAAAA\r");
-	while (!toCacheQueue.empty()) toCacheQueue.pop();
-	printf("AAAAAAAAA\r");
+	toCacheQueue = std::queue<ChunkCoord>();
 }
 
 void ChunkCache::init() {
 	//lists = (DisplayList *)memalign(32, sizeof(DisplayList) * LIST_NUM);
-	printf("Display lists: %p\r", (void *)lists);
+	printf("Display lists: %p\r", static_cast<void *>(lists));
 }
 
 void ChunkCache::release(u32 id) {
@@ -59,7 +53,7 @@ void ChunkCache::release(u32 id) {
 	cached.erase((u16)id);
 }
 
-u8 ChunkCache::cache(VerticalChunk& vc) {
+u8 ChunkCache::cache(Chunk& vc) {
 	if (vc.id == 0) return 0;
 	try {
 		if (cached.contains(vc.id)) {
@@ -67,17 +61,17 @@ u8 ChunkCache::cache(VerticalChunk& vc) {
 			release(vc.id); // release the old cache
 		}
 		if (full) return 1; // no more space
-		
+
 		int i;
 		retry0: for (i = 0; i < LIST_NUM; i++) {
 			if (lists[i].id == 0) {
 				current[0] = i;
-				lists[i].reset(RENDER_OPAQUE, vc.id);
+				lists[i].reset(RenderChannel::Opaque, vc.id);
 				used++;
 				break;
 			}
 		}
-		
+
 		if (i == LIST_NUM) { // (no recursion, release -> always find)
 			if (!toRelease.empty()) {
 				release(*toRelease.begin());
@@ -85,16 +79,16 @@ u8 ChunkCache::cache(VerticalChunk& vc) {
 				goto retry0;
 			} else return 1; // FAILED
 		}
-		
+
 		retry1: for (; i < LIST_NUM; i++) {
 			if (lists[i].id == 0) {
 				current[1] = i;
-				lists[i].reset(RENDER_TRANSPARENT, vc.id);
+				lists[i].reset(RenderChannel::Transparent, vc.id);
 				used++;
 				break;
 			}
 		}
-		
+
 		if (i == LIST_NUM) { // (no recursion, release -> always find)
 			if (!toRelease.empty()) {
 				release(*toRelease.begin());
@@ -105,18 +99,18 @@ u8 ChunkCache::cache(VerticalChunk& vc) {
 				return 1;
 			}
 		}
-		
+
 		Renderer::renderChunk(vc); // render the chunk
-		
+
 		if (lists[current[0]].seal()) used--; // seal the opaque list
 		if (lists[current[1]].seal()) used--; // seal the alpha list
-		
+
 		vc.recache = 0;
 		cached.insert(vc.id);
 		return 0;
-		
+
 	} catch (...) {
-		printf("Caching chunk %d at %d %d FAILED\r", vc.id, vc.coord.x, vc.coord.y);
+		printf("Caching chunk %d at %d %d FAILED\r", vc.id, vc.coord.x, vc.coord.z);
 		release(vc.id); // release partial cache
 		return 1;
 	}
@@ -125,7 +119,7 @@ u8 ChunkCache::cache(VerticalChunk& vc) {
 void ChunkCache::addVertex(f32 x, f32 y, f32 z, u16 c, u16 tc, u8 alpha) {
 	if (lists[current[alpha]].addVertex(x, y, z, c, tc)) {
 		lists[current[alpha]].seal();
-		
+
 		int i;
 		retry: for (i = 0; i < LIST_NUM; i++) {
 			if (lists[i].id == 0) {
@@ -135,13 +129,13 @@ void ChunkCache::addVertex(f32 x, f32 y, f32 z, u16 c, u16 tc, u8 alpha) {
 				return;
 			}
 		}
-		
+
 		if (!toRelease.empty()) {
 			release(*toRelease.begin());
 			toRelease.erase(toRelease.begin());
 			goto retry;
 		}
-		
+
 		//if (lists[current[alpha ^ 1]].seal()) used--;
 		full = 1;
 		throw std::exception();
@@ -153,20 +147,20 @@ void ChunkCache::cache(Player players[4]) {
 	ChunkCoord pos {0, 0};
 	ChunkCoord poss[4] {ChunkCoord{0, 0}, ChunkCoord{0, 0}, ChunkCoord{0, 0}, ChunkCoord{0, 0}};
 	Camera * cams[4] = {nullptr, nullptr, nullptr, nullptr};
-	
+
 	s32 c = 0;
-	
+
 	for (s32 i = 0; i < 4; i++) {
 		if (players[i].wiimote.connected) {
 			poss[c].x = ((s32)players[i].renderer.camera.pos.x) >> 4;
-			poss[c].y = ((s32)players[i].renderer.camera.pos.z) >> 4;
+			poss[c].z = ((s32)players[i].renderer.camera.pos.z) >> 4;
 			cams[c] = &players[i].renderer.camera;
 			c++;
 		}
 	}
-	
+
 	/// get the cache list
-	
+
 	// get the center of the view
 	for (int i = 0; i < c; i++) {
 		pos = poss[i];
@@ -175,21 +169,21 @@ void ChunkCache::cache(Player players[4]) {
 			toCacheQueue.push(pos);
 		}
 	}
-	
+
 	limit = MAX_RENDER_DIST;
 	if (c == 2) limit -= 1;
 	else if (c > 2) limit -= 2; // reduce pression on the cache
-	
+
 	// get the surrounding visible chunks
 	for (s32 n = 1; n < limit; n++) { // for each dist level
 		for (int p = 0; p < c; p++) { // and for each player
 			ChunkCoord cpos = poss[p];
 			Camera& cam = *cams[p];
 			int i, j = -n;
-			
+
 			for (i = -n; i <= n; i++) {
 				pos.x = cpos.x + i;
-				pos.y = cpos.y + j;
+				pos.z = cpos.z + j;
 				if (cam.isChunkVisible(pos) && !toCacheSet.contains(pos)) {
 					toCacheSet.insert(pos);
 					toCacheQueue.push(pos);
@@ -198,7 +192,7 @@ void ChunkCache::cache(Player players[4]) {
 			j = n;
 			for (i = -n; i <= n; i++) {
 				pos.x = cpos.x + i;
-				pos.y = cpos.y + j;
+				pos.z = cpos.z + j;
 				if (cam.isChunkVisible(pos) && !toCacheSet.contains(pos)) {
 					toCacheSet.insert(pos);
 					toCacheQueue.push(pos);
@@ -207,7 +201,7 @@ void ChunkCache::cache(Player players[4]) {
 			i = -n;
 			for (j = 1 - n; j < n; j++) {
 				pos.x = cpos.x + i;
-				pos.y = cpos.y + j;
+				pos.z = cpos.z + j;
 				if (cam.isChunkVisible(pos) && !toCacheSet.contains(pos)) {
 					toCacheSet.insert(pos);
 					toCacheQueue.push(pos);
@@ -216,7 +210,7 @@ void ChunkCache::cache(Player players[4]) {
 			i = n;
 			for (j = 1 - n; j < n; j++) {
 				pos.x = cpos.x + i;
-				pos.y = cpos.y + j;
+				pos.z = cpos.z + j;
 				if (cam.isChunkVisible(pos) && !toCacheSet.contains(pos)) {
 					toCacheSet.insert(pos);
 					toCacheQueue.push(pos);
@@ -224,13 +218,13 @@ void ChunkCache::cache(Player players[4]) {
 			}
 		}
 	}
-	
+
 	// check which chunks can be released
 	for (auto & id : cached) {
 		pos = World::chunkSlots[id].coord;
 		if (!toCacheSet.contains(pos)) toRelease.insert(id);
 	}
-	
+
 	// cache the chunks
 	while (!toCacheQueue.empty()) {
 		pos = toCacheQueue.front();
@@ -241,11 +235,11 @@ void ChunkCache::cache(Player players[4]) {
 		printf("Cache limit reached\r");
 		while (!toCacheQueue.empty()) toCacheQueue.pop();
 	}
-	
+
 	// cleanup
 	toRelease.clear();
 	toCacheSet.clear();
-	
+
 	printf("Cache Slots %d / %d (%.1f %%) with %d / %d (%.1f %%) loaded chunks\r",
 		   used, LIST_NUM, (f32)used / (f32)LIST_NUM * 100.0f,
 		   World::usedSlots, LOADED_CHUNKS, (f32)World::usedSlots / (f32)LOADED_CHUNKS * 100.0f

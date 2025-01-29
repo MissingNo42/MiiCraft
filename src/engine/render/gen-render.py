@@ -21,7 +21,7 @@ def chunk(x, y, z):
             chunk += "east"
         x &= 15
 
-    return f"{chunk}.blocks[{x}][{y}][{z}]"
+    return f"{chunk}.blocks[{y}][{x}][{z}]"
 
 
 if __name__ == '__main__':
@@ -51,7 +51,7 @@ if __name__ == '__main__':
         zP = f"{z} + " if z else ""
         mzP = "mz + " if isinstance(mz, str) else f"{mz} + "
 
-        code = f"""if ((block = c.blocks[{x}][y][{z}]).type) {{
+        code = f"""if ((block = c.blocks[y][{x}][{z}]).type) {{
 {prx}{prz}
     fT = {chunk( x, "My",  z)};
     fB = {chunk( x, "my",  z)};
@@ -95,12 +95,12 @@ if __name__ == '__main__':
     //    A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
     //}}
 
-    fx = (f32)({xP}px),
-    fy = (f32)y,
-    fz = (f32)({zP}pz),
-    fmx = (f32)({mxP}px),
-    fmy = (f32)my,
-    fmz = (f32)({mzP}pz);
+    fx = static_cast<f32>({xP}px),
+    fy = static_cast<f32>(y),
+    fz = static_cast<f32>({zP}pz),
+    fmx = static_cast<f32>({mxP}px),
+    fmy = static_cast<f32>(my),
+    fmz = static_cast<f32>({mzP}pz);
     
     goto render;
     end_x{x}_z{z}:;

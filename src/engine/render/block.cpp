@@ -2,26 +2,26 @@
 // Created by Romain on 07/02/2024.
 //
 #include "engine/render/block.h"
-#include "render/cacheUnit.h"
+#include "engine/render/cacheUnit.h"
 #include "world/world.h"
-
+#include "engine/env/environment.h"
 
 
 [[nodiscard]] bool inline checkBlock(BlockCoord coord, BlockType type) {
 	auto& block = blockData[type];
-	
+
 	BlockCoord floor = coord;
 	floor.y--;
 	auto& floorBlock = blockData[World::getBlockAt(floor).type];
-	
+
 	if (!floorBlock.allowAbove) { // check if can be "attached" to side blocks
 		return false;
 	}
-	
+
 	if (block.needFloor && !floorBlock.isFloor) {
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -31,34 +31,34 @@
 
 bool spawnDefault(BlockCoord coord, BlockType type, Direction dir) {
 	auto& block = blockData[type];
-	
+
 	if (!checkBlock(coord, type)) {
 		return false;
 	}
-	
+
 	Block bk = {type, {0}};
-	
+
 	if (block.isOrientable) {
 		bk.orient = dir ^ 2; // facing the player
 	}
-	
+
 	World::setBlockAt(coord, bk);
 	return true;
 }
 
 bool spawnDoorLow(BlockCoord coord, BlockType type, Direction dir) {
 	auto& block = blockData[type];
-	BlockCoord up = {coord.x, coord.y + 1, coord.z};
-	
+	BlockCoord up = {coord.y + 1, coord.x, coord.z};
+
 	if (!checkBlock(coord, type) || !checkBlock(up, (BlockType)(type + 1))) {
 		return false;
 	}
-	
+
 	Block bkl = {type, {0}};
 	Block bkh = {(BlockType)(type + 1), {0}};
-	
+
 	bkh.orient = bkl.orient = dir ^ 2; // facing the player
-	
+
 	World::setBlockAt(coord, bkl);
 	World::setBlockAt(up, bkh);
 	return true;
@@ -91,7 +91,7 @@ bool interactDoorLow(BlockCoord coord, Interaction interaction) {
 }
 
 bool interactDoorHigh(BlockCoord coord, Interaction interaction) {
-	return interactDoorLow({coord.x, coord.y - 1, coord.z}, interaction);
+	return interactDoorLow({coord.y - 1, coord.x, coord.z}, interaction);
 }
 
 
@@ -108,7 +108,7 @@ void renderVoid() {
 //////////////////////////////////////////////////////////////////////////
 
 const BlockData blockData[]{
-		
+
 		{
 				// Air
 				.isSelectable = 0,
@@ -116,9 +116,9 @@ const BlockData blockData[]{
 				.isTransparent = 1,
 				.isLightFilter = 0,
 			},
-		
+
 		/// Transparent Blocks
-		
+
 		{
 				// Glass
 				.tc = TILE_INDEX_ALL(14, 0),
@@ -132,13 +132,13 @@ const BlockData blockData[]{
 		},
 		{
 				// Water
-				.tc = TILE_INDEX_ALL(0, TextureIndex::WATER),
+				.tc = TILE_INDEX_ALL(0, static_cast<u16>(TextureIndex::WATER)),
 				.isSelectable = 0,
 				.isTransparent = 1,
 		},
-		
+
 		/// Semi-Transparent Blocks
-		
+
 		// //Leave
 		{
 				// LeaveAcacia
@@ -182,161 +182,161 @@ const BlockData blockData[]{
 									  5, 3),
 				.isTransparent = 1,
 		},
-		
+
 		/// Opaque Blocks
-		
+
 		//Mineral
 		{
 				// Bedrock
-				
+
 				.tc = TILE_INDEX_ALL(0, 0)
 		},
 		{
 				// Stone
-				
+
 				.tc = TILE_INDEX_ALL(0, 1)
 		},
 		{
 				// Andesite
-				
+
 				.tc = TILE_INDEX_ALL(0, 2)
 		},
 		{
 				// SandStone
-				
+
 				.tc = TILE_INDEX_ALL(0, 3)
 		},
 		{
 				// CoalOre
-				
+
 				.tc = TILE_INDEX_ALL(0, 4)
 		},
 		{
 				// CopperOre
-				
+
 				.tc = TILE_INDEX_ALL(0, 5)
 		},
 		{
 				// DiamondOre
-				
+
 				.tc = TILE_INDEX_ALL(0, 6)
 		},
 		{
 				// EmeraldOre
-				
+
 				.tc = TILE_INDEX_ALL(0, 7)
 		},
 		{
 				// GoldOre
-				
+
 				.tc = TILE_INDEX_ALL(0, 8)
 		},
 		{
 				// IronOre
-				
+
 				.tc = TILE_INDEX_ALL(0, 9)
 		},
 		{
 				// LapisOre
-				
+
 				.tc = TILE_INDEX_ALL(0, 10)
 		},
 		{
 				// RedstoneOre
-				
+
 				.tc = TILE_INDEX_ALL(0, 11)
 		},
 		{
 				// Ametyst
-				
+
 				.tc = TILE_INDEX_ALL(0, 12)
 		},
 		{
 				// Granite
-				
+
 				.tc = TILE_INDEX_ALL(0, 13)
 		},
 		{
 				// Diorite
-				
+
 				.tc = TILE_INDEX_ALL(0, 14)
 		},
-		
+
 		// //Clay
 		{
 				// Clay
-				
+
 				.tc = TILE_INDEX_ALL(1, 0)
 		},
 		{
 				// ClayWhite
-				
+
 				.tc = TILE_INDEX_ALL(1, 1)
 		},
 		{
 				// ClayBrown
-				
+
 				.tc = TILE_INDEX_ALL(1, 2)
 		},
 		{
 				// ClayBlack
-				
+
 				.tc = TILE_INDEX_ALL(1, 3)
 		},
 		{
 				// ClayGray
-				
+
 				.tc = TILE_INDEX_ALL(1, 4)
 		},
 		{
 				// ClayYellow
-				
+
 				.tc = TILE_INDEX_ALL(1, 5)
 		},
 		{
 				// ClayRed
-				
+
 				.tc = TILE_INDEX_ALL(1, 6)
 		},
 		{
 				// ClayLightGray
-				
+
 				.tc = TILE_INDEX_ALL(1, 7)
 		},
 		{
 				// ClayPurple
-				
+
 				.tc = TILE_INDEX_ALL(1, 8)
 		},
 		{
 				// ClayGreen
-				
+
 				.tc = TILE_INDEX_ALL(1, 9)
 		},
-		
-		
+
+
 		// //Powder
 		{
 				// Dirt
-				
+
 				.tc = TILE_INDEX_ALL(2, 0)
 		},
 		{
 				// Sand
-				
+
 				.tc = TILE_INDEX_ALL(2, 1)
 		},
 		{
 				// RedSand
-				
+
 				.tc = TILE_INDEX_ALL(2, 2)
 		},
 		{
 				// Gravel
-				
+
 				.tc = TILE_INDEX_ALL(2, 3)
 		},
-		
+
 		// //Soil
 		{
 				// GrassSavanna,
@@ -378,7 +378,7 @@ const BlockData blockData[]{
 				// GrassSnow,
 				.tc = TILE_INDEX_SIDE(4, 9, 3, 9, 2, 0)
 		},
-		
+
 		////Leave
 		{
 				// LeaveMushroomRed
@@ -388,7 +388,7 @@ const BlockData blockData[]{
 				// LeaveMushroomBrown
 				.tc = TILE_INDEX_ALL(5, 8)
 		},
-		
+
 		// //Wood
 		{
 				// WoodAcacia
@@ -422,7 +422,7 @@ const BlockData blockData[]{
 				// WoodMushroom
 				.tc = TILE_INDEX_SIDE(6, 7, 7, 7, 7, 7)
 		},
-		
+
 		// //Plank
 		{
 				// PlankAcacia
@@ -452,8 +452,8 @@ const BlockData blockData[]{
 				// PlankSakura
 				.tc = TILE_INDEX_ALL(8, 6)
 		},
-		
-		
+
+
 		/// Misc
 		{
 				//Crafting table
@@ -472,7 +472,7 @@ const BlockData blockData[]{
 				// BrickRed
 				.tc = TILE_INDEX_ALL(14, 3)
 		},
-		
+
 		// //Ore Block
 		{
 				// CoalBlock
@@ -506,7 +506,7 @@ const BlockData blockData[]{
 				// RedstoneBlock
 				.tc = TILE_INDEX_ALL(14, 11)
 		},
-		
+
 		// //Misc 2
 		{
 				// ShroomLight
@@ -518,7 +518,7 @@ const BlockData blockData[]{
 				.tc = TILE_INDEX_ALL(14, 13),
 				.emittedLight = 15,
 		},
-		
+
 		// //Elemental
 		{
 				// BlueIce
@@ -557,7 +557,7 @@ const BlockData blockData[]{
 				// Snow
 				.tc = TILE_INDEX_ALL(3, 9)
 		},
-		
+
 		// //Misc 3
 		{
 				// Trinitrotoluene TNT
@@ -576,14 +576,14 @@ const BlockData blockData[]{
 				// Impostor
 				.tc = TILE_INDEX_ALL(0, 15)
 		},
-		
+
 		// //Plant
 		{
 				//Cactus
 				.tc = TILE_INDEX_SIDE(9, 1, 9, 0, 9, 0)
 		},
-		
-		
+
+
 		//Block Breaking
 		{
 				// BlockBreaking0
@@ -632,7 +632,14 @@ const BlockData blockData[]{
 		},
 		{
 			// DoorLow
-			.tc = {TextureIndex::WOOD_DOOR_NORTH, TextureIndex::WOOD_DOOR_EAST, TextureIndex::WOOD_DOOR_SOUTH, TextureIndex::WOOD_DOOR_WEST, TextureIndex::WOOD_DOOR_TOP, TextureIndex::WOOD_DOOR_BOTTOM},
+			.tc = {
+				static_cast<u16>(TextureIndex::WOOD_DOOR_NORTH),
+				static_cast<u16>(TextureIndex::WOOD_DOOR_EAST),
+				static_cast<u16>(TextureIndex::WOOD_DOOR_SOUTH),
+				static_cast<u16>(TextureIndex::WOOD_DOOR_WEST),
+				static_cast<u16>(TextureIndex::WOOD_DOOR_TOP),
+				static_cast<u16>(TextureIndex::WOOD_DOOR_BOTTOM)
+			},
 			.isOrientable = 1,
 			.interactive = interactDoorLow,
 		},

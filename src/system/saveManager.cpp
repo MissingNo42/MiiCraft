@@ -12,17 +12,17 @@ saveManager* saveManager::getInstance() {
     return instance;
 }
 
-void saveManager::saveChunk(ChunkCoord pos, VerticalChunk *c) {
+void saveManager::saveChunk(ChunkCoord pos, Chunk *c) {
     char filename[30];
-    sprintf(filename, "%d_%d.chunk", pos.x, pos.y);
+    sprintf(filename, "%d_%d.chunk", pos.x, pos.z);
     FILE* file = fopen(filename, "wb");
-    if (file == nullptr) {printf("ouverture du fichier %d %d foiree \r", pos.x, pos.y); return;}
+    if (file == nullptr) {printf("ouverture du fichier %d %d foiree \r", pos.x, pos.z); return;}
 
     printf("=====1======\r");
-    fwrite(c->blocks, 16*16*128, 1, file);
+    fwrite(c->blocks, sizeof(c->blocks), 1, file);
 
 
-//    for (int i = 0; i < 16*16*128; ++i) {
+//    for (int i = 0; i < 16*16*CHUNK_HEIGHT; ++i) {
 //        fprintf(file, "%u", str[i]);
 //    }
 
@@ -35,17 +35,17 @@ bool saveManager::isChunkSaved(ChunkCoord chunkPos) {
     return false;
 }
 
-void saveManager::loadChunk(ChunkCoord pos, VerticalChunk* c) {
+void saveManager::loadChunk(ChunkCoord pos, Chunk* c) {
     char filename[30];
-    sprintf(filename, "%d_%d.chunk", pos.x, pos.y);
+    sprintf(filename, "%d_%d.chunk", pos.x, pos.z);
     FILE* file = fopen(filename, "rb");
     if (file == NULL) {
-        printf("ouverture du fichier %d %d foiree \r", pos.x, pos.y);
+        printf("ouverture du fichier %d %d foiree \r", pos.x, pos.z);
         c->fillWith();
         return;
     }
 
-    fread(c->blocks, 16*16*128, 1, file);
+    fread(c->blocks, sizeof(c->blocks), 1, file);
 }
 
 saveManager::saveManager() {

@@ -1,18 +1,13 @@
-//
-// Created by Romain on 04/02/2024.
-//
-
-#ifndef MIICRAFT_WIIMOTE_H
-#define MIICRAFT_WIIMOTE_H
+#pragma once
 
 #include <wiiuse/wpad.h>
 
 class Wiimote {
-    struct expansion_t data;
+	expansion_t data;
     int chan;
     u32 type = 0;
     f32 last_accel = 0;
-	
+
 public:
 	static bool quit;
     WPADData * wd = nullptr;
@@ -20,12 +15,9 @@ public:
 	bool connected = false;
 
 	explicit Wiimote(int chan = WPAD_CHAN_0);
-	
+
     void update();
-	
+
 	static void setup();
 	static void sync();
 };
-
-
-#endif //MIICRAFT_WIIMOTE_H

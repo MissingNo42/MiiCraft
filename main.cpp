@@ -1,21 +1,19 @@
+#include <cmath>
 #include <cstdio>
 #include <gccore.h>
-#include <cmath>
-#include <wiiuse/wpad.h>
 #include <iostream>
+#include <wiiuse/wpad.h>
 
 
 #include "wiimote.h"
 #include "engine/render/renderer.h"
-
-#include "engine/render/block.h"
-#include "src/system/saveManager.h"
 #include "player.h"
-#include "render/cache.h"
+#include "engine/render/cache.h"
+#include "src/system/saveManager.h"
 #include "world/world.h"
 
 
-int exiting = 0;
+static int exiting = 0;
 
 //Calling the function will end the while loop and properly exit the program to the HBChannel.
 void reload(u32, void *) {
@@ -28,72 +26,71 @@ void shutdown() {
 }
 
 
-int main(int, char **) {
-    SYS_STDIO_Report(true);
+void checkmem() {
 
-	u32 X =0;
-	for (int Y=0; Y<(int)sizeof(std::set<ChunkCache>); Y++) {
-		X += ((u8*)&ChunkCache::toCacheSet)[Y];
+	constexpr union {
+		u32 ab[2];
+		struct {
+			u32 A, B;
+		};
+	} check_array = {.A = 0xffffffff, .B = 0};
+
+	if (check_array.ab[0] != 0xffffffff || check_array.ab[1] != 0) {
+		printf("Error: struct byte alignment is not working properly, check host endian (%08X | %08X)\r", check_array.A, check_array.B);
+		exit(1);
 	}
 
+	constexpr union {
+		u16 i;
+		struct {
+			u8 X, Y;
+		};
+	} check_bytes = {.i = 0xff00};
+
+	if (check_bytes.X != 0xff || check_bytes.Y != 0) {
+		printf("Error: struct byte alignment is not working properly, check host endian (%02X | %02X)\r", check_bytes.X, check_bytes.Y);
+		exit(1);
+	}
+
+	constexpr union {
+		u8 i;
+		struct {
+			u8 X: 2, Y: 6;
+		};
+	} check_bits = {.i = 0b11000000};
+
+	if (check_bits.X != 3 || check_bits.Y != 0) {
+		printf("Error: bitfield is not working properly, check host endian (%02X | %02X)\r", check_bits.X, check_bits.Y);
+		exit(1);
+	}
+}
+
+
+int main(int, char **) {
+	SYS_STDIO_Report(true);
+
+	checkmem();
 
 	World::Init();
 
-	X =0;
-	for (int Y=0; Y<(int)sizeof(std::set<ChunkCache>); Y++) {
-		X += ((u8*)&ChunkCache::toCacheSet)[Y];
-	}
-
 	Renderer::setupVideo();
-	X =0;
-	for (int Y=0; Y<(int)sizeof(std::set<ChunkCache>); Y++) {
-		X += ((u8*)&ChunkCache::toCacheSet)[Y];
-	}
 
-	Renderer::setupVtxDesc();
-	X =0;
-	for (int Y=0; Y<(int)sizeof(std::set<ChunkCache>); Y++) {
-		X += ((u8*)&ChunkCache::toCacheSet)[Y];
-	}
+	Renderer::setupVertexAttributeTable();
 
-    Renderer::setupTexture();
-
-	X =0;
-	for (int Y=0; Y<(int)sizeof(std::set<ChunkCache>); Y++) {
-		X += ((u8*)&ChunkCache::toCacheSet)[Y];
-	}
+	Renderer::setupTexture();
 
 	Wiimote::setup();
 
-	X =0;
-	for (int Y=0; Y<(int)sizeof(std::set<ChunkCache>); Y++) {
-		X += ((u8*)&ChunkCache::toCacheSet)[Y];
-	}
-
-    Player players[4] {Player(WPAD_CHAN_0),
-					   Player(WPAD_CHAN_1),
-					   Player(WPAD_CHAN_2),
-					   Player(WPAD_CHAN_3)};
+	Player players[4]{Player(WPAD_CHAN_0),
+	                  Player(WPAD_CHAN_1),
+	                  Player(WPAD_CHAN_2),
+	                  Player(WPAD_CHAN_3)};
 
 	SYS_SetResetCallback(reload);
 	SYS_SetPowerCallback(shutdown);
 
-
-	X =0;
-	for (int Y=0; Y<(int)sizeof(std::set<ChunkCache>); Y++) {
-		X += ((u8*)&ChunkCache::toCacheSet)[Y];
-	}
-
-	printf("X: %d\r", X);
 	ChunkCache::init();
 	printf("ZZZZZZ\r");
-
-	X =0;
-	for (int Y=0; Y<(int)sizeof(std::set<ChunkCache>); Y++) {
-		X += ((u8*)&ChunkCache::toCacheSet)[Y];
-	}
-
-	printf("X: %d\r", X);
 
 	ChunkCache::reset();
 	printf("NNNNNNN\r");
@@ -102,17 +99,19 @@ int main(int, char **) {
 
 	for (int i = 0; i < 4; i++) {
 		players[i].setPos(initpos, 126, initpos);
-		players[i].renderer.camera.rotateH(45.0f * (f32)i);
+		players[i].renderer.camera.rotateH(45.0f * (f32) i);
 	}
 
 	/// Splash Screen
-    players[0].renderer.camera.loadOrtho(); // set for 2D drawing
-    players[0].renderer.camera.applyTransform2D();
+	players[0].renderer.camera.loadOrtho(); // set for 2D drawing
+	players[0].renderer.camera.applyTransform2D();
+	printf("XXXXX\r");
 	Renderer::renderSplashScreen();
+	printf("YYYYY\r");
 	Renderer::endFrame();
 
 	printf("Loading world...\r");
-	World::requestChunks(ChunkCoord((int)players[0].renderer.camera.pos.x >> 4, (int)players[0].renderer.camera.pos.y >> 4), 8);
+	World::requestChunks(ChunkCoord((int) players[0].renderer.camera.pos.x >> 4, (int) players[0].renderer.camera.pos.y >> 4), 8);
 	printf("Loaded world!\r");
 	Renderer::setClearColor();
 
@@ -122,43 +121,34 @@ int main(int, char **) {
 	players[0].inventory.addItem(BlockType::Glowstone, 64);
 	players[0].inventory.addItem(BlockType::Lava, 64);
 
-	// print Lights[16][16] array
-	for (int i = 0; i < 16; i++) {
-		for (int j = 0; j < 16; j++) {
-			printf("%02X ", Lights[(i << 4) | j].r);
-		}
-		printf("\r");
-	}
 
+	//Renderer::setRegion(TILE_COORDS(8, 9), TILE_COORDS(9, 9), TILE_COORDS(8, 10), TILE_COORDS(9, 10));
 
-	 //exit(0);
+	//exit(0);
 
-    while (!exiting) {
+	while (!exiting) {
+		Renderer::update();
 
-		static f32 day = 0;
-		//Renderer::setLight((std::cos(day) + 1.f) / 2.f, true);
-		//day += 0.005f;
+		Renderer::animateWater();
 
-		runWater();
-
-        /// Calculate used memory
+		/// Calculate used memory
 
 		u32 mem1 = SYS_GetArena1Size();
 		u32 mem2 = SYS_GetArena2Size();
 
 		printf("Coord : %d %d %d [%d, %d]: %.1f %d\r",
-			   (int)players[0].renderer.camera.pos.x, (int)players[0].renderer.camera.pos.y, (int)players[0].renderer.camera.pos.z,
-			   (int)players[0].renderer.camera.pos.x >> 4, (int)players[0].renderer.camera.pos.z >> 4,
-			   players[0].renderer.camera.angleH,
-			   players[0].renderer.camera.direction);
-		printf("Memory : MEM1 %d (%d)\tMEM2 %d (%d)\r", mem1, mem1 / sizeof(VerticalChunk), mem2, mem2 / sizeof(VerticalChunk));
+		       (int) players[0].renderer.camera.pos.x, (int) players[0].renderer.camera.pos.y, (int) players[0].renderer.camera.pos.z,
+		       (int) players[0].renderer.camera.pos.x >> 4, (int) players[0].renderer.camera.pos.z >> 4,
+		       players[0].renderer.camera.angleH,
+		       players[0].renderer.camera.direction);
+		printf("Memory : MEM1 %d (%d)\tMEM2 %d (%d)\r", mem1, mem1 / sizeof(Chunk), mem2, mem2 / sizeof(Chunk));
 
 
 		/// Update Wiimotes & Run Engine
 
 		Wiimote::sync();
 
-		for (auto & player : players) {
+		for (auto &player: players) {
 			player.wiimote.update();
 			player.update();
 		}
@@ -166,8 +156,8 @@ int main(int, char **) {
 
 		/// Update Viewport Layout
 
-		s8 S[4] = {0, 0, 0, 0 }, c = 0;
-		for (int i = 0; i < 4; i++) if (players[i].wiimote.connected) S[c++] = (s8)i;
+		s8 S[4] = {0, 0, 0, 0}, c = 0;
+		for (int i = 0; i < 4; i++) if (players[i].wiimote.connected) S[c++] = (s8) i;
 
 		if (c == 1) players[S[0]].renderer.camera.resize(Camera::FullScreen);
 		else if (c == 2) {
@@ -177,16 +167,10 @@ int main(int, char **) {
 			players[S[0]].renderer.camera.resize(Camera::SplitTop);
 			players[S[1]].renderer.camera.resize(Camera::QuarterBL);
 			players[S[2]].renderer.camera.resize(Camera::QuarterBR);
-		}
-		else for (int i = 0; i < 4; i++) players[S[i]].renderer.camera.resize((Camera::Format)(1 << i));
-
+		} else for (int i = 0; i < 4; i++) players[S[i]].renderer.camera.resize(static_cast<Camera::Format>(1 << i));
 
 		/// Cache
 		printf("caching %.2f\r", players[0].renderer.camera.angleH);
-
-		//LightControl::computeNaturalLight((sinf(4 * DegToRad(players[0].renderer.camera.angleH)) + 1) * .5);
-		//LightControl::computeNaturalLight((sinf(4 * DegToRad(players[0].renderer.camera.angleH)) + 1) * .5);
-		//LightControl::flush();
 
 		ChunkCache::cache(players);
 
@@ -195,28 +179,38 @@ int main(int, char **) {
 		printf("rendering\r");
 
 		for (int i = 0; i < c; i++) {
-			auto& player = players[S[i]];
+			auto &player = players[S[i]];
 			player.renderer.camera.applyScissor();
-	        player.renderer.camera.loadPerspective();
+			player.renderer.camera.loadPerspective();
 
-	        player.renderer.camera.update(true);
-
-			player.renderer.renderSky();
+			player.renderer.camera.update(true);
 
 			ChunkCache::render(player.renderer.camera);
+
+			Renderer::setVertexFormat(true);
+			Renderer::setShader(true);
+			player.renderer.renderSky();
+			Renderer::setShader();
+			Renderer::setVertexFormat();
+			//player.renderer.renderSky();
 
 			player.renderFocus();
 			player.renderDestroy();
 
-	        if (player.creative) player.inventory.resetInventory();
+			if (player.creative) player.inventory.resetInventory();
 
-	        player.renderer.camera.loadOrtho(); // set for 2D drawing
-	        player.renderer.camera.applyTransform2D();
+			player.renderer.camera.loadOrtho(); // set for 2D drawing
+			player.renderer.camera.applyTransform2D();
 
-	        if (player.isUnderwater()) Renderer::Underwater();
+			if (player.isUnderwater()) Renderer::Underwater();
 
-	        player.renderInventory();
-	        player.renderCursor();
+			player.renderInventory();
+		}
+
+		GX_DrawDone(); // after this point the EFB is ready to external editing (pixel shader)
+
+		for (int i = 0; i < c; i++) {
+			players[S[i]].renderCursor();
 		}
 
 		printf("rendered\r");

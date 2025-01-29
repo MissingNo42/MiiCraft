@@ -1,18 +1,12 @@
-//
-// Created by Romain on 19/02/2024.
-//
-
-#ifndef MIICRAFTTEST_CACHE_H
-#define MIICRAFTTEST_CACHE_H
-
+#pragma once
 
 #include <gctypes.h>
-#include <set>
 #include <queue>
-#include "world/verticalChunk.h"
-#include "renderer.h"
+#include <set>
 #include "cacheUnit.h"
 #include "player.h"
+#include "renderer.h"
+#include "world/Chunk.h"
 
 #define MAX_RENDER_DIST 8
 
@@ -27,26 +21,22 @@ public:
 	static std::set<u16> cached; // used to check if a chunk is cached
 	static std::set<u16> toRelease; // chunks that CAN be released if needed
 	static std::queue<ChunkCoord> toCacheQueue; // chunks to cache
-	
-public:
+
 	static void render(Camera& cam);
-	
+
 	static void init();
-	
+
 	static void reset();
-	
+
 	/**
 	 * @brief invalidate the cache of a given chunk
 	 * @param[in] id the id of the chunk
 	 * */
 	static void release(u32 id);
-	
-	static u8 cache(VerticalChunk& vc);
-	
+
+	static u8 cache(Chunk& vc);
+
 	static void addVertex(f32 x, f32 y, f32 z, u16 c, u16 tc, u8 alpha);
-	
+
 	static void cache(Player players[4]);
 };
-
-
-#endif //MIICRAFTTEST_CACHE_H

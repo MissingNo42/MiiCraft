@@ -1,13 +1,7 @@
-//
-// Created by Martin on 09/02/2024.
-//
+#pragma once
 
-#ifndef MIICRAFTTEST_TERGEN_H
-#define MIICRAFTTEST_TERGEN_H
-
-#include <queue>
 #include "world/block.h"
-#include "world/verticalChunk.h"
+#include "world/Chunk.h"
 
 
 const int BIOME_COUNT = 19;
@@ -35,16 +29,15 @@ enum BiomeType : u16{
 };
 
 #define INIT_GENERATOR \
-BlockCoord pos(block_x, 0, block_z);
+BlockCoord pos(0, block_x, block_z)
 
-#define APPLY_BLOCK(...) \
-chunk.SetBlock(pos, __VA_ARGS__);
+#define APPLY_BLOCK(blockType) chunk.blocks[pos.y][pos.x][pos.z].type = blockType
 
 #define APPLY_BEDROCK \
 APPLY_BLOCK(BlockType::Bedrock); \
 pos.y ++; \
 APPLY_BLOCK(BlockType::Bedrock); \
-pos.y ++;
+pos.y ++
 
 #define APPLY_BOTTOM \
 for (; pos.y < Tergen::bottomLevel ; pos.y++) {\
@@ -58,11 +51,9 @@ for (; pos.y < height; ++pos.y) {\
 
 
 #define APPLY_SKY \
-for (; pos.y < 127; pos.y++){ \
-    APPLY_BLOCK((Block){.type = BlockType::Air, .flags = 0});\
-} APPLY_BLOCK((Block){.type = BlockType::Air, .naturalLight = 0xf, .artificialLight = 0});\
-//chunk.lightQueue.push(pos); // TODO: reenable (?) when light is fixed
-
+for (; pos.y < CHUNK_HEIGHT; pos.y++){ \
+    APPLY_BLOCK(BlockType::Air);\
+}
 
 class Tergen {
 private:
@@ -73,79 +64,79 @@ public:
     constexpr static const float continentLevel = 5; // relatif a seaLevel
     constexpr static const float peakAmplitude = 25.;
 
-    inline static void generateVoid(VerticalChunk& chunk, int block_x, int block_z, int){
+    inline static void generateVoid(Chunk& chunk, int block_x, int block_z, int){
         INIT_GENERATOR;
         APPLY_BEDROCK;
 
-        for (; pos.y < 128; ++pos.y) {
-            APPLY_BLOCK(BlockType::Air);
+        for (; pos.y < CHUNK_HEIGHT; ++pos.y) {
+	        APPLY_BLOCK(BlockType::Air);
         }
     }
 
-    inline static void generateDesert(VerticalChunk& chunk, int block_x, int block_z, int height){
+    inline static void generateDesert(Chunk& chunk, int block_x, int block_z, int height){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
-		
+
         APPLY_CONTINENT(Stone, SandStone);
-        APPLY_BLOCK(BlockType::Sand);
+	    APPLY_BLOCK(BlockType::Sand);
         pos.y++;
         APPLY_SKY;
     }
 
-    inline static void generateTundra(VerticalChunk& chunk, int block_x, int block_z, int height){
+    inline static void generateTundra(Chunk& chunk, int block_x, int block_z, int height){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
 
         APPLY_CONTINENT(Stone, Dirt);
-        APPLY_BLOCK(GrassSnow);
+	    APPLY_BLOCK(GrassSnow);
         pos.y++;
         APPLY_SKY;
     }
 
-    inline static void generateSavanna(VerticalChunk& chunk, int block_x, int block_z, int height){
+    inline static void generateSavanna(Chunk& chunk, int block_x, int block_z, int height){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
 
         APPLY_CONTINENT(Stone, Dirt);
-        APPLY_BLOCK(GrassSavanna);
+	    APPLY_BLOCK(GrassSavanna);
         pos.y++;
         APPLY_SKY;
     }
 
-    inline static void generatePlain(VerticalChunk& chunk, int block_x, int block_z, int height){
+    inline static void generatePlain(Chunk& chunk, int block_x, int block_z, int height){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
 
         APPLY_CONTINENT(Stone, Dirt);
-        APPLY_BLOCK(GrassTemperate);
+	    APPLY_BLOCK(GrassTemperate);
         pos.y++;
         APPLY_SKY;
     }
 
-     inline static void generateForest(VerticalChunk& chunk, int block_x, int block_z, int height ){
+     inline static void generateForest(Chunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
 
         APPLY_CONTINENT(Stone, Dirt);
-        APPLY_BLOCK(GrassCold);
+	     APPLY_BLOCK(GrassCold);
         pos.y++;
         APPLY_SKY;
     }
 
-     inline static void generateBadLand(VerticalChunk& chunk, int block_x, int block_z, int height ){
+     inline static void generateBadLand(Chunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
 
          for (; pos.y < seaLevel + bottomLevel; ++pos.y) {
-             APPLY_BLOCK(Stone);
+	         APPLY_BLOCK(Stone);
          }
-		 
+
          for (; pos.y < height + 1; ++pos.y) {
              int badlandY = pos.y % 30;
              int dice = rand()%100;
@@ -157,121 +148,121 @@ public:
                  badlandY--;
                  if (badlandY < 0) {badlandY = 29;}
              }
-			 
-             APPLY_BLOCK(BADLANDS_STRATS[badlandY]);
+
+	         APPLY_BLOCK(BADLANDS_STRATS[badlandY]);
          }
         //pos.y++;
         APPLY_SKY;
     }
 
-    static void generateDarkForest(VerticalChunk& chunk, int block_x, int block_z, int height ){
-        INIT_GENERATOR;
-        APPLY_BEDROCK;
-        APPLY_BOTTOM;
-		
-        APPLY_CONTINENT(Stone, Dirt);
-        APPLY_BLOCK(GrassDark);
-        pos.y++;
-        APPLY_SKY;
-    }
-    static void generateTaiga(VerticalChunk& chunk, int block_x, int block_z, int height ){
+    static void generateDarkForest(Chunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
 
         APPLY_CONTINENT(Stone, Dirt);
-        APPLY_BLOCK(GrassTaiga);
+	    APPLY_BLOCK(GrassDark);
         pos.y++;
         APPLY_SKY;
     }
-     static void generateWindSwept(VerticalChunk& chunk, int block_x, int block_z, int height ){
+    static void generateTaiga(Chunk& chunk, int block_x, int block_z, int height ){
+        INIT_GENERATOR;
+        APPLY_BEDROCK;
+        APPLY_BOTTOM;
+
+        APPLY_CONTINENT(Stone, Dirt);
+	    APPLY_BLOCK(GrassTaiga);
+        pos.y++;
+        APPLY_SKY;
+    }
+     static void generateWindSwept(Chunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
 
         APPLY_CONTINENT(Stone, Stone);
-        APPLY_BLOCK(Stone);
+	     APPLY_BLOCK(Stone);
         pos.y++;
         APPLY_SKY;
     }
 
-     static void generateIcy(VerticalChunk& chunk, int block_x, int block_z, int height ){
+     static void generateIcy(Chunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
 
         APPLY_CONTINENT(Andesite, StdIce);
-        APPLY_BLOCK(ClearIce);
+	     APPLY_BLOCK(ClearIce);
         pos.y++;
         APPLY_SKY;
     }
 
-     static void generateFlowerLand(VerticalChunk& chunk, int block_x, int block_z, int height ){
+     static void generateFlowerLand(Chunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
 
         APPLY_CONTINENT(Stone, Dirt);
-        APPLY_BLOCK(GrassSakura);
+	     APPLY_BLOCK(GrassSakura);
         pos.y++;
         APPLY_SKY;
     }
 
-    static void generateJungle(VerticalChunk& chunk, int block_x, int block_z, int height ){
+    static void generateJungle(Chunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
 
         APPLY_CONTINENT(Stone, Dirt);
-        APPLY_BLOCK(GrassJungle);
+	    APPLY_BLOCK(GrassJungle);
         pos.y++;
         APPLY_SKY;
     }
-     static void generateOcean(VerticalChunk& chunk, int block_x, int block_z, int height ){
+     static void generateOcean(Chunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
 
         APPLY_CONTINENT(Stone, Sand);
         for (; pos.y < seaLevel + bottomLevel; ++pos.y) {
-            APPLY_BLOCK(Water);
+	        APPLY_BLOCK(Water);
         }
         APPLY_SKY;
     }
 
-     static void generateBeach(VerticalChunk& chunk, int block_x, int block_z, int height ){
+     static void generateBeach(Chunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
 
         APPLY_CONTINENT(Stone, Sand);
-        APPLY_BLOCK(BlockType::Sand);
+	     APPLY_BLOCK(BlockType::Sand);
         pos.y++;
         APPLY_SKY;
     }
 
-     static void generateStonyShore(VerticalChunk& chunk, int block_x, int block_z, int height ){
+     static void generateStonyShore(Chunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
 
         APPLY_CONTINENT(Stone, Andesite);
-        APPLY_BLOCK(BlockType::Gravel);
+	     APPLY_BLOCK(BlockType::Gravel);
         pos.y++;
         APPLY_SKY;
     }
 
-    static void generateRedBeach(VerticalChunk& chunk, int block_x, int block_z, int height ){
+    static void generateRedBeach(Chunk& chunk, int block_x, int block_z, int height ){
         INIT_GENERATOR;
         APPLY_BEDROCK;
         APPLY_BOTTOM;
 
         APPLY_CONTINENT(Stone, RedSand);
-        APPLY_BLOCK(BlockType::RedSand);
+	    APPLY_BLOCK(BlockType::RedSand);
         pos.y++;
         APPLY_SKY;
     }
-    constexpr static const BlockType BADLANDS_STRATS[30] = {
+    constexpr static BlockType BADLANDS_STRATS[30] = {
             Clay,
             Clay,
             ClayRed,
@@ -304,9 +295,6 @@ public:
             Clay,
     };
 };
-//void generateVoid( VerticalChunk* chunk, int block_x, int block_z, int height);
-//void generateDesert( VerticalChunk* chunk, int block_x, int block_z, int height);
-//void generatePlain( VerticalChunk* chunk, int block_x, int block_z, int height);
-
-
-#endif //MIICRAFTTEST_TERGEN_H
+//void generateVoid( Chunk* chunk, int block_x, int block_z, int height);
+//void generateDesert( Chunk* chunk, int block_x, int block_z, int height);
+//void generatePlain( Chunk* chunk, int block_x, int block_z, int height);

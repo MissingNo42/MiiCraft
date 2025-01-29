@@ -2,160 +2,240 @@
 // Created by Romain on 15/02/2024.
 //
 
-#include "world/verticalChunk.h"
-#include "render/cache.h"
-#include "render/block.h"
-#include "world/world.h"
+#include "engine/render/block.h"
+#include "engine/render/cache.h"
+#include "engine/render/tables.h"
+#include "world/Chunk.h"
 #include "world/coord.h"
 
 
+/**
+ * @brief Count the number of 'solid' blocks around a particular block vertex
+ * @note just increment contact by OR'ed LightContactIndex values. (multi inc in only 1 op)
+ * */
 union LightContact {
-	u16 contact;
+	u8 contact; // write
 	struct {
-		u16 A: 4, B: 4, C: 4, D: 4;
+		u8 A: 2, B: 2, C: 2, D: 2; // read
 	};
 	struct {
-		u16 G: 4, H: 4, E: 4, F: 4;
+		u8 G: 2, H: 2, E: 2, F: 2; // read
 	};
 };
 
+union LightContacts {
+	u64 contacts; // write
+	struct {
+		[[maybe_unused]] u16 _unused; // padding
+		LightContact T, B, L, R, F, K; // 48 bits, read
+	};
+};
 
-enum LightContactIndex: u16 {
-	A = 0b0001000000000000,
-	B = 0b0000000100000000,
-	C = 0b0000000000010000,
-	D = 0b0000000000000001,
-	E = C,
-	F = D,
-	G = A,
-	H = B,
+enum LightContactIndex : u64 {
+	Vertex_tA = 0b010000000000000000000000000000000000000000000000,
+	Vertex_tB = 0b000100000000000000000000000000000000000000000000,
+	Vertex_tC = 0b000001000000000000000000000000000000000000000000,
+	Vertex_tD = 0b000000010000000000000000000000000000000000000000,
+
+	Vertex_bG = 0b000000000100000000000000000000000000000000000000,
+	Vertex_bH = 0b000000000001000000000000000000000000000000000000,
+	Vertex_bE = 0b000000000000010000000000000000000000000000000000,
+	Vertex_bF = 0b000000000000000100000000000000000000000000000000,
+
+	Vertex_lA = 0b000000000000000001000000000000000000000000000000,
+	Vertex_lB = 0b000000000000000000010000000000000000000000000000,
+	Vertex_lE = 0b000000000000000000000100000000000000000000000000,
+	Vertex_lF = 0b000000000000000000000001000000000000000000000000,
+
+	Vertex_rG = 0b000000000000000000000000010000000000000000000000,
+	Vertex_rH = 0b000000000000000000000000000100000000000000000000,
+	Vertex_rC = 0b000000000000000000000000000001000000000000000000,
+	Vertex_rD = 0b000000000000000000000000000000010000000000000000,
+
+	Vertex_fA = 0b000000000000000000000000000000000100000000000000,
+	Vertex_fH = 0b000000000000000000000000000000000001000000000000,
+	Vertex_fE = 0b000000000000000000000000000000000000010000000000,
+	Vertex_fD = 0b000000000000000000000000000000000000000100000000,
+
+	Vertex_kG = 0b000000000000000000000000000000000000000001000000,
+	Vertex_kB = 0b000000000000000000000000000000000000000000010000,
+	Vertex_kC = 0b000000000000000000000000000000000000000000000100,
+	Vertex_kF = 0b000000000000000000000000000000000000000000000001,
+
+	Vertex_A = Vertex_tA | Vertex_lA | Vertex_fA,
+	Vertex_B = Vertex_tB | Vertex_lB | Vertex_kB,
+	Vertex_C = Vertex_tC | Vertex_rC | Vertex_kC,
+	Vertex_D = Vertex_tD | Vertex_rD | Vertex_fD,
+	Vertex_G = Vertex_bG | Vertex_rG | Vertex_kG,
+	Vertex_H = Vertex_bH | Vertex_rH | Vertex_fH,
+	Vertex_E = Vertex_bE | Vertex_lE | Vertex_fE,
+	Vertex_F = Vertex_bF | Vertex_lF | Vertex_kF,
 };
 
 
+static constexpr u16 initLight = 0b1111111110111111; // ~0000_01_0000_01 | 1
 
-// shifted space from 16x16 (4-bits) to 64x64 (6-bits)
-// color idx in 'Lights' array is the sum of at most 4 extendedLight's values:
-// extendedLight[block.light = 0bnnnnaaaa] = 0b0000_00(nnnn + 1)_00(aaaa + 1) // the +1 is to apply a bonus on non-occluded lights
-static const u16 extendedLight[0x100] = {
-	0x041, 0x042, 0x043, 0x044, 0x045, 0x046, 0x047, 0x048, 0x049, 0x04A, 0x04B, 0x04C, 0x04D, 0x04E, 0x04F, 0x050,
-	0x081, 0x082, 0x083, 0x084, 0x085, 0x086, 0x087, 0x088, 0x089, 0x08A, 0x08B, 0x08C, 0x08D, 0x08E, 0x08F, 0x090,
-	0x0C1, 0x0C2, 0x0C3, 0x0C4, 0x0C5, 0x0C6, 0x0C7, 0x0C8, 0x0C9, 0x0CA, 0x0CB, 0x0CC, 0x0CD, 0x0CE, 0x0CF, 0x0D0,
-	0x101, 0x102, 0x103, 0x104, 0x105, 0x106, 0x107, 0x108, 0x109, 0x10A, 0x10B, 0x10C, 0x10D, 0x10E, 0x10F, 0x110,
-	0x141, 0x142, 0x143, 0x144, 0x145, 0x146, 0x147, 0x148, 0x149, 0x14A, 0x14B, 0x14C, 0x14D, 0x14E, 0x14F, 0x150,
-	0x181, 0x182, 0x183, 0x184, 0x185, 0x186, 0x187, 0x188, 0x189, 0x18A, 0x18B, 0x18C, 0x18D, 0x18E, 0x18F, 0x190,
-	0x1C1, 0x1C2, 0x1C3, 0x1C4, 0x1C5, 0x1C6, 0x1C7, 0x1C8, 0x1C9, 0x1CA, 0x1CB, 0x1CC, 0x1CD, 0x1CE, 0x1CF, 0x1D0,
-	0x201, 0x202, 0x203, 0x204, 0x205, 0x206, 0x207, 0x208, 0x209, 0x20A, 0x20B, 0x20C, 0x20D, 0x20E, 0x20F, 0x210,
-	0x241, 0x242, 0x243, 0x244, 0x245, 0x246, 0x247, 0x248, 0x249, 0x24A, 0x24B, 0x24C, 0x24D, 0x24E, 0x24F, 0x250,
-	0x281, 0x282, 0x283, 0x284, 0x285, 0x286, 0x287, 0x288, 0x289, 0x28A, 0x28B, 0x28C, 0x28D, 0x28E, 0x28F, 0x290,
-	0x2C1, 0x2C2, 0x2C3, 0x2C4, 0x2C5, 0x2C6, 0x2C7, 0x2C8, 0x2C9, 0x2CA, 0x2CB, 0x2CC, 0x2CD, 0x2CE, 0x2CF, 0x2D0,
-	0x301, 0x302, 0x303, 0x304, 0x305, 0x306, 0x307, 0x308, 0x309, 0x30A, 0x30B, 0x30C, 0x30D, 0x30E, 0x30F, 0x310,
-	0x341, 0x342, 0x343, 0x344, 0x345, 0x346, 0x347, 0x348, 0x349, 0x34A, 0x34B, 0x34C, 0x34D, 0x34E, 0x34F, 0x350,
-	0x381, 0x382, 0x383, 0x384, 0x385, 0x386, 0x387, 0x388, 0x389, 0x38A, 0x38B, 0x38C, 0x38D, 0x38E, 0x38F, 0x390,
-	0x3C1, 0x3C2, 0x3C3, 0x3C4, 0x3C5, 0x3C6, 0x3C7, 0x3C8, 0x3C9, 0x3CA, 0x3CB, 0x3CC, 0x3CD, 0x3CE, 0x3CF, 0x3D0,
-	0x401, 0x402, 0x403, 0x404, 0x405, 0x406, 0x407, 0x408, 0x409, 0x40A, 0x40B, 0x40C, 0x40D, 0x40E, 0x40F, 0x410,
-};
 
-static constexpr u16 initLight  = 0b1111111110111111; // ~0000_01_0000_01 | 1
-static constexpr u16 bonusLight = 0b0000000001000001;
-
-inline void renderVertex(f32 x, f32 y, f32 z, u16 tc, u16 color, u8 alpha) {
-    //GX_Position3f32(x, y, z);
-    //GX_Normal1x8(normal);
-    //GX_Color1u32(color);
-    //GX_TexCoord2f32(tx, ty);
+inline void renderVertex(f32 x, f32 y, f32 z, u16 color, u16 tc, u8 alpha) {
+	//GX_Position3f32(x, y, z);
+	//GX_Normal1x8(normal);
+	//GX_Color1u32(color);
+	//GX_TexCoord2f32(tx, ty);
 	ChunkCache::addVertex(x, y, z, color, tc, alpha);
 }
 
-inline void renderRawNorth(f32 x, f32 y, f32 z, f32 mx, f32 my, f32, u16 tcA, u16 tcD, u16 tcH, u16 tcE, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha) {
-	renderVertex(mx, y, z, tcA, c1, alpha); // A
-	renderVertex(x, y, z, tcD, c2, alpha); // D
-	renderVertex(x, my, z, tcH, c3, alpha); // H
-	renderVertex(mx, my, z, tcE, c4, alpha); // E
+inline void
+renderRawNorth(f32 x, f32 y, f32 z, f32 mx, f32 my, f32, u16 tcA, u16 tcD, u16 tcH, u16 tcE, u16 c1, u16 c2, u16 c3,
+               u16 c4, u8 alpha) {
+	renderVertex(mx, y, z, c1, tcA, alpha); // A
+	renderVertex(x, y, z, c2, tcD, alpha); // D
+	renderVertex(x, my, z, c3, tcH, alpha); // H
+	renderVertex(mx, my, z, c4, tcE, alpha); // E
 }
 
-inline void renderRawSouth(f32 x, f32 y, f32, f32 mx, f32 my, f32 mz, u16 tcG, u16 tcC, u16 tcB, u16 tcF, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha) {
-	renderVertex(x, my, mz, tcG, c1, alpha); // G
-	renderVertex(x, y, mz, tcC, c2, alpha); // C
-	renderVertex(mx, y, mz, tcB, c3, alpha); // B
-	renderVertex(mx, my, mz, tcF, c4, alpha); // F
+inline void
+renderRawSouth(f32 x, f32 y, f32, f32 mx, f32 my, f32 mz, u16 tcG, u16 tcC, u16 tcB, u16 tcF, u16 c1, u16 c2, u16 c3,
+               u16 c4, u8 alpha) {
+	renderVertex(x, my, mz, c1, tcG, alpha); // G
+	renderVertex(x, y, mz, c2, tcC, alpha); // C
+	renderVertex(mx, y, mz, c3, tcB, alpha); // B
+	renderVertex(mx, my, mz, c4, tcF, alpha); // F
 }
 
-inline void renderRawTop(f32 x, f32 y, f32 z, f32 mx, f32, f32 mz, u16 tcC, u16 tcD, u16 tcA, u16 tcB, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha) {
-	renderVertex(x, y, mz, tcC, c1, alpha); // C
-	renderVertex(x, y, z, tcD, c2, alpha); // D
-	renderVertex(mx, y, z, tcA, c3, alpha); // A
-	renderVertex(mx, y, mz, tcB, c4, alpha); // B
+inline void
+renderRawTop(f32 x, f32 y, f32 z, f32 mx, f32, f32 mz, u16 tcC, u16 tcD, u16 tcA, u16 tcB, u16 c1, u16 c2, u16 c3,
+             u16 c4, u8 alpha) {
+	renderVertex(x, y, mz, c1, tcC, alpha); // C
+	renderVertex(x, y, z, c2, tcD, alpha); // D
+	renderVertex(mx, y, z, c3, tcA, alpha); // A
+	renderVertex(mx, y, mz, c4, tcB, alpha); // B
 }
 
-inline void renderRawBottom(f32 x, f32, f32 z, f32 mx, f32 my, f32 mz, u16 tcE, u16 tcH, u16 tcG, u16 tcF, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha) {
-	renderVertex(mx, my, z, tcE, c1, alpha); // E
-	renderVertex(x, my, z, tcH, c2, alpha); // H
-	renderVertex(x, my, mz, tcG, c3, alpha); // G
-	renderVertex(mx, my, mz, tcF, c4, alpha); // F
+inline void
+renderRawBottom(f32 x, f32, f32 z, f32 mx, f32 my, f32 mz, u16 tcE, u16 tcH, u16 tcG, u16 tcF, u16 c1, u16 c2, u16 c3,
+                u16 c4, u8 alpha) {
+	renderVertex(mx, my, z, c1, tcE, alpha); // E
+	renderVertex(x, my, z, c2, tcH, alpha); // H
+	renderVertex(x, my, mz, c3, tcG, alpha); // G
+	renderVertex(mx, my, mz, c4, tcF, alpha); // F
 }
 
-inline void renderRawWest(f32, f32 y, f32 z, f32 mx, f32 my, f32 mz, u16 tcB, u16 tcA, u16 tcE, u16 tcF, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha) {
-	renderVertex(mx, y, mz, tcB, c1, alpha); // B
-	renderVertex(mx, y, z, tcA, c2, alpha); // A
-	renderVertex(mx, my, z, tcE, c3, alpha); // E
-	renderVertex(mx, my, mz, tcF, c4, alpha); // F
+inline void
+renderRawWest(f32, f32 y, f32 z, f32 mx, f32 my, f32 mz, u16 tcB, u16 tcA, u16 tcE, u16 tcF, u16 c1, u16 c2, u16 c3,
+              u16 c4, u8 alpha) {
+	renderVertex(mx, y, mz, c1, tcB, alpha); // B
+	renderVertex(mx, y, z, c2, tcA, alpha); // A
+	renderVertex(mx, my, z, c3, tcE, alpha); // E
+	renderVertex(mx, my, mz, c4, tcF, alpha); // F
 }
 
-inline void renderRawEast(f32 x, f32 y, f32 z, f32, f32 my, f32 mz, u16 tcH, u16 tcD, u16 tcC, u16 tcG, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha) {
-	renderVertex(x, my, z, tcH, c1, alpha); // H
-	renderVertex(x, y, z, tcD, c2, alpha); // D
-	renderVertex(x, y, mz, tcC, c3, alpha); // C
-	renderVertex(x, my, mz, tcG, c4, alpha); // G
+inline void
+renderRawEast(f32 x, f32 y, f32 z, f32, f32 my, f32 mz, u16 tcH, u16 tcD, u16 tcC, u16 tcG, u16 c1, u16 c2, u16 c3,
+              u16 c4, u8 alpha) {
+	renderVertex(x, my, z, c1, tcH, alpha); // H
+	renderVertex(x, y, z, c2, tcD, alpha); // D
+	renderVertex(x, y, mz, c3, tcC, alpha); // C
+	renderVertex(x, my, mz, c4, tcG, alpha); // G
 }
 
-inline void renderFront(f32 x, f32 y, f32 z, f32 mx, f32 my, f32, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha) {
+inline void
+renderFront(f32 x, f32 y, f32 z, f32 mx, f32 my, f32, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha, bool reverse) {
 	u16 tc = blockData[type].tc[BlockFace::North];
-    renderVertex(mx, y, z, tc, c1, alpha); // A
-    renderVertex(x, y, z, tc + 17, c2, alpha); // D
-    renderVertex(x, my, z, tc + 18, c3, alpha); // H
-    renderVertex(mx, my, z, tc + 1, c4, alpha); // E
+	if (reverse) {
+		renderVertex(x, y, z, c2, tc + 17, alpha); // D
+		renderVertex(x, my, z, c3, tc + 18, alpha); // H
+		renderVertex(mx, my, z, c4, tc + 1, alpha); // E
+		renderVertex(mx, y, z, c1, tc, alpha); // A
+	} else {
+		renderVertex(mx, y, z, c1, tc, alpha); // A
+		renderVertex(x, y, z, c2, tc + 17, alpha); // D
+		renderVertex(x, my, z, c3, tc + 18, alpha); // H
+		renderVertex(mx, my, z, c4, tc + 1, alpha); // E
+	}
 }
 
-inline void renderBack(f32 x, f32 y, f32, f32 mx, f32 my, f32 mz, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha) {
+inline void
+renderBack(f32 x, f32 y, f32, f32 mx, f32 my, f32 mz, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha, bool reverse) {
 	u16 tc = blockData[type].tc[BlockFace::South];
-    renderVertex(x, my, mz, tc + 1, c1, alpha); // G
-    renderVertex(x, y, mz, tc, c2, alpha); // C
-    renderVertex(mx, y, mz, tc + 17, c3, alpha); // B
-    renderVertex(mx, my, mz, tc + 18, c4, alpha); // F
+	if (reverse) {
+		renderVertex(x, y, mz, c2, tc, alpha); // C
+		renderVertex(mx, y, mz, c3, tc + 17, alpha); // B
+		renderVertex(mx, my, mz, c4, tc + 18, alpha); // F
+		renderVertex(x, my, mz, c1, tc + 1, alpha); // G
+	} else {
+		renderVertex(x, my, mz, c1, tc + 1, alpha); // G
+		renderVertex(x, y, mz, c2, tc, alpha); // C
+		renderVertex(mx, y, mz, c3, tc + 17, alpha); // B
+		renderVertex(mx, my, mz, c4, tc + 18, alpha); // F
+	}
 }
 
-inline void renderTop(f32 x, f32 y, f32 z, f32 mx, f32, f32 mz, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha) {
-    u16 tc = blockData[type].tc[BlockFace::Top];
-    renderVertex(x, y, mz, tc + 17, c1, alpha); // C
-    renderVertex(x, y, z, tc + 18, c2, alpha); // D
-    renderVertex(mx, y, z, tc + 1, c3, alpha); // A
-    renderVertex(mx, y, mz, tc, c4, alpha); // B
+inline void
+renderTop(f32 x, f32 y, f32 z, f32 mx, f32, f32 mz, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha, bool reverse) {
+	u16 tc = blockData[type].tc[BlockFace::Top];
+	if (reverse) {
+		renderVertex(x, y, z, c2, tc + 18, alpha); // D
+		renderVertex(mx, y, z, c3, tc + 1, alpha); // A
+		renderVertex(mx, y, mz, c4, tc, alpha); // B
+		renderVertex(x, y, mz, c1, tc + 17, alpha); // C
+	} else {
+		renderVertex(x, y, mz, c1, tc + 17, alpha); // C
+		renderVertex(x, y, z, c2, tc + 18, alpha); // D
+		renderVertex(mx, y, z, c3, tc + 1, alpha); // A
+		renderVertex(mx, y, mz, c4, tc, alpha); // B
+	}
 }
 
-inline void renderBottom(f32 x, f32, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha) {
+inline void
+renderBottom(f32 x, f32, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha, bool reverse) {
 	u16 tc = blockData[type].tc[BlockFace::Bottom];
-    renderVertex(mx, my, z, tc + 18, c1, alpha); // E
-    renderVertex(x, my, z, tc + 1, c2, alpha); // H
-    renderVertex(x, my, mz, tc, c3, alpha); // G
-    renderVertex(mx, my, mz, tc + 17, c4, alpha); // F
+	if (reverse) {
+		renderVertex(x, my, z, c2, tc + 1, alpha); // H
+		renderVertex(x, my, mz, c3, tc, alpha); // G
+		renderVertex(mx, my, mz, c4, tc + 17, alpha); // F
+		renderVertex(mx, my, z, c1, tc + 18, alpha); // E
+	} else {
+		renderVertex(mx, my, z, c1, tc + 18, alpha); // E
+		renderVertex(x, my, z, c2, tc + 1, alpha); // H
+		renderVertex(x, my, mz, c3, tc, alpha); // G
+		renderVertex(mx, my, mz, c4, tc + 17, alpha); // F
+	}
 }
 
-inline void renderLeft(f32, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha) {
+inline void
+renderLeft(f32, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha, bool reverse) {
 	u16 tc = blockData[type].tc[BlockFace::West];
-    renderVertex(mx, y, mz, tc, c1, alpha); // B
-    renderVertex(mx, y, z, tc + 17, c2, alpha); // A
-    renderVertex(mx, my, z, tc + 18, c3, alpha); // E
-    renderVertex(mx, my, mz, tc + 1, c4, alpha); // F
+	if (reverse) {
+		renderVertex(mx, y, z, c2, tc + 17, alpha); // A
+		renderVertex(mx, my, z, c3, tc + 18, alpha); // E
+		renderVertex(mx, my, mz, c4, tc + 1, alpha); // F
+		renderVertex(mx, y, mz, c1, tc, alpha); // B
+	} else {
+		renderVertex(mx, y, mz, c1, tc, alpha); // B
+		renderVertex(mx, y, z, c2, tc + 17, alpha); // A
+		renderVertex(mx, my, z, c3, tc + 18, alpha); // E
+		renderVertex(mx, my, mz, c4, tc + 1, alpha); // F
+	}
 }
 
-inline void renderRight(f32 x, f32 y, f32 z, f32, f32 my, f32 mz, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha) {
-	u16 tc = blockData[type].tc[BlockFace::East];
-    renderVertex(x, my, z, tc + 1, c1, alpha); // H
-    renderVertex(x, y, z, tc, c2, alpha); // D
-    renderVertex(x, y, mz, tc + 17, c3, alpha); // C
-    renderVertex(x, my, mz, tc + 18, c4, alpha); // G
+inline void
+renderRight(f32 x, f32 y, f32 z, f32, f32 my, f32 mz, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha, bool reverse) {
+	const u16 tc = blockData[type].tc[BlockFace::East];
+	if (reverse) {
+		renderVertex(x, y, z, c2, tc, alpha); // D
+		renderVertex(x, y, mz, c3, tc + 17, alpha); // C
+		renderVertex(x, my, mz, c4, tc + 18, alpha); // G
+		renderVertex(x, my, z, c1, tc + 1, alpha); // H
+	} else {
+		renderVertex(x, my, z, c1, tc + 1, alpha); // H
+		renderVertex(x, y, z, c2, tc, alpha); // D
+		renderVertex(x, y, mz, c3, tc + 17, alpha); // C
+		renderVertex(x, my, mz, c4, tc + 18, alpha); // G
+	}
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu-label-as-value" // usage for computed goto for optimization purpose
 /**
  *     B ------ C
 	  /       / |
@@ -165,45 +245,46 @@ inline void renderRight(f32 x, f32 y, f32 z, f32, f32 my, f32 mz, BlockType type
 	|       | /
 	E ------ H
  * */
-void Renderer::renderChunk(VerticalChunk& c) {
+void Renderer::renderChunk(Chunk &c) {
 	s32 px = c.coord.x << 4;
-	s32 pz = c.coord.y << 4;
-	s32 x, y, z, sz; // block coord and number of rendered faces (for regurlar)
+	s32 pz = c.coord.z << 4;
+	s32 x, y, z, sz; // block coord and number of rendered faces (for regular)
 	s32 mx, my, mz, Mx, My, Mz; // alternate block coord
 	void * target = nullptr, * endTarget = nullptr; // renderer sub-functions jumpers
 
 	Block A, B, C, D, E, F, G, H; // render cubes with X vertex in common
 	Block AB, BC, CD, DA,  // render cubes with X, Y vertices in common
-	      EF, FG, GH, HE,
-		  AE, BF, CG, DH;
+	EF, FG, GH, HE,
+			AE, BF, CG, DH;
 	Block fT, fB, fL, fR, fF, fK, block; // block type of the 6 adjacent blocks + the current one
 	bool tT, tB, tL, tR, tF, tK; // true if the current block's faces must be rendered
-	u8 lT, lB, lL, lR, lF, lK; // light level of the 6 adjacent blocks
 	f32 fx, fy, fz, fmx, fmy, fmz; // float block coord
-	
+
 	u16 l_tC = 0, l_tD = 0, l_tA = 0, l_tB = 0;
 	u16 l_bE = 0, l_bH = 0, l_bG = 0, l_bF = 0;
 	u16 l_lB = 0, l_lA = 0, l_lE = 0, l_lF = 0;
 	u16 l_rH = 0, l_rD = 0, l_rC = 0, l_rG = 0;
 	u16 l_fA = 0, l_fD = 0, l_fH = 0, l_fE = 0;
 	u16 l_kG = 0, l_kC = 0, l_kB = 0, l_kF = 0;
-	
-	LightContact cT, cB, cL, cR, cF, cK; // light contacts of the 6 faces
 
-	VerticalChunk &cnorth = World::chunkSlots[c.neighboors[Direction::NORTH]];
-	VerticalChunk &csouth = World::chunkSlots[c.neighboors[Direction::SOUTH]];
-	VerticalChunk &ceast = World::chunkSlots[c.neighboors[Direction::EAST]];
-	VerticalChunk &cwest = World::chunkSlots[c.neighboors[Direction::WEST]];
+	const void * renderers[] = {&&render_Furnace, &&render_Door, &&render_Void};
 
-	VerticalChunk &cnortheast = World::chunkSlots[cnorth.neighboors[Direction::EAST]];
-	VerticalChunk &cnorthwest = World::chunkSlots[cnorth.neighboors[Direction::WEST]];
-	VerticalChunk &csoutheast = World::chunkSlots[csouth.neighboors[Direction::EAST]];
-	VerticalChunk &csouthwest = World::chunkSlots[csouth.neighboors[Direction::WEST]];
+	LightContacts lc; // light contacts of the 6 faces
+	LightContacts le; // light contacts of the 6 faces for emitted neighboors
 
+	Chunk &cnorth = c.getNeighboorChunk(NORTH);
+	Chunk &csouth = c.getNeighboorChunk(SOUTH);
+	Chunk &cwest = c.getNeighboorChunk(WEST);
+	Chunk &ceast = c.getNeighboorChunk(EAST);
 
-	for (y = 1; y < 127; y++) { // for each vertical levels (except 1st and last)
+	Chunk &cnortheast = c.getDiagonalNeighboorChunk(NORTH, EAST);
+	Chunk &cnorthwest = c.getDiagonalNeighboorChunk(NORTH, WEST);
+	Chunk &csoutheast = c.getDiagonalNeighboorChunk(SOUTH, EAST);
+	Chunk &csouthwest = c.getDiagonalNeighboorChunk(SOUTH, WEST);
 
-		my = y - 1;
+	for (y = 1; y < CHUNK_LIMIT; y++) { // for each vertical levels (except 1st and last)
+
+		my = y ? y - 1: 0; // allow the 1st level to be rendered by adding a fake -1 level
 		My = y + 1;
 
 		//goto center; // test-only shortcut
@@ -227,246 +308,246 @@ void Renderer::renderChunk(VerticalChunk& c) {
 		 * */
 
 #pragma region autogen // python auto-gen code (gen-render.py)
-	        // X 0 Z 0
-        if ((block = c.blocks[0][y][0]).type) {
+		// X 0 Z 0
+		if ((block = c.blocks[y][0][0]).type) {
 
-            fT = c.blocks[0][My][0];
-            fB = c.blocks[0][my][0];
-            fL = cwest.blocks[15][y][0];
-            fR = c.blocks[1][y][0];
-            fF = c.blocks[0][y][1];
-            fK = csouth.blocks[0][y][15];
+			fT = c.blocks[My][0][0];
+			fB = c.blocks[my][0][0];
+			fL = cwest.blocks[y][15][0];
+			fR = c.blocks[y][1][0];
+			fF = c.blocks[y][0][1];
+			fK = csouth.blocks[y][0][15];
 
-            target = &&light_x0_z0;
-            endTarget = &&end_x0_z0;
-            goto prepare;
+			target = &&light_x0_z0;
+			endTarget = &&end_x0_z0;
+			goto prepare;
 
-            light_x0_z0:
+			light_x0_z0:
 
-            //if (isOpaque(type.type) || isSemiTransparent(type.type)) {
-            A = cwest.blocks[15][My][1];
-            B = csouthwest.blocks[15][My][15];
-            C = csouth.blocks[1][My][15];
-            D = c.blocks[1][My][1];
-            E = cwest.blocks[15][my][1];
-            F = csouthwest.blocks[15][my][15];
-            G = csouth.blocks[1][my][15];
-            H = c.blocks[1][my][1];
+			//if (isOpaque(type.type) || isSemiTransparent(type.type)) {
+			A = cwest.blocks[My][15][1];
+			B = csouthwest.blocks[My][15][15];
+			C = csouth.blocks[My][1][15];
+			D = c.blocks[My][1][1];
+			E = cwest.blocks[my][15][1];
+			F = csouthwest.blocks[my][15][15];
+			G = csouth.blocks[my][1][15];
+			H = c.blocks[my][1][1];
 
-            AB = cwest.blocks[15][My][0];
-            BC = csouth.blocks[0][My][15];
-            CD = c.blocks[1][My][0];
-            DA = c.blocks[0][My][1];
+			AB = cwest.blocks[My][15][0];
+			BC = csouth.blocks[My][0][15];
+			CD = c.blocks[My][1][0];
+			DA = c.blocks[My][0][1];
 
-            EF = cwest.blocks[15][my][0];
-            FG = csouth.blocks[0][my][15];
-            GH = c.blocks[1][my][0];
-            HE = c.blocks[0][my][1];
+			EF = cwest.blocks[my][15][0];
+			FG = csouth.blocks[my][0][15];
+			GH = c.blocks[my][1][0];
+			HE = c.blocks[my][0][1];
 
-            AE = cwest.blocks[15][y][1];
-            BF = csouthwest.blocks[15][y][15];
-            CG = csouth.blocks[1][y][15];
-            DH = c.blocks[1][y][1];
-            //} else if (isTransparent(type.type)) {
-            //    // TODO: try some fun here
-            //    A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
-            //}
+			AE = cwest.blocks[y][15][1];
+			BF = csouthwest.blocks[y][15][15];
+			CG = csouth.blocks[y][1][15];
+			DH = c.blocks[y][1][1];
+			//} else if (isTransparent(type.type)) {
+			//    // TODO: try some fun here
+			//    A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
+			//}
 
-            fx = (f32)(px),
-            fy = (f32)y,
-            fz = (f32)(pz),
-            fmx = (f32)(-1 + px),
-            fmy = (f32)my,
-            fmz = (f32)(-1 + pz);
+			fx = static_cast<f32>(px),
+			fy = static_cast<f32>(y),
+			fz = static_cast<f32>(pz),
+			fmx = static_cast<f32>(-1 + px),
+			fmy = static_cast<f32>(my),
+			fmz = static_cast<f32>(-1 + pz);
 
-            goto render;
-            end_x0_z0:;
-        }
-
-
-        // X 0 Z 15
-        if ((block = c.blocks[0][y][15]).type) {
-
-            fT = c.blocks[0][My][15];
-            fB = c.blocks[0][my][15];
-            fL = cwest.blocks[15][y][15];
-            fR = c.blocks[1][y][15];
-            fF = cnorth.blocks[0][y][0];
-            fK = c.blocks[0][y][14];
-
-            target = &&light_x0_z15;
-            endTarget = &&end_x0_z15;
-            goto prepare;
-
-            light_x0_z15:
-
-            //if (isOpaque(type.type) || isSemiTransparent(type.type)) {
-            A = cnorthwest.blocks[15][My][0];
-            B = cwest.blocks[15][My][14];
-            C = c.blocks[1][My][14];
-            D = cnorth.blocks[1][My][0];
-            E = cnorthwest.blocks[15][my][0];
-            F = cwest.blocks[15][my][14];
-            G = c.blocks[1][my][14];
-            H = cnorth.blocks[1][my][0];
-
-            AB = cwest.blocks[15][My][15];
-            BC = c.blocks[0][My][14];
-            CD = c.blocks[1][My][15];
-            DA = cnorth.blocks[0][My][0];
-
-            EF = cwest.blocks[15][my][15];
-            FG = c.blocks[0][my][14];
-            GH = c.blocks[1][my][15];
-            HE = cnorth.blocks[0][my][0];
-
-            AE = cnorthwest.blocks[15][y][0];
-            BF = cwest.blocks[15][y][14];
-            CG = c.blocks[1][y][14];
-            DH = cnorth.blocks[1][y][0];
-            //} else if (isTransparent(type.type)) {
-            //    // TODO: try some fun here
-            //    A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
-            //}
-
-            fx = (f32)(px),
-            fy = (f32)y,
-            fz = (f32)(15 + pz),
-            fmx = (f32)(-1 + px),
-            fmy = (f32)my,
-            fmz = (f32)(14 + pz);
-
-            goto render;
-            end_x0_z15:;
-        }
+			goto render;
+			end_x0_z0:;
+		}
 
 
-        // X 15 Z 0
-        if ((block = c.blocks[15][y][0]).type) {
+		// X 0 Z 15
+		if ((block = c.blocks[y][0][15]).type) {
 
-            fT = c.blocks[15][My][0];
-            fB = c.blocks[15][my][0];
-            fL = c.blocks[14][y][0];
-            fR = ceast.blocks[0][y][0];
-            fF = c.blocks[15][y][1];
-            fK = csouth.blocks[15][y][15];
+			fT = c.blocks[My][0][15];
+			fB = c.blocks[my][0][15];
+			fL = cwest.blocks[y][15][15];
+			fR = c.blocks[y][1][15];
+			fF = cnorth.blocks[y][0][0];
+			fK = c.blocks[y][0][14];
 
-            target = &&light_x15_z0;
-            endTarget = &&end_x15_z0;
-            goto prepare;
+			target = &&light_x0_z15;
+			endTarget = &&end_x0_z15;
+			goto prepare;
 
-            light_x15_z0:
+			light_x0_z15:
 
-            //if (isOpaque(type.type) || isSemiTransparent(type.type)) {
-            A = c.blocks[14][My][1];
-            B = csouth.blocks[14][My][15];
-            C = csoutheast.blocks[0][My][15];
-            D = ceast.blocks[0][My][1];
-            E = c.blocks[14][my][1];
-            F = csouth.blocks[14][my][15];
-            G = csoutheast.blocks[0][my][15];
-            H = ceast.blocks[0][my][1];
+			//if (isOpaque(type.type) || isSemiTransparent(type.type)) {
+			A = cnorthwest.blocks[My][15][0];
+			B = cwest.blocks[My][15][14];
+			C = c.blocks[My][1][14];
+			D = cnorth.blocks[My][1][0];
+			E = cnorthwest.blocks[my][15][0];
+			F = cwest.blocks[my][15][14];
+			G = c.blocks[my][1][14];
+			H = cnorth.blocks[my][1][0];
 
-            AB = c.blocks[14][My][0];
-            BC = csouth.blocks[15][My][15];
-            CD = ceast.blocks[0][My][0];
-            DA = c.blocks[15][My][1];
+			AB = cwest.blocks[My][15][15];
+			BC = c.blocks[My][0][14];
+			CD = c.blocks[My][1][15];
+			DA = cnorth.blocks[My][0][0];
 
-            EF = c.blocks[14][my][0];
-            FG = csouth.blocks[15][my][15];
-            GH = ceast.blocks[0][my][0];
-            HE = c.blocks[15][my][1];
+			EF = cwest.blocks[my][15][15];
+			FG = c.blocks[my][0][14];
+			GH = c.blocks[my][1][15];
+			HE = cnorth.blocks[my][0][0];
 
-            AE = c.blocks[14][y][1];
-            BF = csouth.blocks[14][y][15];
-            CG = csoutheast.blocks[0][y][15];
-            DH = ceast.blocks[0][y][1];
-            //} else if (isTransparent(type.type)) {
-            //    // TODO: try some fun here
-            //    A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
-            //}
+			AE = cnorthwest.blocks[y][15][0];
+			BF = cwest.blocks[y][15][14];
+			CG = c.blocks[y][1][14];
+			DH = cnorth.blocks[y][1][0];
+			//} else if (isTransparent(type.type)) {
+			//    // TODO: try some fun here
+			//    A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
+			//}
 
-            fx = (f32)(15 + px),
-            fy = (f32)y,
-            fz = (f32)(pz),
-            fmx = (f32)(14 + px),
-            fmy = (f32)my,
-            fmz = (f32)(-1 + pz);
+			fx = static_cast<f32>(px),
+			fy = static_cast<f32>(y),
+			fz = static_cast<f32>(15 + pz),
+			fmx = static_cast<f32>(-1 + px),
+			fmy = static_cast<f32>(my),
+			fmz = static_cast<f32>(14 + pz);
 
-            goto render;
-            end_x15_z0:;
-        }
+			goto render;
+			end_x0_z15:;
+		}
 
 
-        // X 15 Z 15
-        if ((block = c.blocks[15][y][15]).type) {
+		// X 15 Z 0
+		if ((block = c.blocks[y][15][0]).type) {
 
-            fT = c.blocks[15][My][15];
-            fB = c.blocks[15][my][15];
-            fL = c.blocks[14][y][15];
-            fR = ceast.blocks[0][y][15];
-            fF = cnorth.blocks[15][y][0];
-            fK = c.blocks[15][y][14];
+			fT = c.blocks[My][15][0];
+			fB = c.blocks[my][15][0];
+			fL = c.blocks[y][14][0];
+			fR = ceast.blocks[y][0][0];
+			fF = c.blocks[y][15][1];
+			fK = csouth.blocks[y][15][15];
 
-            target = &&light_x15_z15;
-            endTarget = &&end_x15_z15;
-            goto prepare;
+			target = &&light_x15_z0;
+			endTarget = &&end_x15_z0;
+			goto prepare;
 
-            light_x15_z15:
+			light_x15_z0:
 
-            //if (isOpaque(type.type) || isSemiTransparent(type.type)) {
-            A = cnorth.blocks[14][My][0];
-            B = c.blocks[14][My][14];
-            C = ceast.blocks[0][My][14];
-            D = cnortheast.blocks[0][My][0];
-            E = cnorth.blocks[14][my][0];
-            F = c.blocks[14][my][14];
-            G = ceast.blocks[0][my][14];
-            H = cnortheast.blocks[0][my][0];
+			//if (isOpaque(type.type) || isSemiTransparent(type.type)) {
+			A = c.blocks[My][14][1];
+			B = csouth.blocks[My][14][15];
+			C = csoutheast.blocks[My][0][15];
+			D = ceast.blocks[My][0][1];
+			E = c.blocks[my][14][1];
+			F = csouth.blocks[my][14][15];
+			G = csoutheast.blocks[my][0][15];
+			H = ceast.blocks[my][0][1];
 
-            AB = c.blocks[14][My][15];
-            BC = c.blocks[15][My][14];
-            CD = ceast.blocks[0][My][15];
-            DA = cnorth.blocks[15][My][0];
+			AB = c.blocks[My][14][0];
+			BC = csouth.blocks[My][15][15];
+			CD = ceast.blocks[My][0][0];
+			DA = c.blocks[My][15][1];
 
-            EF = c.blocks[14][my][15];
-            FG = c.blocks[15][my][14];
-            GH = ceast.blocks[0][my][15];
-            HE = cnorth.blocks[15][my][0];
+			EF = c.blocks[my][14][0];
+			FG = csouth.blocks[my][15][15];
+			GH = ceast.blocks[my][0][0];
+			HE = c.blocks[my][15][1];
 
-            AE = cnorth.blocks[14][y][0];
-            BF = c.blocks[14][y][14];
-            CG = ceast.blocks[0][y][14];
-            DH = cnortheast.blocks[0][y][0];
-            //} else if (isTransparent(type.type)) {
-            //    // TODO: try some fun here
-            //    A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
-            //}
+			AE = c.blocks[y][14][1];
+			BF = csouth.blocks[y][14][15];
+			CG = csoutheast.blocks[y][0][15];
+			DH = ceast.blocks[y][0][1];
+			//} else if (isTransparent(type.type)) {
+			//    // TODO: try some fun here
+			//    A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
+			//}
 
-            fx = (f32)(15 + px),
-            fy = (f32)y,
-            fz = (f32)(15 + pz),
-            fmx = (f32)(14 + px),
-            fmy = (f32)my,
-            fmz = (f32)(14 + pz);
+			fx = static_cast<f32>(15 + px),
+			fy = static_cast<f32>(y),
+			fz = static_cast<f32>(pz),
+			fmx = static_cast<f32>(14 + px),
+			fmy = static_cast<f32>(my),
+			fmz = static_cast<f32>(-1 + pz);
 
-            goto render;
-            end_x15_z15:;
-        }
+			goto render;
+			end_x15_z0:;
+		}
+
+
+		// X 15 Z 15
+		if ((block = c.blocks[y][15][15]).type) {
+
+			fT = c.blocks[My][15][15];
+			fB = c.blocks[my][15][15];
+			fL = c.blocks[y][14][15];
+			fR = ceast.blocks[y][0][15];
+			fF = cnorth.blocks[y][15][0];
+			fK = c.blocks[y][15][14];
+
+			target = &&light_x15_z15;
+			endTarget = &&end_x15_z15;
+			goto prepare;
+
+			light_x15_z15:
+
+			//if (isOpaque(type.type) || isSemiTransparent(type.type)) {
+			A = cnorth.blocks[My][14][0];
+			B = c.blocks[My][14][14];
+			C = ceast.blocks[My][0][14];
+			D = cnortheast.blocks[My][0][0];
+			E = cnorth.blocks[my][14][0];
+			F = c.blocks[my][14][14];
+			G = ceast.blocks[my][0][14];
+			H = cnortheast.blocks[my][0][0];
+
+			AB = c.blocks[My][14][15];
+			BC = c.blocks[My][15][14];
+			CD = ceast.blocks[My][0][15];
+			DA = cnorth.blocks[My][15][0];
+
+			EF = c.blocks[my][14][15];
+			FG = c.blocks[my][15][14];
+			GH = ceast.blocks[my][0][15];
+			HE = cnorth.blocks[my][15][0];
+
+			AE = cnorth.blocks[y][14][0];
+			BF = c.blocks[y][14][14];
+			CG = ceast.blocks[y][0][14];
+			DH = cnortheast.blocks[y][0][0];
+			//} else if (isTransparent(type.type)) {
+			//    // TODO: try some fun here
+			//    A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
+			//}
+
+			fx = static_cast<f32>(15 + px),
+			fy = static_cast<f32>(y),
+			fz = static_cast<f32>(15 + pz),
+			fmx = static_cast<f32>(14 + px),
+			fmy = static_cast<f32>(my),
+			fmz = static_cast<f32>(14 + pz);
+
+			goto render;
+			end_x15_z15:;
+		}
 
 
         // X x Z 0
         for(x = 1; x < 15; x++) {
-            if ((block = c.blocks[x][y][0]).type) {
+            if ((block = c.blocks[y][x][0]).type) {
                 mx = x - 1;
                 Mx = x + 1;
 
-                fT = c.blocks[x][My][0];
-                fB = c.blocks[x][my][0];
-                fL = c.blocks[mx][y][0];
-                fR = c.blocks[Mx][y][0];
-                fF = c.blocks[x][y][1];
-                fK = csouth.blocks[x][y][15];
+                fT = c.blocks[My][x][0];
+                fB = c.blocks[my][x][0];
+                fL = c.blocks[y][mx][0];
+                fR = c.blocks[y][Mx][0];
+                fF = c.blocks[y][x][1];
+                fK = csouth.blocks[y][x][15];
 
                 target = &&light_xx_z0;
                 endTarget = &&end_xx_z0;
@@ -475,40 +556,40 @@ void Renderer::renderChunk(VerticalChunk& c) {
                 light_xx_z0:
 
                 //if (isOpaque(type.type) || isSemiTransparent(type.type)) {
-                A = c.blocks[mx][My][1];
-                B = csouth.blocks[mx][My][15];
-                C = csouth.blocks[Mx][My][15];
-                D = c.blocks[Mx][My][1];
-                E = c.blocks[mx][my][1];
-                F = csouth.blocks[mx][my][15];
-                G = csouth.blocks[Mx][my][15];
-                H = c.blocks[Mx][my][1];
+                A = c.blocks[My][mx][1];
+                B = csouth.blocks[My][mx][15];
+                C = csouth.blocks[My][Mx][15];
+                D = c.blocks[My][Mx][1];
+                E = c.blocks[my][mx][1];
+                F = csouth.blocks[my][mx][15];
+                G = csouth.blocks[my][Mx][15];
+                H = c.blocks[my][Mx][1];
 
-                AB = c.blocks[mx][My][0];
-                BC = csouth.blocks[x][My][15];
-                CD = c.blocks[Mx][My][0];
-                DA = c.blocks[x][My][1];
+                AB = c.blocks[My][mx][0];
+                BC = csouth.blocks[My][x][15];
+                CD = c.blocks[My][Mx][0];
+                DA = c.blocks[My][x][1];
 
-                EF = c.blocks[mx][my][0];
-                FG = csouth.blocks[x][my][15];
-                GH = c.blocks[Mx][my][0];
-                HE = c.blocks[x][my][1];
+                EF = c.blocks[my][mx][0];
+                FG = csouth.blocks[my][x][15];
+                GH = c.blocks[my][Mx][0];
+                HE = c.blocks[my][x][1];
 
-                AE = c.blocks[mx][y][1];
-                BF = csouth.blocks[mx][y][15];
-                CG = csouth.blocks[Mx][y][15];
-                DH = c.blocks[Mx][y][1];
+                AE = c.blocks[y][mx][1];
+                BF = csouth.blocks[y][mx][15];
+                CG = csouth.blocks[y][Mx][15];
+                DH = c.blocks[y][Mx][1];
                 //} else if (isTransparent(type.type)) {
                 //    // TODO: try some fun here
                 //    A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
                 //}
 
-                fx = (f32)(x + px),
-                fy = (f32)y,
-                fz = (f32)(pz),
-                fmx = (f32)(mx + px),
-                fmy = (f32)my,
-                fmz = (f32)(-1 + pz);
+                fx = static_cast<f32>(x + px),
+                fy = static_cast<f32>(y),
+                fz = static_cast<f32>(pz),
+                fmx = static_cast<f32>(mx + px),
+                fmy = static_cast<f32>(my),
+                fmz = static_cast<f32>(-1 + pz);
 
                 goto render;
                 end_xx_z0:;
@@ -518,16 +599,16 @@ void Renderer::renderChunk(VerticalChunk& c) {
 
         // X x Z 15
         for(x = 1; x < 15; x++) {
-            if ((block = c.blocks[x][y][15]).type) {
+            if ((block = c.blocks[y][x][15]).type) {
                 mx = x - 1;
                 Mx = x + 1;
 
-                fT = c.blocks[x][My][15];
-                fB = c.blocks[x][my][15];
-                fL = c.blocks[mx][y][15];
-                fR = c.blocks[Mx][y][15];
-                fF = cnorth.blocks[x][y][0];
-                fK = c.blocks[x][y][14];
+                fT = c.blocks[My][x][15];
+                fB = c.blocks[my][x][15];
+                fL = c.blocks[y][mx][15];
+                fR = c.blocks[y][Mx][15];
+                fF = cnorth.blocks[y][x][0];
+                fK = c.blocks[y][x][14];
 
                 target = &&light_xx_z15;
                 endTarget = &&end_xx_z15;
@@ -536,40 +617,40 @@ void Renderer::renderChunk(VerticalChunk& c) {
                 light_xx_z15:
 
                 //if (isOpaque(type.type) || isSemiTransparent(type.type)) {
-                A = cnorth.blocks[mx][My][0];
-                B = c.blocks[mx][My][14];
-                C = c.blocks[Mx][My][14];
-                D = cnorth.blocks[Mx][My][0];
-                E = cnorth.blocks[mx][my][0];
-                F = c.blocks[mx][my][14];
-                G = c.blocks[Mx][my][14];
-                H = cnorth.blocks[Mx][my][0];
+                A = cnorth.blocks[My][mx][0];
+                B = c.blocks[My][mx][14];
+                C = c.blocks[My][Mx][14];
+                D = cnorth.blocks[My][Mx][0];
+                E = cnorth.blocks[my][mx][0];
+                F = c.blocks[my][mx][14];
+                G = c.blocks[my][Mx][14];
+                H = cnorth.blocks[my][Mx][0];
 
-                AB = c.blocks[mx][My][15];
-                BC = c.blocks[x][My][14];
-                CD = c.blocks[Mx][My][15];
-                DA = cnorth.blocks[x][My][0];
+                AB = c.blocks[My][mx][15];
+                BC = c.blocks[My][x][14];
+                CD = c.blocks[My][Mx][15];
+                DA = cnorth.blocks[My][x][0];
 
-                EF = c.blocks[mx][my][15];
-                FG = c.blocks[x][my][14];
-                GH = c.blocks[Mx][my][15];
-                HE = cnorth.blocks[x][my][0];
+                EF = c.blocks[my][mx][15];
+                FG = c.blocks[my][x][14];
+                GH = c.blocks[my][Mx][15];
+                HE = cnorth.blocks[my][x][0];
 
-                AE = cnorth.blocks[mx][y][0];
-                BF = c.blocks[mx][y][14];
-                CG = c.blocks[Mx][y][14];
-                DH = cnorth.blocks[Mx][y][0];
+                AE = cnorth.blocks[y][mx][0];
+                BF = c.blocks[y][mx][14];
+                CG = c.blocks[y][Mx][14];
+                DH = cnorth.blocks[y][Mx][0];
                 //} else if (isTransparent(type.type)) {
                 //    // TODO: try some fun here
                 //    A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
                 //}
 
-                fx = (f32)(x + px),
-                fy = (f32)y,
-                fz = (f32)(15 + pz),
-                fmx = (f32)(mx + px),
-                fmy = (f32)my,
-                fmz = (f32)(14 + pz);
+                fx = static_cast<f32>(x + px),
+                fy = static_cast<f32>(y),
+                fz = static_cast<f32>(15 + pz),
+                fmx = static_cast<f32>(mx + px),
+                fmy = static_cast<f32>(my),
+                fmz = static_cast<f32>(14 + pz);
 
                 goto render;
                 end_xx_z15:;
@@ -579,16 +660,16 @@ void Renderer::renderChunk(VerticalChunk& c) {
 
         // X 0 Z z
         for(z = 1; z < 15; z++) {
-            if ((block = c.blocks[0][y][z]).type) {
+            if ((block = c.blocks[y][0][z]).type) {
                 mz = z - 1;
                 Mz = z + 1;
 
-                fT = c.blocks[0][My][z];
-                fB = c.blocks[0][my][z];
-                fL = cwest.blocks[15][y][z];
-                fR = c.blocks[1][y][z];
-                fF = c.blocks[0][y][Mz];
-                fK = c.blocks[0][y][mz];
+                fT = c.blocks[My][0][z];
+                fB = c.blocks[my][0][z];
+                fL = cwest.blocks[y][15][z];
+                fR = c.blocks[y][1][z];
+                fF = c.blocks[y][0][Mz];
+                fK = c.blocks[y][0][mz];
 
                 target = &&light_x0_zz;
                 endTarget = &&end_x0_zz;
@@ -597,40 +678,40 @@ void Renderer::renderChunk(VerticalChunk& c) {
                 light_x0_zz:
 
                 //if (isOpaque(type.type) || isSemiTransparent(type.type)) {
-                A = cwest.blocks[15][My][Mz];
-                B = cwest.blocks[15][My][mz];
-                C = c.blocks[1][My][mz];
-                D = c.blocks[1][My][Mz];
-                E = cwest.blocks[15][my][Mz];
-                F = cwest.blocks[15][my][mz];
-                G = c.blocks[1][my][mz];
-                H = c.blocks[1][my][Mz];
+                A = cwest.blocks[My][15][Mz];
+                B = cwest.blocks[My][15][mz];
+                C = c.blocks[My][1][mz];
+                D = c.blocks[My][1][Mz];
+                E = cwest.blocks[my][15][Mz];
+                F = cwest.blocks[my][15][mz];
+                G = c.blocks[my][1][mz];
+                H = c.blocks[my][1][Mz];
 
-                AB = cwest.blocks[15][My][z];
-                BC = c.blocks[0][My][mz];
-                CD = c.blocks[1][My][z];
-                DA = c.blocks[0][My][Mz];
+                AB = cwest.blocks[My][15][z];
+                BC = c.blocks[My][0][mz];
+                CD = c.blocks[My][1][z];
+                DA = c.blocks[My][0][Mz];
 
-                EF = cwest.blocks[15][my][z];
-                FG = c.blocks[0][my][mz];
-                GH = c.blocks[1][my][z];
-                HE = c.blocks[0][my][Mz];
+                EF = cwest.blocks[my][15][z];
+                FG = c.blocks[my][0][mz];
+                GH = c.blocks[my][1][z];
+                HE = c.blocks[my][0][Mz];
 
-                AE = cwest.blocks[15][y][Mz];
-                BF = cwest.blocks[15][y][mz];
-                CG = c.blocks[1][y][mz];
-                DH = c.blocks[1][y][Mz];
+                AE = cwest.blocks[y][15][Mz];
+                BF = cwest.blocks[y][15][mz];
+                CG = c.blocks[y][1][mz];
+                DH = c.blocks[y][1][Mz];
                 //} else if (isTransparent(type.type)) {
                 //    // TODO: try some fun here
                 //    A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
                 //}
 
-                fx = (f32)(px),
-                fy = (f32)y,
-                fz = (f32)(z + pz),
-                fmx = (f32)(-1 + px),
-                fmy = (f32)my,
-                fmz = (f32)(mz + pz);
+                fx = static_cast<f32>(px),
+                fy = static_cast<f32>(y),
+                fz = static_cast<f32>(z + pz),
+                fmx = static_cast<f32>(-1 + px),
+                fmy = static_cast<f32>(my),
+                fmz = static_cast<f32>(mz + pz);
 
                 goto render;
                 end_x0_zz:;
@@ -640,16 +721,16 @@ void Renderer::renderChunk(VerticalChunk& c) {
 
         // X 15 Z z
         for(z = 1; z < 15; z++) {
-            if ((block = c.blocks[15][y][z]).type) {
+            if ((block = c.blocks[y][15][z]).type) {
                 mz = z - 1;
                 Mz = z + 1;
 
-                fT = c.blocks[15][My][z];
-                fB = c.blocks[15][my][z];
-                fL = c.blocks[14][y][z];
-                fR = ceast.blocks[0][y][z];
-                fF = c.blocks[15][y][Mz];
-                fK = c.blocks[15][y][mz];
+                fT = c.blocks[My][15][z];
+                fB = c.blocks[my][15][z];
+                fL = c.blocks[y][14][z];
+                fR = ceast.blocks[y][0][z];
+                fF = c.blocks[y][15][Mz];
+                fK = c.blocks[y][15][mz];
 
                 target = &&light_x15_zz;
                 endTarget = &&end_x15_zz;
@@ -658,40 +739,40 @@ void Renderer::renderChunk(VerticalChunk& c) {
                 light_x15_zz:
 
                 //if (isOpaque(type.type) || isSemiTransparent(type.type)) {
-                A = c.blocks[14][My][Mz];
-                B = c.blocks[14][My][mz];
-                C = ceast.blocks[0][My][mz];
-                D = ceast.blocks[0][My][Mz];
-                E = c.blocks[14][my][Mz];
-                F = c.blocks[14][my][mz];
-                G = ceast.blocks[0][my][mz];
-                H = ceast.blocks[0][my][Mz];
+                A = c.blocks[My][14][Mz];
+                B = c.blocks[My][14][mz];
+                C = ceast.blocks[My][0][mz];
+                D = ceast.blocks[My][0][Mz];
+                E = c.blocks[my][14][Mz];
+                F = c.blocks[my][14][mz];
+                G = ceast.blocks[my][0][mz];
+                H = ceast.blocks[my][0][Mz];
 
-                AB = c.blocks[14][My][z];
-                BC = c.blocks[15][My][mz];
-                CD = ceast.blocks[0][My][z];
-                DA = c.blocks[15][My][Mz];
+                AB = c.blocks[My][14][z];
+                BC = c.blocks[My][15][mz];
+                CD = ceast.blocks[My][0][z];
+                DA = c.blocks[My][15][Mz];
 
-                EF = c.blocks[14][my][z];
-                FG = c.blocks[15][my][mz];
-                GH = ceast.blocks[0][my][z];
-                HE = c.blocks[15][my][Mz];
+                EF = c.blocks[my][14][z];
+                FG = c.blocks[my][15][mz];
+                GH = ceast.blocks[my][0][z];
+                HE = c.blocks[my][15][Mz];
 
-                AE = c.blocks[14][y][Mz];
-                BF = c.blocks[14][y][mz];
-                CG = ceast.blocks[0][y][mz];
-                DH = ceast.blocks[0][y][Mz];
+                AE = c.blocks[y][14][Mz];
+                BF = c.blocks[y][14][mz];
+                CG = ceast.blocks[y][0][mz];
+                DH = ceast.blocks[y][0][Mz];
                 //} else if (isTransparent(type.type)) {
                 //    // TODO: try some fun here
                 //    A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
                 //}
 
-                fx = (f32)(15 + px),
-                fy = (f32)y,
-                fz = (f32)(z + pz),
-                fmx = (f32)(14 + px),
-                fmy = (f32)my,
-                fmz = (f32)(mz + pz);
+                fx = static_cast<f32>(15 + px),
+                fy = static_cast<f32>(y),
+                fz = static_cast<f32>(z + pz),
+                fmx = static_cast<f32>(14 + px),
+                fmy = static_cast<f32>(my),
+                fmz = static_cast<f32>(mz + pz);
 
                 goto render;
                 end_x15_zz:;
@@ -699,23 +780,23 @@ void Renderer::renderChunk(VerticalChunk& c) {
         }
 
 
-        center:
+		center:
 
         // X x Z z
         for(x = 1; x < 15; x++) {
             for(z = 1; z < 15; z++) {
-                if ((block = c.blocks[x][y][z]).type) {
+                if ((block = c.blocks[y][x][z]).type) {
                     mx = x - 1;
                     Mx = x + 1;
                     mz = z - 1;
                     Mz = z + 1;
 
-                    fT = c.blocks[x][My][z];
-                    fB = c.blocks[x][my][z];
-                    fL = c.blocks[mx][y][z];
-                    fR = c.blocks[Mx][y][z];
-                    fF = c.blocks[x][y][Mz];
-                    fK = c.blocks[x][y][mz];
+                    fT = c.blocks[My][x][z];
+                    fB = c.blocks[my][x][z];
+                    fL = c.blocks[y][mx][z];
+                    fR = c.blocks[y][Mx][z];
+                    fF = c.blocks[y][x][Mz];
+                    fK = c.blocks[y][x][mz];
 
                     target = &&light_xx_zz;
                     endTarget = &&end_xx_zz;
@@ -724,40 +805,40 @@ void Renderer::renderChunk(VerticalChunk& c) {
                     light_xx_zz:
 
                     //if (isOpaque(type.type) || isSemiTransparent(type.type)) {
-                    A = c.blocks[mx][My][Mz];
-                    B = c.blocks[mx][My][mz];
-                    C = c.blocks[Mx][My][mz];
-                    D = c.blocks[Mx][My][Mz];
-                    E = c.blocks[mx][my][Mz];
-                    F = c.blocks[mx][my][mz];
-                    G = c.blocks[Mx][my][mz];
-                    H = c.blocks[Mx][my][Mz];
+                    A = c.blocks[My][mx][Mz];
+                    B = c.blocks[My][mx][mz];
+                    C = c.blocks[My][Mx][mz];
+                    D = c.blocks[My][Mx][Mz];
+                    E = c.blocks[my][mx][Mz];
+                    F = c.blocks[my][mx][mz];
+                    G = c.blocks[my][Mx][mz];
+                    H = c.blocks[my][Mx][Mz];
 
-                    AB = c.blocks[mx][My][z];
-                    BC = c.blocks[x][My][mz];
-                    CD = c.blocks[Mx][My][z];
-                    DA = c.blocks[x][My][Mz];
+                    AB = c.blocks[My][mx][z];
+                    BC = c.blocks[My][x][mz];
+                    CD = c.blocks[My][Mx][z];
+                    DA = c.blocks[My][x][Mz];
 
-                    EF = c.blocks[mx][my][z];
-                    FG = c.blocks[x][my][mz];
-                    GH = c.blocks[Mx][my][z];
-                    HE = c.blocks[x][my][Mz];
+                    EF = c.blocks[my][mx][z];
+                    FG = c.blocks[my][x][mz];
+                    GH = c.blocks[my][Mx][z];
+                    HE = c.blocks[my][x][Mz];
 
-                    AE = c.blocks[mx][y][Mz];
-                    BF = c.blocks[mx][y][mz];
-                    CG = c.blocks[Mx][y][mz];
-                    DH = c.blocks[Mx][y][Mz];
+                    AE = c.blocks[y][mx][Mz];
+                    BF = c.blocks[y][mx][mz];
+                    CG = c.blocks[y][Mx][mz];
+                    DH = c.blocks[y][Mx][Mz];
                     //} else if (isTransparent(type.type)) {
                     //    // TODO: try some fun here
                     //    A = B = C = D = E = F = G = H = AB = BC = CD = DA = EF = FG = GH = HE = AE = BF = CG = DH = false;
                     //}
 
-                    fx = (f32)(x + px),
-                    fy = (f32)y,
-                    fz = (f32)(z + pz),
-                    fmx = (f32)(mx + px),
-                    fmy = (f32)my,
-                    fmz = (f32)(mz + pz);
+                    fx = static_cast<f32>(x + px),
+                    fy = static_cast<f32>(y),
+                    fz = static_cast<f32>(z + pz),
+                    fmx = static_cast<f32>(mx + px),
+                    fmy = static_cast<f32>(my),
+                    fmz = static_cast<f32>(mz + pz);
 
                     goto render;
                     end_xx_zz:;
@@ -767,45 +848,43 @@ void Renderer::renderChunk(VerticalChunk& c) {
 	}
 #pragma endregion
 
+	// debug only: render chunk limits
+	// renderLeft(c.coord.x * 16-1, 0, c.coord.z * 16-1, c.coord.x * 16, 128, c.coord.z * 16 + 16, BlockType::Water, 0, 0, 0, 0, 1, false);
+	// renderRight(c.coord.x * 16 + 15, 0, c.coord.z * 16-1, c.coord.x * 16 + 16, 128, c.coord.z * 16 + 16, BlockType::Water, 0, 0, 0, 0, 1, false);
+	// renderFront(c.coord.x * 16-1, 0, c.coord.z * 16-1, c.coord.x * 16 + 16, 128, c.coord.z * 16, BlockType::Water, 0, 0, 0, 0, 1, false);
+	// renderBack(c.coord.x * 16-1, 0, c.coord.z * 16 + 15, c.coord.x * 16 + 16, 128, c.coord.z * 16 + 16, BlockType::Water, 0, 0, 0, 0, 1, false);
 	return;
 
 #pragma region prepare
 
 	prepare:
-    if (isOpaque(block.type)) {
-        tT = !isOpaque(fT.type);
-        tB = !isOpaque(fB.type);
-        tL = !isOpaque(fL.type);
-        tR = !isOpaque(fR.type);
-        tF = !isOpaque(fF.type);
-        tK = !isOpaque(fK.type);
-    }
-    else if (isTransparent(block.type)) {
-        tT = fT.type != block.type; // !isTransparent(fT.type); // AIR/WATER conflict? -> use fT.type != type.type instead
-        tB = fB.type != block.type; // !isTransparent(fB.type);
-        tL = fL.type != block.type; // !isTransparent(fL.type);
-        tR = fR.type != block.type; // !isTransparent(fR.type);
-        tF = fF.type != block.type; // !isTransparent(fF.type);
-        tK = fK.type != block.type; // !isTransparent(fK.type);
-    } else if (isSemiTransparent(block.type)) {
-        tT = tB = tL = tR = tF = tK = true;
-    } else {
-        tT = tB = tL = tR = tF = tK = true;
-    }
+	if (isOpaque(block.type)) {
+		tT = !isOpaque(fT.type);
+		tB = !isOpaque(fB.type);
+		tL = !isOpaque(fL.type);
+		tR = !isOpaque(fR.type);
+		tF = !isOpaque(fF.type);
+		tK = !isOpaque(fK.type);
+	} else if (isTransparent(block.type)) {
+		tT = fT.type != block.type; // && !isTransparent(fT.type); // AIR/WATER conflict? -> use fT.type != type.type instead
+		tB = fB.type != block.type; // && !isTransparent(fB.type);
+		tL = fL.type != block.type; // && !isTransparent(fL.type);
+		tR = fR.type != block.type; // && !isTransparent(fR.type);
+		tF = fF.type != block.type; // && !isTransparent(fF.type);
+		tK = fK.type != block.type; // && !isTransparent(fK.type);
+	} else if (isSemiTransparent(block.type)) {
+		tT = tB = tL = tR = tF = tK = true;
+	} else {
+		tT = tB = tL = tR = tF = tK = true;
+	}
 
-    sz = tT + tB + tL + tR + tF + tK;
-    if (sz) {
-	    lT = fT.light; // undefined corrupted light if 'fT' is not transparent (context warranty: may never happen on non-culled faces)
-	    lB = fB.light;
-	    lL = fL.light;
-	    lR = fR.light;
-	    lF = fF.light;
-	    lK = fK.light;
-
+	sz = tT + tB + tL + tR + tF + tK;
+	if (sz) {
 		goto *target;
-    }
+	}
 
-	goto *endTarget;
+	goto
+	*endTarget;
 
 #pragma endregion
 
@@ -817,12 +896,16 @@ void Renderer::renderChunk(VerticalChunk& c) {
 	l_rH = initLight, l_rD = initLight, l_rC = initLight, l_rG = initLight;
 	l_fA = initLight, l_fD = initLight, l_fH = initLight, l_fE = initLight;
 	l_kG = initLight, l_kC = initLight, l_kB = initLight, l_kF = initLight;
-	cT.contact = 0, cB.contact = 0, cL.contact = 0, cR.contact = 0, cF.contact = 0, cK.contact = 0;
+
+	#define xLight(target) (blockData[target.type].isTransparent ? extendedLight[target.light] : (blockData[target.type].emittedLight ? extendedLight[blockData[target.type].emittedLight] : 0))
+	#define isEmitter(target) (blockData[target.type].emittedLight)
+
+	lc.contacts = 0;
+	le.contacts = isEmitter(block) ? Vertex_A | Vertex_B | Vertex_C | Vertex_D | Vertex_E | Vertex_F | Vertex_G | Vertex_H : 0;
 
 	u16 xlight;
 
-#define xLight(target) (blockData[target.type].isTransparent ? extendedLight[target.light] : (blockData[target.type].emittedLight ? extendedLight[blockData[target.type].emittedLight] : 0))
-	
+
 	// Contact face lights
 	xlight = xLight(fT);
 	if (xlight) {
@@ -830,28 +913,34 @@ void Renderer::renderChunk(VerticalChunk& c) {
 		l_tA += xlight;
 		l_tB += xlight;
 		l_tD += xlight;
-		
-		cT.contact = LightContactIndex::C | LightContactIndex::A | LightContactIndex::B | LightContactIndex::D;
+
+		if (isEmitter(fT)) {
+			le.contacts |= Vertex_A | Vertex_B | Vertex_C | Vertex_D;
+		}
 	}
-	
+
 	xlight = xLight(fB);
 	if (xlight) {
 		l_bE += xlight;
 		l_bH += xlight;
 		l_bG += xlight;
 		l_bF += xlight;
-		
-		cB.contact = LightContactIndex::E | LightContactIndex::H | LightContactIndex::G | LightContactIndex::F;
+
+		if (isEmitter(fB)) {
+			le.contacts |= Vertex_E | Vertex_F | Vertex_G | Vertex_H;
+		}
 	}
-	
+
 	xlight = xLight(fL);
 	if (xlight) {
 		l_lB += xlight;
 		l_lA += xlight;
 		l_lE += xlight;
 		l_lF += xlight;
-		
-		cL.contact = LightContactIndex::B | LightContactIndex::A | LightContactIndex::E | LightContactIndex::F;
+
+		if (isEmitter(fL)) {
+			le.contacts |= Vertex_A | Vertex_E | Vertex_B | Vertex_F;
+		}
 	}
 
 	xlight = xLight(fR);
@@ -860,8 +949,10 @@ void Renderer::renderChunk(VerticalChunk& c) {
 		l_rD += xlight;
 		l_rC += xlight;
 		l_rG += xlight;
-		
-		cR.contact = LightContactIndex::H | LightContactIndex::D | LightContactIndex::C | LightContactIndex::G;
+
+		if (isEmitter(fR)) {
+			le.contacts |= Vertex_C | Vertex_G | Vertex_D | Vertex_H;
+		}
 	}
 
 	xlight = xLight(fF);
@@ -870,8 +961,10 @@ void Renderer::renderChunk(VerticalChunk& c) {
 		l_fD += xlight;
 		l_fH += xlight;
 		l_fE += xlight;
-		
-		cF.contact = LightContactIndex::A | LightContactIndex::D | LightContactIndex::H | LightContactIndex::E;
+
+		if (isEmitter(fF)) {
+			le.contacts |= Vertex_A | Vertex_D | Vertex_E | Vertex_H;
+		}
 	}
 
 	xlight = xLight(fK);
@@ -880,10 +973,12 @@ void Renderer::renderChunk(VerticalChunk& c) {
 		l_kC += xlight;
 		l_kB += xlight;
 		l_kF += xlight;
-		
-		cK.contact = LightContactIndex::G | LightContactIndex::C | LightContactIndex::B | LightContactIndex::F;
+
+		if (isEmitter(fK)) {
+			le.contacts |= Vertex_B | Vertex_F | Vertex_C | Vertex_G;
+		}
 	}
-	
+
 	// Contact line lights
 	xlight = xLight(AB);
 	if (xlight) {
@@ -891,9 +986,12 @@ void Renderer::renderChunk(VerticalChunk& c) {
 		l_lA += xlight;
 		l_tB += xlight;
 		l_lB += xlight;
-		
-		cT.contact += LightContactIndex::A | LightContactIndex::B;
-		cL.contact += LightContactIndex::A | LightContactIndex::B;
+
+		lc.contacts += Vertex_tA | Vertex_tB | Vertex_lA | Vertex_lB;
+
+		if (isEmitter(AB)) {
+			le.contacts |= Vertex_A | Vertex_B;
+		}
 	}
 
 	xlight = xLight(BC);
@@ -902,9 +1000,12 @@ void Renderer::renderChunk(VerticalChunk& c) {
 		l_kC += xlight;
 		l_tB += xlight;
 		l_kB += xlight;
-		
-		cT.contact += LightContactIndex::C | LightContactIndex::B;
-		cK.contact += LightContactIndex::C | LightContactIndex::B;
+
+		lc.contacts += Vertex_tC | Vertex_tB | Vertex_kC | Vertex_kB;
+
+		if (isEmitter(BC)) {
+			le.contacts |= Vertex_B | Vertex_C;
+		}
 	}
 
 	xlight = xLight(CD);
@@ -913,9 +1014,12 @@ void Renderer::renderChunk(VerticalChunk& c) {
 		l_rD += xlight;
 		l_tC += xlight;
 		l_rC += xlight;
-		
-		cT.contact += LightContactIndex::D | LightContactIndex::C;
-		cR.contact += LightContactIndex::D | LightContactIndex::C;
+
+		lc.contacts += Vertex_tD | Vertex_tC | Vertex_rD | Vertex_rC;
+
+		if (isEmitter(CD)) {
+			le.contacts |= Vertex_C | Vertex_D;
+		}
 	}
 
 	xlight = xLight(DA);
@@ -924,9 +1028,12 @@ void Renderer::renderChunk(VerticalChunk& c) {
 		l_fA += xlight;
 		l_tD += xlight;
 		l_fD += xlight;
-		
-		cT.contact += LightContactIndex::A | LightContactIndex::D;
-		cF.contact += LightContactIndex::A | LightContactIndex::D;
+
+		lc.contacts += Vertex_tA | Vertex_tD | Vertex_fA | Vertex_fD;
+
+		if (isEmitter(DA)) {
+			le.contacts |= Vertex_A | Vertex_D;
+		}
 	}
 
 	xlight = xLight(EF);
@@ -935,9 +1042,12 @@ void Renderer::renderChunk(VerticalChunk& c) {
 		l_lE += xlight;
 		l_bF += xlight;
 		l_lF += xlight;
-		
-		cB.contact += LightContactIndex::E | LightContactIndex::F;
-		cL.contact += LightContactIndex::E | LightContactIndex::F;
+
+		lc.contacts += Vertex_bE | Vertex_bF | Vertex_lE | Vertex_lF;
+
+		if (isEmitter(EF)) {
+			le.contacts |= Vertex_E | Vertex_F;
+		}
 	}
 
 	xlight = xLight(FG);
@@ -946,9 +1056,12 @@ void Renderer::renderChunk(VerticalChunk& c) {
 		l_kF += xlight;
 		l_bG += xlight;
 		l_kG += xlight;
-		
-		cB.contact += LightContactIndex::F | LightContactIndex::G;
-		cK.contact += LightContactIndex::F | LightContactIndex::G;
+
+		lc.contacts += Vertex_bF | Vertex_bG | Vertex_kF | Vertex_kG;
+
+		if (isEmitter(FG)) {
+			le.contacts |= Vertex_F | Vertex_G;
+		}
 	}
 
 	xlight = xLight(GH);
@@ -957,31 +1070,40 @@ void Renderer::renderChunk(VerticalChunk& c) {
 		l_rG += xlight;
 		l_bH += xlight;
 		l_rH += xlight;
-		
-		cB.contact += LightContactIndex::G | LightContactIndex::H;
-		cR.contact += LightContactIndex::G | LightContactIndex::H;
+
+		lc.contacts += Vertex_bG | Vertex_bH | Vertex_rG | Vertex_rH;
+
+		if (isEmitter(GH)) {
+			le.contacts |= Vertex_G | Vertex_H;
+		}
 	}
-	
+
 	xlight = xLight(HE);
 	if (xlight) {
 		l_bH += xlight;
 		l_fH += xlight;
 		l_bE += xlight;
 		l_fE += xlight;
-		
-		cB.contact += LightContactIndex::H | LightContactIndex::E;
-		cF.contact += LightContactIndex::H | LightContactIndex::E;
+
+		lc.contacts += Vertex_bH | Vertex_bE | Vertex_fH | Vertex_fE;
+
+		if (isEmitter(HE)) {
+			le.contacts |= Vertex_H | Vertex_E;
+		}
 	}
-	
+
 	xlight = xLight(AE);
 	if (xlight) {
 		l_lA += xlight;
 		l_fA += xlight;
 		l_lE += xlight;
 		l_fE += xlight;
-		
-		cL.contact += LightContactIndex::A | LightContactIndex::E;
-		cF.contact += LightContactIndex::A | LightContactIndex::E;
+
+		lc.contacts += Vertex_lA | Vertex_lE | Vertex_fA | Vertex_fE;
+
+		if (isEmitter(AE)) {
+			le.contacts |= Vertex_A | Vertex_E;
+		}
 	}
 
 	xlight = xLight(BF);
@@ -990,9 +1112,12 @@ void Renderer::renderChunk(VerticalChunk& c) {
 		l_kB += xlight;
 		l_lF += xlight;
 		l_kF += xlight;
-		
-		cL.contact += LightContactIndex::B | LightContactIndex::F;
-		cK.contact += LightContactIndex::B | LightContactIndex::F;
+
+		lc.contacts += Vertex_lB | Vertex_lF | Vertex_kB | Vertex_kF;
+
+		if (isEmitter(BF)) {
+			le.contacts |= Vertex_B | Vertex_F;
+		}
 	}
 
 	xlight = xLight(CG);
@@ -1001,9 +1126,12 @@ void Renderer::renderChunk(VerticalChunk& c) {
 		l_kC += xlight;
 		l_rG += xlight;
 		l_kG += xlight;
-		
-		cR.contact += LightContactIndex::C | LightContactIndex::G;
-		cK.contact += LightContactIndex::C | LightContactIndex::G;
+
+		lc.contacts += Vertex_rC | Vertex_rG | Vertex_kC | Vertex_kG;
+
+		if (isEmitter(CG)) {
+			le.contacts |= Vertex_C | Vertex_G;
+		}
 	}
 
 	xlight = xLight(DH);
@@ -1012,225 +1140,326 @@ void Renderer::renderChunk(VerticalChunk& c) {
 		l_fD += xlight;
 		l_rH += xlight;
 		l_fH += xlight;
-		
-		cR.contact += LightContactIndex::D | LightContactIndex::H;
-		cF.contact += LightContactIndex::D | LightContactIndex::H;
+
+		lc.contacts += Vertex_rD | Vertex_rH | Vertex_fD | Vertex_fH;
+
+		if (isEmitter(DH)) {
+			le.contacts |= Vertex_D | Vertex_H;
+		}
 	}
-	
-	// Contact point lights
+
+	// contactspoint lights
 	xlight = xLight(A);
 	if (xlight) {
-		if (cT.A & 2) l_tA += xlight;
-		if (cL.A & 2) l_lA += xlight;
-		if (cF.A & 2) l_fA += xlight;
-		
-		cT.contact += LightContactIndex::A;
-		cL.contact += LightContactIndex::A;
-		cF.contact += LightContactIndex::A;
+
+		bool emitter = isEmitter(A);
+
+		if (lc.T.A) {
+			l_tA += xlight;
+			lc.contacts += Vertex_tA;
+			if (emitter) le.contacts |= Vertex_tA;
+		}
+		if (lc.L.A) {
+			l_lA += xlight;
+			lc.contacts += Vertex_lA;
+			if (emitter) le.contacts |= Vertex_lA;
+		}
+		if (lc.F.A) {
+			l_fA += xlight;
+			lc.contacts += Vertex_fA;
+			if (emitter) le.contacts |= Vertex_fA;
+		}
 	}
-	
+
 	xlight = xLight(B);
 	if (xlight) {
-		if (cT.B & 2) l_tB += xlight;
-		if (cL.B & 2) l_lB += xlight;
-		if (cK.B & 2) l_kB += xlight;
-		
-		cT.contact += LightContactIndex::B;
-		cL.contact += LightContactIndex::B;
-		cK.contact += LightContactIndex::B;
+
+		bool emitter = isEmitter(B);
+
+		if (lc.T.B) {
+			l_tB += xlight;
+			lc.contacts += Vertex_tB;
+			if (emitter) le.contacts |= Vertex_tB;
+		}
+		if (lc.L.B) {
+			l_lB += xlight;
+			lc.contacts += Vertex_lB;
+			if (emitter) le.contacts |= Vertex_lB;
+		}
+		if (lc.K.B) {
+			l_kB += xlight;
+			lc.contacts += Vertex_kB;
+			if (emitter) le.contacts |= Vertex_kB;
+		}
 	}
-	
+
 	xlight = xLight(C);
 	if (xlight) {
-		if (cT.C & 2) l_tC += xlight;
-		if (cR.C & 2) l_rC += xlight;
-		if (cK.C & 2) l_kC += xlight;
-		
-		cT.contact += LightContactIndex::C;
-		cR.contact += LightContactIndex::C;
-		cK.contact += LightContactIndex::C;
+
+		bool emitter = isEmitter(C);
+
+		if (lc.T.C) {
+			l_tC += xlight;
+			lc.contacts += Vertex_tC;
+			if (emitter) le.contacts |= Vertex_tC;
+		}
+		if (lc.R.C) {
+			l_rC += xlight;
+			lc.contacts += Vertex_rC;
+			if (emitter) le.contacts |= Vertex_rC;
+		}
+		if (lc.K.C) {
+			l_kC += xlight;
+			lc.contacts += Vertex_kC;
+			if (emitter) le.contacts |= Vertex_kC;
+		}
 	}
 
 	xlight = xLight(D);
 	if (xlight) {
-		if (cT.D & 2) l_tD += xlight;
-		if (cR.D & 2) l_rD += xlight;
-		if (cF.D & 2) l_fD += xlight;
-		
-		cT.contact += LightContactIndex::D;
-		cR.contact += LightContactIndex::D;
-		cF.contact += LightContactIndex::D;
+
+		bool emitter = isEmitter(D);
+
+		if (lc.T.D) {
+			l_tD += xlight;
+			lc.contacts += Vertex_tD;
+			if (emitter) le.contacts |= Vertex_tD;
+		}
+		if (lc.R.D) {
+			l_rD += xlight;
+			lc.contacts += Vertex_rD;
+			if (emitter) le.contacts |= Vertex_rD;
+		}
+		if (lc.F.D) {
+			l_fD += xlight;
+			lc.contacts += Vertex_fD;
+			if (emitter) le.contacts |= Vertex_fD;
+		}
 	}
 
 	xlight = xLight(E);
 	if (xlight) {
-		if (cB.E & 2) l_bE += xlight;
-		if (cL.E & 2) l_lE += xlight;
-		if (cF.E & 2) l_fE += xlight;
-		
-		cB.contact += LightContactIndex::E;
-		cL.contact += LightContactIndex::E;
-		cF.contact += LightContactIndex::E;
+
+		bool emitter = isEmitter(E);
+
+		if (lc.B.E) {
+			l_bE += xlight;
+			lc.contacts += Vertex_bE;
+			if (emitter) le.contacts |= Vertex_bE;
+		}
+		if (lc.L.E) {
+			l_lE += xlight;
+			lc.contacts += Vertex_lE;
+			if (emitter) le.contacts |= Vertex_lE;
+		}
+		if (lc.F.E) {
+			l_fE += xlight;
+			lc.contacts += Vertex_fE;
+			if (emitter) le.contacts |= Vertex_fE;
+		}
 	}
 
 	xlight = xLight(F);
 	if (xlight) {
-		if (cB.F & 2) l_bF += xlight;
-		if (cL.F & 2) l_lF += xlight;
-		if (cK.F & 2) l_kF += xlight;
-		
-		cB.contact += LightContactIndex::F;
-		cL.contact += LightContactIndex::F;
-		cK.contact += LightContactIndex::F;
+
+		bool emitter = isEmitter(F);
+
+		if (lc.B.F) {
+			l_bF += xlight;
+			lc.contacts += Vertex_bF;
+			if (emitter) le.contacts |= Vertex_bF;
+		}
+		if (lc.L.F) {
+			l_lF += xlight;
+			lc.contacts += Vertex_lF;
+			if (emitter) le.contacts |= Vertex_lF;
+		}
+		if (lc.K.F) {
+			l_kF += xlight;
+			lc.contacts += Vertex_kF;
+			if (emitter) le.contacts |= Vertex_kF;
+		}
 	}
 
 	xlight = xLight(G);
 	if (xlight) {
-		if (cB.G & 2) l_bG += xlight;
-		if (cR.G & 2) l_rG += xlight;
-		if (cK.G & 2) l_kG += xlight;
-		
-		cB.contact += LightContactIndex::G;
-		cR.contact += LightContactIndex::G;
-		cK.contact += LightContactIndex::G;
+
+		bool emitter = isEmitter(G);
+
+		if (lc.B.G) {
+			l_bG += xlight;
+			lc.contacts += Vertex_bG;
+			if (emitter) le.contacts |= Vertex_bG;
+		}
+		if (lc.R.G) {
+			l_rG += xlight;
+			lc.contacts += Vertex_rG;
+			if (emitter) le.contacts |= Vertex_rG;
+		}
+		if (lc.K.G) {
+			l_kG += xlight;
+			lc.contacts += Vertex_kG;
+			if (emitter) le.contacts |= Vertex_kG;
+		}
 	}
 
 	xlight = xLight(H);
 	if (xlight) {
-		if (cB.H & 2) l_bH += xlight;
-		if (cR.H & 2) l_rH += xlight;
-		if (cF.H & 2) l_fH += xlight;
-		
-		cB.contact += LightContactIndex::H;
-		cR.contact += LightContactIndex::H;
-		cF.contact += LightContactIndex::H;
+
+		bool emitter = isEmitter(H);
+
+		if (lc.B.H) {
+			l_bH += xlight;
+			lc.contacts += Vertex_bH;
+			if (emitter) le.contacts |= Vertex_bH;
+		}
+		if (lc.R.H) {
+			l_rH += xlight;
+			lc.contacts += Vertex_rH;
+			if (emitter) le.contacts |= Vertex_rH;
+		}
+		if (lc.F.H) {
+			l_fH += xlight;
+			lc.contacts += Vertex_fH;
+			if (emitter) le.contacts |= Vertex_fH;
+		}
 	}
-	
-	// Ambient Occlusion Correction
-	if (cT.C <= 1) l_tC += xLight(fT);
-	if (cT.D <= 1) l_tD += xLight(fT);
-	if (cT.A <= 1) l_tA += xLight(fT);
-	if (cT.B <= 1) l_tB += xLight(fT);
-	
-	if (cB.E <= 1) l_bE += xLight(fB);
-	if (cB.H <= 1) l_bH += xLight(fB);
-	if (cB.G <= 1) l_bG += xLight(fB);
-	if (cB.F <= 1) l_bF += xLight(fB);
-	
-	if (cL.B <= 1) l_lB += xLight(fL);
-	if (cL.A <= 1) l_lA += xLight(fL);
-	if (cL.E <= 1) l_lE += xLight(fL);
-	if (cL.F <= 1) l_lF += xLight(fL);
-	
-	if (cR.H <= 1) l_rH += xLight(fR);
-	if (cR.D <= 1) l_rD += xLight(fR);
-	if (cR.C <= 1) l_rC += xLight(fR);
-	if (cR.G <= 1) l_rG += xLight(fR);
-	
-	if (cF.A <= 1) l_fA += xLight(fF);
-	if (cF.D <= 1) l_fD += xLight(fF);
-	if (cF.H <= 1) l_fH += xLight(fF);
-	if (cF.E <= 1) l_fE += xLight(fF);
-	
-	if (cK.G <= 1) l_kG += xLight(fK);
-	if (cK.C <= 1) l_kC += xLight(fK);
-	if (cK.B <= 1) l_kB += xLight(fK);
-	if (cK.F <= 1) l_kF += xLight(fK);
-	
+
+	/// Ambient occlusion correction ('le' controls the correction channel to select, if 'le' flag set: the occlusion is fully canceled)
+	if (lc.T.C != 3) l_tC += correctedLight[le.T.C][lc.T.C][reducedLight[l_tC]];
+	if (lc.T.D != 3) l_tD += correctedLight[le.T.D][lc.T.D][reducedLight[l_tD]];
+	if (lc.T.A != 3) l_tA += correctedLight[le.T.A][lc.T.A][reducedLight[l_tA]];
+	if (lc.T.B != 3) l_tB += correctedLight[le.T.B][lc.T.B][reducedLight[l_tB]];
+
+	if (lc.B.E != 3) l_bE += correctedLight[le.B.E][lc.B.E][reducedLight[l_bE]];
+	if (lc.B.H != 3) l_bH += correctedLight[le.B.H][lc.B.H][reducedLight[l_bH]];
+	if (lc.B.G != 3) l_bG += correctedLight[le.B.G][lc.B.G][reducedLight[l_bG]];
+	if (lc.B.F != 3) l_bF += correctedLight[le.B.F][lc.B.F][reducedLight[l_bF]];
+
+	if (lc.L.B != 3) l_lB += correctedLight[le.L.B][lc.L.B][reducedLight[l_lB]];
+	if (lc.L.A != 3) l_lA += correctedLight[le.L.A][lc.L.A][reducedLight[l_lA]];
+	if (lc.L.E != 3) l_lE += correctedLight[le.L.E][lc.L.E][reducedLight[l_lE]];
+	if (lc.L.F != 3) l_lF += correctedLight[le.L.F][lc.L.F][reducedLight[l_lF]];
+
+	if (lc.R.H != 3) l_rH += correctedLight[le.R.H][lc.R.H][reducedLight[l_rH]];
+	if (lc.R.D != 3) l_rD += correctedLight[le.R.D][lc.R.D][reducedLight[l_rD]];
+	if (lc.R.C != 3) l_rC += correctedLight[le.R.C][lc.R.C][reducedLight[l_rC]];
+	if (lc.R.G != 3) l_rG += correctedLight[le.R.G][lc.R.G][reducedLight[l_rG]];
+
+	if (lc.F.A != 3) l_fA += correctedLight[le.F.A][lc.F.A][reducedLight[l_fA]];
+	if (lc.F.D != 3) l_fD += correctedLight[le.F.D][lc.F.D][reducedLight[l_fD]];
+	if (lc.F.H != 3) l_fH += correctedLight[le.F.H][lc.F.H][reducedLight[l_fH]];
+	if (lc.F.E != 3) l_fE += correctedLight[le.F.E][lc.F.E][reducedLight[l_fE]];
+
+	if (lc.K.G != 3) l_kG += correctedLight[le.K.G][lc.K.G][reducedLight[l_kG]];
+	if (lc.K.C != 3) l_kC += correctedLight[le.K.C][lc.K.C][reducedLight[l_kC]];
+	if (lc.K.B != 3) l_kB += correctedLight[le.K.B][lc.K.B][reducedLight[l_kB]];
+	if (lc.K.F != 3) l_kF += correctedLight[le.K.F][lc.K.F][reducedLight[l_kF]];
+
 	if (isRegular(block.type)) {
 		//GX_Begin(GX_QUADS, GX_VTXFMT0, sz << 2); // Start drawing
-	    if (tT) renderTop   (fx, fy, fz, fmx, fmy, fmz, block.type, l_tC, l_tD, l_tA, l_tB, isTransparent(block.type)); // CDAB
-	    if (tB) renderBottom(fx, fy, fz, fmx, fmy, fmz, block.type, l_bE, l_bH, l_bG, l_bF, isTransparent(block.type)); // EHGF
-	    if (tL) renderLeft  (fx, fy, fz, fmx, fmy, fmz, block.type, l_lB, l_lA, l_lE, l_lF, isTransparent(block.type)); // BAEF
-	    if (tR) renderRight (fx, fy, fz, fmx, fmy, fmz, block.type, l_rH, l_rD, l_rC, l_rG, isTransparent(block.type)); // HDCG
-	    if (tF) renderFront (fx, fy, fz, fmx, fmy, fmz, block.type, l_fA, l_fD, l_fH, l_fE, isTransparent(block.type)); // ADHE
-	    if (tK) renderBack  (fx, fy, fz, fmx, fmy, fmz, block.type, l_kG, l_kC, l_kB, l_kF, isTransparent(block.type)); // GCBF
-	    //GX_End();
+		if (tT) renderTop   (fx, fy, fz, fmx, fmy, fmz, block.type, l_tC, l_tD, l_tA, l_tB, isTransparent(block.type), reverseQuadTB[lc.T.contact]); // CDAB
+		if (tB) renderBottom(fx, fy, fz, fmx, fmy, fmz, block.type, l_bE, l_bH, l_bG, l_bF, isTransparent(block.type), reverseQuadTB[lc.B.contact]); // EHGF
+		if (tL) renderLeft  (fx, fy, fz, fmx, fmy, fmz, block.type, l_lB, l_lA, l_lE, l_lF, isTransparent(block.type), reverseQuadLR[lc.L.contact]); // BAEF
+		if (tR) renderRight (fx, fy, fz, fmx, fmy, fmz, block.type, l_rH, l_rD, l_rC, l_rG, isTransparent(block.type), reverseQuadLR[lc.R.contact]); // HDCG
+		if (tF) renderFront (fx, fy, fz, fmx, fmy, fmz, block.type, l_fA, l_fD, l_fH, l_fE, isTransparent(block.type), reverseQuadFK[lc.F.contact]); // ADHE
+		if (tK) renderBack  (fx, fy, fz, fmx, fmy, fmz, block.type, l_kG, l_kC, l_kB, l_kF, isTransparent(block.type), reverseQuadFK[lc.K.contact]); // GCBF
+		//GX_End();
 	} else {
 
-		const void * renderers[] = {&&render_Furnace, &&render_Door, &&render_Void};
 
 		goto *renderers[block.type - BlockType::IRREGULAR];
 
 		render_Furnace:
 		{
-			auto & data = blockData[block.type];
+			auto &data = blockData[block.type];
 			if (tT) {
 				u16 tc = data.tc[BlockFace::Top];
-				renderRawTop   (fx, fy, fz, fmx, fmy, fmz, tc + 17, tc + 18, tc + 1, tc, l_tC, l_tD, l_tA, l_tB, isTransparent(block.type)); // CDAB
+				renderRawTop(fx, fy, fz, fmx, fmy, fmz, tc + 17, tc + 18, tc + 1, tc, l_tC, l_tD, l_tA, l_tB,
+				             isTransparent(block.type)); // CDAB
 			}
 			if (tB) {
 				u16 tc = data.tc[BlockFace::Bottom];
-				renderRawBottom(fx, fy, fz, fmx, fmy, fmz, tc + 18, tc + 1, tc, tc + 17, l_bE, l_bH, l_bG, l_bF,  isTransparent(block.type)); // EHGF
+				renderRawBottom(fx, fy, fz, fmx, fmy, fmz, tc + 18, tc + 1, tc, tc + 17, l_bE, l_bH, l_bG, l_bF,
+				                isTransparent(block.type)); // EHGF
 			}
 			if (tL) {
 				u16 tc = data.tc[(BlockFace::West + block.orient) & 0b11];
-				renderRawWest  (fx, fy, fz, fmx, fmy, fmz, tc, tc + 17, tc + 18, tc + 1, l_lB, l_lA, l_lE, l_lF, isTransparent(block.type)); // BAEF
+				renderRawWest(fx, fy, fz, fmx, fmy, fmz, tc, tc + 17, tc + 18, tc + 1, l_lB, l_lA, l_lE, l_lF,
+				              isTransparent(block.type)); // BAEF
 			}
 			if (tR) {
 				u16 tc = data.tc[(BlockFace::East + block.orient) & 0b11];
-				renderRawEast  (fx, fy, fz, fmx, fmy, fmz, tc + 1, tc, tc + 17, tc + 18, l_rH, l_rD, l_rC, l_rG, isTransparent(block.type)); // HDCG
+				renderRawEast(fx, fy, fz, fmx, fmy, fmz, tc + 1, tc, tc + 17, tc + 18, l_rH, l_rD, l_rC, l_rG,
+				              isTransparent(block.type)); // HDCG
 			}
 			if (tF) {
 				u16 tc = data.tc[(BlockFace::North + block.orient) & 0b11];
-				renderRawNorth (fx, fy, fz, fmx, fmy, fmz, tc, tc + 17, tc + 18, tc + 1, l_fA, l_fD, l_fH, l_fE, isTransparent(block.type)); // ADHE
+				renderRawNorth(fx, fy, fz, fmx, fmy, fmz, tc, tc + 17, tc + 18, tc + 1, l_fA, l_fD, l_fH, l_fE,
+				               isTransparent(block.type)); // ADHE
 			}
 			if (tK) {
 				u16 tc = data.tc[(BlockFace::South + block.orient) & 0b11];
-				renderRawSouth (fx, fy, fz, fmx, fmy, fmz, tc + 1, tc, tc + 17, tc + 18, l_kG, l_kC, l_kB, l_kF,  isTransparent(block.type)); // GCBF
+				renderRawSouth(fx, fy, fz, fmx, fmy, fmz, tc + 1, tc, tc + 17, tc + 18, l_kG, l_kC, l_kB, l_kF,
+				               isTransparent(block.type)); // GCBF
 			}
-			goto *endTarget;
+			goto
+			*endTarget;
 		}
 
 		render_Door:
 		{
 			fy += 1.f;
-			switch ((Direction)((block.orient + (block.state & 1)) & 0b11)) {
-				case NORTH:
-					fmz = fz - 3.f/16.f;
+			switch (static_cast<Direction>((block.orient + (block.state & 1)) & 0b11)) {
+				case NORTH: fmz = fz - 3.f / 16.f;
 					break;
-				case EAST:
-					fmx = fx - 3.f/16.f;
+				case EAST: fmx = fx - 3.f / 16.f;
 					break;
-				case SOUTH:
-					fz = fmz + 3.f/16.f;
+				case SOUTH: fz = fmz + 3.f / 16.f;
 					break;
-				case WEST:
-					fx = fmx + 3.f/16.f;
+				case WEST: fx = fmx + 3.f / 16.f;
 					break;
 			}
 
-			auto & data = blockData[block.type];
+			auto &data = blockData[block.type];
 			if (tT) {
 				u16 tc = data.tc[BlockFace::Top];
-				renderRawTop   (fx, fy, fz, fmx, fmy, fmz, tc + 17, tc + 18, tc + 1, tc, l_tC, l_tD, l_tA, l_tB, isTransparent(block.type)); // CDAB
+				renderRawTop(fx, fy, fz, fmx, fmy, fmz, tc + 17, tc + 18, tc + 1, tc, l_tC, l_tD, l_tA, l_tB,
+				             isTransparent(block.type)); // CDAB
 			}
 			if (tB) {
 				u16 tc = data.tc[BlockFace::Bottom];
-				renderRawBottom(fx, fy, fz, fmx, fmy, fmz, tc + 18, tc + 1, tc, tc + 17, l_bE, l_bH, l_bG, l_bF, isTransparent(block.type)); // EHGF
+				renderRawBottom(fx, fy, fz, fmx, fmy, fmz, tc + 18, tc + 1, tc, tc + 17, l_bE, l_bH, l_bG, l_bF,
+				                isTransparent(block.type)); // EHGF
 			}
 			if (tL) {
 				u16 tc = data.tc[(BlockFace::West + block.orient) & 0b11];
-				renderRawWest  (fx, fy, fz, fmx, fmy, fmz, tc, tc + 17, tc + 18, tc + 1, l_lB, l_lA, l_lE, l_lF, isTransparent(block.type)); // BAEF
+				renderRawWest(fx, fy, fz, fmx, fmy, fmz, tc, tc + 17, tc + 18, tc + 1, l_lB, l_lA, l_lE, l_lF,
+				              isTransparent(block.type)); // BAEF
 			}
 			if (tR) {
 				u16 tc = data.tc[(BlockFace::East + block.orient) & 0b11];
-				renderRawEast  (fx, fy, fz, fmx, fmy, fmz, tc + 1, tc, tc + 17, tc + 18, l_rH, l_rD, l_rC, l_rG,isTransparent(block.type)); // HDCG
+				renderRawEast(fx, fy, fz, fmx, fmy, fmz, tc + 1, tc, tc + 17, tc + 18, l_rH, l_rD, l_rC, l_rG,
+				              isTransparent(block.type)); // HDCG
 			}
 			if (tF) {
 				u16 tc = data.tc[(BlockFace::North + block.orient) & 0b11];
-				renderRawNorth (fx, fy, fz, fmx, fmy, fmz, tc, tc + 17, tc + 18, tc + 1, l_fA, l_fD, l_fH, l_fE, isTransparent(block.type)); // ADHE
+				renderRawNorth(fx, fy, fz, fmx, fmy, fmz, tc, tc + 17, tc + 18, tc + 1, l_fA, l_fD, l_fH, l_fE,
+				               isTransparent(block.type)); // ADHE
 			}
 			if (tK) {
 				u16 tc = data.tc[(BlockFace::South + block.orient) & 0b11];
-				renderRawSouth (fx, fy, fz, fmx, fmy, fmz, tc + 1, tc, tc + 17, tc + 18, l_kG, l_kC, l_kB, l_kF,isTransparent(block.type)); // GCBF
+				renderRawSouth(fx, fy, fz, fmx, fmy, fmz, tc + 1, tc, tc + 17, tc + 18, l_kG, l_kC, l_kB, l_kF,
+				               isTransparent(block.type)); // GCBF
 			}
-			goto *endTarget;
+			goto
+			*endTarget;
 		}
-
 	}
 
-
 	render_Void:
-	goto *endTarget;
+	goto
+	*endTarget;
+
 }
+#pragma clang diagnostic pop
