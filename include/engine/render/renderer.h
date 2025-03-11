@@ -2,20 +2,21 @@
 
 #include <gccore.h>
 
-#include "cacheUnit.h"
 #include "camera.h"
 #include "engine/env/environment.h"
 #include "world/block.h"
 #include "world/Chunk.h"
+#include "engine/render/enums.h"
 
 #define DEFAULT_FIFO_SIZE 262144  // (256 * 1024)  TODO: check if accurate
 
+
 class Renderer {
 	static void * gp_fifo;
-	static Environment environment;
 
 public:
 	Camera camera;
+	static Environment environment;
 
 	static constexpr GXColor background{0xff, 0xff, 0xff, 0xff}; // white
 	static void * frameBuffer, *frameBuffers[2];
@@ -27,11 +28,18 @@ public:
 
 	static void setupVideo();
 
-	static void setVertexFormat(bool advanced = false);
+	template <IVertex V>
+	static void setVertexFormat() {
+		V::mapVertexFormat();
+	}
+
+	template <IVertex V>
+	static void setVertexShader() {
+		V::mapVertexShader();
+	}
 
 	static void setupVertexAttributeTable();
 
-	static void setShader(bool advance = false);
 
 	static void setupTexture();
 
@@ -57,11 +65,28 @@ public:
 		environment.textureControl.animateWater();
 	}
 
+	static void textureLinearFilter(const bool enabled) {
+		GX_InitTexObjFilterMode(&mainTexture, GX_NEAR, enabled ? GX_LINEAR: GX_NEAR);
+		GX_LoadTexObj(&mainTexture, GX_TEXMAP0);
+	}
+
+	static void textureMap(const TextureMap map) {
+		environment.textureControl.textureMap(map);
+	}
+
+	static void colorMap(const bool enable) {
+		environment.lightControl.colorMap(enable);
+	}
+
 	static void update() {
 		environment.update();
 	}
 
 	void renderSky() const {
 		environment.skyControl.render(camera);
+	}
+
+	void renderCloud() const {
+		environment.cloudControl.render(camera);
 	}
 };

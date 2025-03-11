@@ -89,9 +89,6 @@ int main(int, char **) {
 	SYS_SetResetCallback(reload);
 	SYS_SetPowerCallback(shutdown);
 
-	ChunkCache::init();
-	printf("ZZZZZZ\r");
-
 	ChunkCache::reset();
 	printf("NNNNNNN\r");
 
@@ -172,7 +169,7 @@ int main(int, char **) {
 		/// Cache
 		printf("caching %.2f\r", players[0].renderer.camera.angleH);
 
-		ChunkCache::cache(players);
+		ChunkCache::prerender(players);
 
 
 		/// Render
@@ -185,13 +182,24 @@ int main(int, char **) {
 
 			player.renderer.camera.update(true);
 
+			//PoC vertex shader leaves waving
+			//guMtxRowCol(player.renderer.camera.view3D, 0, 3) += std::sin(Renderer::environment.time * 2.f * M_PI) / 3.f;
+			//guMtxRowCol(player.renderer.camera.view3D, 1, 3) += std::cos(Renderer::environment.time * 200.f * M_PI) / 3.f;
+			//guMtxRowCol(player.renderer.camera.view3D, 2, 3) += std::sin(Renderer::environment.time * 200.f * M_PI) / 3.f;
+			//player.renderer.camera.applyTransform();
+
 			ChunkCache::render(player.renderer.camera);
 
-			Renderer::setVertexFormat(true);
-			Renderer::setShader(true);
+			Renderer::setVertexFormat<AdvancedVertex>();
+			Renderer::setVertexShader<AdvancedVertex>();
 			player.renderer.renderSky();
-			Renderer::setShader();
-			Renderer::setVertexFormat();
+
+			Renderer::setVertexFormat<ColoredVertex>();
+			Renderer::setVertexShader<ColoredVertex>();
+			player.renderer.renderCloud();
+
+			Renderer::setVertexFormat<Vertex>();
+			Renderer::setVertexShader<Vertex>();
 			//player.renderer.renderSky();
 
 			player.renderFocus();

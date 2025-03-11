@@ -9,8 +9,9 @@ import math as m
 import os
 import sys
 import random
-from typing import Callable
+from typing import Callable, Any
 from dataclasses import dataclass
+from tqdm import tqdm
 
 import cv2
 import numpy as np
@@ -18,6 +19,25 @@ import numpy as np
 TEX_NIGHT_SZ = 768
 TEX_SZ = 512
 TILE_SIZE = 32
+
+
+class IOProxy:
+    """
+    A proxy for an IO stream that removes newlines from the output (tqdm x clion patch)
+    """
+
+    def __init__(self, file):
+        self._file = file
+
+    def write(self, s) -> None:
+        s = s.replace("\n", "")
+        self._file.write(s)
+
+    def __getattr__(self, item: str) -> Any:
+        return getattr(self._file, item)
+
+
+stdout = IOProxy(sys.stdout)
 
 
 class TiledTexture:
@@ -228,6 +248,28 @@ def texturing_interpolation_mirror_s(arr: np.ndarray, y: int, x: int, sz: int) -
     return arr[y, x]
 
 
+def texturing_no_interpolation(arr: np.ndarray, y: int, x: int, sz: int) -> np.ndarray:
+    """
+    Get a color from the texture array without coordinates correction.
+
+    Args:
+        arr: the texture array
+        y: the y coordinate
+        x: the x coordinate
+        sz: the size of the texture
+
+    Notes:
+        - return alpha black if out of bounds
+
+    Returns: the color at the given coordinates
+    """
+
+    if x < 0 or y < 0 or x >= sz or y >= sz:
+        return np.zeros(arr[0, 0].shape, dtype=np.uint8)
+
+    return arr[y, x]
+
+
 # Configuration of the files to process and output textures
 
 
@@ -403,28 +445,27 @@ def correct(tile: np.ndarray, corrected: np.ndarray,
 
     S = tile.shape[0]
 
-    for y in range(S):
+    for y, x in tqdm(((y, x) for y in range(S) for x in range(S)), desc="Applying distorsion\t\t\t",
+                     total=S * S, file=stdout, ncols=120, unit=" pixel", leave=False):
+        dx, dy = distort_coords(x, y, S)
+        corrected[y, x] = bilinear_interpolate(tile, dy - .5, dx - .5, S, texint)
+        # corrected[dy, dx] = tile[y, x]  # reciproque testing (cause artifacts so debug only)
 
-        for x in range(S):
-            dx, dy = distort_coords(x, y, S)
-            corrected[y, x] = bilinear_interpolate(tile, dy - .5, dx - .5, S, texint)
-            # corrected[dy, dx] = tile[y, x]  # reciproque testing (cause artifacts so debug only)
-
-            # DEBUG
-            # Y, X = round(dy - .5), round(dx - .5)
-            # try:
-            #     if Y < 0 or X < 0: raise IndexError
-            #     corrected[y, x] = tile[Y, X] * .5
-            # except IndexError:  # apply mirror correction
-            #     #corrected[y, x] = (0, 0, 255, 255)
-            #     X = abs(X)
-            #     Y = abs(Y)
-            #     if X >= S: X = 2 * S - 1 - X
-            #     if Y >= S: Y = 2 * S - 1 - Y
-            #     try:
-            #         corrected[y, x] = tile[Y, X]
-            #     except IndexError:
-            #         corrected[y, x] = (0, 0, 255, 255)
+        # DEBUG
+        # Y, X = round(dy - .5), round(dx - .5)
+        # try:
+        #     if Y < 0 or X < 0: raise IndexError
+        #     corrected[y, x] = tile[Y, X] * .5
+        # except IndexError:  # apply mirror correction
+        #     #corrected[y, x] = (0, 0, 255, 255)
+        #     X = abs(X)
+        #     Y = abs(Y)
+        #     if X >= S: X = 2 * S - 1 - X
+        #     if Y >= S: Y = 2 * S - 1 - Y
+        #     try:
+        #         corrected[y, x] = tile[Y, X]
+        #     except IndexError:
+        #         corrected[y, x] = (0, 0, 255, 255)
 
 
 def process(file: File) -> str:
@@ -437,8 +478,6 @@ def process(file: File) -> str:
     Returns:
         the header data payload of the texture
     """
-
-    print("processing", file.name, "texture...")
 
     assert set(''.join(i[-1] for i in file.tiles)) == set("TBNSWE")
 
@@ -453,7 +492,8 @@ def process(file: File) -> str:
     payload = ""
     coords = []
 
-    for n, (x, y, texint, face) in enumerate(file.tiles):
+    for n, (x, y, texint, face) in tqdm(enumerate(file.tiles), desc=f"Processing {file.name} texture\t",
+                                        total=len(file.tiles), file=stdout, ncols=120, unit=" face"):
         if x is None:  # special case where flat uniform texture just recycle 1 other texture's pixel
             target, x, y = texint
             px, py = coords[target]

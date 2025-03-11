@@ -9,7 +9,6 @@
 #include "wiimote.h"
 #include "world/world.h"
 #include "utils/matrix.h"
-#include "engine/render/cacheUnit.h"
 
 Player::Player(const int chan) :
 	Player(0, 0, 0, chan) {}

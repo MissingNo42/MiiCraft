@@ -13,7 +13,7 @@ public:
 	constexpr static u32 triangleCount = 20 * S * S;
 	constexpr static u32 verticesCount = 3 * triangleCount;
 
-	consteval explicit Icosphere(const f32 radius, const u16 offset, Vextex outVertices[verticesCount], TexCoord outTexCoord[verticesCount]) :
+	consteval explicit Icosphere(const f32 radius, const u16 offset, Vertex outVertices[verticesCount], TexCoord outTexCoord[verticesCount]) :
 		radius(radius),
 		offset(offset),
 		vertices(outVertices),
@@ -39,7 +39,7 @@ private:
 	f32 radius;
 	u16 offset;
 	u16 vertexIndex = 0;
-	Vextex * const vertices;
+	Vertex * const vertices;
 	TexCoord * const texCoord;
 };
 

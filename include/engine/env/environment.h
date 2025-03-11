@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cloud.h"
 #include "light.h"
 #include "skybox.h"
 #include "texture.h"
@@ -12,9 +13,11 @@ public:
 	TextureControl textureControl{};
 	SkyControl skyControl{};
 	LightControl lightControl{};
-	f32 time = 0.f; // 0=0h, 0.5=12h, 1=24h
+	CloudControl cloudControl{};
 
-	static constexpr f32 timeTick = 1 / (60.f * 60.f);
+	f32 time = 0.5f; // 0=0h, 0.5=12h, 1=24h
+
+	static constexpr f32 timeTick = 0;//1 / (60.f * 60.f);
 
 	consteval Environment() = default;
 public:
@@ -26,11 +29,7 @@ public:
 		}
 		skyControl.update(time);
 		lightControl.update(time);
-	}
-
-	void bindGPU(const bool advanced) const {
-		textureControl.bindGPU(advanced);
-		lightControl.bindGPU();
+		cloudControl.update(time);
 	}
 
 	friend Renderer;

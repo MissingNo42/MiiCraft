@@ -62,7 +62,22 @@ struct BlockCoord {
 
 template <>
 struct std::hash<BlockCoord> {
-	std::size_t operator()(const BlockCoord & coord) const noexcept {
-		return static_cast<u16>(coord.y) << 16 | static_cast<u8>(coord.x) << 8 | static_cast<u8>(coord.z);
+	static constexpr s32 size2 = sizeof(size_t) << 2; // half size in bit
+	static constexpr s32 size4 = sizeof(size_t) << 1; // quarter size in bit
+	static constexpr s32 mask2 = (1 << size2) - 1;
+	static constexpr s32 mask4 = (1 << size4) - 1;
+
+	size_t operator()(const BlockCoord & coord) const noexcept {
+		return (coord.y & mask2) << size2 | (coord.x & mask4) << size4 | (coord.z & mask4);
+	}
+};
+
+template <>
+struct std::hash<ChunkCoord> {
+	static constexpr s32 size2 = sizeof(size_t) << 2; // half size in bit
+	static constexpr s32 mask2 = (1 << size2) - 1;
+
+	size_t operator()(const ChunkCoord & coord) const noexcept {
+		return (coord.x & mask2) << size2 | (coord.z & mask2);
 	}
 };

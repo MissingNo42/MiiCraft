@@ -5,7 +5,6 @@
 #include <malloc.h>
 #include "engine/render/renderer.h"
 #include "engine/render/block.h"
-#include "engine/render/cacheUnit.h"
 
 void * Renderer::frameBuffer;
 void * Renderer::frameBuffers[2];
@@ -71,25 +70,6 @@ void Renderer::setupVideo() {
 	GX_SetAlphaUpdate(GX_TRUE); //TODO: reenable when alpha artefact will occur
 }
 
-void Renderer::setVertexFormat(const bool advanced) {
-	// setup the vertex attribute table
-	GX_ClearVtxDesc();
-	GX_InvVtxCache();
-
-	GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);	// always
-	GX_SetVtxDesc(GX_VA_TEX0, GX_INDEX16);	// always
-
-	if (advanced) {
-		GX_SetVtxDesc(GX_VA_TEX1, GX_INDEX16); // VTXFMT1
-		GX_SetVtxDesc(GX_VA_TEX2, GX_INDEX16); // VTXFMT1
-		GX_SetVtxDesc(GX_VA_TEX3, GX_INDEX16); // VTXFMT1
-	} else {
-		GX_SetVtxDesc(GX_VA_CLR0, GX_INDEX16); //VTXFMT0
-	}
-
-	environment.bindGPU(advanced);
-}
-
 void Renderer::setupVertexAttributeTable() {
 	GX_ClearVtxDesc();
 	GX_InvVtxCache();
@@ -104,7 +84,10 @@ void Renderer::setupVertexAttributeTable() {
 	GX_SetVtxAttrFmt(GX_VTXFMT1, GX_VA_TEX2, GX_TEX_ST, GX_F32, 0);
 	GX_SetVtxAttrFmt(GX_VTXFMT1, GX_VA_TEX3, GX_TEX_ST, GX_F32, 0);
 
-	setVertexFormat();
+	GX_SetVtxAttrFmt(GX_VTXFMT2, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+	GX_SetVtxAttrFmt(GX_VTXFMT2, GX_VA_CLR0, GX_CLR_RGBA, GX_S8, 0);
+
+	setVertexFormat<Vertex>();
 }
 
 static GXTexRegion region ATTRIBUTE_ALIGN(32);
@@ -113,106 +96,6 @@ static GXTexRegion * RegionAllocator(GXTexObj *, u8) {
 	return &region;
 }
 
-void Renderer::setShader(const bool advance) {
-	GX_SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX3x4, GX_TG_TEX0, GX_IDENTITY);
-
-	if (advance) {
-		GX_SetTexCoordGen(GX_TEXCOORD1, GX_TG_MTX3x4, GX_TG_TEX1, GX_IDENTITY);
-		GX_SetTexCoordGen(GX_TEXCOORD2, GX_TG_MTX3x4, GX_TG_TEX2, GX_IDENTITY);
-		GX_SetTexCoordGen(GX_TEXCOORD3, GX_TG_MTX3x4, GX_TG_TEX3, GX_IDENTITY);
-
-		GX_InitTexObjMaxAniso(&mainTexture, GX_ANISO_1);
-		GX_InitTexObjFilterMode(&mainTexture, GX_NEAR, GX_LINEAR);
-	} else {
-		GX_InitTexObjMaxAniso(&mainTexture, GX_ANISO_1);
-		GX_InitTexObjFilterMode(&mainTexture, GX_NEAR, GX_NEAR);
-	}
-
-	GX_LoadTexObj(&mainTexture, GX_TEXMAP0);
-
-	GX_SetNumTexGens(advance ? 4: 1);
-	GX_SetNumTevStages(advance ? 7: 1);
-
-
-	// TEV: (D +/- (C - 1) * A + C * B + Bias) * Scale
-
-	if (advance) {
-		/*
-		 * TS0: night multiplier                 :-----
-		 *              				              |
-		 * TS2: blend                            :    |------
-		 *                                            |     |
-		 * TS1: blue sky multiplier              :-----     |
-		 *                                                  |
-		 * TS4: blend                            :          |------
-		 *                                                  |     |
-		 * TS3: sunrise/sunset sky multiplier    :-----------     |
-		 *                                                        |
-		 * TS6: blend                            :                |--------> final color
-		 *                                                        |
-		 * TS5: sunrise/sunset effect multiplier :-----------------
-		 */
-
-		#define BlendStage(TEV, OUT) \
-		GX_SetTevColorIn(TEV, GX_CC_C0, GX_CC_C1, GX_CC_A1, GX_CC_ZERO); \
-		GX_SetTevAlphaIn(TEV, GX_CA_A0, GX_CA_ZERO, GX_CA_A1, GX_CA_A1); \
-		GX_SetTevColorOp(TEV, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, OUT); \
-		GX_SetTevAlphaOp(TEV, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, OUT); \
-		GX_SetTevOrder(TEV, GX_TEXCOORDNULL, GX_TEXMAP_NULL, GX_COLORNULL);
-
-		/// multiply the night sky to REG0 (this set the texture opacity)
-		GX_SetTevKColorSel(GX_TEVSTAGE0, GX_TEV_KCSEL_K0);
-		GX_SetTevKAlphaSel(GX_TEVSTAGE0, GX_TEV_KASEL_K0_A);
-		GX_SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_TEXC, GX_CC_KONST, GX_CC_ZERO);
-		GX_SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_TEXA, GX_CA_KONST, GX_CA_ZERO);
-		GX_SetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVREG0);
-		GX_SetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVREG0);
-		GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP1, GX_COLOR0A0);
-
-		// multiply the blue sky to REG1 (this set the texture opacity)
-		GX_SetTevKColorSel(GX_TEVSTAGE1, GX_TEV_KCSEL_K1);
-		GX_SetTevKAlphaSel(GX_TEVSTAGE1, GX_TEV_KASEL_K1_A);
-		GX_SetTevColorIn(GX_TEVSTAGE1,GX_CC_ZERO,GX_CC_TEXC,GX_CC_KONST, GX_CC_ZERO);
-		GX_SetTevAlphaIn(GX_TEVSTAGE1,GX_CA_ZERO,GX_CA_TEXA,GX_CA_KONST,GX_CA_ZERO);
-		GX_SetTevColorOp(GX_TEVSTAGE1, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVREG1);
-		GX_SetTevAlphaOp(GX_TEVSTAGE1, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVREG1);
-		GX_SetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD1, GX_TEXMAP0, GX_COLOR0A0);
-
-		// blend the blue sky on the night sky to REG0
-		BlendStage(GX_TEVSTAGE2, GX_TEVREG0);
-
-		// multiply the sunset/sunrise sky to REG1 (this set the texture opacity)
-		GX_SetTevKColorSel(GX_TEVSTAGE3, GX_TEV_KCSEL_K2);
-		GX_SetTevKAlphaSel(GX_TEVSTAGE3, GX_TEV_KASEL_K2_A);
-		GX_SetTevColorIn(GX_TEVSTAGE3,GX_CC_ZERO,GX_CC_TEXC,GX_CC_KONST, GX_CC_ZERO);
-		GX_SetTevAlphaIn(GX_TEVSTAGE3,GX_CA_ZERO,GX_CA_TEXA,GX_CA_KONST,GX_CA_ZERO);
-		GX_SetTevColorOp(GX_TEVSTAGE3, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVREG1);
-		GX_SetTevAlphaOp(GX_TEVSTAGE3, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVREG1);
-		GX_SetTevOrder(GX_TEVSTAGE3, GX_TEXCOORD2, GX_TEXMAP0, GX_COLOR0A0);
-
-		// blend to REG0
-		BlendStage(GX_TEVSTAGE4, GX_TEVREG0);
-
-		// multiply the sunset/sunrise effect to REG1 (this set the texture opacity)
-		GX_SetTevKColorSel(GX_TEVSTAGE5, GX_TEV_KCSEL_K3);
-		GX_SetTevKAlphaSel(GX_TEVSTAGE5, GX_TEV_KASEL_K3_A);
-		GX_SetTevColorIn(GX_TEVSTAGE5,GX_CC_ZERO,GX_CC_TEXC,GX_CC_KONST, GX_CC_ZERO);
-		GX_SetTevAlphaIn(GX_TEVSTAGE5,GX_CA_ZERO,GX_CA_TEXA,GX_CA_KONST,GX_CA_ZERO);
-		GX_SetTevColorOp(GX_TEVSTAGE5, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVREG1);
-		GX_SetTevAlphaOp(GX_TEVSTAGE5, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVREG1);
-		GX_SetTevOrder(GX_TEVSTAGE5, GX_TEXCOORD3, GX_TEXMAP0, GX_COLOR0A0);
-
-		// blend to output REG3
-		BlendStage(GX_TEVSTAGE6, GX_TEVPREV);
-	} else {
-		/// Gx Modulate : standard texturing or night sky
-		GX_SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_TEXC, GX_CC_RASC, GX_CC_ZERO);
-		GX_SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_TEXA, GX_CA_RASA, GX_CA_ZERO);
-		GX_SetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVPREV);
-		GX_SetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVPREV);
-		GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
-	}
-}
 
 void Renderer::setupTexture() {
 	TPLFile TPLfile;
@@ -246,11 +129,11 @@ void Renderer::setupTexture() {
 	} ATTRIBUTE_PACKED;
 	reinterpret_cast<GxTexregion *>(&region)->iscached = 0;
 
-	GX_PreloadEntireTexture(&nightTexture, &region); // may cause issues on real hardware
+	GX_PreloadEntireTexture(&mainTexture, &region); // may cause issues on real hardware
 
 	GX_SetNumChans(1);
 
-	setShader();
+	setVertexShader<Vertex>();
 }
 
 void Renderer::endFrame() {

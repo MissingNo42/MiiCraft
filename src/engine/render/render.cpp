@@ -76,161 +76,161 @@ enum LightContactIndex : u64 {
 static constexpr u16 initLight = 0b1111111110111111; // ~0000_01_0000_01 | 1
 
 
-inline void renderVertex(f32 x, f32 y, f32 z, u16 color, u16 tc, u8 alpha) {
+inline void renderVertex(f32 x, f32 y, f32 z, u16 color, u16 tc, RenderChannel channel) {
 	//GX_Position3f32(x, y, z);
 	//GX_Normal1x8(normal);
 	//GX_Color1u32(color);
 	//GX_TexCoord2f32(tx, ty);
-	ChunkCache::addVertex(x, y, z, color, tc, alpha);
+	ChunkCache::addVertex(Vertex(x, y, z, color, tc), channel);
 }
 
 inline void
 renderRawNorth(f32 x, f32 y, f32 z, f32 mx, f32 my, f32, u16 tcA, u16 tcD, u16 tcH, u16 tcE, u16 c1, u16 c2, u16 c3,
-               u16 c4, u8 alpha) {
-	renderVertex(mx, y, z, c1, tcA, alpha); // A
-	renderVertex(x, y, z, c2, tcD, alpha); // D
-	renderVertex(x, my, z, c3, tcH, alpha); // H
-	renderVertex(mx, my, z, c4, tcE, alpha); // E
+               u16 c4, RenderChannel channel) {
+	renderVertex(mx, y, z, c1, tcA, channel); // A
+	renderVertex(x, y, z, c2, tcD, channel); // D
+	renderVertex(x, my, z, c3, tcH, channel); // H
+	renderVertex(mx, my, z, c4, tcE, channel); // E
 }
 
 inline void
 renderRawSouth(f32 x, f32 y, f32, f32 mx, f32 my, f32 mz, u16 tcG, u16 tcC, u16 tcB, u16 tcF, u16 c1, u16 c2, u16 c3,
-               u16 c4, u8 alpha) {
-	renderVertex(x, my, mz, c1, tcG, alpha); // G
-	renderVertex(x, y, mz, c2, tcC, alpha); // C
-	renderVertex(mx, y, mz, c3, tcB, alpha); // B
-	renderVertex(mx, my, mz, c4, tcF, alpha); // F
+               u16 c4, RenderChannel channel) {
+	renderVertex(x, my, mz, c1, tcG, channel); // G
+	renderVertex(x, y, mz, c2, tcC, channel); // C
+	renderVertex(mx, y, mz, c3, tcB, channel); // B
+	renderVertex(mx, my, mz, c4, tcF, channel); // F
 }
 
 inline void
 renderRawTop(f32 x, f32 y, f32 z, f32 mx, f32, f32 mz, u16 tcC, u16 tcD, u16 tcA, u16 tcB, u16 c1, u16 c2, u16 c3,
-             u16 c4, u8 alpha) {
-	renderVertex(x, y, mz, c1, tcC, alpha); // C
-	renderVertex(x, y, z, c2, tcD, alpha); // D
-	renderVertex(mx, y, z, c3, tcA, alpha); // A
-	renderVertex(mx, y, mz, c4, tcB, alpha); // B
+             u16 c4, RenderChannel channel) {
+	renderVertex(x, y, mz, c1, tcC, channel); // C
+	renderVertex(x, y, z, c2, tcD, channel); // D
+	renderVertex(mx, y, z, c3, tcA, channel); // A
+	renderVertex(mx, y, mz, c4, tcB, channel); // B
 }
 
 inline void
 renderRawBottom(f32 x, f32, f32 z, f32 mx, f32 my, f32 mz, u16 tcE, u16 tcH, u16 tcG, u16 tcF, u16 c1, u16 c2, u16 c3,
-                u16 c4, u8 alpha) {
-	renderVertex(mx, my, z, c1, tcE, alpha); // E
-	renderVertex(x, my, z, c2, tcH, alpha); // H
-	renderVertex(x, my, mz, c3, tcG, alpha); // G
-	renderVertex(mx, my, mz, c4, tcF, alpha); // F
+                u16 c4, RenderChannel channel) {
+	renderVertex(mx, my, z, c1, tcE, channel); // E
+	renderVertex(x, my, z, c2, tcH, channel); // H
+	renderVertex(x, my, mz, c3, tcG, channel); // G
+	renderVertex(mx, my, mz, c4, tcF, channel); // F
 }
 
 inline void
 renderRawWest(f32, f32 y, f32 z, f32 mx, f32 my, f32 mz, u16 tcB, u16 tcA, u16 tcE, u16 tcF, u16 c1, u16 c2, u16 c3,
-              u16 c4, u8 alpha) {
-	renderVertex(mx, y, mz, c1, tcB, alpha); // B
-	renderVertex(mx, y, z, c2, tcA, alpha); // A
-	renderVertex(mx, my, z, c3, tcE, alpha); // E
-	renderVertex(mx, my, mz, c4, tcF, alpha); // F
+              u16 c4, RenderChannel channel) {
+	renderVertex(mx, y, mz, c1, tcB, channel); // B
+	renderVertex(mx, y, z, c2, tcA, channel); // A
+	renderVertex(mx, my, z, c3, tcE, channel); // E
+	renderVertex(mx, my, mz, c4, tcF, channel); // F
 }
 
 inline void
 renderRawEast(f32 x, f32 y, f32 z, f32, f32 my, f32 mz, u16 tcH, u16 tcD, u16 tcC, u16 tcG, u16 c1, u16 c2, u16 c3,
-              u16 c4, u8 alpha) {
-	renderVertex(x, my, z, c1, tcH, alpha); // H
-	renderVertex(x, y, z, c2, tcD, alpha); // D
-	renderVertex(x, y, mz, c3, tcC, alpha); // C
-	renderVertex(x, my, mz, c4, tcG, alpha); // G
+              u16 c4, RenderChannel channel) {
+	renderVertex(x, my, z, c1, tcH, channel); // H
+	renderVertex(x, y, z, c2, tcD, channel); // D
+	renderVertex(x, y, mz, c3, tcC, channel); // C
+	renderVertex(x, my, mz, c4, tcG, channel); // G
 }
 
 inline void
-renderFront(f32 x, f32 y, f32 z, f32 mx, f32 my, f32, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha, bool reverse) {
+renderFront(f32 x, f32 y, f32 z, f32 mx, f32 my, f32, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, RenderChannel channel, bool reverse) {
 	u16 tc = blockData[type].tc[BlockFace::North];
 	if (reverse) {
-		renderVertex(x, y, z, c2, tc + 17, alpha); // D
-		renderVertex(x, my, z, c3, tc + 18, alpha); // H
-		renderVertex(mx, my, z, c4, tc + 1, alpha); // E
-		renderVertex(mx, y, z, c1, tc, alpha); // A
+		renderVertex(x, y, z, c2, tc + 17, channel); // D
+		renderVertex(x, my, z, c3, tc + 18, channel); // H
+		renderVertex(mx, my, z, c4, tc + 1, channel); // E
+		renderVertex(mx, y, z, c1, tc, channel); // A
 	} else {
-		renderVertex(mx, y, z, c1, tc, alpha); // A
-		renderVertex(x, y, z, c2, tc + 17, alpha); // D
-		renderVertex(x, my, z, c3, tc + 18, alpha); // H
-		renderVertex(mx, my, z, c4, tc + 1, alpha); // E
+		renderVertex(mx, y, z, c1, tc, channel); // A
+		renderVertex(x, y, z, c2, tc + 17, channel); // D
+		renderVertex(x, my, z, c3, tc + 18, channel); // H
+		renderVertex(mx, my, z, c4, tc + 1, channel); // E
 	}
 }
 
 inline void
-renderBack(f32 x, f32 y, f32, f32 mx, f32 my, f32 mz, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha, bool reverse) {
+renderBack(f32 x, f32 y, f32, f32 mx, f32 my, f32 mz, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, RenderChannel channel, bool reverse) {
 	u16 tc = blockData[type].tc[BlockFace::South];
 	if (reverse) {
-		renderVertex(x, y, mz, c2, tc, alpha); // C
-		renderVertex(mx, y, mz, c3, tc + 17, alpha); // B
-		renderVertex(mx, my, mz, c4, tc + 18, alpha); // F
-		renderVertex(x, my, mz, c1, tc + 1, alpha); // G
+		renderVertex(x, y, mz, c2, tc, channel); // C
+		renderVertex(mx, y, mz, c3, tc + 17, channel); // B
+		renderVertex(mx, my, mz, c4, tc + 18, channel); // F
+		renderVertex(x, my, mz, c1, tc + 1, channel); // G
 	} else {
-		renderVertex(x, my, mz, c1, tc + 1, alpha); // G
-		renderVertex(x, y, mz, c2, tc, alpha); // C
-		renderVertex(mx, y, mz, c3, tc + 17, alpha); // B
-		renderVertex(mx, my, mz, c4, tc + 18, alpha); // F
+		renderVertex(x, my, mz, c1, tc + 1, channel); // G
+		renderVertex(x, y, mz, c2, tc, channel); // C
+		renderVertex(mx, y, mz, c3, tc + 17, channel); // B
+		renderVertex(mx, my, mz, c4, tc + 18, channel); // F
 	}
 }
 
 inline void
-renderTop(f32 x, f32 y, f32 z, f32 mx, f32, f32 mz, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha, bool reverse) {
+renderTop(f32 x, f32 y, f32 z, f32 mx, f32, f32 mz, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, RenderChannel channel, bool reverse) {
 	u16 tc = blockData[type].tc[BlockFace::Top];
 	if (reverse) {
-		renderVertex(x, y, z, c2, tc + 18, alpha); // D
-		renderVertex(mx, y, z, c3, tc + 1, alpha); // A
-		renderVertex(mx, y, mz, c4, tc, alpha); // B
-		renderVertex(x, y, mz, c1, tc + 17, alpha); // C
+		renderVertex(x, y, z, c2, tc + 18, channel); // D
+		renderVertex(mx, y, z, c3, tc + 1, channel); // A
+		renderVertex(mx, y, mz, c4, tc, channel); // B
+		renderVertex(x, y, mz, c1, tc + 17, channel); // C
 	} else {
-		renderVertex(x, y, mz, c1, tc + 17, alpha); // C
-		renderVertex(x, y, z, c2, tc + 18, alpha); // D
-		renderVertex(mx, y, z, c3, tc + 1, alpha); // A
-		renderVertex(mx, y, mz, c4, tc, alpha); // B
+		renderVertex(x, y, mz, c1, tc + 17, channel); // C
+		renderVertex(x, y, z, c2, tc + 18, channel); // D
+		renderVertex(mx, y, z, c3, tc + 1, channel); // A
+		renderVertex(mx, y, mz, c4, tc, channel); // B
 	}
 }
 
 inline void
-renderBottom(f32 x, f32, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha, bool reverse) {
+renderBottom(f32 x, f32, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, RenderChannel channel, bool reverse) {
 	u16 tc = blockData[type].tc[BlockFace::Bottom];
 	if (reverse) {
-		renderVertex(x, my, z, c2, tc + 1, alpha); // H
-		renderVertex(x, my, mz, c3, tc, alpha); // G
-		renderVertex(mx, my, mz, c4, tc + 17, alpha); // F
-		renderVertex(mx, my, z, c1, tc + 18, alpha); // E
+		renderVertex(x, my, z, c2, tc + 1, channel); // H
+		renderVertex(x, my, mz, c3, tc, channel); // G
+		renderVertex(mx, my, mz, c4, tc + 17, channel); // F
+		renderVertex(mx, my, z, c1, tc + 18, channel); // E
 	} else {
-		renderVertex(mx, my, z, c1, tc + 18, alpha); // E
-		renderVertex(x, my, z, c2, tc + 1, alpha); // H
-		renderVertex(x, my, mz, c3, tc, alpha); // G
-		renderVertex(mx, my, mz, c4, tc + 17, alpha); // F
+		renderVertex(mx, my, z, c1, tc + 18, channel); // E
+		renderVertex(x, my, z, c2, tc + 1, channel); // H
+		renderVertex(x, my, mz, c3, tc, channel); // G
+		renderVertex(mx, my, mz, c4, tc + 17, channel); // F
 	}
 }
 
 inline void
-renderLeft(f32, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha, bool reverse) {
+renderLeft(f32, f32 y, f32 z, f32 mx, f32 my, f32 mz, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, RenderChannel channel, bool reverse) {
 	u16 tc = blockData[type].tc[BlockFace::West];
 	if (reverse) {
-		renderVertex(mx, y, z, c2, tc + 17, alpha); // A
-		renderVertex(mx, my, z, c3, tc + 18, alpha); // E
-		renderVertex(mx, my, mz, c4, tc + 1, alpha); // F
-		renderVertex(mx, y, mz, c1, tc, alpha); // B
+		renderVertex(mx, y, z, c2, tc + 17, channel); // A
+		renderVertex(mx, my, z, c3, tc + 18, channel); // E
+		renderVertex(mx, my, mz, c4, tc + 1, channel); // F
+		renderVertex(mx, y, mz, c1, tc, channel); // B
 	} else {
-		renderVertex(mx, y, mz, c1, tc, alpha); // B
-		renderVertex(mx, y, z, c2, tc + 17, alpha); // A
-		renderVertex(mx, my, z, c3, tc + 18, alpha); // E
-		renderVertex(mx, my, mz, c4, tc + 1, alpha); // F
+		renderVertex(mx, y, mz, c1, tc, channel); // B
+		renderVertex(mx, y, z, c2, tc + 17, channel); // A
+		renderVertex(mx, my, z, c3, tc + 18, channel); // E
+		renderVertex(mx, my, mz, c4, tc + 1, channel); // F
 	}
 }
 
 inline void
-renderRight(f32 x, f32 y, f32 z, f32, f32 my, f32 mz, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, u8 alpha, bool reverse) {
+renderRight(f32 x, f32 y, f32 z, f32, f32 my, f32 mz, BlockType type, u16 c1, u16 c2, u16 c3, u16 c4, RenderChannel channel, bool reverse) {
 	const u16 tc = blockData[type].tc[BlockFace::East];
 	if (reverse) {
-		renderVertex(x, y, z, c2, tc, alpha); // D
-		renderVertex(x, y, mz, c3, tc + 17, alpha); // C
-		renderVertex(x, my, mz, c4, tc + 18, alpha); // G
-		renderVertex(x, my, z, c1, tc + 1, alpha); // H
+		renderVertex(x, y, z, c2, tc, channel); // D
+		renderVertex(x, y, mz, c3, tc + 17, channel); // C
+		renderVertex(x, my, mz, c4, tc + 18, channel); // G
+		renderVertex(x, my, z, c1, tc + 1, channel); // H
 	} else {
-		renderVertex(x, my, z, c1, tc + 1, alpha); // H
-		renderVertex(x, y, z, c2, tc, alpha); // D
-		renderVertex(x, y, mz, c3, tc + 17, alpha); // C
-		renderVertex(x, my, mz, c4, tc + 18, alpha); // G
+		renderVertex(x, my, z, c1, tc + 1, channel); // H
+		renderVertex(x, y, z, c2, tc, channel); // D
+		renderVertex(x, y, mz, c3, tc + 17, channel); // C
+		renderVertex(x, my, mz, c4, tc + 18, channel); // G
 	}
 }
 
@@ -1358,12 +1358,12 @@ void Renderer::renderChunk(Chunk &c) {
 
 	if (isRegular(block.type)) {
 		//GX_Begin(GX_QUADS, GX_VTXFMT0, sz << 2); // Start drawing
-		if (tT) renderTop   (fx, fy, fz, fmx, fmy, fmz, block.type, l_tC, l_tD, l_tA, l_tB, isTransparent(block.type), reverseQuadTB[lc.T.contact]); // CDAB
-		if (tB) renderBottom(fx, fy, fz, fmx, fmy, fmz, block.type, l_bE, l_bH, l_bG, l_bF, isTransparent(block.type), reverseQuadTB[lc.B.contact]); // EHGF
-		if (tL) renderLeft  (fx, fy, fz, fmx, fmy, fmz, block.type, l_lB, l_lA, l_lE, l_lF, isTransparent(block.type), reverseQuadLR[lc.L.contact]); // BAEF
-		if (tR) renderRight (fx, fy, fz, fmx, fmy, fmz, block.type, l_rH, l_rD, l_rC, l_rG, isTransparent(block.type), reverseQuadLR[lc.R.contact]); // HDCG
-		if (tF) renderFront (fx, fy, fz, fmx, fmy, fmz, block.type, l_fA, l_fD, l_fH, l_fE, isTransparent(block.type), reverseQuadFK[lc.F.contact]); // ADHE
-		if (tK) renderBack  (fx, fy, fz, fmx, fmy, fmz, block.type, l_kG, l_kC, l_kB, l_kF, isTransparent(block.type), reverseQuadFK[lc.K.contact]); // GCBF
+		if (tT) renderTop   (fx, fy, fz, fmx, fmy, fmz, block.type, l_tC, l_tD, l_tA, l_tB, static_cast<RenderChannel>(isTransparent(block.type)), reverseQuadTB[lc.T.contact]); // CDAB
+		if (tB) renderBottom(fx, fy, fz, fmx, fmy, fmz, block.type, l_bE, l_bH, l_bG, l_bF, static_cast<RenderChannel>(isTransparent(block.type)), reverseQuadTB[lc.B.contact]); // EHGF
+		if (tL) renderLeft  (fx, fy, fz, fmx, fmy, fmz, block.type, l_lB, l_lA, l_lE, l_lF, static_cast<RenderChannel>(isTransparent(block.type)), reverseQuadLR[lc.L.contact]); // BAEF
+		if (tR) renderRight (fx, fy, fz, fmx, fmy, fmz, block.type, l_rH, l_rD, l_rC, l_rG, static_cast<RenderChannel>(isTransparent(block.type)), reverseQuadLR[lc.R.contact]); // HDCG
+		if (tF) renderFront (fx, fy, fz, fmx, fmy, fmz, block.type, l_fA, l_fD, l_fH, l_fE, static_cast<RenderChannel>(isTransparent(block.type)), reverseQuadFK[lc.F.contact]); // ADHE
+		if (tK) renderBack  (fx, fy, fz, fmx, fmy, fmz, block.type, l_kG, l_kC, l_kB, l_kF, static_cast<RenderChannel>(isTransparent(block.type)), reverseQuadFK[lc.K.contact]); // GCBF
 		//GX_End();
 	} else {
 
@@ -1375,33 +1375,27 @@ void Renderer::renderChunk(Chunk &c) {
 			auto &data = blockData[block.type];
 			if (tT) {
 				u16 tc = data.tc[BlockFace::Top];
-				renderRawTop(fx, fy, fz, fmx, fmy, fmz, tc + 17, tc + 18, tc + 1, tc, l_tC, l_tD, l_tA, l_tB,
-				             isTransparent(block.type)); // CDAB
+				renderRawTop(fx, fy, fz, fmx, fmy, fmz, tc + 17, tc + 18, tc + 1, tc, l_tC, l_tD, l_tA, l_tB, static_cast<RenderChannel>(isTransparent(block.type))); // CDAB
 			}
 			if (tB) {
 				u16 tc = data.tc[BlockFace::Bottom];
-				renderRawBottom(fx, fy, fz, fmx, fmy, fmz, tc + 18, tc + 1, tc, tc + 17, l_bE, l_bH, l_bG, l_bF,
-				                isTransparent(block.type)); // EHGF
+				renderRawBottom(fx, fy, fz, fmx, fmy, fmz, tc + 18, tc + 1, tc, tc + 17, l_bE, l_bH, l_bG, l_bF, static_cast<RenderChannel>(isTransparent(block.type))); // EHGF
 			}
 			if (tL) {
 				u16 tc = data.tc[(BlockFace::West + block.orient) & 0b11];
-				renderRawWest(fx, fy, fz, fmx, fmy, fmz, tc, tc + 17, tc + 18, tc + 1, l_lB, l_lA, l_lE, l_lF,
-				              isTransparent(block.type)); // BAEF
+				renderRawWest(fx, fy, fz, fmx, fmy, fmz, tc, tc + 17, tc + 18, tc + 1, l_lB, l_lA, l_lE, l_lF, static_cast<RenderChannel>(isTransparent(block.type))); // BAEF
 			}
 			if (tR) {
 				u16 tc = data.tc[(BlockFace::East + block.orient) & 0b11];
-				renderRawEast(fx, fy, fz, fmx, fmy, fmz, tc + 1, tc, tc + 17, tc + 18, l_rH, l_rD, l_rC, l_rG,
-				              isTransparent(block.type)); // HDCG
+				renderRawEast(fx, fy, fz, fmx, fmy, fmz, tc + 1, tc, tc + 17, tc + 18, l_rH, l_rD, l_rC, l_rG, static_cast<RenderChannel>(isTransparent(block.type))); // HDCG
 			}
 			if (tF) {
 				u16 tc = data.tc[(BlockFace::North + block.orient) & 0b11];
-				renderRawNorth(fx, fy, fz, fmx, fmy, fmz, tc, tc + 17, tc + 18, tc + 1, l_fA, l_fD, l_fH, l_fE,
-				               isTransparent(block.type)); // ADHE
+				renderRawNorth(fx, fy, fz, fmx, fmy, fmz, tc, tc + 17, tc + 18, tc + 1, l_fA, l_fD, l_fH, l_fE, static_cast<RenderChannel>(isTransparent(block.type))); // ADHE
 			}
 			if (tK) {
 				u16 tc = data.tc[(BlockFace::South + block.orient) & 0b11];
-				renderRawSouth(fx, fy, fz, fmx, fmy, fmz, tc + 1, tc, tc + 17, tc + 18, l_kG, l_kC, l_kB, l_kF,
-				               isTransparent(block.type)); // GCBF
+				renderRawSouth(fx, fy, fz, fmx, fmy, fmz, tc + 1, tc, tc + 17, tc + 18, l_kG, l_kC, l_kB, l_kF, static_cast<RenderChannel>(isTransparent(block.type))); // GCBF
 			}
 			goto
 			*endTarget;
@@ -1424,33 +1418,27 @@ void Renderer::renderChunk(Chunk &c) {
 			auto &data = blockData[block.type];
 			if (tT) {
 				u16 tc = data.tc[BlockFace::Top];
-				renderRawTop(fx, fy, fz, fmx, fmy, fmz, tc + 17, tc + 18, tc + 1, tc, l_tC, l_tD, l_tA, l_tB,
-				             isTransparent(block.type)); // CDAB
+				renderRawTop(fx, fy, fz, fmx, fmy, fmz, tc + 17, tc + 18, tc + 1, tc, l_tC, l_tD, l_tA, l_tB, static_cast<RenderChannel>(isTransparent(block.type))); // CDAB
 			}
 			if (tB) {
 				u16 tc = data.tc[BlockFace::Bottom];
-				renderRawBottom(fx, fy, fz, fmx, fmy, fmz, tc + 18, tc + 1, tc, tc + 17, l_bE, l_bH, l_bG, l_bF,
-				                isTransparent(block.type)); // EHGF
+				renderRawBottom(fx, fy, fz, fmx, fmy, fmz, tc + 18, tc + 1, tc, tc + 17, l_bE, l_bH, l_bG, l_bF, static_cast<RenderChannel>(isTransparent(block.type))); // EHGF
 			}
 			if (tL) {
 				u16 tc = data.tc[(BlockFace::West + block.orient) & 0b11];
-				renderRawWest(fx, fy, fz, fmx, fmy, fmz, tc, tc + 17, tc + 18, tc + 1, l_lB, l_lA, l_lE, l_lF,
-				              isTransparent(block.type)); // BAEF
+				renderRawWest(fx, fy, fz, fmx, fmy, fmz, tc, tc + 17, tc + 18, tc + 1, l_lB, l_lA, l_lE, l_lF, static_cast<RenderChannel>(isTransparent(block.type))); // BAEF
 			}
 			if (tR) {
 				u16 tc = data.tc[(BlockFace::East + block.orient) & 0b11];
-				renderRawEast(fx, fy, fz, fmx, fmy, fmz, tc + 1, tc, tc + 17, tc + 18, l_rH, l_rD, l_rC, l_rG,
-				              isTransparent(block.type)); // HDCG
+				renderRawEast(fx, fy, fz, fmx, fmy, fmz, tc + 1, tc, tc + 17, tc + 18, l_rH, l_rD, l_rC, l_rG, static_cast<RenderChannel>(isTransparent(block.type))); // HDCG
 			}
 			if (tF) {
 				u16 tc = data.tc[(BlockFace::North + block.orient) & 0b11];
-				renderRawNorth(fx, fy, fz, fmx, fmy, fmz, tc, tc + 17, tc + 18, tc + 1, l_fA, l_fD, l_fH, l_fE,
-				               isTransparent(block.type)); // ADHE
+				renderRawNorth(fx, fy, fz, fmx, fmy, fmz, tc, tc + 17, tc + 18, tc + 1, l_fA, l_fD, l_fH, l_fE, static_cast<RenderChannel>(isTransparent(block.type))); // ADHE
 			}
 			if (tK) {
 				u16 tc = data.tc[(BlockFace::South + block.orient) & 0b11];
-				renderRawSouth(fx, fy, fz, fmx, fmy, fmz, tc + 1, tc, tc + 17, tc + 18, l_kG, l_kC, l_kB, l_kF,
-				               isTransparent(block.type)); // GCBF
+				renderRawSouth(fx, fy, fz, fmx, fmy, fmz, tc + 1, tc, tc + 17, tc + 18, l_kG, l_kC, l_kB, l_kF, static_cast<RenderChannel>(isTransparent(block.type))); // GCBF
 			}
 			goto
 			*endTarget;

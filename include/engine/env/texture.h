@@ -6,6 +6,8 @@
 
 #include "engine/render/block.h"
 #include "engine/render/vertex.h"
+#include "engine/render/enums.h"
+#include "assets/cubemap.h"
 
 class Environment;
 class TextureControl;
@@ -193,21 +195,21 @@ class TextureControl final {
 
 	consteval TextureControl() = default;
 
-	void bindGPU(const bool advanced) const {
-		if (advanced) {
-			GX_SetArray(GX_VA_TEX1, const_cast<TextureControl *>(this), 8);
-			GX_SetArray(GX_VA_TEX2, const_cast<TextureControl *>(this), 8);
-			GX_SetArray(GX_VA_TEX3, const_cast<TextureControl *>(this), 8);
-		} else {
-			GX_SetArray(GX_VA_TEX1, nullptr, 8);
-			GX_SetArray(GX_VA_TEX2, nullptr, 8);
-			GX_SetArray(GX_VA_TEX3, nullptr, 8);
+	public:
+
+	void textureMap(const TextureMap tex) const {
+		u32 i;
+		for (i = 0; i < static_cast<u32>(tex); i++) {
+			GX_SetVtxDesc(GX_VA_TEX0 + i, GX_INDEX16);
+			GX_SetArray(GX_VA_TEX0 + i, const_cast<TextureControl *>(this), 8);
 		}
 
-		GX_SetArray(GX_VA_TEX0, const_cast<TextureControl *>(this), 8);
-	}
+		for (; i < static_cast<u32>(TextureMap::MAX); i++) {
+			GX_SetArray(GX_VA_TEX0 + i, nullptr, 8); // TODO: check if this is needed
+		}
 
-	public:
+		static_assert(GX_VA_TEX0 + 1 == GX_VA_TEX1);
+	}
 
 	void animateWater() {
 		customRegion.animateWater();

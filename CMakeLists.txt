@@ -17,24 +17,31 @@ add_compile_options(-Ofast)
 
 # Assets generation
 
-set(ASSETS_DIR   ${CMAKE_SOURCE_DIR}/assets)
+set(ASSETS_DIR     ${CMAKE_SOURCE_DIR}/assets)
 set(GENERATORS_DIR ${ASSETS_DIR}/generators)
-set(TEXTURES_DIR ${ASSETS_DIR}/textures)
-set(SKYBOX_DIR   ${TEXTURES_DIR}/skybox)
+set(GENERATED_DIR  ${ASSETS_DIR}/generated)
+set(TEXTURES_DIR   ${ASSETS_DIR}/textures)
+set(SKYBOX_DIR     ${TEXTURES_DIR}/skybox)
+set(ASSETS_INC_DIR ${CMAKE_SOURCE_DIR}/include/assets)
+set(ASSETS_SRC_DIR ${CMAKE_SOURCE_DIR}/src/assets)
+
+file(MAKE_DIRECTORY ${GENERATED_DIR})
+file(MAKE_DIRECTORY ${ASSETS_INC_DIR})
+file(MAKE_DIRECTORY ${ASSETS_SRC_DIR})
 
 
 # Assets Skybox Cubemaps generation
 
 set(SKYBOX_GENERATOR      ${GENERATORS_DIR}/textures.skybox.py)
-set(SKYBOX_NIGHT          ${SKYBOX_DIR}/night.png) #  /night.debug.png)
+set(SKYBOX_NIGHT          ${SKYBOX_DIR}/night.png)  # night.debug.png)
 set(SKYBOX_DAY            ${SKYBOX_DIR}/day.png)
 set(SKYBOX_SUNRISE        ${SKYBOX_DIR}/sunrise.png)
 set(SKYBOX_SUNSET         ${SKYBOX_DIR}/sunset.png)
 set(SKYBOX_SUNRISE_EFFECT ${SKYBOX_DIR}/sunrise.effect.png)
 set(SKYBOX_SUNSET_EFFECT  ${SKYBOX_DIR}/sunset.effect.png)
-set(SKYBOX_MAIN_CUBEMAP   ${SKYBOX_DIR}/generated.main.png)
-set(SKYBOX_NIGHT_CUBEMAP  ${SKYBOX_DIR}/generated.night.png)
-set(SKYBOX_HEADER_CUBEMAP ${SKYBOX_DIR}/generated.cubemap.h)
+set(SKYBOX_MAIN_CUBEMAP   ${GENERATED_DIR}/generated.cubemap.png)
+set(SKYBOX_NIGHT_CUBEMAP  ${GENERATED_DIR}/generated.night.png)
+set(SKYBOX_HEADER_CUBEMAP ${ASSETS_INC_DIR}/cubemap.h)
 
 add_custom_command(
 		OUTPUT ${SKYBOX_MAIN_CUBEMAP} ${SKYBOX_NIGHT_CUBEMAP} ${SKYBOX_HEADER_CUBEMAP}
@@ -44,11 +51,26 @@ add_custom_command(
 )
 
 
+# Assets Cloud Geometry generation
+
+set(CLOUD_GENERATOR ${GENERATORS_DIR}/textures.cloud.py)
+set(CLOUD_TEXTURE   ${TEXTURES_DIR}/cloud.png)
+set(CLOUD_SOURCE    ${ASSETS_SRC_DIR}/cloud.cpp)
+set(CLOUD_HEADER    ${ASSETS_INC_DIR}/cloud.h)
+
+add_custom_command(
+		OUTPUT ${CLOUD_SOURCE} ${CLOUD_HEADER}
+		COMMAND ${CLOUD_GENERATOR} ${CLOUD_TEXTURE} ${CLOUD_SOURCE} ${CLOUD_HEADER}
+		DEPENDS ${CLOUD_GENERATOR} ${CLOUD_TEXTURE}
+		COMMENT "Generating cloud geometry"
+)
+
+
 # Assets Blending Textures generation
 
 set(BLEND_GENERATOR    ${GENERATORS_DIR}/textures.blend.py)
 set(MAIN_TEXTURE       ${TEXTURES_DIR}/main.png)
-set(BLEND_MAIN_TEXTURE ${TEXTURES_DIR}/generated.main.png)
+set(BLEND_MAIN_TEXTURE ${GENERATED_DIR}/generated.main.png)
 
 add_custom_command(
 		OUTPUT ${BLEND_MAIN_TEXTURE}
@@ -60,8 +82,8 @@ add_custom_command(
 
 # Assets Converting Textures generation
 
-set(ENCODED_MAIN_TEXTURE  ${TEXTURES_DIR}/generated.main.tpl)
-set(ENCODED_NIGHT_TEXTURE ${TEXTURES_DIR}/generated.night.tpl)
+set(ENCODED_MAIN_TEXTURE  ${GENERATED_DIR}/generated.main.tpl)
+set(ENCODED_NIGHT_TEXTURE ${GENERATED_DIR}/generated.night.tpl)
 
 add_custom_command(
 		OUTPUT ${ENCODED_MAIN_TEXTURE}
@@ -81,30 +103,34 @@ add_custom_command(
 # Assets Embedding Textures generation
 
 set(EMBED_GENERATOR     ${GENERATORS_DIR}/textures.embed.py)
-set(EMBEDDED_ASSETS_SRC ${CMAKE_SOURCE_DIR}/src/engine/render/assets.cpp)
-set(EMBEDDED_ASSETS_INC ${CMAKE_SOURCE_DIR}/include/engine/render/assets.h)
+set(EMBEDDED_ASSETS_SRC ${ASSETS_SRC_DIR}/assets.cpp)
+set(EMBEDDED_ASSETS_INC ${ASSETS_INC_DIR}/assets.h)
 set(PALETTE_DAY         ${TEXTURES_DIR}/palette.day.png)
 set(PALETTE_NIGHT       ${TEXTURES_DIR}/palette.night.png)
 
 add_custom_command(
         OUTPUT ${EMBEDDED_ASSETS_SRC} ${EMBEDDED_ASSETS_INC}
-        COMMAND ${EMBED_GENERATOR} ${ENCODED_MAIN_TEXTURE} ${ENCODED_NIGHT_TEXTURE} ${PALETTE_DAY} ${PALETTE_NIGHT} ${SKYBOX_HEADER_CUBEMAP} ${EMBEDDED_ASSETS_SRC} ${EMBEDDED_ASSETS_INC}
-        DEPENDS ${EMBED_GENERATOR} ${ENCODED_MAIN_TEXTURE} ${ENCODED_NIGHT_TEXTURE} ${PALETTE_DAY} ${PALETTE_NIGHT} ${SKYBOX_HEADER_CUBEMAP}
+        COMMAND ${EMBED_GENERATOR} ${ENCODED_MAIN_TEXTURE} ${ENCODED_NIGHT_TEXTURE} ${PALETTE_DAY} ${PALETTE_NIGHT} ${EMBEDDED_ASSETS_SRC} ${EMBEDDED_ASSETS_INC}
+        DEPENDS ${EMBED_GENERATOR} ${ENCODED_MAIN_TEXTURE} ${ENCODED_NIGHT_TEXTURE} ${PALETTE_DAY} ${PALETTE_NIGHT}
         COMMENT "Embedding the assets"
 )
 
-add_custom_target(assets_textures_embed ALL DEPENDS ${EMBEDDED_ASSETS_SRC} ${EMBEDDED_ASSETS_INC})
+
+set(ASSETS_SOURCES ${EMBEDDED_ASSETS_SRC} ${CLOUD_SOURCE})
+set(ASSETS_HEADERS ${EMBEDDED_ASSETS_INC} ${CLOUD_HEADER} ${SKYBOX_HEADER_CUBEMAP})
+
+add_custom_target(assets_textures_embed ALL DEPENDS ${ASSETS_SOURCES} ${ASSETS_HEADERS})
 
 
 # Set the directories
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
 set(INC_DIR "${CMAKE_SOURCE_DIR}/include")
 
-file(GLOB_RECURSE SOURCES  "${SRC_DIR}/*.cpp")
-file(GLOB_RECURSE INCLUDES "${INC_DIR}/*.h")
+file(GLOB_RECURSE SOURCES "${SRC_DIR}/*.cpp")
+file(GLOB_RECURSE HEADERS "${INC_DIR}/*.h")
 
-list(REMOVE_ITEM SOURCES  ${COMPILED_ASSETS_SRC})
-list(REMOVE_ITEM INCLUDES ${COMPILED_ASSETS_INC})
+list(REMOVE_ITEM SOURCES ${ASSETS_SOURCES})
+list(REMOVE_ITEM HEADERS ${ASSETS_HEADERS})
 
 message(STATUS "Sources:")
 foreach (SOURCE ${SOURCES})
@@ -112,8 +138,8 @@ foreach (SOURCE ${SOURCES})
 endforeach ()
 
 message(STATUS "Headers:")
-foreach (INCLUDE ${INCLUDES})
-    message(STATUS "\t: ${INCLUDE}")
+foreach (HEADER ${HEADERS})
+    message(STATUS "\t: ${HEADER}")
 endforeach ()
 
 add_executable(Miicraft)
@@ -123,9 +149,9 @@ target_sources(Miicraft
         PRIVATE
         main.cpp
         ${SOURCES}
-        ${INCLUDES}
-		${COMPILED_ASSETS_INC}
-		${COMPILED_ASSETS_SRC}
+        ${HEADERS}
+		${ASSETS_SOURCES}
+		${ASSETS_HEADERS}
 )
 
 target_link_libraries(Miicraft fat)

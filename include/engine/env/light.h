@@ -1,21 +1,26 @@
 #pragma once
 
 #include <cmath>
+#include <numbers>
 #include <ogc/gx.h>
 
-#include "engine/render/assets.h"
+#include "assets/assets.h"
 #include "utils/time.h"
 #include "utils/utils.h"
 
 class Environment;
 
-class LightControl final {
+
+class ATTRIBUTE_ALIGN(32) LightControl final {
 public:
-	GXColor lights[0x1000] ATTRIBUTE_ALIGN(32){}; // day/night light values
-	const GXColor colors[3] {
+	GXColor lights[0x1000]{}; // day/night light values
+	const GXColor colors[6] {
 		{0xff, 0xff, 0xff, 0xff},
 		{0x00, 0x00, 0xff, 0xff},
-		{0x00, 0x00, 0x00, 0xff}
+		{0x00, 0x00, 0x00, 0xff},
+		{0xa8, 0xb1, 0xc0, 0xff},
+		{0xd2, 0xdb, 0xea, 0xff},
+		{0xbd, 0xc6, 0xd5, 0xff}
 	};
 
 	static constexpr f32 lightFadeInStart  = ntime(4, 0, 0);
@@ -25,8 +30,14 @@ public:
 
 	consteval LightControl() = default;
 
-	void bindGPU() const {
-		GX_SetArray(GX_VA_CLR0, const_cast<GXColor *>(lights), 4);
+	void colorMap(const bool enable) const {
+		if (enable) {
+			GX_SetVtxDesc(GX_VA_CLR0, GX_INDEX16);
+			GX_SetArray(GX_VA_CLR0, const_cast<GXColor *>(lights), 4);
+		}
+		else {
+			GX_SetArray(GX_VA_CLR0, nullptr, 4);
+		}
 	}
 
 	void update(const f32 time) {
@@ -36,8 +47,8 @@ public:
 public:
 	void setLight(const f32 time) {
 		const f32 day_value = timeFrame(time, lightFadeInStart, lightFadeInEnd, lightFadeOutStart, lightFadeOutEnd);
-		const f32 day = (1.f - std::cos(day_value * std::numbers::pi)) / 2.f; // smoothed
-		const f32 night = 1.f - day;
+		const f32 day       = (1.f - std::cos(day_value * std::numbers::pi)) / 2.f; // smoothed
+		const f32 night     = 1.f - day;
 
 		for (s32 a = 0; a < 64; a++) {
 			for (s32 n = 0; n < 64; n++) {
@@ -54,14 +65,22 @@ public:
 		DCFlushRange(lights, sizeof(lights));
 	}
 
+
 	enum class LightColor: u16 {
 		COLOR_REGION = sizeof(lights) / sizeof(GXColor),
-		WHITE = COLOR_REGION,
+		WHITE        = COLOR_REGION,
 		BLUE,
-		BLACK
+		BLACK,
+		Cloud,
+		CloudBorderX,
+		CloudBorderZ,
 	};
+
 
 	friend Environment;
 };
+
+
+static_assert(std::is_standard_layout_v<LightControl>);
 
 using LightColor = LightControl::LightColor;

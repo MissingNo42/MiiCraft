@@ -1,51 +1,50 @@
 
 #include "player.h"
 #include "engine/render/block.h"
-#include "engine/render/cacheUnit.h"
 #include "engine/render/renderer.h"
 
-static const f32 menuSz = 0.65;
-static const f32 menuXMid = 0.2840909090909091;
-static const f32 menuYMid = 0.4431818181818182;
+static constexpr f32 menuSz = 0.65;
+static constexpr f32 menuXMid = 0.2840909090909091;
+static constexpr f32 menuYMid = 0.4431818181818182;
 
-static const f32 slotsXpad = 0.05113636363636364;
-static const f32 slotsYpad = 0.48295454545454547;
+static constexpr f32 slotsXpad = 0.05113636363636364;
+static constexpr f32 slotsYpad = 0.48295454545454547;
 
-static const f32 slotsXCpad = 0.17613636363636365; // craft
-static const f32 slotsYCpad = 0.10227272727272728; // craft
+static constexpr f32 slotsXCpad = 0.17613636363636365; // craft
+static constexpr f32 slotsYCpad = 0.10227272727272728; // craft
 
-static const f32 slotsXMpad = 0.5625; // craft (menu)
-static const f32 slotsYMpad = 0.10795454545454546; // craft (menu)
+static constexpr f32 slotsXMpad = 0.5625; // craft (menu)
+static constexpr f32 slotsYMpad = 0.10795454545454546; // craft (menu)
 
-static const f32 slotsXCRpad = 0.6875; // craft result
-static const f32 slotsYCRpad = 0.18181818181818182; // craft result
+static constexpr f32 slotsXCRpad = 0.6875; // craft result
+static constexpr f32 slotsYCRpad = 0.18181818181818182; // craft result
 
-static const f32 slotsXMRpad = 0.8806818181818182; // craft result (menu)
-static const f32 slotsYMRpad = 0.16477272727272727; // craft result (menu)
+static constexpr f32 slotsXMRpad = 0.8806818181818182; // craft result (menu)
+static constexpr f32 slotsYMRpad = 0.16477272727272727; // craft result (menu)
 
-static const f32 slotsXoff = 0.10227272727272728;
-static const f32 slotsYoff = 0.10227272727272728;
+static constexpr f32 slotsXoff = 0.10227272727272728;
+static constexpr f32 slotsYoff = 0.10227272727272728;
 
-static const f32 slotsHpad = 0.8125; // hotbar Y padding
+static constexpr f32 slotsHpad = 0.8125; // hotbar Y padding
 
-static const f32 slotsSz = 0.07954545454545454;
-static const f32 slotsCRSz = 1.5714285714285714f * slotsSz;
+static constexpr f32 slotsSz = 0.07954545454545454;
+static constexpr f32 slotsCRSz = 1.5714285714285714f * slotsSz;
 
 // hotbar
-static const f32 hotbarY = -0.65;
-static const f32 hotbarH = 0.13;
-static const f32 hotbarW = hotbarH * 8.272727272727273f;
+static constexpr f32 hotbarY = -0.65;
+static constexpr f32 hotbarH = 0.13;
+static constexpr f32 hotbarW = hotbarH * 8.272727272727273f;
 
-static const f32 selectorSz = hotbarH * 1.0909090909090908f;
-static const f32 selectorOff = 0.10989010989010989f * hotbarW;
-static const f32 selectorPad = 0.001953125;
+static constexpr f32 selectorSz = hotbarH * 1.0909090909090908f;
+static constexpr f32 selectorOff = 0.10989010989010989f * hotbarW;
+static constexpr f32 selectorPad = 0.001953125;
 
-static const f32 itemW = 0.07692307692307693f * hotbarW;
-static const f32 itemH = 0.6363636363636364f * hotbarH;
+static constexpr f32 itemW = 0.07692307692307693f * hotbarW;
+static constexpr f32 itemH = 0.6363636363636364f * hotbarH;
 
-static const f32 itemXpad = 0.02197802197802198f * hotbarW;
-static const f32 itemYpad = 0.18181818181818182f * hotbarH;
-static const f32 itemXoff = 0.10989010989010989f * hotbarW;
+static constexpr f32 itemXpad = 0.02197802197802198f * hotbarW;
+static constexpr f32 itemYpad = 0.18181818181818182f * hotbarH;
+static constexpr f32 itemXoff = 0.10989010989010989f * hotbarW;
 
 
 inline bool Player::renderBlockIcon(f32 x1, f32 y1, f32 x2, f32 y2, BlockType block) const {

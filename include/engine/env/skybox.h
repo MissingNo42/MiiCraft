@@ -21,7 +21,7 @@ struct SkyBox final {
 	/// Display list
 	const u8 opcode ATTRIBUTE_ALIGN(32) = GX_QUADS | GX_VTXFMT1;
 	const u16 size                      = verticesCount;
-	AdvancedVextex vertices[verticesCount]{};
+	AdvancedVertex vertices[verticesCount]{};
 	const u8 padding[(32 - sizeof(vertices) - 3) & 31]{};
 
 	/// Texture coordinates
