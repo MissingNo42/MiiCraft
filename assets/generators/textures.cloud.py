@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 """
 Exports the cloud data texture as vertices to a C++ file.
 """
@@ -564,9 +561,6 @@ def isSegmentCrossing(a, b, c, d):
     if tN * tD >= tD * tD: return False  # check t < 1
 
     return True
-
-
-import matplotlib.patches as patches
 
 
 def plot_triangulation(vertices, triangles, color="gray", pcolor=None, before=False, centers=True):
