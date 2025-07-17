@@ -17,7 +17,7 @@ public:
 
 	f32 time = 0.5f; // 0=0h, 0.5=12h, 1=24h
 
-	static constexpr f32 timeTick = 0;//1 / (60.f * 60.f);
+	static constexpr f32 timeTick = 1 / (60.f * 60.f);
 
 	consteval Environment() = default;
 public:

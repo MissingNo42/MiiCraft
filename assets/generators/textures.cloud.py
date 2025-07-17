@@ -827,18 +827,6 @@ class PolygonGraph:
             if last == len(self.all_tri):
                 break
 
-        #for i in self.all_tri:
-        #    n = set(i.vtx | {n for u, _, _ in i.neighbors.values() for n in u.vtx})
-        #    q = 6
-        #    while n:
-        #        x = n.pop()
-        #        for a in n:
-        #            for b in n:
-        #                if a is b: continue
-        #                if isAlign(x, a, b):
-        #                    q -= 1
-        #    assert q == 6
-
     def optimize_geometry(self, base: set[LinkedTriangle] = None) -> None:
 
         if not base:
